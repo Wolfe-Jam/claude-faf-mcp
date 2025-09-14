@@ -1,0 +1,81 @@
+{
+  "name": "claude-faf-mcp",
+  "version": "1.0.0",
+  "description": "Universal FAF MCP Server for Claude - AI Context Intelligence & Project Enhancement",
+  "main": "dist/server.js",
+  "bin": {
+    "claude-faf-mcp": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node src/server.ts",
+    "dev:stdio": "ts-node src/cli.ts --transport stdio",
+    "dev:http": "ts-node src/cli.ts --transport http-sse --port 3001",
+    "test": "jest",
+    "test:mcp": "mcp-inspector stdio ts-node src/cli.ts",
+    "lint": "eslint src/**/*.ts",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build && npm test",
+    "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
+  },
+  "keywords": [
+    "claude",
+    "anthropic",
+    "mcp",
+    "ai-context",
+    "faf",
+    "model-context-protocol",
+    "claude-desktop",
+    "ai-enhancement",
+    "project-intelligence",
+    "context-optimization"
+  ],
+  "author": {
+    "name": "FAF Development Team",
+    "email": "hello@faf.dev",
+    "url": "https://faf.dev"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/faf-dev/claude-faf-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/faf-dev/claude-faf-mcp/issues"
+  },
+  "homepage": "https://github.com/faf-dev/claude-faf-mcp#readme",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "commander": "^12.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.0"
+  },
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
