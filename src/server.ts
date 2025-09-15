@@ -151,13 +151,15 @@ export class ClaudeFafMcpServer {
       const app = this.createHttpApp();
       
       // Create SSE transport
-      const transport = new SSEServerTransport('/sse', app);
+      const transport = new SSEServerTransport('/sse', app as any);
       await this.server.connect(transport);
       
-      // Start HTTP server
-      this.httpServer = app.listen(this.config.port, this.config.host, () => {
+      // Start HTTP server (ensure port and host are defined)
+      const port = this.config.port || 3001;
+      const host = this.config.host || '0.0.0.0';
+      this.httpServer = app.listen(port, host, () => {
         if (this.config.debug) {
-          console.error(`Claude FAF MCP Server started with HTTP/SSE transport on ${this.config.host}:${this.config.port}`);
+          console.error(`Claude FAF MCP Server started with HTTP/SSE transport on ${host}:${port}`);
           console.error(`SSE endpoint: http://${this.config.host}:${this.config.port}/sse`);
           console.error(`Health check: http://${this.config.host}:${this.config.port}/health`);
         }

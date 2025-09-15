@@ -1,5 +1,6 @@
 import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FafEngineAdapter } from './engine-adapter';
+import { fileHandlers } from './fileHandler';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -105,6 +106,40 @@ export class FafToolHandler {
             properties: {},
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_read',
+          description: 'Read content from any file on the local filesystem',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: {
+                type: 'string',
+                description: 'Absolute or relative file path to read'
+              }
+            },
+            required: ['path'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_write',
+          description: 'Write content to any file on the local filesystem',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: {
+                type: 'string',
+                description: 'Absolute or relative file path to write'
+              },
+              content: {
+                type: 'string',
+                description: 'Content to write to the file'
+              }
+            },
+            required: ['path', 'content'],
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -135,6 +170,10 @@ export class FafToolHandler {
         return await this.handleFafClear(args);
       case 'faf_debug':
         return await this.handleFafDebug(args);
+      case 'faf_read':
+        return await fileHandlers.faf_read(args);
+      case 'faf_write':
+        return await fileHandlers.faf_write(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
