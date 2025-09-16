@@ -604,15 +604,15 @@ faffless: true
     };
 
     const aboutText = `Version ${packageInfo.version}
+🤖 Make Claude Happy
 
 Drop a file, Paste the path
 Create .faf
 Talk to Claude to bi-sync it
-You're done
+You're done⚡
 
-🤖 You made Claude Happy
-🧡 AI you can TRUST
-⚡`;
+🤖 You just made Claude Happy
+🧡 .faf AI you can TRUST`;
 
     return {
       content: [{
