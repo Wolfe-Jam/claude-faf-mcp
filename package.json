@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
   "version": "2.2.0",
-  "description": "Hello 👋 We ARE the C in MCP. Model(s) need Context. ZERO FAF INNIT! 🏎️⚡",
+  "description": "Hello 👋 We ARE the C in MCP. Universal AI context management with .faf format. 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready! ZERO FAF INNIT! 🏎️⚡",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/src/cli.js"
@@ -22,13 +22,20 @@
     "claude",
     "anthropic",
     "mcp",
-    "ai-context",
-    "faf",
     "model-context-protocol",
     "claude-desktop",
-    "ai-enhancement",
+    "faf",
+    ".faf",
+    "ai-context",
+    "ai-readiness",
+    "context-management",
+    "ai-tools",
+    "developer-tools",
     "project-intelligence",
-    "context-optimization"
+    "context-optimization",
+    "dot-faf",
+    "zero-config",
+    "championship"
   ],
   "author": {
     "name": "wolfejam",
