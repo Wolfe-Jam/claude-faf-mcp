@@ -49,9 +49,9 @@ export class ClaudeFafMcpServer {
       }
     );
 
-    // NO MORE ENGINE ADAPTER! Direct imports only!
+    // 💥 Pass the FAF-Engine-Mk1 path to use Format-Finder!
     this.resourceHandler = new FafResourceHandler(null as any); // Will be updated
-    this.toolHandler = new ChampionshipToolHandler();
+    this.toolHandler = new ChampionshipToolHandler(config.fafEnginePath);
 
     this.setupHandlers();
   }
