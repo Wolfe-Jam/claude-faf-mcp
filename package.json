@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
   "version": "2.2.0",
-  "description": "We ARE the C in MCP. I⚡🍊 - The formula that changes everything. .faf is Context.",
+  "description": "Hello 👋 We ARE the C in MCP. Model(s) need Context. ZERO FAF INNIT! 🏎️⚡",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/cli.js"

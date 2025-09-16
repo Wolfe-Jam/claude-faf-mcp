@@ -5,6 +5,9 @@ export class FafResourceHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
 
   async listResources() {
+    // Get the working directory for file system resources
+    const workingDir = process.env.FAF_WORKING_DIR || process.cwd();
+
     return {
       resources: [
         {
@@ -15,15 +18,33 @@ export class FafResourceHandler {
         },
         {
           uri: 'claude-faf://status',
-          name: 'FAF Status Summary', 
+          name: 'FAF Status Summary',
           description: 'Project health and AI readiness status',
           mimeType: 'text/plain'
+        },
+        // Declare file system access for the working directory
+        {
+          uri: `file://${workingDir}`,
+          name: 'FAF Working Directory',
+          description: 'File system access for FAF operations',
+          mimeType: 'text/directory'
         }
       ] as Resource[]
     };
   }
 
   async readResource(uri: string) {
+    // Handle file:// URIs for file system access
+    if (uri.startsWith('file://')) {
+      return {
+        contents: [{
+          uri: uri,
+          mimeType: 'text/directory',
+          text: `File system resource: ${uri.replace('file://', '')}`
+        }]
+      };
+    }
+
     switch (uri) {
       case 'claude-faf://context':
         return await this.getFafContext();
