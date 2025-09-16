@@ -26,6 +26,16 @@ Currently delivers:
 - ✅ Works WITHOUT external dependencies
 - 🔜 Full FAF CLI integration coming soon for scoring & enhancement
 
+### 💡 PRO TIP: The Perfect Workflow
+
+**Drop a project file → Instant context!** Here's the flow:
+1. Drop your `package.json`, `requirements.txt`, or `README.md` into Claude
+2. Claude instantly knows what you're working on
+3. For new projects: Claude creates `claude.md`, you create `.faf`
+4. The AI-Context becomes **permanent glue** - your project understanding persists!
+
+*"Once you drop that first file, the context sticks. No more explaining your project every chat!"*
+
 ### Key Benefits
 
 - 🧠 **Intelligent Context**: Automatically analyzes and optimizes your project for AI collaboration
