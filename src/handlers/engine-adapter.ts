@@ -38,36 +38,65 @@ export class FafEngineAdapter {
   }
   
   private findBestWorkingDirectory(): string {
-    // Try to find the most appropriate directory for FAF operations
-    const currentDir = process.cwd();
-    const homeDir = process.env.HOME;
-    
-    // Check if current directory has .faf or is writable
-    if (fs.existsSync(path.join(currentDir, '.faf'))) {
-      return currentDir;
+    // Priority 1: Environment variable for explicit control
+    if (process.env.FAF_WORKING_DIR) {
+      const envDir = process.env.FAF_WORKING_DIR;
+      if (fs.existsSync(envDir)) {
+        return envDir;
+      }
     }
-    
-    // Check if current directory is writable
-    try {
-      const testFile = path.join(currentDir, '.faf-test-write');
-      fs.writeFileSync(testFile, 'test');
-      fs.unlinkSync(testFile);
-      return currentDir;
-    } catch {
-      // Current directory not writable, try home directory
-      if (homeDir && fs.existsSync(homeDir)) {
-        try {
-          const testFile = path.join(homeDir, '.faf-test-write');
-          fs.writeFileSync(testFile, 'test');
-          fs.unlinkSync(testFile);
-          return homeDir;
-        } catch {
-          // Fall back to /tmp
-          return '/tmp';
+
+    // Priority 2: MCP might pass a working directory hint
+    if (process.env.MCP_WORKING_DIR) {
+      const mcpDir = process.env.MCP_WORKING_DIR;
+      if (fs.existsSync(mcpDir)) {
+        return mcpDir;
+      }
+    }
+
+    // Priority 3: Check common project locations
+    const homeDir = process.env.HOME || process.env.USERPROFILE;
+    if (homeDir) {
+      // Check for common project directories
+      const projectPaths = [
+        path.join(homeDir, 'projects'),
+        path.join(homeDir, 'Projects'),
+        path.join(homeDir, 'dev'),
+        path.join(homeDir, 'Dev'),
+        path.join(homeDir, 'workspace'),
+        path.join(homeDir, 'FAF'),
+        homeDir
+      ];
+
+      for (const projPath of projectPaths) {
+        if (fs.existsSync(projPath)) {
+          try {
+            const testFile = path.join(projPath, '.faf-test-write');
+            fs.writeFileSync(testFile, 'test');
+            fs.unlinkSync(testFile);
+            return projPath;
+          } catch {
+            // Not writable, continue
+          }
         }
       }
-      return '/tmp';
     }
+
+    // Priority 4: Current directory if not root
+    const currentDir = process.cwd();
+    if (currentDir !== '/' && fs.existsSync(currentDir)) {
+      try {
+        const testFile = path.join(currentDir, '.faf-test-write');
+        fs.writeFileSync(testFile, 'test');
+        fs.unlinkSync(testFile);
+        return currentDir;
+      } catch {
+        // Not writable
+      }
+    }
+
+    // Fall back to home or temp
+    return homeDir || '/tmp';
   }
 
   async callEngine(command: string, args: string[] = []): Promise<FafEngineResult> {
@@ -168,6 +197,23 @@ export class FafEngineAdapter {
   // Get the current working directory used by the adapter
   getWorkingDirectory(): string {
     return this.workingDirectory;
+  }
+
+  setWorkingDirectory(dir: string): void {
+    if (fs.existsSync(dir)) {
+      this.workingDirectory = dir;
+    }
+  }
+
+  // Auto-detect from file path (when file operations occur)
+  updateWorkingDirectoryFromPath(filePath: string): void {
+    const dir = path.dirname(filePath);
+    if (dir && dir !== '/' && fs.existsSync(dir)) {
+      // Only update if it's a real project directory
+      if (dir.includes('Users') || dir.includes('home') || dir.includes('projects')) {
+        this.workingDirectory = dir;
+      }
+    }
   }
   
   // Get the engine path being used

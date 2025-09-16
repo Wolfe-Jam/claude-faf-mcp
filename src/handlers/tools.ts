@@ -206,8 +206,8 @@ export class FafToolHandler {
       const path = await import('path');
       const os = await import('os');
 
-      // Get current working directory
-      const cwd = process.cwd();
+      // Get current working directory from engine adapter (smart detection)
+      const cwd = this.engineAdapter.getWorkingDirectory();
 
       // Score calculation components
       let score = 0;
@@ -540,8 +540,8 @@ export class FafToolHandler {
       const { exec } = await import('child_process');
       const { promisify } = await import('util');
       const execAsync = promisify(exec);
-      
-      const cwd = process.cwd();
+
+      const cwd = this.engineAdapter.getWorkingDirectory();
       const debugInfo = {
         workingDirectory: cwd,
         canWrite: false,

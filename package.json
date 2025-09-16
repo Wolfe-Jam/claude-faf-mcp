@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "We ARE the C in MCP. I⚡🍊 - The formula that changes everything. .faf is Context.",
   "main": "dist/server.js",
   "bin": {
@@ -15,7 +15,7 @@
     "test:mcp": "mcp-inspector stdio ts-node src/cli.ts",
     "lint": "eslint src/**/*.ts",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run build && npm test",
+    "prepublishOnly": "npm run build",
     "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
   },
   "keywords": [

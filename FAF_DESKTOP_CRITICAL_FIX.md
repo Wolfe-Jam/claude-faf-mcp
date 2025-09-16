@@ -3,6 +3,12 @@
 ## THE PROBLEM (Happening RIGHT NOW)
 Users dropping files → FAF working in root `/` → "faf: command not found" → CONTEXT-ROT ⛔️
 
+**CRITICAL:** FAF can't even report its own version!
+```
+FAF Version: Unknown
+FAF Error: Command failed: which faf
+```
+
 ## THE 3-MINUTE FIX 🏁
 
 ### 1. AUTO-PATH DETECTION (1 minute)
