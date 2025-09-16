@@ -611,7 +611,7 @@ Create .faf
 Talk to Claude to bi-sync it
 You're done⚡
 
-🤖 You just made Claude Happy
+🩵 You just made Claude Happy
 🧡 .faf AI you can TRUST`;
 
     return {
