@@ -15,6 +15,19 @@ onFileDrop(file) {
 }
 ```
 
+### 1b. MANUAL PATH OVERRIDE (30 seconds)
+```typescript
+// TIP: Let users provide path with drop!
+// User types: "Use path: /Users/wolfejam/my-project"
+onUserMessage(message) {
+  const pathMatch = message.match(/use path:\s*(.+)/i);
+  if (pathMatch) {
+    FAFDesktop.setWorkingDirectory(pathMatch[1]);
+    return `🟢 FAF: Manually set to ${pathMatch[1]}`;
+  }
+}
+```
+
 ### 2. VISUAL STATUS INDICATOR (1 minute)
 ```typescript
 // In status bar
