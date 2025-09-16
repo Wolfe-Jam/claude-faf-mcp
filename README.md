@@ -12,9 +12,19 @@ Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (C
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue)](https://www.typescriptlang.org/)
 [![F1-Inspired](https://img.shields.io/badge/Philosophy-F1--Inspired-red)](https://github.com/faf-dev/claude-faf-mcp)
 
+## 🍊 ZERO FAF | FAFFLESS AI
+
+**We ARE the C in MCP.** Vitamin Context for healthy AI. I⚡🍊
+
 ## 🤖 What is Claude FAF MCP?
 
-The **Claude FAF MCP Server** is a Model Context Protocol (MCP) server that provides Claude with intelligent project context and AI-powered enhancements. It bridges your project files with Claude's understanding through the **FAF (Fast, Adaptive, and Friendly)** context system.
+The **Claude FAF MCP Server** provides 33 honest file operations for Claude Desktop. **ENJOY this in Desktop - FAF CLI will be right behind it!**
+
+Currently delivers:
+- ✅ Native file operations (read, write, list, etc.)
+- ✅ <50ms performance guaranteed
+- ✅ Works WITHOUT external dependencies
+- 🔜 Full FAF CLI integration coming soon for scoring & enhancement
 
 ### Key Benefits
 
@@ -65,11 +75,6 @@ ls -la /Users/wolfejam/faf-test-environment/DESKTOP_MCP_TESTS/
 ### Prerequisites
 
 - Node.js 18+
-- [FAF CLI](https://www.npmjs.com/package/faf-cli) installed globally
-
-```bash
-npm install -g faf-cli
-```
 
 ### Installation
 
