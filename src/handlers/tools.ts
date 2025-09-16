@@ -596,7 +596,7 @@ faffless: true
     // Stop FAFfing about and get the facts!
     const packageInfo = {
       name: 'claude-faf-mcp',
-      version: '2.1.0',
+      version: '2.1.1',
       description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
       author: 'wolfejam (happy@faf.one)',
       website: 'https://faf.one',
@@ -639,6 +639,7 @@ faffless: true
    • faf_init - Create .faf file
    • faf_read - Read any file
    • faf_write - Write any file
+   • Drop a file - Just paste the path!
 
 🏎️⚡ The Wolfejam Way:
    Best Engineering, Built for Speed, Award-Winning Intent!
