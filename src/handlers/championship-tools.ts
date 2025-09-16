@@ -137,12 +137,17 @@ export class ChampionshipToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate FAF score with F1-inspired metrics',
+          description: 'Calculate FAF score with F1-inspired metrics - Beautiful scorecards!',
           inputSchema: {
             type: 'object',
             properties: {
               directory: { type: 'string', description: 'Directory to score (defaults to current)' },
-              details: { type: 'boolean', description: 'Show detailed breakdown' }
+              save: { type: 'boolean', description: 'Save scorecard to SCORE-CARD.md' },
+              format: {
+                type: 'string',
+                description: 'Output format: markdown (default), html, json, ascii',
+                enum: ['markdown', 'html', 'json', 'ascii']
+              }
             }
           }
         },
@@ -934,6 +939,8 @@ AI-Readiness: ${score}% ${emoji}
 
   private async handleScore(args: any): Promise<CallToolResult> {
     const targetDir = args?.directory || process.cwd();
+    const saveCard = args?.save === true;
+    const format = args?.format || 'markdown';
 
     // ⚡ TRY THE FAF ENGINE FIRST!
     let score = 0;
@@ -983,47 +990,160 @@ AI-Readiness: ${score}% ${emoji}
       if (hasPackage) score += 14;
     }
 
-    // 💥 BOMBSHELL FORMAT - With Markdown Bold!
-    const barWidth = 24;
-    const filled = Math.round((score / 100) * barWidth);
-    const empty = barWidth - filled;
-    const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
+    // Generate scorecard based on format
+    let result = '';
 
-    // Color hearts based on score
-    let heart = '';
-    let status = '';
-    if (score >= 90) {
-      heart = '🧡';
-      status = '🏆 **Status: Championship!**';
-    } else if (score >= 70) {
-      heart = '💚';
-      status = '🟢 **Status: Podium Ready!**';
-    } else if (score >= 50) {
-      heart = '💛';
-      status = '🟧 **Status: Qualifying!**';
-    } else if (score >= 30) {
-      heart = '💛';
-      status = '🟨 **Status: In the Garage!**';
+    if (format === 'json') {
+      // JSON format
+      result = JSON.stringify({
+        project: path.basename(targetDir),
+        score: score,
+        percentage: score,
+        status: score >= 90 ? 'Championship' : score >= 70 ? 'Podium Ready' : score >= 50 ? 'Qualifying' : score >= 30 ? 'In the Garage' : 'Needs Pit Stop',
+        components: {
+          faf: { exists: hasFaf, points: hasFaf ? 40 : 0 },
+          claude: { exists: hasClaude, points: hasClaude ? 30 : 0 },
+          readme: { exists: hasReadme, points: hasReadme ? 15 : 0 },
+          package: { exists: hasPackage, points: hasPackage ? 14 : 0 }
+        },
+        ai_readiness: score,
+        timestamp: new Date().toISOString(),
+        version: '2.2.0'
+      }, null, 2);
+    } else if (format === 'html') {
+      // HTML format (delegate to display handler)
+      return await this.handleDisplay({ directory: targetDir, output: path.join(targetDir, 'SCORE-CARD.html') });
+    } else if (format === 'ascii') {
+      // Simple ASCII format
+      const barWidth = 24;
+      const filled = Math.round((score / 100) * barWidth);
+      const empty = barWidth - filled;
+      const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
+
+      result = `FAF Score: ${score}/100\n`;
+      result += `${progressBar} ${score}%\n`;
+      result += `[.faf: ${hasFaf ? '✓' : 'x'}] [CLAUDE.md: ${hasClaude ? '✓' : 'x'}] [README: ${hasReadme ? '✓' : 'x'}] [package.json: ${hasPackage ? '✓' : 'x'}]`;
     } else {
-      heart = '❤️';
-      status = '🔴 **Status: Needs Pit Stop!**';
+      // Default: Beautiful Markdown Championship Scorecard
+      const barWidth = 24;
+      const filled = Math.round((score / 100) * barWidth);
+      const empty = barWidth - filled;
+      const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
+
+      // Determine status and emoji
+      let statusEmoji = '';
+      let statusText = '';
+      let statusColor = '';
+
+      if (score >= 90) {
+        statusEmoji = '🏆';
+        statusText = 'CHAMPIONSHIP!';
+        statusColor = '🟢';
+      } else if (score >= 70) {
+        statusEmoji = '⭐';
+        statusText = 'PODIUM READY!';
+        statusColor = '🟢';
+      } else if (score >= 50) {
+        statusEmoji = '🟪';
+        statusText = 'QUALIFYING!';
+        statusColor = '🟡';
+      } else if (score >= 30) {
+        statusEmoji = '🔧';
+        statusText = 'IN THE GARAGE!';
+        statusColor = '🟡';
+      } else {
+        statusEmoji = '🛟';
+        statusText = 'NEEDS PIT STOP!';
+        statusColor = '🔴';
+      }
+
+      // Build the championship scorecard
+      result = `# 🏎️ FAF Championship Score Card\n\n`;
+      result += `## **Project Score: ${score}/100** ${statusEmoji}\n\n`;
+      result += `${progressBar} ${score}%\n\n`;
+      result += `### ${statusColor} **Status: ${statusText}**\n\n`;
+      result += `---\n\n`;
+
+      // Performance Breakdown Table
+      result += `## 📊 Performance Breakdown\n\n`;
+      result += `| Component | Status | Points | Performance |\n`;
+      result += `|-----------|--------|--------|-------------|\n`;
+      result += `| **.faf** | ${hasFaf ? '✅ **ACTIVE**' : '⚠️ **MISSING**'} | ${hasFaf ? '40' : '0'}pts | ${hasFaf ? 'Core config synchronized' : '*Create with `faf_init`*'} |\n`;
+      result += `| **CLAUDE.md** | ${hasClaude ? '✅ **SYNCED**' : '⚠️ **MISSING**'} | ${hasClaude ? '30' : '0'}pts | ${hasClaude ? 'AI documentation live' : '*Generate with `faf_sync`*'} |\n`;
+      result += `| **README.md** | ${hasReadme ? '✅ **READY**' : '⚠️ **MISSING**'} | ${hasReadme ? '15' : '0'}pts | ${hasReadme ? 'Project docs complete' : '*Add for extra points*'} |\n`;
+      result += `| **package.json** | ${hasPackage ? '✅ **FOUND**' : '⚠️ **MISSING**'} | ${hasPackage ? '14' : '0'}pts | ${hasPackage ? 'Dependencies tracked' : '*Add for full score*'} |\n`;
+      result += `\n---\n\n`;
+
+      // Race Telemetry Section
+      result += `## 🏁 Race Telemetry\n\n`;
+
+      // Strengths
+      const strengths = [];
+      if (hasFaf && hasClaude) strengths.push('Bi-directional sync: 40ms championship speed');
+      if (hasClaude) strengths.push('AI-Ready Documentation: Full CLAUDE.md integration');
+      if (hasFaf) strengths.push('Core Systems: FAF foundation in place');
+      if (hasReadme) strengths.push('Documentation: README.md providing clarity');
+      if (hasPackage) strengths.push('Dependencies: package.json tracking enabled');
+
+      if (strengths.length > 0) {
+        result += `### **Strengths** 💚\n`;
+        strengths.forEach(s => result += `- ${s}\n`);
+        result += `\n`;
+      }
+
+      // Improvements needed
+      const improvements = [];
+      if (!hasFaf) improvements.push('Initialize with `faf_init` for +40 points');
+      if (!hasClaude) improvements.push('Create CLAUDE.md with `faf_sync` for +30 points');
+      if (!hasReadme) improvements.push('Add README.md for +15 points → better documentation');
+      if (!hasPackage) improvements.push('Add package.json for +14 points → ${score + 14}% score');
+
+      if (improvements.length > 0) {
+        result += `### **Pit Stop Required** 🔧\n`;
+        improvements.forEach(i => result += `- ${i}\n`);
+        result += `\n`;
+      }
+
+      // Quick Commands
+      result += `---\n\n`;
+      result += `## ⚡ Quick Commands\n\n`;
+      result += `\`\`\`bash\n`;
+      if (!hasFaf) result += `faf_init              # Initialize FAF (+40 pts)\n`;
+      if (!hasClaude) result += `faf_sync              # Generate CLAUDE.md (+30 pts)\n`;
+      if (hasFaf && hasClaude) result += `faf_bi_sync           # Keep files synchronized\n`;
+      result += `faf_enhance           # AI-powered improvements\n`;
+      result += `faf_score --save      # Save this scorecard\n`;
+      result += `\`\`\`\n\n`;
+
+      // Championship Quote
+      const quotes = [
+        '"In F1, the difference between championship and last place is milliseconds. In FAF, it\'s context."',
+        '"Every project deserves a pit crew. FAF is yours."',
+        '"Stop FAFfing about - get to 100% and race!"',
+        '"Championship teams measure everything. So does FAF."',
+        '"The best time to FAF was yesterday. The second best time is now."'
+      ];
+      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+      result += `---\n\n`;
+      result += `> ${randomQuote}\n\n`;
+
+      // Footer
+      result += `---\n\n`;
+      result += `*Generated by FAF Championship Edition v2.2.0* ⚡\n`;
+      result += `*${new Date().toISOString()}*\n\n`;
+
+      // Keep the signature footer
+      result += `━━━━━━━━━━━━━━━━━━━━━\n`;
+      result += `**AI-Readiness: ${score}%${score >= 90 ? ' 🏆' : ''}**\n`;
+      result += `━━━━━━━━━━━━━━━━━━━━━`;
     }
 
-    // THIS IS THE EXACT FORMAT - .faf IN GRAPHICS!
-    let result = `📊 **FAF Score (${path.basename(targetDir)})** 🏎️\n`;
-    result += `${heart} **Score: ${score}/100**\n`;
-    result += `${progressBar} ${score}%\n`;
-    result += `${status}\n`;
-
-    // Breakdown with bold labels
-    result += `**Breakdown:**\n`;
-    result += `* **.faf:** ${hasFaf ? '✅' : '❌'} ${hasFaf ? '40' : '0'}pts\n`;
-    result += `* **CLAUDE.md:** ${hasClaude ? '✅' : '❌'} ${hasClaude ? '30' : '0'}pts\n`;
-    result += `* **README.md:** ${hasReadme ? '✅' : '❌'} ${hasReadme ? '15' : '0'}pts\n`;
-    result += `* **package.json:** ${hasPackage ? '✅' : '❌'} ${hasPackage ? '14' : '0'}pts\n`;
-    result += `━━━━━━━━━━━━━━━━━━━━━\n`;
-    result += `**AI-Readiness: ${score}%${score >= 90 ? ' 🏆' : ''}**\n`;
-    result += `━━━━━━━━━━━━━━━━━━━━━`;
+    // Save scorecard if requested
+    if (saveCard) {
+      const scoreCardPath = path.join(targetDir, 'SCORE-CARD.md');
+      await fs.writeFile(scoreCardPath, result.replace(/\\n/g, '\n'));
+      result += `\n\n✅ **Score card saved to:** \`${scoreCardPath}\``;
+    }
 
     // Return WITHOUT the title wrapper - let the display speak for itself!
     return {
