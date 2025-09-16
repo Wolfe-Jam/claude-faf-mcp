@@ -1,6 +1,8 @@
 import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FafEngineAdapter } from './engine-adapter';
 import { fileHandlers } from './fileHandler';
+import * as fs from 'fs';
+import * as path from 'path';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -180,24 +182,38 @@ export class FafToolHandler {
   }
   
   private async handleFafStatus(args: any): Promise<CallToolResult> {
-    const result = await this.engineAdapter.callEngine('status');
-    
-    if (!result.success) {
+    // Native implementation - no CLI needed!
+    const cwd = this.engineAdapter.getWorkingDirectory();
+    const fafPath = path.join(cwd, '.faf');
+
+    try {
+      if (!fs.existsSync(fafPath)) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🤖 Claude FAF Project Status:\n\n❌ No .faf file found in ${cwd}\n💡 Run faf_init to create one`
+          }]
+        };
+      }
+
+      const fafContent = fs.readFileSync(fafPath, 'utf-8');
+      const lines = fafContent.split('\n').slice(0, 20);
+
       return {
         content: [{
           type: 'text',
-          text: `🤖 Claude FAF Project Status:\n\nFailed to get status: ${result.error}`
+          text: `🤖 Claude FAF Project Status:\n\n✅ .faf file found in ${cwd}\n\nContent preview:\n${lines.join('\n')}`
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{
+          type: 'text',
+          text: `🤖 Claude FAF Project Status:\n\n❌ Error: ${error.message}`
         }],
         isError: true
       };
     }
-
-    return {
-      content: [{
-        type: 'text',
-        text: `🤖 Claude FAF Project Status:\n\n${result.data?.output || result.data}`
-      }]
-    };
   }
 
   private async handleFafScore(args: any): Promise<CallToolResult> {
@@ -364,25 +380,57 @@ export class FafToolHandler {
   }
 
   private async handleFafInit(args: any): Promise<CallToolResult> {
-    const initArgs = args?.force ? ['--force'] : [];
-    const result = await this.engineAdapter.callEngine('init', initArgs);
-    
-    if (!result.success) {
+    // Native implementation - creates .faf without CLI!
+    const cwd = this.engineAdapter.getWorkingDirectory();
+    const fafPath = path.join(cwd, '.faf');
+
+    try {
+      // Check if .faf exists and force flag
+      if (fs.existsSync(fafPath) && !args?.force) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🚀 Claude FAF Initialization:\n\n⚠️ .faf file already exists in ${cwd}\n💡 Use force: true to overwrite`
+          }]
+        };
+      }
+
+      // Create basic .faf content
+      const fafContent = `# FAF - Foundational AI Context
+project: ${path.basename(cwd)}
+context: I⚡🍊
+generated: ${new Date().toISOString()}
+version: 1.0.0
+
+# The Formula
+human_input: Your project files
+multiplier: FAF Context
+output: 105% Big Orange Performance
+
+# Quick Context
+working_directory: ${cwd}
+initialized_by: claude-faf-mcp
+vitamin_context: true
+faffless: true
+`;
+
+      fs.writeFileSync(fafPath, fafContent);
+
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\nFailed to initialize: ${result.error}`
+          text: `🚀 Claude FAF Initialization:\n\n✅ Created .faf file in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!`
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{
+          type: 'text',
+          text: `🚀 Claude FAF Initialization:\n\n❌ Error: ${error.message}`
         }],
         isError: true
       };
     }
-
-    return {
-      content: [{
-        type: 'text',
-        text: `🚀 Claude FAF Initialization:\n\n${result.data?.output || result.data}`
-      }]
-    };
   }
 
   private async handleFafTrust(args: any): Promise<CallToolResult> {
