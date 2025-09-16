@@ -16,6 +16,20 @@ Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (C
 
 **We ARE the C in MCP.** Vitamin Context for healthy AI. I⚡🍊
 
+## 🚀 Quick Install (2 Commands!)
+
+```bash
+# Step 1: Install globally
+npm install -g claude-faf-mcp
+
+# Step 2: Add to Claude Desktop
+echo '{"mcpServers":{"claude-faf-mcp":{"command":"claude-faf-mcp","args":[],"env":{}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
+```
+
+**Step 3:** Restart Claude Desktop - DONE! 🏁
+
+**Test:** Drop any package.json into Claude and watch the magic!
+
 ## 🤖 What is Claude FAF MCP?
 
 The **Claude FAF MCP Server** provides 33 honest file operations for Claude Desktop. **ENJOY this in Desktop - FAF CLI will be right behind it!**
