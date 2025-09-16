@@ -603,48 +603,16 @@ faffless: true
       npm: 'https://www.npmjs.com/package/claude-faf-mcp'
     };
 
-    const aboutText = `🍊 FAF MCP Server - Stop FAFfing About!
+    const aboutText = `Version ${packageInfo.version}
 
-📦 Version: ${packageInfo.version}
-🏎️⚡ Author: ${packageInfo.author}
-🌐 Website: ${packageInfo.website}
-📮 NPM: ${packageInfo.npm}
+Drop a file, Paste the path
+Create .faf
+Talk to Claude to bi-sync it
+You're done
 
-💡 What is FAF?
-   FAF = Foundational AI-Context Format
-   We ARE the C in MCP (Model Context Protocol)
-
-🧬 The Formula: I⚡🍊
-   Input × Context = 105% Output
-   Human × FAF = Big Orange AI Performance
-
-🎯 Features:
-   • ZERO FAF | FAFFLESS AI - Zero friction AI
-   • Vitamin Context - AI needs context like humans need vitamins
-   • No CLI Required - Native TypeScript implementation
-   • Claude Desktop Ready - Built for MCP
-
-🏆 Achievement Status:
-   Current: 🍊 105% Big Orange
-   Mode: Championship Performance
-   Vitamin C: Maximum Context
-
-💭 Philosophy:
-   "Stop FAFfing about with broken context.
-    Start winning with Vitamin Context!"
-
-⚡ Quick Commands:
-   • faf_status - Check project status
-   • faf_score - Get your AI readiness score
-   • faf_init - Create .faf file
-   • faf_read - Read any file
-   • faf_write - Write any file
-   • Drop a file - Just paste the path!
-
-🏎️⚡ The Wolfejam Way:
-   Best Engineering, Built for Speed, Award-Winning Intent!
-
-🧡 Happy FAFfing! (The productive kind!)`;
+🤖 You made Claude Happy
+🧡 AI you can TRUST
+⚡`;
 
     return {
       content: [{
