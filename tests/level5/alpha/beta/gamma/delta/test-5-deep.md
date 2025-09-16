@@ -1,5 +1,5 @@
 # Test 5: Five Levels Deep
-## Wolfejam's F1-Grade File System Test
+## Wolfejam's F1-Inspired Grade File System Test
 
 This file is 5 directories deep:
 /tests/level5/alpha/beta/gamma/delta/

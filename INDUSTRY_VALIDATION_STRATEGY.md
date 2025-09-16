@@ -144,7 +144,7 @@ Developers adopt → Enterprise implements → Standard established
 
 ### **Our Strategic Advantage:**
 - **First Mover:** Created the foundational standard
-- **Technical Excellence:** F1-inspired engineering sets quality bar
+- **Technical Excellence:** F1-Inspired engineering sets quality bar
 - **Industry Validation:** Anthropic confirmed necessity
 - **Ecosystem Control:** We license the reference implementation
 

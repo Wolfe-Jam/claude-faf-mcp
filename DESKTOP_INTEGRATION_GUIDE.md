@@ -221,6 +221,6 @@ This creates a permanent test record in the ONE WAY TRACK testing environment.
 
 ---
 
-**Built with 🏎️ F1-inspired engineering by Wolfejam**
+**Built with 🏎️ F1-Inspired engineering by Wolfejam**
 
 *No fantasy features. No made-up scoring. Just 33 honest functions that work.*

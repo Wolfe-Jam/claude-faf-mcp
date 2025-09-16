@@ -93,7 +93,7 @@ const stress_test = {
 
 ### Signed
 
-Wolfejam - F1-Grade File Tools Certified for Enterprise
+Wolfejam - F1-Inspired Grade File Tools Certified for Enterprise
 Date: 2025-09-15
 Version: 2.0.0
 
