@@ -11,6 +11,15 @@ export class FafToolHandler {
     return {
       tools: [
         {
+          name: 'faf_about',
+          description: 'FAF About - Learn about FAF and check version (stop FAFfing about and get the facts!)',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: false
+          }
+        },
+        {
           name: 'faf_status',
           description: 'Get comprehensive project status including context quality, AI readiness, and Claude collaboration metrics',
           inputSchema: {
@@ -172,6 +181,8 @@ export class FafToolHandler {
         return await this.handleFafClear(args);
       case 'faf_debug':
         return await this.handleFafDebug(args);
+      case 'faf_about':
+        return await this.handleFafAbout(args);
       case 'faf_read':
         return await fileHandlers.faf_read(args);
       case 'faf_write':
@@ -577,6 +588,67 @@ faffless: true
       content: [{
         type: 'text',
         text: `🧹 Claude FAF Clear:\n\n${result.data?.output || result.data}`
+      }]
+    };
+  }
+
+  private async handleFafAbout(args: any): Promise<CallToolResult> {
+    // Stop FAFfing about and get the facts!
+    const packageInfo = {
+      name: 'claude-faf-mcp',
+      version: '2.1.0',
+      description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
+      author: 'wolfejam (happy@faf.one)',
+      website: 'https://faf.one',
+      npm: 'https://www.npmjs.com/package/claude-faf-mcp'
+    };
+
+    const aboutText = `🍊 FAF MCP Server - Stop FAFfing About!
+
+📦 Version: ${packageInfo.version}
+🏎️⚡ Author: ${packageInfo.author}
+🌐 Website: ${packageInfo.website}
+📮 NPM: ${packageInfo.npm}
+
+💡 What is FAF?
+   FAF = Foundational AI-Context Format
+   We ARE the C in MCP (Model Context Protocol)
+
+🧬 The Formula: I⚡🍊
+   Input × Context = 105% Output
+   Human × FAF = Big Orange AI Performance
+
+🎯 Features:
+   • ZERO FAF | FAFFLESS AI - Zero friction AI
+   • Vitamin Context - AI needs context like humans need vitamins
+   • No CLI Required - Native TypeScript implementation
+   • Claude Desktop Ready - Built for MCP
+
+🏆 Achievement Status:
+   Current: 🍊 105% Big Orange
+   Mode: Championship Performance
+   Vitamin C: Maximum Context
+
+💭 Philosophy:
+   "Stop FAFfing about with broken context.
+    Start winning with Vitamin Context!"
+
+⚡ Quick Commands:
+   • faf_status - Check project status
+   • faf_score - Get your AI readiness score
+   • faf_init - Create .faf file
+   • faf_read - Read any file
+   • faf_write - Write any file
+
+🏎️⚡ The Wolfejam Way:
+   Best Engineering, Built for Speed, Award-Winning Intent!
+
+🧡 Happy FAFfing! (The productive kind!)`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: aboutText
       }]
     };
   }
