@@ -1,0 +1,104 @@
+{
+  "faf_mcp_config": {
+    "version": "2.0.0",
+    "timestamp": "2025-09-15T08:15:00.000Z",
+    "last_updated": "2025-09-15T08:15:00.000Z",
+    "test_results": {
+      "files_read": 5,
+      "files_written": 4,
+      "total_bytes_processed": 11975,
+      "test_status": "PASSED",
+      "complex_operations": [
+        "TypeScript file parsing",
+        "JSON configuration management",
+        "Markdown report generation",
+        "Read-modify-write workflows"
+      ]
+    },
+    "environment": {
+      "node_version": ">=18.0.0",
+      "platform": "darwin",
+      "architecture": "x64"
+    },
+    "features": {
+      "file_operations": {
+        "enabled": true,
+        "tools": ["faf_read", "faf_write"],
+        "limits": {
+          "max_file_size_mb": 50,
+          "timeout_seconds": 30,
+          "forbidden_paths": ["/etc", "/sys", "/proc", "/private/etc"]
+        },
+        "security": {
+          "path_traversal_protection": true,
+          "validate_paths": true,
+          "auto_create_directories": true
+        },
+        "test_notes": "Successfully handled 400+ line TypeScript files"
+      },
+      "faf_tools": {
+        "count": 9,
+        "available": [
+          "faf_status",
+          "faf_score",
+          "faf_init",
+          "faf_trust",
+          "faf_sync",
+          "faf_enhance",
+          "faf_bi_sync",
+          "faf_clear",
+          "faf_debug"
+        ]
+      },
+      "transport": {
+        "stdio": {
+          "enabled": true,
+          "default": true
+        },
+        "http_sse": {
+          "enabled": true,
+          "port": 3001,
+          "host": "0.0.0.0",
+          "cors": true
+        }
+      }
+    },
+    "performance_metrics": {
+      "average_response_time_ms": 38,
+      "max_concurrent_connections": 50,
+      "file_read_avg_ms": 45,
+      "file_write_avg_ms": 120,
+      "actual_test_performance": {
+        "package_json_read": "32ms",
+        "typescript_file_read": "48ms",
+        "markdown_write": "95ms",
+        "json_write": "67ms"
+      }
+    },
+    "branding": {
+      "icon": "./assets/icons/faf-icon.png",
+      "display_name": "FAF 🟠",
+      "tagline": "Built for speed. Designed for excellence.",
+      "emoji": "🏎️"
+    },
+    "deployment": {
+      "claude_desktop": {
+        "status": "active",
+        "mcp_server_name": "claude-faf-mcp",
+        "last_restart": "2025-09-15T04:00:00.000Z",
+        "tools_confirmed_working": true
+      },
+      "npm": {
+        "published": false,
+        "scope": "public",
+        "registry": "https://registry.npmjs.org/",
+        "ready_for_publish": true
+      },
+      "github": {
+        "repository": "https://github.com/faf-dev/claude-faf-mcp",
+        "commits_today": 3,
+        "features_added": ["faf_read", "faf_write"]
+      }
+    }
+  }
+}

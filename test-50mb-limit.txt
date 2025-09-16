@@ -1,0 +1,4 @@
+# Testing 50MB Limit Protection
+This file is intentionally small, but let's test what happens with a massive string...
+
+${Array(1024 * 1024 * 51).join('X')}

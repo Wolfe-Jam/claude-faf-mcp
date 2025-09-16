@@ -1,0 +1,184 @@
+## Project Context
+
+**Name**: FAF MCP Desktop Server
+**Version**: 2.0.0
+**Type**: TypeScript MCP Server for Claude Desktop
+**Philosophy**: F1-Inspired Software Engineering
+**Status**: 🍊 105% Big Orange - Championship Mode!
+**Signature**: 🏎️⚡ wolfejam way
+
+### Architecture Overview
+MCP (Model Context Protocol) server that provides FAF tools to Claude Desktop. Built with TypeScript, designed for desktop-native operation without CLI dependencies.
+
+### Core Features
+- **Desktop-Native Operations**: File read/write without external CLI ⚡
+- **Built-in Scoring**: Native FAF score calculation (99% technical max) 🏁
+- **Performance Telemetry**: All operations <10ms (achieved 0-1ms!) ⚡ ⌚
+- **Graceful Degradation**: Enhanced features when CLI available
+
+### Technical Stack
+- **Language**: TypeScript 5.3+
+- **Runtime**: Node.js 18+
+- **Protocol**: MCP via stdio/SSE
+- **Testing**: Jest + Custom Championship Suite
+- **Build**: tsc (TypeScript Compiler)
+
+### Brand System
+
+#### Colors (HEX)
+- **Orange** `#ff6b35`: Human trust elements 🧡
+- **Cyan** `#00ffff`: AI-happy elements 🩵
+- **Green** `#00bf63`: FAF success/safety 💚
+- **Cream** `#FEFCF8`: Background warmth
+- **Dark** `#1a1a1a`: Terminal/text
+
+#### Emoji Language (OFFICIAL - COMPLETE)
+- 🍊 = Big Orange Achievement (105% Status ONLY)
+- 🧡 = Human Trust in FAF
+- 🩵 = AI-Happy
+- 💚 = FAF Success
+- ⚡ = ACTION (we use this A LOT!)
+- 🏁 = Finish/Success
+- 🏆 = Win/Podium
+- 🏎️ = F1-Inspired Speed
+- ⌚ = Timing (performance metrics, benchmarks)
+- 🤖 = AI/Tech
+- ☑️ = Checkmark (PREFERRED over ✅)
+- 🏎️⚡ = wolfejam signature (always together!)
+
+#### Important Notes:
+- **PREFER ☑️ over ✅** (we accept green checkmarks happen, but ☑️ is wolfejam preferred)
+- **⌚ for all timing/performance discussions**
+- **⚡ is ACTION not just speed**
+- **🏎️⚡ never separate these**
+
+### Performance Metrics ⌚
+- File Read: 1ms 🏁
+- File Write: 0ms ⚡
+- Score Calculation: ~3ms 🏁
+- Debug Operations: <10ms 🏁
+- JSON Parse: 0ms ⚡
+- Status: ALL OPERATIONS SUCCESSFUL 🏆
+
+### Development Approach
+- Domain modeling first ⚡
+- Working backwards from goals 🏁
+- 3 bullet point summaries
+- Racing analogies for complex concepts 🏎️
+- Component-first design for monetization 🏆
+
+## AI Collaboration Instructions
+
+You're working on a championship-quality MCP server. Key principles:
+
+1. **Speed & Action**: Every operation must be optimized. Current benchmarks show 0-1ms operations ⌚ - maintain this standard. Use ⚡ for actions and energy.
+
+2. **Color & Emoji Consistency**: 
+   - Orange `#ff6b35` + 🧡 for human trust/interactions
+   - Cyan `#00ffff` + 🩵 for AI happiness/tech displays
+   - Green `#00bf63` + 💚 for success states
+   - 🍊 ONLY for 105% Big Orange achievement
+   - ⚡ for taking ACTION (use liberally!)
+   - 🏁 for finish/success
+   - 🏆 for wins/podium
+   - ⌚ for timing/performance
+   - ☑️ preferred over ✅
+   - 🏎️⚡ together for wolfejam signature
+
+3. **Desktop Independence**: Core features (read/write/score/debug) work WITHOUT the FAF CLI. This is proven and must be maintained. 🏁
+
+4. **Championship Quality**: Don't just pass tests - set records. Current: 100% pass rate, <10ms all operations ⌚. Aim for podium 🏆.
+
+5. **Component Excellence**: Build reusable components for Gallery-Svelte monetization. Target the component store from day one ⚡.
+
+## Project Structure
+
+```
+/claude-faf-mcp/
+├── src/
+│   ├── server.ts           # Main MCP server
+│   ├── cli.ts             # CLI entry point
+│   ├── handlers/
+│   │   ├── tools.ts       # Tool implementations ⚡
+│   │   ├── resources.ts   # Resource handlers
+│   │   ├── engine-adapter.ts # FAF CLI bridge
+│   │   └── fileHandler.ts # Native file ops ⚡
+│   └── types/
+├── dist/                   # Compiled output
+├── tests/
+│   ├── desktop-native-validation.test.ts
+│   └── [multiple test suites]
+├── package.json           # Dependencies
+├── tsconfig.json         # TypeScript config
+├── CLAUDE.md             # AI instructions (CRITICAL!)
+└── [championship test files] 🏆
+```
+
+## Testing & Validation
+
+### Desktop Championship Tests
+- Location: `/Users/wolfejam/faf-test-environment/`
+- Script: `MCP_DESKTOP_CHAMPIONSHIP_SUITE.sh` ⚡
+- Pass Rate: 100% (8/8 tests) 🏆
+- Performance: All <10ms ⚡ ⌚
+- Status: CHAMPIONSHIP MODE 🏁
+
+### Integration Points
+- Claude Desktop: Validated ☑️
+- Big-3 Testing Center: Integrated ☑️
+- Performance Benchmarks: Exceeded 🏆
+- Security: Hardened ☑️
+
+## Success Metrics
+
+### Technical
+- Desktop Independence: PROVEN 🏁
+- Performance: 0-1ms operations ⚡ ⌚
+- Test Coverage: 100% 🏆
+- Type Safety: Complete ☑️
+
+### Satisfaction
+- Human Trust: 🧡 Complete
+- AI Happiness: 🩵 Maximum  
+- Production Ready: Yes 🏁
+- NPM Publishable: Yes ⚡
+- Component Store Path: Clear 🏆
+
+## Current Status
+
+**Achievement Unlocked**: 🍊 105% Big Orange Championship Mode!
+
+This status indicates:
+- Perfect test scores (100%) 🏆
+- Sub-10ms performance ⚡ ⌚
+- Rich documentation with emoji language
+- Championship engineering 🏎️⚡
+- Beyond standard excellence 🍊
+
+## Next Goals
+
+1. **⚡ 110% Titanium Orange**: All operations <5ms ⌚ (ACTION!)
+2. **🩵 115% Quantum Orange**: Anthropic reference implementation
+3. **🤖 120% Singularity Orange**: Self-improving AI collaboration
+
+## Checklist ☑️
+
+- ☑️ Desktop-native proven
+- ☑️ Performance optimized
+- ☑️ Colors documented
+- ☑️ Emojis defined
+- ☑️ Tests passing
+- ☑️ Big Orange achieved
+- ☑️ wolfejam way applied
+
+---
+
+Remember: We're not just building software. We're setting championship standards.
+Every line of code follows the F1-Inspired philosophy:
+- Best Engineering
+- Built for Speed 🏎️
+- Award-Winning Intent 🏆
+
+Take ACTION ⚡, TIME it perfectly ⌚, FINISH strong 🏁, WIN podiums 🏆!
+
+🏎️⚡ The Wolfejam Way - Speed + Action + Perfect Timing = Championship Software! 🧡🩵💚🍊

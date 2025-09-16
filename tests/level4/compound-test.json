@@ -1,0 +1,19 @@
+{
+  "test": 4,
+  "name": "Compound Puppy Test",
+  "complexity": "Read-Combine-Transform-Write",
+  "previous_test": {
+    "test": 2,
+    "name": "Puppy Test",
+    "complexity": "Read-Modify-Write",
+    "timestamp": "2025-09-15T04:00:00Z",
+    "success": true
+  },
+  "new_data": {
+    "puppies": ["Max", "Bella", "Charlie", "Luna"],
+    "operations": ["read", "merge", "transform", "write"],
+    "depth": 4
+  },
+  "timestamp": "2025-09-15T04:01:00Z",
+  "success": true
+}

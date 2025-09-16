@@ -1,6 +1,8 @@
 # 🏎️⚡️ Claude FAF MCP Server
 ## F1-Inspired AI Context Management for Planet Claude
 
+> **🏁 TESTING CENTER: [`/Users/wolfejam/faf-test-environment`](./WOLFEJAM_TESTING_CENTER.md) | [View Dashboard](file:///Users/wolfejam/FAF/claude-faf-mcp/TESTING_CENTER_DASHBOARD.html) 🏁**
+
 > **Claude FAF MCP Server | AI-Context on-demand management with bi-sync for Claude Users of all levels, with C.O.R.E performance faf-engine-Mk1**
 
 Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (Comprehensive, Optimized, Relentless, Empirical) performance** powered by the **faf-engine-Mk1** architecture.
@@ -38,11 +40,31 @@ The **Claude FAF MCP Server** is a Model Context Protocol (MCP) server that prov
 
 > **"package.json wasn't built for this, .faf was"** - .faf Inventor
 
+## 🏁 WOLFEJAM TESTING CENTER
+
+**📍 Location: `/Users/wolfejam/faf-test-environment`**
+**📊 Dashboard: [Open Testing Dashboard](file:///Users/wolfejam/FAF/claude-faf-mcp/TESTING_CENTER_DASHBOARD.html)**
+**📝 Full Guide: [WOLFEJAM_TESTING_CENTER.md](./WOLFEJAM_TESTING_CENTER.md)**
+
+### Quick Test Commands
+```bash
+# Run Desktop MCP Test (ONE WAY TRACK - Permanent Record)
+./DESKTOP_MCP_TEST_INTEGRATION.sh
+
+# View Test Dashboard
+open TESTING_CENTER_DASHBOARD.html
+
+# Check Latest Results
+ls -la /Users/wolfejam/faf-test-environment/DESKTOP_MCP_TESTS/
+```
+
+**⚠️ ONE WAY TRACK: No deletions allowed - permanent test records only!**
+
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - [FAF CLI](https://www.npmjs.com/package/faf-cli) installed globally
 
 ```bash
