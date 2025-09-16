@@ -7,7 +7,7 @@ import * as path from 'path';
 program
   .name('claude-faf-mcp')
   .description('Universal FAF MCP Server for Claude - AI Context Intelligence & Project Enhancement')
-  .version('1.0.0')
+  .version('2.0.0')
   .option('-t, --transport <type>', 'Transport type (stdio|http-sse)', 'stdio')
   .option('-p, --port <number>', 'Port for HTTP-SSE transport', '3001')
   .option('--faf-engine <path>', 'Path to FAF CLI engine', 'faf')

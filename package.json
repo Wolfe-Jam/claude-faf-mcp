@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
   "version": "2.0.0",
-  "description": "The file operations MCP that can't hide its test failures. I⚡🍊 - The future of AI-native I/O.",
+  "description": "We ARE the C in MCP. I⚡🍊 - The formula that changes everything. .faf is Context.",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/cli.js"
