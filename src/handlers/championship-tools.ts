@@ -113,6 +113,17 @@ export class ChampionshipToolHandler {
           }
         },
         {
+          name: 'faf_choose',
+          description: '🏎️ Interactive project chooser - GitHub Desktop style! Choose & FAF!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              scan_dir: { type: 'string', description: 'Directory to scan for projects' },
+              auto_open: { type: 'boolean', description: 'Auto-open HTML chooser in browser' }
+            }
+          }
+        },
+        {
           name: 'faf_init',
           description: 'Initialize FAF with intelligent project detection - Championship grade',
           inputSchema: {
@@ -454,6 +465,8 @@ export class ChampionshipToolHandler {
         case 'faf':
         case 'faf_auto':
           return await this.handleAuto(args);
+        case 'faf_choose':
+          return await this.handleChoose(args);
         case 'faf_display':
           return await this.handleDisplay(args);
         case 'faf_init':
@@ -1482,6 +1495,114 @@ Zero shell dependencies
   private async handleWrite(args: any): Promise<CallToolResult> {
     await fs.writeFile(args.path, args.content);
     return await this.formatResult('💾 File Written', `Saved to ${args.path}`);
+  }
+
+  private async handleChoose(args: any): Promise<CallToolResult> {
+    const scanDir = args?.scan_dir || process.env.HOME;
+
+    // Scan for projects
+    const projects = [];
+
+    // Common project directories
+    const projectPaths = [
+      path.join(scanDir, 'Projects'),
+      path.join(scanDir, 'projects'),
+      path.join(scanDir, 'Dev'),
+      path.join(scanDir, 'dev'),
+      path.join(scanDir, 'Documents'),
+      path.join(scanDir, 'FAF'),
+      scanDir // Also scan root of provided dir
+    ];
+
+    for (const projPath of projectPaths) {
+      if (await this.fileExists(projPath)) {
+        try {
+          const dirs = await fs.readdir(projPath, { withFileTypes: true });
+          for (const dir of dirs) {
+            if (dir.isDirectory() && !dir.name.startsWith('.')) {
+              const fullPath = path.join(projPath, dir.name);
+              // Check if it's a real project
+              const hasPackage = await this.fileExists(path.join(fullPath, 'package.json'));
+              const hasFaf = await this.fileExists(path.join(fullPath, '.faf'));
+
+              if (hasPackage || hasFaf) {
+                // Calculate score
+                const score = await this.calculateScore(fullPath);
+                projects.push({
+                  name: dir.name,
+                  path: fullPath,
+                  score: score,
+                  initialized: hasFaf
+                });
+              }
+            }
+          }
+        } catch (e) {
+          // Skip inaccessible directories
+        }
+      }
+    }
+
+    // Sort by score (highest first)
+    projects.sort((a, b) => b.score - a.score);
+
+    // Generate ASCII menu
+    let menu = `\n┌─────────────────────────────────────────┐\n`;
+    menu += `│ 🏎️ FAF Championship - Choose Project:   │\n`;
+    menu += `├─────────────────────────────────────────┤\n`;
+
+    // Show top 5 projects
+    const topProjects = projects.slice(0, 5);
+    topProjects.forEach((proj, idx) => {
+      const scoreText = proj.score > 0 ? `[${proj.score}%]` : '[--]';
+      const name = proj.name.substring(0, 25).padEnd(25);
+      menu += `│ ${idx + 1}. ${name} ${scoreText.padStart(6)} │\n`;
+    });
+
+    if (topProjects.length < 5) {
+      // Fill empty slots
+      for (let i = topProjects.length; i < 5; i++) {
+        menu += `│ ${i + 1}. (empty)                          │\n`;
+      }
+    }
+
+    menu += `│ 6. → Browse for project...             │\n`;
+    menu += `│ 7. → Create new project...             │\n`;
+    menu += `└─────────────────────────────────────────┘\n\n`;
+
+    menu += `**Quick Start:**\n`;
+    menu += `1. Choose a project from the list\n`;
+    menu += `2. Or drop any file from your project\n`;
+    menu += `3. Type: **faf** or **faf_auto "/path/to/project"**\n`;
+    menu += `4. Done! 🏆\n\n`;
+
+    if (projects.length > 0) {
+      menu += `**Found ${projects.length} projects:**\n\n`;
+      projects.forEach((proj, idx) => {
+        const icon = proj.score >= 90 ? '🏆' : proj.score >= 70 ? '⭐' : proj.initialized ? '🚀' : '📁';
+        menu += `${icon} **${proj.name}**\n`;
+        menu += `   Score: ${proj.score}/100 ${proj.initialized ? '(FAF initialized)' : '(Not initialized)'}\n`;
+        menu += `   Path: \`${proj.path}\`\n`;
+        if (idx === 0) {
+          menu += `   👉 To initialize: \`faf_auto "${proj.path}"\`\n`;
+        }
+        menu += `\n`;
+      });
+    } else {
+      menu += `**No projects found in common directories.**\n\n`;
+      menu += `Try:\n`;
+      menu += `1. Drop a file from your project\n`;
+      menu += `2. Or specify a directory: \`faf_choose "/your/projects/folder"\`\n`;
+    }
+
+    menu += `\n💡 **TIP:** Just type \`faf\` after dropping any file - it auto-detects everything!`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: menu
+      }]
+    };
   }
 
   /**
