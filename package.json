@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.1.1",
+  "version": "3.0.0",
   "description": "We ARE the C in MCP. I⚡🍊 - The formula that changes everything. .faf is Context.",
   "main": "dist/server.js",
   "bin": {
@@ -54,7 +54,8 @@
     "dotenv": "^16.4.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "zod": "^3.22.0"
+    "zod": "^3.22.0",
+    "@faf/cli": "file:../cli"
   },
   "devDependencies": {
     "@jest/globals": "^30.1.2",

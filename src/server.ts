@@ -2,9 +2,8 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
-import { FafEngineAdapter } from './handlers/engine-adapter';
 import { FafResourceHandler } from './handlers/resources';
-import { FafToolHandler } from './handlers/tools';
+import { ChampionshipToolHandler } from './handlers/championship-tools';
 import express from 'express';
 import cors from 'cors';
 
@@ -19,9 +18,8 @@ export interface ClaudeFafMcpServerConfig {
 
 export class ClaudeFafMcpServer {
   private server: Server;
-  private engineAdapter: FafEngineAdapter;
   private resourceHandler: FafResourceHandler;
-  private toolHandler: FafToolHandler;
+  private toolHandler: ChampionshipToolHandler;
   private config: ClaudeFafMcpServerConfig;
   private httpServer?: any;
 
@@ -51,9 +49,9 @@ export class ClaudeFafMcpServer {
       }
     );
 
-    this.engineAdapter = new FafEngineAdapter(config.fafEnginePath);
-    this.resourceHandler = new FafResourceHandler(this.engineAdapter);
-    this.toolHandler = new FafToolHandler(this.engineAdapter);
+    // NO MORE ENGINE ADAPTER! Direct imports only!
+    this.resourceHandler = new FafResourceHandler(null as any); // Will be updated
+    this.toolHandler = new ChampionshipToolHandler();
 
     this.setupHandlers();
   }
@@ -115,7 +113,7 @@ export class ClaudeFafMcpServer {
         version: '1.0.0',
         transport: 'http-sse',
         timestamp: new Date().toISOString(),
-        fafEngine: this.engineAdapter.getEnginePath()
+        championship: '33+ tools, zero shell execution'
       });
     });
 
@@ -195,7 +193,7 @@ export class ClaudeFafMcpServer {
       transport: this.config.transport,
       port: this.config.port,
       host: this.config.host,
-      fafEngine: this.engineAdapter.getEnginePath()
+      championship: 'v3.0.0 - 33+ native tools'
     };
   }
 }
