@@ -596,7 +596,7 @@ faffless: true
     // Stop FAFfing about and get the facts!
     const packageInfo = {
       name: 'claude-faf-mcp',
-      version: '2.1.1',
+      version: '2.2.0',
       description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
       author: 'wolfejam (happy@faf.one)',
       website: 'https://faf.one',

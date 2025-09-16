@@ -504,7 +504,7 @@ export class ChampionshipToolHandler {
 
       const fafContent = `# FAF - Foundational AI Context
 project: ${path.basename(dir)}
-version: 3.0.0
+version: 2.2.0
 championship: true
 
 ## Context
@@ -520,7 +520,7 @@ Target: <50ms per operation
 Achieved: Championship grade
 
 Generated: ${new Date().toISOString()}
-By: claude-faf-mcp v3.0.0`;
+By: claude-faf-mcp v2.2.0`;
 
       await fs.writeFile(fafPath, fafContent);
       return this.formatResult('🚀 FAF Init', `Created .faf in ${dir}`);
@@ -782,7 +782,7 @@ By: claude-faf-mcp v3.0.0`;
     return {
       content: [{
         type: 'text',
-        text: `Version 3.0.0
+        text: `Version 2.2.0
 🏎️ Championship Edition
 
 33+ Tools Available
