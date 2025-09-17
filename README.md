@@ -74,25 +74,19 @@ Currently delivers:
 
 > **"package.json wasn't built for this, .faf was"** - .faf Inventor
 
-## 🏁 WOLFEJAM TESTING CENTER
+## 🏁 Testing & Development
 
-**📍 Location: `/Users/wolfejam/faf-test-environment`**
-**📊 Dashboard: [Open Testing Dashboard](file:///Users/wolfejam/FAF/claude-faf-mcp/TESTING_CENTER_DASHBOARD.html)**
-**📝 Full Guide: [WOLFEJAM_TESTING_CENTER.md](./WOLFEJAM_TESTING_CENTER.md)**
+**📝 Testing Guide: [TESTING_CENTER.md](./TESTING_CENTER.md)**
+**🧪 Test Scripts: Available in `/tests/scripts/`**
 
 ### Quick Test Commands
 ```bash
-# Run Desktop MCP Test (ONE WAY TRACK - Permanent Record)
-./DESKTOP_MCP_TEST_INTEGRATION.sh
+# Test the MCP server
+npm test
 
-# View Test Dashboard
-open TESTING_CENTER_DASHBOARD.html
-
-# Check Latest Results
-ls -la /Users/wolfejam/faf-test-environment/DESKTOP_MCP_TESTS/
+# Build the project
+npm run build
 ```
-
-**⚠️ ONE WAY TRACK: No deletions allowed - permanent test records only!**
 
 ## 🚀 Quick Start
 
