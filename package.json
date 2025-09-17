@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.2.0",
-  "description": "Hello 👋 We ARE the C in MCP. Universal AI context management with .faf format. 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready! ZERO FAF INNIT! 🏎️⚡",
+  "version": "2.2.2",
+  "description": "🏎️ FAF MCP - ALWAYS SHOW AI-READINESS SCORE! Universal AI context management with .faf format. 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready! ZERO FAF INNIT! 🏎️⚡",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/src/cli.js"

@@ -5,6 +5,49 @@ All notable changes to the Claude FAF MCP Server will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.2] - 2025-09-17 - The Visibility Victory Release 🏎️
+
+### 🏆 THE BREAKTHROUGH
+- **SCORECARDS ARE NOW VISIBLE!** No more hidden outputs in function_results
+- Implemented behavioral instruction that tells Claude to always show scores
+- Clean display without wrapper tags - just pure markdown beauty
+- The "handshake agreement" that actually works!
+
+### ✅ Added
+- Behavioral instruction system (`behavioral-instruction.ts`)
+- Automatic display of all FAF outputs in conversation
+- Clean markdown output without wrapper tags
+- "User needs: Score, Description constantly" - and now they get it!
+
+### 🩵⚡️🧡 The Philosophy
+- **Trust:** Claude wants to help, just needed permission
+- **Speed:** Fixed in hours, not months
+- **Heart:** Made for users who said "show me the card in the conversation I'm paying for"
+
+### 📸 Proven
+- Tested live with Heritage Club Dubai project
+- Screenshots confirm: IT'S FUCKING WORKING!
+- "If Carlsberg did MCP's..." - they'd make this
+
+### The Bottom Line
+While waiting for Anthropic to fix the architecture, we shipped a solution that works TODAY.
+Ship it now, perfect it later. And honestly? It's already perfect.
+
+## [2.2.1] - 2025-09-17
+
+### Changed
+- Removed display wrapper tags for cleaner output
+- Updated handleShow for clean markdown display
+- Improved score formatting
+
+## [2.2.0] - 2025-09-16
+
+### Added
+- 33+ FAF tools for comprehensive project management
+- Championship scoring system (0-105%)
+- Big Orange mode for transcendent scoring
+- Sub-50ms performance optimizations
+
 ## [1.0.0] - 2025-01-15
 
 ### Added
