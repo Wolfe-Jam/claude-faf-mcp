@@ -9,7 +9,7 @@
 
 import { ChampionshipToolHandler } from './handlers/championship-tools';
 
-const PERFORMANCE_TARGET = 50; // ms - Formula 1 standard!
+const PERFORMANCE_TARGET = 50; // ms - F1-Inspired standard!
 
 async function testChampionshipPerformance() {
   console.log('🏁 CHAMPIONSHIP TEST SUITE - v3.0.0');
@@ -82,7 +82,7 @@ async function testChampionshipPerformance() {
 
   console.log('\n⚡ PERFORMANCE BREAKDOWN');
   console.log('========================');
-  console.log(`🏎️ <10ms: ${fastTools} tools (Formula 1)`)
+  console.log(`🏎️ <10ms: ${fastTools} tools (F1-Inspired)`)
   console.log(`🚗 10-30ms: ${mediumTools} tools (Sports Car)`);
   console.log(`🏃 30-50ms: ${slowTools} tools (Running)`);
   console.log(`🐌 >50ms: ${failedPerf} tools (Too Slow)`);

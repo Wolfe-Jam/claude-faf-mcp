@@ -1,5 +1,5 @@
 /**
- * 🏎️ Championship Tools Handler - Formula 1 Grade Implementation
+ * 🏎️ Championship Tools Handler - F1-Inspired Grade Implementation
  * Direct imports from FAF CLI - ZERO shell execution
  * Sub-50ms response times - Championship performance
  *
