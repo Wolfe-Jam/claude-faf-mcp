@@ -12,7 +12,7 @@ export class FafToolHandler {
       tools: [
         {
           name: 'faf_about',
-          description: 'FAF About - Learn about FAF and check version (stop FAFfing about and get the facts!)',
+          description: 'Learn what .faf is - THE JPEG for AI 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -21,7 +21,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_status',
-          description: 'Get comprehensive project status including context quality, AI readiness, and Claude collaboration metrics',
+          description: 'Check if your project has .faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -30,7 +30,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate your project\'s AI collaboration score with detailed breakdown and Claude-specific optimizations',
+          description: 'Calculate your project\'s AI-readability from .faf file (THE JPEG for AI) - F1-inspired metrics! 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -41,7 +41,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Initialize FAF context for your project with intelligent stack detection and Claude optimization',
+          description: 'Create .faf file (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -52,7 +52,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_trust',
-          description: 'Validate FAF context integrity and show trust metrics for confident Claude collaboration',
+          description: 'Validate .faf integrity - Trust metrics for THE JPEG for AI 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -61,7 +61,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Synchronize .faf context with claude.md for seamless bi-directional context sharing',
+          description: 'Sync .faf (THE JPEG for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -70,7 +70,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Claude-optimized AI enhancement with multi-model compatibility and context optimization',
+          description: 'Enhance .faf (THE JPEG for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -603,16 +603,25 @@ faffless: true
       npm: 'https://www.npmjs.com/package/claude-faf-mcp'
     };
 
-    const aboutText = `Version ${packageInfo.version}
-🤖 Make Claude Happy
+    const aboutText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🤖 .faf is THE JPEG for AI
+🧡 Trust: Context verified
+⚡️ Speed: Generated in <29ms
+SPEEDY AI you can TRUST!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Version ${packageInfo.version}
+
+Just like JPEG makes images universal,
+.faf makes projects AI-readable.
 
 Drop a file, Paste the path
-Create .faf
+Create .faf (THE JPEG for AI)
 Talk to Claude to bi-sync it
 You're done⚡
 
 🩵 You just made Claude Happy
-🧡 .faf AI you can TRUST`;
+🧡⚡️ SPEEDY AI you can TRUST!`;
 
     return {
       content: [{

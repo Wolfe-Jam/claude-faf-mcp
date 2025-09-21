@@ -136,7 +136,7 @@ ${enhancedOutput}`;
         // Core Tools - Priority 1
         {
           name: 'faf',
-          description: '🏆 FAF - Just run it! Same as faf_auto - No faffing about!',
+          description: '🏆 .faf - Creates THE JPEG for AI! SPEEDY AI you can TRUST! 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -645,14 +645,15 @@ ${enhancedOutput}`;
       if (dir === '.' || dir === '/' || dir.length < 3) {
         return await this.formatResult(
           '📂 FAF AUTO - Smart Start',
-          `Drop a file or paste/type your folder location!\n\n` +
+          `Drop a file or paste/type your folder location!\n` +
+          `.faf creates THE JPEG for AI - makes your project AI-readable.\n\n` +
           `Examples:\n` +
           `• faf_auto ~/Documents/my-project\n` +
           `• faf_auto /Users/yourname/cool-app\n` +
           `• faf_auto ../actual-project-folder\n\n` +
           `Bonus: You can drag any file from your project\n` +
           `and I'll find the project root!\n\n` +
-          `💡 ZERO FAF INNIT - Just point me to your code!`
+          `🧡⚡️ SPEEDY AI you can TRUST!`
         );
       }
 
@@ -808,12 +809,12 @@ Working towards 🍊 105% Big Orange status!
       }
 
       // Step 7: Show completion
-      output += `\n✅ FAF AUTO Complete!\n`;
-      output += `- .faf created with project data\n`;
-      output += `- CLAUDE.md generated\n`;
-      output += `- Project analyzed and scored\n`;
-      output += `- Bi-sync activated (40ms sync)\n`;
-      output += `- Ready for AI collaboration\n`;
+      output += `\n✅ FAF AUTO Complete!\n\n`;
+      output += `🤖 .faf is THE JPEG for AI\n`;
+      output += `🧡 Trust: Context verified\n`;
+      output += `⚡️ Speed: Generated in ${Date.now() - this.startTime}ms\n`;
+      output += `SPEEDY AI you can TRUST!\n\n`;
+      output += `Your project is now AI-readable - any AI assistant can understand it!\n`;
       output += `\n⚡ No faffing about - Championship mode achieved!`;
 
       return await this.formatResult(`🏆 FAF AUTO`, output, undefined, dir);
