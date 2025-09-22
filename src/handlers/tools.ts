@@ -20,6 +20,15 @@ export class FafToolHandler {
           }
         },
         {
+          name: 'faf_what',
+          description: 'What is .faf? Quick explanation of THE JPEG for AI 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: false
+          }
+        },
+        {
           name: 'faf_status',
           description: 'Check if your project has .faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
           inputSchema: {
@@ -183,6 +192,8 @@ export class FafToolHandler {
         return await this.handleFafDebug(args);
       case 'faf_about':
         return await this.handleFafAbout(args);
+      case 'faf_what':
+        return await this.handleFafWhat(args);
       case 'faf_read':
         return await fileHandlers.faf_read(args);
       case 'faf_write':
@@ -604,21 +615,28 @@ faffless: true
     };
 
     const aboutText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 .faf is THE JPEG for AI
+🤖 .faf = THE JPEG for AI
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT IS .FAF?
+• .faf = Foundational AI-context Format
+• Like JPEG for images, .faf for AI context
+• The dot (.) means it's a file format!
+
 🧡 Trust: Context verified
 ⚡️ Speed: Generated in <29ms
 SPEEDY AI you can TRUST!
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Version ${packageInfo.version}
 
 Just like JPEG makes images universal,
 .faf makes projects AI-readable.
 
-Drop a file, Paste the path
-Create .faf (THE JPEG for AI)
-Talk to Claude to bi-sync it
-You're done⚡
+HOW IT WORKS:
+1. Drop a file or paste the path
+2. Create .faf (Foundational AI-context Format)
+3. Talk to Claude to bi-sync it
+4. You're done⚡
 
 🩵 You just made Claude Happy
 🧡⚡️ SPEEDY AI you can TRUST!`;
@@ -627,6 +645,30 @@ You're done⚡
       content: [{
         type: 'text',
         text: aboutText
+      }]
+    };
+  }
+
+  private async handleFafWhat(args: any): Promise<CallToolResult> {
+    const whatText = `.faf = THE JPEG for AI
+
+WHAT: .faf = Foundational AI-context Format
+      (The dot means it's a file format, like .jpg or .pdf)
+
+WHY:  Just like JPEG makes images viewable everywhere,
+      .faf makes projects understandable by AI.
+
+HOW:  Run 'faf' on any project to create one.
+      Run 'faf_score' to check AI-readiness (target: 99%).
+
+REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
+
+🧡⚡️ SPEEDY AI you can TRUST!`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: whatText
       }]
     };
   }
