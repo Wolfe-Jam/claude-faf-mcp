@@ -50,7 +50,7 @@
   "bugs": {
     "url": "https://github.com/wolfejam/claude-faf-mcp/issues"
   },
-  "homepage": "https://faf.one",
+  "homepage": "https://faf-one-svelte.vercel.app",
   "engines": {
     "node": ">=18.0.0"
   },

@@ -12,7 +12,7 @@ Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (C
 [![MCP Registry](https://img.shields.io/badge/MCP-✅%20Official%20Registry-green)](https://github.com/modelcontextprotocol/servers)
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Claude Desktop](https://img.shields.io/badge/Claude-Desktop%20Ready-purple)](https://claude.ai)
-[![AI Readiness](https://img.shields.io/badge/AI%20Readiness-99%25-orange)](https://faf.one)
+[![AI Readiness](https://img.shields.io/badge/AI%20Readiness-99%25-orange)](https://faf-one-svelte.vercel.app)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue)](https://www.typescriptlang.org/)
 [![F1-Inspired](https://img.shields.io/badge/Philosophy-F1--Inspired-red)](https://github.com/faf-dev/claude-faf-mcp)
 
