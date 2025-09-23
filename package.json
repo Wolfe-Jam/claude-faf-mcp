@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.2.2",
+  "version": "2.2.4",
   "description": "🏎️ FAF MCP - ALWAYS SHOW AI-READINESS SCORE! Universal AI context management with .faf format. 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready! ZERO FAF INNIT! 🏎️⚡",
   "main": "dist/server.js",
   "bin": {
@@ -50,7 +50,7 @@
   "bugs": {
     "url": "https://github.com/wolfejam/claude-faf-mcp/issues"
   },
-  "homepage": "https://faf-one-svelte.vercel.app",
+  "homepage": "https://faf.one",
   "engines": {
     "node": ">=18.0.0"
   },
