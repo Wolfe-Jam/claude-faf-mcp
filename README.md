@@ -1,14 +1,18 @@
 # 🏎️⚡️ Claude FAF MCP Server
 ## F1-Inspired AI Context Management for Planet Claude
 
+> **🏆 OFFICIAL MCP REGISTRY MEMBER - The JPEG for AI is REAL! 🏆**
+
 > **🏁 TESTING CENTER: [`/Users/wolfejam/faf-test-environment`](./WOLFEJAM_TESTING_CENTER.md) | [View Dashboard](file:///Users/wolfejam/FAF/claude-faf-mcp/TESTING_CENTER_DASHBOARD.html) 🏁**
 
 > **Claude FAF MCP Server | AI-Context on-demand management with bi-sync for Claude Users of all levels, with C.O.R.E performance faf-engine-Mk1**
 
 Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (Comprehensive, Optimized, Relentless, Empirical) performance** powered by the **faf-engine-Mk1** architecture.
 
-[![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io)
+[![MCP Registry](https://img.shields.io/badge/MCP-✅%20Official%20Registry-green)](https://github.com/modelcontextprotocol/servers)
+[![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Claude Desktop](https://img.shields.io/badge/Claude-Desktop%20Ready-purple)](https://claude.ai)
+[![AI Readiness](https://img.shields.io/badge/AI%20Readiness-99%25-orange)](https://faf.one)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue)](https://www.typescriptlang.org/)
 [![F1-Inspired](https://img.shields.io/badge/Philosophy-F1--Inspired-red)](https://github.com/faf-dev/claude-faf-mcp)
 
