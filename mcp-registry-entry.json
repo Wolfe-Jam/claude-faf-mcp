@@ -1,0 +1,63 @@
+{
+  "name": "FAF - The JPEG for AI™",
+  "description": ".faf The JPEG for AI is here. Universal AI context management with 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready!",
+  "author": "wolfejam",
+  "homepage": "https://faf.one",
+  "repository": "https://github.com/wolfejam/claude-faf-mcp",
+  "npm": "claude-faf-mcp",
+  "categories": ["Development", "Productivity", "File Management"],
+  "features": [
+    "Zero dependencies, zero faff",
+    "99% AI-readiness in <50ms",
+    "Bi-directional sync between .faf and claude.md",
+    "11,000+ tests run",
+    "F1-inspired performance"
+  ],
+  "tools": [
+    {
+      "name": "faf_init",
+      "description": "Initialize .faf context for any project"
+    },
+    {
+      "name": "faf_score",
+      "description": "Calculate AI-readiness score with detailed breakdown"
+    },
+    {
+      "name": "faf_enhance",
+      "description": "Claude-optimized AI enhancement with multi-model support"
+    },
+    {
+      "name": "faf_sync",
+      "description": "Synchronize .faf context with claude.md"
+    },
+    {
+      "name": "faf_bi_sync",
+      "description": "Bi-directional sync with real-time watching"
+    },
+    {
+      "name": "faf_trust",
+      "description": "Validate context integrity and trust metrics"
+    },
+    {
+      "name": "faf_status",
+      "description": "Get comprehensive project status and AI readiness"
+    },
+    {
+      "name": "faf_clear",
+      "description": "Clear caches and reset state"
+    },
+    {
+      "name": "faf_debug",
+      "description": "Debug server environment and FAF CLI connectivity"
+    }
+  ],
+  "config": {
+    "mcpServers": {
+      "claude-faf": {
+        "command": "claude-faf-mcp",
+        "args": [],
+        "env": {}
+      }
+    }
+  }
+}
