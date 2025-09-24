@@ -3,7 +3,8 @@
 
 > **🏆 MCP READY - The JPEG for AI is REAL! 🏆**
 
-> **🏁 F1-Inspired TESTING CENTER: [`/Users/wolfejam/faf-test-environment`](https://github.com/wolfejam/claude-faf-mcp/blob/main/WOLFEJAM_TESTING_CENTER.md) | [View Dashboard](file:///Users/wolfejam/FAF/claude-faf-mcp/TESTING_CENTER_DASHBOARD.html) 🏁**
+> **🏁 Testing Center: [faf.one/testing](https://faf.one/testing) 🏁**
+
 
 > **Claude .faf MCP Server | AI-Context on-demand management with bi-sync for Claude Users of all levels, with C.O.R.E performance faf-engine-Mk1**
 
@@ -83,8 +84,8 @@ Currently delivers:
 
 ## 🏁 Testing & Development
 
-**📝 Testing Guide: [TESTING_CENTER.md](./TESTING_CENTER.md)**
 **🧪 Test Scripts: Available in `/tests/scripts/`**
+**🏆 11,000+ tests run and counting**
 
 ### Quick Test Commands
 ```bash
