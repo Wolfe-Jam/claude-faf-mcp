@@ -288,9 +288,11 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 MIT License - see the [LICENSE](LICENSE) file for details.
 
+**Note: ASK FOR ACCESS - SOME FEATURES**: The .faf-Engine(s) are proprietary and available under license.
+
 ## 🙋 Support
 
-- **GitHub Issues**: [Report bugs or request features](https://github.com/faf-dev/claude-faf-mcp/issues)
+- **GitHub Issues**: [Report bugs or request features](https://github.com/Wolfe-Jam/claude-faf-mcp/issues)
 - **Documentation**: [Full documentation](https://faf.dev/docs/claude-mcp)
 - **Community**: [Join our Discord](https://discord.gg/faf-dev)
 
