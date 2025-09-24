@@ -16,6 +16,9 @@ Transform your projects into AI-optimized collaboration spaces with **C.O.R.E (C
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict%20Mode-blue)](https://www.typescriptlang.org/)
 [![F1-Inspired](https://img.shields.io/badge/Philosophy-F1--Inspired-red)](https://github.com/faf-dev/claude-faf-mcp)
 
+## 🚨 ZERO DEPENDENCIES, ZERO FAFF™
+**11,000+ tests run** • **240+ npm downloads** • **<50ms operations**
+
 ## 🍊 ZERO .faf | .fafLESS AI
 
 **We ARE the C in MCP.** Vitamin Context for healthy AI. I⚡🍊
