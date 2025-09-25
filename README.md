@@ -1,4 +1,4 @@
-# .faf - The JPEG for AI™
+# 🧡⚡️ .faf - The JPEG for AI™
 
 **Foundational AI-context Format**
 
