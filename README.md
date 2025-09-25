@@ -1,24 +1,37 @@
-# 🏎️⚡️ claude-faf-mcp
+# FAF - The JPEG for AI
 
-## .faf The JPEG for AI™ - Universal AI Context Management
+**Foundational AI-context Format**
 
-> **MCP Compatible | Zero Dependencies | Production Ready**
+Universal, shareable AI-Context for any AI, human or team, regardless of size, location, languages, stack, setup or documentation.
 
-Transform your projects into AI-optimized collaboration spaces with championship-grade performance.
+<div align="center">
+<img src="https://faf.one/orange-smiley.svg" alt="Orange Smiley Logo" width="200" />
+
+### 🎉 800 WEEKLY DOWNLOADS AND CLIMBING! 🎉
+**Have you been dot.faffed yet?**
+**Universal AI Context • 33+ Tools • Real-time Scoring**
+
+</div>
+
+## claude-faf-mcp - MCP Implementation 🧡⚡️
+
+> **MCP SDK for Protocol | Zero Additional Dependencies | Production Ready**
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🚨 ZERO DEPENDENCIES, ZERO FAFF™
+## 🏆 Production Ready
 
-**Production v2.2.9** • **11,000+ tests run** • **<50ms operations** • **1 dependency only**
+**v2.2.11** • **800 WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
 
 ## 🚀 Quick Install
 
+### ⚡️💥 GET BOTH! Double Down!
 ```bash
-# Install globally
-npm install -g claude-faf-mcp
+# Install BOTH for maximum power!
+npm install -g claude-faf-mcp  # 🧡⚡️ Claude Desktop integration
+npm install -g faf-cli         # 🩵⚡️ AI-powered CLI
 
 # Add to Claude Desktop
 echo '{"mcpServers":{"claude-faf-mcp":{"command":"claude-faf-mcp","args":[],"env":{}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
@@ -81,10 +94,10 @@ Add to Claude Desktop configuration:
 
 ```
 📈 Status: PRODUCTION
-├─ 💎 Version: 2.2.9
+├─ 💎 Version: 2.2.10
 ├─ 🚀 Performance: <50ms
 ├─ 📦 Dependencies: 1 (MCP SDK only)
-├─ 🧪 Tests Run: 11,000+
+├─ 🧪 Tests Run: 11,240+
 └─ 🏆 AI Readiness: 99%
 ```
 
@@ -123,4 +136,12 @@ MIT License - see LICENSE file
 
 ---
 
-**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™**
+## ⚡️💥 The Complete FAF Ecosystem
+
+[🩵⚡️ CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://faf.one/chrome)
+
+**🏎️⚡️ FAST AF - The JPEG for AI™**
+
+---
+
+**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **800+ DOWNLOADS!** 🎉

@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.2.10",
+  "version": "2.2.11",
   "description": ".faf The JPEG for AI is here. The C in MCP is .faf - Foundational AI-context Format. Universal AI context management with 33+ tools for Claude Desktop. Every command shows AI-Readiness score. Drop file → Type 'faf' → 99% ready!",
   "main": "dist/server.js",
   "bin": {
@@ -84,6 +84,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.0"
   },
-  "icon": "./assets/icons/faf-icon.png",
-  "displayName": ".faf 🟠"
+  "icon": "./assets/icons/orange-smiley.svg",
+  "displayName": ".faf 🧡⚡️"
 }
