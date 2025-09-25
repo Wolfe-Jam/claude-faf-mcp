@@ -8,7 +8,7 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 <img src="https://faf.one/orange-smiley.svg" alt="Orange Smiley Logo" width="200" />
 
 ### 🎉 800 WEEKLY DOWNLOADS AND CLIMBING! 🎉
-**Have you been dot.faffed yet?**
+**[Have you been dot.faffed yet? 🧡⚡️](https://faf.one)**
 **Universal AI Context • 33+ Tools • Real-time Scoring**
 
 </div>
