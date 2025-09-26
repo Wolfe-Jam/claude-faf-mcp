@@ -3,6 +3,7 @@ import { FafEngineAdapter } from './engine-adapter';
 import { fileHandlers } from './fileHandler';
 import * as fs from 'fs';
 import * as path from 'path';
+import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -417,12 +418,36 @@ export class FafToolHandler {
         };
       }
 
-      // Create basic .faf content
+      // Check project type with fuzzy detection (Friday Feature!)
+      const projectName = path.basename(cwd);
+      const projectDescription = args?.description || '';
+
+      // Detect Chrome Extension with fuzzy matching
+      const chromeDetection = FuzzyDetector.detectChromeExtension(projectDescription);
+      const projectType = FuzzyDetector.detectProjectType(projectDescription);
+
+      // Build project data with Intel-Friday auto-fill!
+      let projectData: any = {
+        project: projectName,
+        project_type: projectType,
+        description: projectDescription,
+        generated: new Date().toISOString(),
+        version: '1.0.0'
+      };
+
+      // Apply Intel-Friday: Auto-fill Chrome Extension slots for 90%+ score!
+      if (chromeDetection.detected) {
+        projectData = applyIntelFriday(projectData);
+      }
+
+      // Create enhanced .faf content
       const fafContent = `# FAF - Foundational AI Context
-project: ${path.basename(cwd)}
+project: ${projectData.project}
+type: ${projectData.project_type}${chromeDetection.detected ? ' 🎯' : ''}
 context: I⚡🍊
-generated: ${new Date().toISOString()}
-version: 1.0.0
+generated: ${projectData.generated}
+version: ${projectData.version}
+${chromeDetection.corrected ? `# Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''}
 
 # The Formula
 human_input: Your project files
@@ -431,9 +456,18 @@ output: 105% Big Orange Performance
 
 # Quick Context
 working_directory: ${cwd}
-initialized_by: claude-faf-mcp
+initialized_by: claude-faf-mcp${projectData._friday_feature ? `\nfriday_feature: ${projectData._friday_feature}` : ''}
 vitamin_context: true
 faffless: true
+
+${chromeDetection.detected ? `# Chrome Extension Auto-Fill (90%+ Score!)
+runtime: ${projectData.runtime}
+hosting: ${projectData.hosting}
+api_type: ${projectData.api_type}
+backend: ${projectData.backend}
+database: ${projectData.database}
+build: ${projectData.build}
+package_manager: ${projectData.package_manager}` : ''}
 `;
 
       fs.writeFileSync(fafPath, fafContent);
@@ -441,7 +475,11 @@ faffless: true
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ Created .faf file in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!`
+          text: `🚀 Claude FAF Initialization:\n\n✅ Created .faf file in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
+            chromeDetection.detected ? '\n\n🎯 Friday Feature: Chrome Extension detected!\n📈 Auto-filled 7 slots for 90%+ score!' : ''
+          }${
+            chromeDetection.corrected ? `\n📝 Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''
+          }`
         }]
       };
     } catch (error: any) {

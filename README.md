@@ -1,5 +1,8 @@
 # 🧡⚡️ .faf - The JPEG for AI™
 
+## 🎉 MAJOR UPDATE v2.2.15 - FREE & Open Source!
+**No pricing, no subscriptions, 100% FREE MCP Server**
+
 **Foundational AI-context Format**
 
 Universal, shareable AI-Context for any AI, human or team, regardless of size, location, languages, stack, setup or documentation.
@@ -23,15 +26,15 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 
 ## 🏆 Production Ready
 
-**v2.2.11** • **800 WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
+**v2.2.15** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
 
 ## 🚀 Quick Install
 
-### ⚡️💥 GET BOTH! Double Down!
+### ⚡️💥 GET BOTH! Double Down! (100% FREE)
 ```bash
-# Install BOTH for maximum power!
-npm install -g claude-faf-mcp  # 🧡⚡️ Claude Desktop integration
-npm install -g faf-cli         # 🩵⚡️ AI-powered CLI
+# Install BOTH for maximum power - completely FREE!
+npm install -g claude-faf-mcp  # 🧡⚡️ FREE Claude Desktop integration
+npm install -g faf-cli         # 🩵⚡️ FREE AI-powered CLI
 
 # Add to Claude Desktop
 echo '{"mcpServers":{"claude-faf-mcp":{"command":"claude-faf-mcp","args":[],"env":{}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
