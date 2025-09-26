@@ -148,7 +148,7 @@ MIT License - see LICENSE file
 
 ## ⚡️💥 The Complete FAF Ecosystem
 
-[🩵⚡️ CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://faf.one/chrome)
+[🩵⚡️ CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
 
 **🏎️⚡️ FAST AF - The JPEG for AI™**
 
