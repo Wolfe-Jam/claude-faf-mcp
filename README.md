@@ -46,6 +46,12 @@ Restart Claude Desktop - Done! 🏁
 
 The MCP server that brings .faf format power to Claude Desktop. Drop any project file into Claude and get instant AI understanding.
 
+### 🎉 Friday Features - Chrome Extension Support!
+
+**Chrome Extension Auto-Detection** | Projects detected as Chrome Extensions automatically get 90%+ scores
+**Universal Fuzzy Matching** | Type "raect" or "chr ext" - we know what you mean!
+**Intel-Friday™** | Smart detection that fills 7 critical slots for Chrome Extensions
+
 ### Key Features
 
 - ✅ **Zero Configuration** - Works instantly
@@ -59,6 +65,7 @@ The MCP server that brings .faf format power to Claude Desktop. Drop any project
 ### Core Tools
 - `faf_init` - Initialize .faf context
 - `faf_score` - Calculate AI readiness score
+- `faf_friday` - 🎉 Test Friday Features & Chrome Extension detection
 - `faf_status` - Get project status
 
 ### Enhancement Tools

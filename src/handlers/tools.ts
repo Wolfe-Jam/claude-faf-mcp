@@ -161,6 +161,20 @@ export class FafToolHandler {
             required: ['path', 'content'],
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_friday',
+          description: '🎉 Friday Features - Chrome Extension detection, fuzzy matching & more! 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              test: {
+                type: 'string',
+                description: 'Test fuzzy matching with typos like "raect" or "chr ext"'
+              }
+            },
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -197,6 +211,8 @@ export class FafToolHandler {
         return await this.handleFafWhat(args);
       case 'faf_read':
         return await fileHandlers.faf_read(args);
+      case 'faf_friday':
+        return await this.handleFafFriday(args);
       case 'faf_write':
         return await fileHandlers.faf_write(args);
       default:
@@ -801,5 +817,54 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         isError: true
       };
     }
+  }
+
+  private async handleFafFriday(args: any): Promise<CallToolResult> {
+    const { test } = args || {};
+
+    let response = `🎉 **Friday Features in FAF MCP!**\n\n`;
+    response += `**Chrome Extension Auto-Detection** | Boosts scores to 90%+ automatically\n`;
+    response += `**Universal Fuzzy Matching** | Typo-tolerant: "raect"→"react", "chr ext"→"chrome extension"\n`;
+    response += `**Intel-Friday™** | Smart IF statements that add massive value\n\n`;
+
+    if (test) {
+      // Test fuzzy matching
+      const suggestion = FuzzyDetector.getSuggestion(test);
+      const projectType = FuzzyDetector.detectProjectType(test);
+      const chromeDetection = FuzzyDetector.detectChromeExtension(test);
+
+      response += `\n**Testing: "${test}"**\n`;
+
+      if (suggestion) {
+        response += `✅ Fuzzy Match: "${test}" → "${suggestion}"\n`;
+      }
+
+      response += `📦 Project Type Detected: ${projectType}\n`;
+
+      if (chromeDetection.detected) {
+        response += `🎯 Chrome Extension Detected! (Confidence: ${chromeDetection.confidence})\n`;
+        if (chromeDetection.corrected) {
+          response += `   Corrected from: "${test}" → "${chromeDetection.corrected}"\n`;
+        }
+      }
+
+      // Show what would be auto-filled
+      if (chromeDetection.detected && chromeDetection.confidence === 'high') {
+        response += `\n**Auto-fill Preview (7 slots for 90%+ score):**\n`;
+        const slots = FuzzyDetector.getChromeExtensionSlots();
+        for (const [key, value] of Object.entries(slots)) {
+          response += `• ${key}: ${value}\n`;
+        }
+      }
+    } else {
+      response += `\n💡 Try: \`faf_friday test:"raect"\` or \`faf_friday test:"chr ext"\``;
+    }
+
+    return {
+      content: [{
+        type: 'text',
+        text: response
+      }]
+    };
   }
 }
