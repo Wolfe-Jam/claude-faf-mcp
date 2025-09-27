@@ -1,6 +1,6 @@
 # 🧡⚡️ .faf - The JPEG for AI™
 
-## 🎉 MAJOR UPDATE v2.2.15 - FREE & Open Source!
+## 🎉 MAJOR UPDATE v2.3.0 - Friday Features!
 **No pricing, no subscriptions, 100% FREE MCP Server**
 
 **Foundational AI-context Format**
@@ -26,7 +26,7 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 
 ## 🏆 Production Ready
 
-**v2.2.15** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
+**v2.3.0** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
 
 ## 🚀 Quick Install
 
@@ -104,7 +104,7 @@ Add to Claude Desktop configuration:
 
 ```
 📈 Status: PRODUCTION
-├─ 💎 Version: 2.2.10
+├─ 💎 Version: 2.3.0
 ├─ 🚀 Performance: <50ms
 ├─ 📦 Dependencies: 1 (MCP SDK only)
 ├─ 🧪 Tests Run: 11,240+
