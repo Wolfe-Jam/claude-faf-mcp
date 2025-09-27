@@ -1,6 +1,15 @@
 # 🧡⚡️ .faf - The JPEG for AI™
 
-## 🎉 MAJOR UPDATE v2.3.0 - Friday Features!
+<div align="center">
+
+## ⭐ Please Star Us Now - It Really Helps! ⭐
+[![GitHub stars](https://img.shields.io/github/stars/Wolfe-Jam/faf?style=social)](https://github.com/Wolfe-Jam/faf)
+
+**[Join our GitHub Community](https://github.com/Wolfe-Jam/faf/discussions) | 3000+ Downloads, Only 1 Star?**
+
+</div>
+
+## 🎉 MAJOR UPDATE v2.3.1 - Friday Features!
 **No pricing, no subscriptions, 100% FREE MCP Server**
 
 **Foundational AI-context Format**
@@ -26,7 +35,7 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 
 ## 🏆 Production Ready
 
-**v2.3.0** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
+**v2.3.1** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
 
 ## 🚀 Quick Install
 
