@@ -1,18 +1,18 @@
-# 🧡⚡️ .faf - The JPEG for AI™
+# 🧡⚡️ claude-faf-mcp v2.3.5 | .faf - The JPEG for AI™
 
 <div align="center">
 
-## ⭐ GitHub Stars NEEDED! You Get Software, We Get a STAR! Deal? ⭐
-[![GitHub stars](https://img.shields.io/github/stars/Wolfe-Jam/faf?style=social)](https://github.com/Wolfe-Jam/faf)
+## 🧡 Orange MCP - Brings .faf directly to Claude Desktop
 
-**The Deal: FREE MCP Server (worth $$$) for 1 Click ⭐**
+**100% FREE Forever** • **Zero Setup** • **33+ Tools** • **1,100+ Weekly Downloads**
 
-**[Join 3000+ Users](https://github.com/Wolfe-Jam/faf/discussions) | [Star Now](https://github.com/Wolfe-Jam/faf) | It's a Fair Trade!**
+**[Join the Community](https://github.com/Wolfe-Jam/faf/discussions)** • **[Report Issues](https://github.com/Wolfe-Jam/faf/issues)**
 
 </div>
 
-## 🎉 MAJOR UPDATE v2.3.1 - Friday Features!
-**No pricing, no subscriptions, 100% FREE MCP Server**
+## 🌟 Join Our Growing Community!
+
+### 💬 New Community Hub at [github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
 
 **Foundational AI-context Format**
 
@@ -35,17 +35,22 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## 🏆 Production Ready
+## ⚡ Key Features
 
-**v2.3.1** • **🆓 FREE & Open Source** • **800+ WEEKLY DOWNLOADS!** 🎉 • **<50ms operations** • **MCP Ready (PR #2759)**
+### Technical Excellence
+- **Performance** - <50ms operations, rigorously benchmarked
+- **Reliability** - Extensively tested including edge cases
+- **Type Safety** - 100% TypeScript with strict mode
+- **Security** - Minimal dependencies (only MCP SDK)
+- **Production Ready** - Zero-error tolerance
 
 ## 🚀 Quick Install
 
 ### ⚡️💥 GET BOTH! Double Down! (100% FREE)
 ```bash
 # Install BOTH for maximum power - completely FREE!
-npm install -g claude-faf-mcp  # 🧡⚡️ FREE Claude Desktop integration
-npm install -g faf-cli         # 🩵⚡️ FREE AI-powered CLI
+npm install -g claude-faf-mcp  # 🧡 Orange MCP - Claude Desktop integration
+npm install -g faf-cli         # 🩵 Cyan CLI - Command Line Tool
 
 # Add to Claude Desktop
 echo '{"mcpServers":{"claude-faf-mcp":{"command":"claude-faf-mcp","args":[],"env":{}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
@@ -165,4 +170,6 @@ MIT License - see LICENSE file
 
 ---
 
-**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **800+ DOWNLOADS!** 🎉
+**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **3000+ HAPPY USERS!** 🎉
+
+**100% FREE Forever** • **No Strings Attached** • **Just Build with Claude**

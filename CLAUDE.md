@@ -1,5 +1,9 @@
 # 🏎️ CLAUDE.md - claude-faf-mcp Persistent Context & Intelligence
 
+## ⚠️ CRITICAL: NPM PUBLISHING RULES
+**SEE: NPM-PUBLISH-GUIDE.md** - MANUAL PUBLISH ONLY, NO MISTAKES!
+**VERSION CONVENTION:** Version ONCE at top of README only!
+
 ## PROJECT STATE: ACTIVE 🚀
 **Current Position:** Provide FAF context tools directly in Claude Desktop via MCP
 **Tyre Compound:** ULTRASOFT C5 (Maximum Performance)

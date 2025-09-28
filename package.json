@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.3.1",
-  "description": "⭐ STAR us: github.com/Wolfe-Jam/faf | 💬 Community: github.com/Wolfe-Jam/faf/discussions | MCP Server with 33+ tools. You get the software, we get a star! Fair trade?",
+  "version": "2.3.5",
+  "description": "🧡 Orange MCP - Brings .faf AI context directly into Claude Desktop. Transform any project into perfect AI context. 100% FREE • Open Source • If helpful, a ⭐ is appreciated!",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/src/cli.js"
