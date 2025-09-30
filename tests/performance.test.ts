@@ -99,7 +99,7 @@ describe('Directory Operation Performance', () => {
   });
 
   test('should generate tree view within target time', async () => {
-    const generateTree = async (dir: string, depth: number = 3): Promise<string> => {
+    const generateTree = async (dir: string, _depth: number = 3): Promise<string> => {
       // Simplified tree generation for testing
       const items = await fs.readdir(dir);
       return items.slice(0, 10).join('\n'); // Limit for testing

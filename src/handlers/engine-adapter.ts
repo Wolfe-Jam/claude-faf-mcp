@@ -2,7 +2,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
-import { isError, isDefined } from '../utils/type-guards.js';
+import { isError } from '../utils/type-guards.js';  // ✅ FIXED: Removed unused isDefined
 
 const execAsync = promisify(exec);
 

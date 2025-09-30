@@ -14,7 +14,7 @@ export class DisplayProtocol {
   /**
    * Wrap content with ALL display forcing mechanisms
    */
-  static forceInline(content: string, score?: number): string {
+  static forceInline(content: string, _score?: number): string {
     return `<!-- FAF:RENDER:INLINE -->
 <!-- DISPLAY:PRIORITY:HIGH -->
 <!-- USER:DATA:BEGIN -->

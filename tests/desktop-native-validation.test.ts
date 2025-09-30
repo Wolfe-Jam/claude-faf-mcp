@@ -14,16 +14,15 @@ import * as path from 'path';
 
 describe('🏁 Desktop-Native MCP Championship Tests', () => {
   let testDir: string;
-  let server: ClaudeFafMcpServer;
-  
+
   beforeAll(async () => {
     // Create isolated test environment
     testDir = path.join('/tmp', `faf-desktop-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
     process.chdir(testDir);
-    
-    // Initialize server WITHOUT CLI
-    server = new ClaudeFafMcpServer({
+
+    // Initialize server WITHOUT CLI (for validation but not used in tests)
+    new ClaudeFafMcpServer({
       transport: 'stdio',
       fafEnginePath: 'native', // Signal for native mode
       debug: true
@@ -55,7 +54,7 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       const content = '# Championship Mode\n105% Big Orange';
       
       const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      const result = await handler.callTool('faf_write', { 
+      await handler.callTool('faf_write', { 
         path: testFile,
         content 
       });
@@ -110,7 +109,7 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       
       // File ops should still work
       const testFile = path.join(testDir, 'fallback.txt');
-      const writeResult = await handler.callTool('faf_write', {
+      await handler.callTool('faf_write', {
         path: testFile,
         content: 'Works without CLI!'
       });

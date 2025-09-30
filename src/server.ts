@@ -111,7 +111,7 @@ export class ClaudeFafMcpServer {
     }
 
     // Health check endpoint
-    app.get('/health', (req, res) => {
+    app.get('/health', (_req, res) => {
       res.json({
         status: 'healthy',
         server: 'claude-faf-mcp',
@@ -123,7 +123,7 @@ export class ClaudeFafMcpServer {
     });
 
     // Server info endpoint
-    app.get('/info', (req, res) => {
+    app.get('/info', (_req, res) => {
       res.json({
         name: 'claude-faf-mcp',
         version: '1.0.0',

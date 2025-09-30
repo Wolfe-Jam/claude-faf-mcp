@@ -2,7 +2,6 @@
 
 import { program } from 'commander';
 import { ClaudeFafMcpServer } from './server';
-import * as path from 'path';
 
 program
   .name('claude-faf-mcp')

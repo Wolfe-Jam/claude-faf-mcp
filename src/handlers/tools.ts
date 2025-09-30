@@ -220,7 +220,7 @@ export class FafToolHandler {
     }
   }
   
-  private async handleFafStatus(args: any): Promise<CallToolResult> {
+  private async handleFafStatus(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     // Native implementation - no CLI needed!
     const cwd = this.engineAdapter.getWorkingDirectory();
     const fafPath = path.join(cwd, '.faf');
@@ -259,14 +259,12 @@ export class FafToolHandler {
     try {
       const fs = await import('fs').then(m => m.promises);
       const path = await import('path');
-      const os = await import('os');
 
       // Get current working directory from engine adapter (smart detection)
       const cwd = this.engineAdapter.getWorkingDirectory();
 
       // Score calculation components
       let score = 0;
-      const maxScore = 99; // Technical max - only Claude can grant 100%
       const details: string[] = [];
 
       // 1. Check for .faf file (40 points)
@@ -509,7 +507,7 @@ package_manager: ${projectData.package_manager}` : ''}
     }
   }
 
-  private async handleFafTrust(args: any): Promise<CallToolResult> {
+  private async handleFafTrust(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const result = await this.engineAdapter.callEngine('trust');
     
     if (!result.success) {
@@ -530,7 +528,7 @@ package_manager: ${projectData.package_manager}` : ''}
     };
   }
 
-  private async handleFafSync(args: any): Promise<CallToolResult> {
+  private async handleFafSync(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const result = await this.engineAdapter.callEngine('sync');
     
     if (!result.success) {
@@ -657,7 +655,7 @@ package_manager: ${projectData.package_manager}` : ''}
     };
   }
 
-  private async handleFafAbout(args: any): Promise<CallToolResult> {
+  private async handleFafAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     // Stop FAFfing about and get the facts!
     const packageInfo = {
       name: 'claude-faf-mcp',
@@ -703,7 +701,7 @@ HOW IT WORKS:
     };
   }
 
-  private async handleFafWhat(args: any): Promise<CallToolResult> {
+  private async handleFafWhat(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const whatText = `.faf = THE JPEG for AI
 
 WHAT: .faf = Foundational AI-context Format
@@ -727,7 +725,7 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
     };
   }
 
-  private async handleFafDebug(args: any): Promise<CallToolResult> {
+  private async handleFafDebug(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     try {
       const fs = await import('fs');
       const path = await import('path');
@@ -759,7 +757,7 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
       // Check FAF CLI availability
       try {
         const enginePath = this.engineAdapter.getEnginePath();
-        let whichCmd = 'which faf';
+        const whichCmd = 'which faf';
         
         if (enginePath !== 'faf') {
           // Custom path provided

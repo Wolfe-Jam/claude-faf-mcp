@@ -11,9 +11,8 @@
 import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { formatScore, format3Lines, formatBigOrange } from '../utils/visual-style.js';
+// ✅ FIXED: Removed unused imports (formatScore, format3Lines, formatBigOrange, ChampionshipFormatter, AchievementStatus)
 import { FafEngineAdapter } from './engine-adapter.js';
-import ChampionshipFormatter, { AchievementStatus } from '../utils/championship-format.js';
 import { DisplayProtocol } from '../utils/display-protocol.js';
 import { wrapWithInstruction } from './behavioral-instruction.js';
 
@@ -121,14 +120,7 @@ ${enhancedOutput}`;
     });
   }
 
-  private async countProjectFiles(): Promise<number> {
-    try {
-      const files = await fs.readdir(this.currentProjectDir, { recursive: true });
-      return files.length;
-    } catch {
-      return 0;
-    }
-  }
+  // ✅ FIXED: Removed unused countProjectFiles method
 
   /**
    * List all 33+ championship tools
@@ -527,7 +519,7 @@ ${enhancedOutput}`;
   /**
    * Execute tool with sub-50ms performance target
    */
-  async callTool(name: string, args: any): Promise<CallToolResult> {
+  async callTool(name: string, _args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     this.startTime = Date.now();
 
     try {
@@ -536,25 +528,25 @@ ${enhancedOutput}`;
         // Core Tools
         case 'faf':
         case 'faf_auto':
-          return await this.handleAuto(args);
+          return await this.handleAuto(_args);
         case 'faf_choose':
-          return await this.handleChoose(args);
+          return await this.handleChoose(_args);
         case 'faf_display':
-          return await this.handleDisplay(args);
+          return await this.handleDisplay(_args);
         case 'faf_init':
-          return await this.handleInit(args);
+          return await this.handleInit(_args);
         case 'faf_show':
-          return await this.handleShow(args);
+          return await this.handleShow(_args);
         case 'faf_score':
-          return await this.handleScore(args);
+          return await this.handleScore(_args);
         case 'faf_sync':
-          return await this.handleSync(args);
+          return await this.handleSync(_args);
         case 'faf_bi_sync':
-          return await this.handleBiSync(args);
+          return await this.handleBiSync(_args);
 
         // Trust Suite
         case 'faf_trust':
-          return await this.handleTrust(args);
+          return await this.handleTrust(_args);
         case 'faf_trust_confidence':
           return await this.handleTrust({ mode: 'confidence' });
         case 'faf_trust_garage':
@@ -566,63 +558,63 @@ ${enhancedOutput}`;
 
         // Revolutionary Tools
         case 'faf_credit':
-          return await this.handleCredit(args);
+          return await this.handleCredit(_args);
         case 'faf_todo':
-          return await this.handleTodo(args);
+          return await this.handleTodo(_args);
         case 'faf_chat':
-          return await this.handleChat(args);
+          return await this.handleChat(_args);
         case 'faf_share':
-          return await this.handleShare(args);
+          return await this.handleShare(_args);
 
         // AI Suite
         case 'faf_enhance':
-          return await this.handleEnhance(args);
+          return await this.handleEnhance(_args);
         case 'faf_analyze':
-          return await this.handleAnalyze(args);
+          return await this.handleAnalyze(_args);
         case 'faf_verify':
-          return await this.handleVerify(args);
+          return await this.handleVerify(_args);
 
         // Discovery
         case 'faf_index':
-          return await this.handleIndex(args);
+          return await this.handleIndex(_args);
         case 'faf_search':
-          return await this.handleSearch(args);
+          return await this.handleSearch(_args);
         case 'faf_stacks':
-          return await this.handleStacks(args);
+          return await this.handleStacks(_args);
         case 'faf_faq':
-          return await this.handleFaq(args);
+          return await this.handleFaq(_args);
 
         // Developer Tools
         case 'faf_status':
-          return await this.handleStatus(args);
+          return await this.handleStatus(_args);
         case 'faf_check':
-          return await this.handleCheck(args);
+          return await this.handleCheck(_args);
         case 'faf_clear':
-          return await this.handleClear(args);
+          return await this.handleClear(_args);
         case 'faf_edit':
-          return await this.handleEdit(args);
+          return await this.handleEdit(_args);
 
         // Filesystem Operations
         case 'faf_list':
-          return await this.handleList(args);
+          return await this.handleList(_args);
         case 'faf_exists':
-          return await this.handleExists(args);
+          return await this.handleExists(_args);
         case 'faf_delete':
-          return await this.handleDelete(args);
+          return await this.handleDelete(_args);
         case 'faf_move':
-          return await this.handleMove(args);
+          return await this.handleMove(_args);
         case 'faf_copy':
-          return await this.handleCopy(args);
+          return await this.handleCopy(_args);
         case 'faf_mkdir':
-          return await this.handleMkdir(args);
+          return await this.handleMkdir(_args);
 
         // About & File operations
         case 'faf_about':
-          return await this.handleAbout(args);
+          return await this.handleAbout(_args);
         case 'faf_read':
-          return await this.handleRead(args);
+          return await this.handleRead(_args);
         case 'faf_write':
-          return await this.handleWrite(args);
+          return await this.handleWrite(_args);
 
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -1484,7 +1476,7 @@ faf_score --save      # Save this scorecard
   }
 
   // Discovery Handlers
-  private async handleIndex(args: any): Promise<CallToolResult> {
+  private async handleIndex(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const files = await fs.readdir(process.cwd());
     const index = files.sort().map(f => `• ${f}`).join('\n');
     return await this.formatResult('📚 FAF Index', `A-Z Catalog:\n${index}`);
@@ -1495,7 +1487,7 @@ faf_score --save      # Save this scorecard
     return await this.formatResult('🔍 FAF Search', `Searching for "${query}"... Found 3 matches`);
   }
 
-  private async handleStacks(args: any): Promise<CallToolResult> {
+  private async handleStacks(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const stacks = 'TypeScript (45%)\nNode.js (30%)\nReact (15%)\nMCP (10%)';
     return await this.formatResult('📊 FAF STACKTISTICS', stacks);
   }
@@ -1700,14 +1692,14 @@ faf_score --save      # Save this scorecard
   }
 
   // Developer Tool Handlers
-  private async handleStatus(args: any): Promise<CallToolResult> {
+  private async handleStatus(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const cwd = process.cwd();
     const hasFaf = await this.fileExists(path.join(cwd, '.faf'));
     const status = hasFaf ? '✅ FAF initialized' : '❌ No FAF file';
     return await this.formatResult('📊 FAF Status', status);
   }
 
-  private async handleCheck(args: any): Promise<CallToolResult> {
+  private async handleCheck(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     return await this.formatResult('✅ FAF Check', 'All systems operational!');
   }
 
@@ -1761,7 +1753,7 @@ faf_score --save      # Save this scorecard
     return await this.formatResult('📁 Created', `Directory ${args.path} created`);
   }
 
-  private async handleAbout(args: any): Promise<CallToolResult> {
+  private async handleAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     return {
       content: [{
         type: 'text',

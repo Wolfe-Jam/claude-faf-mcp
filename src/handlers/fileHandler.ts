@@ -42,7 +42,7 @@ export class PathValidator {
         };
       }
       return { valid: true };
-    } catch (error) {
+    } catch (_error: unknown) {
       // File doesn't exist yet (for write operations)
       return { valid: true };
     }
