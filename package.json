@@ -1,7 +1,7 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.3.5",
-  "description": "🧡 Orange MCP - Brings .faf AI context directly into Claude Desktop. Transform any project into perfect AI context. 100% FREE • Open Source • If helpful, a ⭐ is appreciated!",
+  "version": "2.3.6",
+  "description": "🧡 Orange Smiley MCP - Brings .faf AI context directly into Claude Desktop. Transform any project into perfect AI context. 100% FREE • Open Source • If helpful, a ⭐ is appreciated!",
   "main": "dist/server.js",
   "bin": {
     "claude-faf-mcp": "dist/src/cli.js"

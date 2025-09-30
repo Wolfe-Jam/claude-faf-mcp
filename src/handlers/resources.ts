@@ -6,7 +6,7 @@ export class FafResourceHandler {
 
   async listResources() {
     // Get the working directory for file system resources
-    const workingDir = process.env.FAF_WORKING_DIR || process.cwd();
+    const workingDir = process.env.FAF_WORKING_DIR ?? process.cwd();
 
     return {
       resources: [
@@ -74,7 +74,7 @@ export class FafResourceHandler {
       contents: [{
         uri: 'claude-faf://status',
         mimeType: 'text/plain',
-        text: result.success ? (result.data?.output || result.data) : `Error: ${result.error}`
+        text: result.success ? (result.data?.output ?? String(result.data)) : `Error: ${result.error ?? 'Unknown error'}`
       }]
     };
   }

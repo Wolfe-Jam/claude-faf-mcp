@@ -20,6 +20,9 @@ import { wrapWithInstruction } from './behavioral-instruction.js';
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
 
+// Trust mode type for type safety
+type TrustMode = 'confidence' | 'garage' | 'panic' | 'guarantee';
+
 export class ChampionshipToolHandler {
   private startTime: number = 0;
   private fafEngine: FafEngineAdapter;
@@ -668,7 +671,7 @@ ${enhancedOutput}`;
 
       // Step 2: 💥 FORMAT-FINDER (FF) GAME-CHANGING DETECTION!
       let stack = 'Unknown';
-      let techDetails = [];
+      let techDetails: string[] = [];
 
       // Try Format-Finder FIRST for intelligent detection
       try {
@@ -873,14 +876,14 @@ By: claude-faf-mcp v2.2.0`;
         await fs.writeFile(fafPath, fafContent);
         return await this.formatResult('🚀 FAF Init', `Created .faf in ${dir} (native fallback)`);
       }
-    } catch (error) {
+    } catch (error: any) {
       return await this.formatResult('🚀 FAF Init', `Error: ${error.message}`);
     }
   }
 
-  private async fileExists(path: string): Promise<boolean> {
+  private async fileExists(filePath: string): Promise<boolean> {
     try {
-      await fs.access(path);
+      await fs.access(filePath);
       return true;
     } catch {
       return false;
@@ -1401,14 +1404,14 @@ faf_score --save      # Save this scorecard
   }
 
   private async handleTrust(args: any): Promise<CallToolResult> {
-    const mode = args.mode || 'confidence';
-    const messages = {
+    const mode = (args.mode || 'confidence') as TrustMode;
+    const messages: Record<TrustMode, string> = {
       confidence: '✅ High confidence - Ready for production',
       garage: '🔧 Under the hood - Everything looks good',
       panic: '🚨 PANIC MODE - But we got this!',
       guarantee: '🏆 Championship guarantee - 100% trusted'
     };
-    return await this.formatResult(`🔒 FAF Trust (${mode})`, messages[mode] || 'Trust verified');
+    return await this.formatResult(`🔒 FAF Trust (${mode})`, messages[mode]);
   }
 
   // Revolutionary Tool Handlers

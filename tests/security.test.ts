@@ -8,6 +8,9 @@ import * as path from 'path';
 
 // Mock file operations for testing
 const validatePath = (filePath: string): boolean => {
+  // Check for empty path
+  if (!filePath || filePath.trim() === '') return false;
+
   // Check for directory traversal
   if (filePath.includes('..')) return false;
 

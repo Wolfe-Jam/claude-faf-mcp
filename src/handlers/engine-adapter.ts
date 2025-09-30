@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
+import { isError, isDefined } from '../utils/type-guards.js';
 
 const execAsync = promisify(exec);
 
@@ -11,8 +12,8 @@ const getEnhancedEnv = (): NodeJS.ProcessEnv => ({
   PATH: [
     '/usr/local/bin',
     '/opt/homebrew/bin',
-    process.env.HOME + '/.npm/bin',
-    process.env.HOME + '/.npm-global/bin',
+    process.env.HOME ? `${process.env.HOME}/.npm/bin` : undefined,
+    process.env.HOME ? `${process.env.HOME}/.npm-global/bin` : undefined,
     '/usr/bin',
     '/bin',
     process.env.PATH
@@ -39,23 +40,19 @@ export class FafEngineAdapter {
   
   private findBestWorkingDirectory(): string {
     // Priority 1: Environment variable for explicit control
-    if (process.env.FAF_WORKING_DIR) {
-      const envDir = process.env.FAF_WORKING_DIR;
-      if (fs.existsSync(envDir)) {
-        return envDir;
-      }
+    const fafWorkingDir = process.env.FAF_WORKING_DIR;
+    if (fafWorkingDir && fs.existsSync(fafWorkingDir)) {
+      return fafWorkingDir;
     }
 
     // Priority 2: MCP might pass a working directory hint
-    if (process.env.MCP_WORKING_DIR) {
-      const mcpDir = process.env.MCP_WORKING_DIR;
-      if (fs.existsSync(mcpDir)) {
-        return mcpDir;
-      }
+    const mcpWorkingDir = process.env.MCP_WORKING_DIR;
+    if (mcpWorkingDir && fs.existsSync(mcpWorkingDir)) {
+      return mcpWorkingDir;
     }
 
     // Priority 3: Check common project locations
-    const homeDir = process.env.HOME || process.env.USERPROFILE;
+    const homeDir = process.env.HOME ?? process.env.USERPROFILE;
     if (homeDir) {
       // Check for common project directories
       const projectPaths = [
@@ -96,7 +93,7 @@ export class FafEngineAdapter {
     }
 
     // Fall back to home or temp
-    return homeDir || '/tmp';
+    return homeDir ?? '/tmp';
   }
 
   async callEngine(command: string, args: string[] = []): Promise<FafEngineResult> {
@@ -141,7 +138,7 @@ export class FafEngineAdapter {
       
       const duration = Date.now() - startTime;
       
-      if (stderr && stderr.trim()) {
+      if (stderr?.trim()) {
         console.warn(`FAF engine warning: ${stderr.trim()}`);
       }
       
@@ -150,16 +147,27 @@ export class FafEngineAdapter {
         data: this.parseOutput(stdout),
         duration
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       const duration = Date.now() - startTime;
       
-      let errorMessage = error.message;
-      if (error.code === 'ETIMEDOUT') {
-        errorMessage = `Command timed out after ${this.timeout}ms`;
-      } else if (error.signal === 'SIGTERM') {
-        errorMessage = 'Command was terminated';
-      } else if (error.code === 'ENOENT') {
-        errorMessage = `FAF CLI not found. Please ensure 'faf' is installed and accessible. Path: ${this.enginePath}`;
+      let errorMessage = 'Unknown error occurred';
+      
+      if (isError(error)) {
+        errorMessage = error.message;
+        
+        // Handle specific error codes
+        if ('code' in error) {
+          if (error.code === 'ETIMEDOUT') {
+            errorMessage = `Command timed out after ${this.timeout}ms`;
+          } else if (error.code === 'ENOENT') {
+            errorMessage = `FAF CLI not found. Please ensure 'faf' is installed and accessible. Path: ${this.enginePath}`;
+          }
+        }
+        
+        // Handle signal termination
+        if ('signal' in error && error.signal === 'SIGTERM') {
+          errorMessage = 'Command was terminated';
+        }
       }
       
       console.error(`FAF engine error: ${errorMessage}`);

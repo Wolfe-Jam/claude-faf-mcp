@@ -1,8 +1,8 @@
-# 🧡⚡️ claude-faf-mcp v2.3.5 | .faf - The JPEG for AI™
+# 🧡⚡️ claude-faf-mcp v2.3.6 | .faf Project DNA for ANY AI ✨
 
 <div align="center">
 
-## 🧡 Orange MCP - Brings .faf directly to Claude Desktop
+## 🧡 Orange Smiley MCP for Claude Desktop
 
 **100% FREE Forever** • **Zero Setup** • **33+ Tools** • **1,100+ Weekly Downloads**
 
@@ -14,9 +14,11 @@
 
 ### 💬 New Community Hub at [github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
 
-**Foundational AI-context Format**
+**.faf Project DNA for ANY AI ✨ [Foundational AI-context Format]**
 
 Universal, shareable AI-Context for any AI, human or team, regardless of size, location, languages, stack, setup or documentation.
+
+Add a .faf file to your repo and watch Claude, ChatGPT, Gemini, or any AI tool understand your entire codebase with speed and precision.
 
 <div align="center">
 <img src="https://faf.one/orange-smiley.svg" alt="Orange Smiley Logo" width="200" />
@@ -49,7 +51,7 @@ Universal, shareable AI-Context for any AI, human or team, regardless of size, l
 ### ⚡️💥 GET BOTH! Double Down! (100% FREE)
 ```bash
 # Install BOTH for maximum power - completely FREE!
-npm install -g claude-faf-mcp  # 🧡 Orange MCP - Claude Desktop integration
+npm install -g claude-faf-mcp  # 🧡 Orange Smiley MCP - Claude Desktop integration
 npm install -g faf-cli         # 🩵 Cyan CLI - Command Line Tool
 
 # Add to Claude Desktop
@@ -66,7 +68,7 @@ The MCP server that brings .faf format power to Claude Desktop. Drop any project
 
 **Chrome Extension Auto-Detection** | Projects detected as Chrome Extensions automatically get 90%+ scores
 **Universal Fuzzy Matching** | Type "raect" or "chr ext" - we know what you mean!
-**Intel-Friday™** | Smart detection that fills 7 critical slots for Chrome Extensions
+**Intel-Friday™** | Smart detection that fills 7 critical integration points for Chrome Extensions
 
 ### Key Features
 
@@ -79,26 +81,25 @@ The MCP server that brings .faf format power to Claude Desktop. Drop any project
 ## 🛠️ Available Tools
 
 ### Core Tools
-- `faf_init` - Initialize .faf context
-- `faf_score` - Calculate AI readiness score
-- `faf_friday` - 🎉 Test Friday Features & Chrome Extension detection
-- `faf_status` - Get project status
+- `faf init` - Initialize .faf context
+- `faf auto` - Auto-detect and generate
+- `faf score` - Calculate AI readiness score
+- `faf status` - Get project status
 
 ### Enhancement Tools
-- `faf_enhance` - Claude-optimized enhancement
-- `faf_sync` - Sync .faf with claude.md
-- `faf_bi_sync` - Real-time bidirectional sync
+- `faf enhance` - Optimized scoring system
+- `faf sync` - Sync .faf with CLAUDE.md
+- `faf bi-sync` - Bidirectional sync
 
 ### Management Tools
-- `faf_trust` - Validate context integrity
-- `faf_clear` - Clear caches
-- `faf_debug` - Debug connectivity
+- `faf trust` - Validate context integrity
+- `faf clear` - Clear caches
 
 ## 📖 Usage
 
 1. **Drop a file** - Drop package.json, README, or any project file into Claude
 2. **Instant context** - Claude immediately understands your project
-3. **Use tools** - Type "faf" to see available commands
+3. **Use tools** - Just type "faf" and Enter
 4. **Stay synced** - Context persists across conversations
 
 ## ⚙️ Configuration
@@ -164,12 +165,12 @@ MIT License - see LICENSE file
 
 ## ⚡️💥 The Complete FAF Ecosystem
 
-[🩵⚡️ CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
+[🩵⚡️ Cyan CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ Orange Smiley MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
 
-**🏎️⚡️ FAST AF - The JPEG for AI™**
+**🏎️⚡️ FAST AF - Project DNA for ANY AI ✨**
 
 ---
 
-**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **3000+ HAPPY USERS!** 🎉
+**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **Growing Community** 🎉
 
 **100% FREE Forever** • **No Strings Attached** • **Just Build with Claude**

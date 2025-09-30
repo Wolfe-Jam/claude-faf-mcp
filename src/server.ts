@@ -4,8 +4,10 @@ import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { FafResourceHandler } from './handlers/resources';
 import { ChampionshipToolHandler } from './handlers/championship-tools';
+import { FafEngineAdapter } from './handlers/engine-adapter';
 import express from 'express';
 import cors from 'cors';
+import { isError } from './utils/type-guards.js';
 
 export interface ClaudeFafMcpServerConfig {
   transport: 'stdio' | 'http-sse';
@@ -49,8 +51,10 @@ export class ClaudeFafMcpServer {
       }
     );
 
-    // 💥 Pass the FAF-Engine-Mk1 path to use Format-Finder!
-    this.resourceHandler = new FafResourceHandler(null as any); // Will be updated
+    // Create engine adapter to pass to handlers
+    const engineAdapter = new FafEngineAdapter(config.fafEnginePath);
+    
+    this.resourceHandler = new FafResourceHandler(engineAdapter);
     this.toolHandler = new ChampionshipToolHandler(config.fafEnginePath);
 
     this.setupHandlers();
@@ -76,7 +80,7 @@ export class ClaudeFafMcpServer {
       try {
         const result = await this.toolHandler.callTool(
           request.params.name,
-          request.params.arguments || {}
+          request.params.arguments ?? {}
         );
         
         if (this.config.debug) {
@@ -85,8 +89,9 @@ export class ClaudeFafMcpServer {
         }
         
         return result;
-      } catch (error) {
-        console.error(`Tool execution failed:`, error);
+      } catch (error: unknown) {
+        const errorMessage = isError(error) ? error.message : 'Unknown error';
+        console.error(`Tool execution failed:`, errorMessage);
         throw error;
       }
     });
@@ -153,19 +158,20 @@ export class ClaudeFafMcpServer {
       await this.server.connect(transport);
       
       // Start HTTP server (ensure port and host are defined)
-      const port = this.config.port || 3001;
-      const host = this.config.host || '0.0.0.0';
+      const port = this.config.port ?? 3001;
+      const host = this.config.host ?? '0.0.0.0';
       this.httpServer = app.listen(port, host, () => {
         if (this.config.debug) {
           console.error(`Claude FAF MCP Server started with HTTP/SSE transport on ${host}:${port}`);
-          console.error(`SSE endpoint: http://${this.config.host}:${this.config.port}/sse`);
-          console.error(`Health check: http://${this.config.host}:${this.config.port}/health`);
+          console.error(`SSE endpoint: http://${host}:${port}/sse`);
+          console.error(`Health check: http://${host}:${port}/health`);
         }
       });
 
       // Handle server errors
-      this.httpServer.on('error', (error: any) => {
-        console.error('HTTP server error:', error);
+      this.httpServer.on('error', (error: unknown) => {
+        const errorMessage = isError(error) ? error.message : 'Unknown HTTP server error';
+        console.error('HTTP server error:', errorMessage);
         throw error;
       });
     } else {
