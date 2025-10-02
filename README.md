@@ -1,4 +1,4 @@
-# claude-faf-mcp v2.5.4
+# claude-faf-mcp v2.5.5
 
 <div align="center">
 
@@ -127,7 +127,7 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.5.4
+Version:       2.5.5
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -138,7 +138,7 @@ Coverage:      4,400+ lines
 
 ---
 
-## ✨ What's New in v2.5.4
+## ✨ What's New in v2.5.5
 
 **Image Fix Release** - jsdelivr CDN URLs ensure reliable display across npm, GitHub, and docs.
 - Fixed broken image links on npmjs.com package page
