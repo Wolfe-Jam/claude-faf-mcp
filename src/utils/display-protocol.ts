@@ -47,10 +47,19 @@ ${content}
   }
 
   /**
+   * For markdown-rich content, skip the wrapper tags
+   * (They interfere with markdown rendering)
+   */
+  static forceInlineMarkdown(content: string): string {
+    return content;  // Just return raw - metadata handles display forcing
+  }
+
+  /**
    * Generate the enhanced MCP response
    * SET IN STONE: Display instructions for Claude Desktop MCP
    */
   static createResponse(content: string, metadata: any = {}): any {
+    // ALWAYS use forceInline - the metadata ensures markdown renders
     return {
       content: [{
         type: 'text' as const,

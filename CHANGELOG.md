@@ -5,6 +5,32 @@ All notable changes to the Claude FAF MCP Server will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.5.0] - 2025-10-02 - Championship Medal System 🏆
+
+### 🏁 NEW: F1-Inspired Medal System
+**7-Tier Championship Progression** - Visual excellence meets practical guidance!
+
+### ✨ What's New
+- **Championship Medals**: 🏆 Trophy (100%) → 🥇 Gold (99%) → 🥈 Silver (95-98%) → 🥉 Bronze (85-94%) → 🟢 Green (70-84%) → 🟡 Yellow (55-69%) → 🔴 Red (0-54%)
+- **Smart Tier Info**: Shows current medal, next target, points needed to advance
+- **Beautiful Scorecards**: Styled cards with tables, badges, syntax highlighting
+- **Enhanced Display Protocol**: CRITICAL display instructions in tool descriptions
+- **Universal Enforcement**: ALL 33+ tools use DisplayProtocol.createResponse()
+
+### 🐛 Fixes
+- Fixed duplicate footer bug in faf_score (was showing two AI-Readiness footers)
+- Fixed scorecard rendering with markdown preservation
+- Updated tool descriptions to mandate direct display (no summarization)
+
+### 🔒 Security
+- Removed fab-formats from public CLI index (IP protection)
+- Championship engine names hidden from competitors
+
+### ✅ Tested
+- Cold tested in Claude Desktop - scorecards render perfectly
+- DisplayProtocol working globally for all users worldwide
+- Medal system matches CLI implementation exactly
+
 ## [2.4.0] - 2025-09-30 - The TypeScript Championship Release 🏆⚡
 
 ### 🏁 THE IMPOSSIBLE ACHIEVED

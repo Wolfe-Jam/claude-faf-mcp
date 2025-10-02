@@ -1,216 +1,208 @@
-# 🧡⚡️ claude-faf-mcp v2.4.3 | .faf Project DNA for ANY AI ✨
+# claude-faf-mcp v2.5.0
 
 <div align="center">
 
-## 🧡 Orange Smiley MCP for Claude Desktop
-
-**100% FREE Forever** • **Zero Setup** • **33+ Tools** • **1,600+ Weekly Downloads**
-
-**[Join the Community](https://github.com/Wolfe-Jam/faf/discussions)** • **[Report Issues](https://github.com/Wolfe-Jam/faf/issues)**
-
-</div>
-
-## 🌟 Join Our Growing Community!
-
-### 💬 New Community Hub at [github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
-
-**.faf Project DNA for ANY AI ✨ [Foundational AI-context Format]**
-
-Universal, shareable AI-Context for any AI, human or team, regardless of size, location, languages, stack, setup or documentation.
-
-Add a .faf file to your repo and watch Claude, ChatGPT, Gemini, or any AI tool understand your entire codebase with speed and precision.
-
-<div align="center">
-<img src="https://faf.one/orange-smiley.svg" alt="Orange Smiley Logo" width="200" />
-
-### 🎉 1,600 WEEKLY DOWNLOADS AND CLIMBING! 🎉
-**[Have you been dot.faffed yet? 🧡⚡️](https://faf.one)**
-**Universal AI Context • 33+ Tools • Real-time Scoring**
-
-</div>
-
-## claude-faf-mcp - MCP Implementation 🧡⚡️
-
-> **MCP SDK for Protocol | Zero Additional Dependencies | Production Ready**
+**Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-## ⚡ Key Features
+**[Website](https://faf.one)** • **[Community](https://github.com/Wolfe-Jam/faf/discussions)** • **[Issues](https://github.com/Wolfe-Jam/faf/issues)**
 
-### Technical Excellence
-- **Performance** - <11ms operations, rigorously benchmarked
-- **Reliability** - Extensively tested including edge cases
-- **Type Safety** - 100% TypeScript with **FULL strict mode** 🏆
-- **Security** - Minimal dependencies (only MCP SDK)
-- **Production Ready** - Zero-error tolerance
+</div>
 
-### 🏆 NEW in v2.4: TypeScript Championship Edition
-**Engineering Excellence: FULL Type Safety with ZERO Performance Loss**
+---
 
-We achieved what many said was impossible - enabling TypeScript's strictest safety settings while improving upon blazing-fast performance. This proves that code quality and speed aren't mutually exclusive.
+## 🏆 Championship Scoring System
 
-**Championship Achievements:**
-- ✅ **100% TypeScript Strict Mode** - Every safety flag enabled
-- ✅ **<11ms Performance Platform** - Fast operations as foundation
-- ✅ **35/35 Tests Passing** - Complete reliability
-- ✅ **4,400+ Lines Protected** - Full type coverage
-- ✅ **Zero Build Errors** - Clean compilation
-
-**This is the future:** Maximum safety WITHOUT sacrificing speed! 🏎️🛡️
-
-## 🏆 Championship Medal System
-
-Track your project's AI-readiness with F1-inspired championship tiers:
+Track your project's AI-readiness with F1-inspired tiers:
 
 ```
-🏆 Trophy (100%)    - Championship - Perfect 50|50 AI|HUMAN balance
+🏆 Trophy (100%)    - Championship - Perfect AI|HUMAN balance
 🥇 Gold (99%)       - Gold standard
-🥈 Silver (95-98%)  - Target 2 achieved
-🥉 Bronze (85-94%)  - Target 1 achieved
-🟢 Green (70-84%)   - GO! - Ready for Target 1
-🟡 Yellow (55-69%)  - Caution - Getting ready
-🔴 Red (0-54%)      - Stop - Needs work
+🥈 Silver (95-98%)  - Excellence
+🥉 Bronze (85-94%)  - Production ready
+🟢 Green (70-84%)   - Good foundation
+🟡 Yellow (55-69%)  - Getting there
+🔴 Red (0-54%)      - Needs attention
 ```
 
-**Example display in Claude Desktop:**
+**Live output in Claude Desktop:**
+
 ```
 🥉 Score: 88/100
 █████████████████████░░░ 88%
-🏎️ Status: Target 1 - Bronze
+Status: Bronze - Production Ready
 
-Next: 95% 🥈 Target 2 - Silver (7% to go!)
+Next milestone: 95% 🥈 Silver (7 points to go!)
 ```
 
-## 🚀 Quick Install
+---
 
-### ⚡️💥 GET BOTH! Double Down! (100% FREE)
+## 🚀 Quick Start
+
 ```bash
-# Install BOTH for maximum power - completely FREE!
-npm install -g faf-cli           # 🩵 Cyan CLI - Command Line Tool (v2.4.6 - 60% FASTER!)
-npm install -g claude-faf-mcp    # 🧡 Orange Smiley MCP - Claude Desktop integration
+# Install globally
+npm install -g claude-faf-mcp
 
-# Add to Claude Desktop
-echo '{"mcpServers":{"claude-faf-mcp":{"command":"claude-faf-mcp","args":[],"env":{}}}}' > ~/Library/Application\ Support/Claude/claude_desktop_config.json
-```
+# Add to Claude Desktop config
+# macOS/Linux: ~/Library/Application Support/Claude/claude_desktop_config.json
+# Windows: %APPDATA%\Claude\claude_desktop_config.json
 
-Restart Claude Desktop - Done! 🏁
-
-## 🤖 What is claude-faf-mcp?
-
-The MCP server that brings .faf format power to Claude Desktop. Drop any project file into Claude and get instant AI understanding.
-
-### 🎉 Friday Features - Chrome Extension Support!
-
-**Chrome Extension Auto-Detection** | Projects detected as Chrome Extensions automatically get 90%+ scores
-**Universal Fuzzy Matching** | Type "raect" or "chr ext" - we know what you mean!
-**Intel-Friday™** | Smart detection that fills 7 critical integration points for Chrome Extensions
-
-### Key Features
-
-- ✅ **Zero Configuration** - Works instantly
-- ✅ **33+ Tools** - Complete file operations
-- ✅ **<11ms Performance** - F1-inspired speed
-- ✅ **Bi-directional Sync** - .faf ↔ claude.md
-- ✅ **99% AI Readiness** - Guaranteed understanding
-
-## 🛠️ Available Tools
-
-### Core Tools
-- `faf init` - Initialize .faf context
-- `faf auto` - Auto-detect and generate
-- `faf score` - Calculate AI readiness score
-- `faf status` - Get project status
-
-### Enhancement Tools
-- `faf enhance` - Optimized scoring system
-- `faf sync` - Sync .faf with CLAUDE.md
-- `faf bi-sync` - Bidirectional sync
-
-### Management Tools
-- `faf trust` - Validate context integrity
-- `faf clear` - Clear caches
-
-## 📖 Usage
-
-1. **Drop a file** - Drop package.json, README, or any project file into Claude
-2. **Instant context** - Claude immediately understands your project
-3. **Use tools** - Just type "faf" and Enter
-4. **Stay synced** - Context persists across conversations
-
-## ⚙️ Configuration
-
-Add to Claude Desktop configuration:
-
-```json
 {
   "mcpServers": {
-    "claude-faf": {
-      "command": "claude-faf-mcp",
-      "args": ["--transport", "stdio"]
+    "claude-faf-mcp": {
+      "command": "claude-faf-mcp"
     }
   }
 }
 ```
 
-## 📊 Real Metrics
+Restart Claude Desktop → Ready! 🏁
+
+---
+
+## 🎯 What is claude-faf-mcp?
+
+MCP server that brings `.faf` format to Claude Desktop for instant project understanding.
+
+**.faf = Project DNA for ANY AI ✨**
+Universal, shareable context for Claude, ChatGPT, Gemini, or any AI - regardless of stack, size, or setup.
+
+### Key Features
+
+- ✅ **Zero Config** - Works out of the box
+- ✅ **33+ Tools** - Complete project management
+- ✅ **<11ms Speed** - Championship performance
+- ✅ **Bi-Sync** - .faf ↔ CLAUDE.md synchronization
+- ✅ **Type Safe** - 100% TypeScript strict mode
+- ✅ **Production Ready** - 35/35 tests passing
+
+---
+
+## 🛠️ Available Tools
+
+### Core Tools
+- `faf_init` - Initialize project context
+- `faf_auto` - Auto-detect and populate
+- `faf_score` - Calculate AI readiness
+- `faf_status` - Project health check
+
+### Enhancement Tools
+- `faf_enhance` - Optimize scoring
+- `faf_sync` - Sync files
+- `faf_bi_sync` - Bidirectional sync
+
+### File Operations
+- `faf_read` - Read files
+- `faf_write` - Write files
+- `faf_list` - List directories
+- `faf_search` - Search content
+
+[See all 33+ tools →](https://faf.one/docs/tools)
+
+---
+
+## 💡 Usage Example
+
+1. **Drop any project file** into Claude Desktop
+2. **Type**: "Run faf_auto to analyze this project"
+3. **Get instant context** - Claude understands your codebase
+4. **Use tools** - Access 33+ commands naturally in conversation
+
+The `.faf` file persists across conversations - no need to re-explain your project!
+
+---
+
+## 📊 Technical Specs
 
 ```
-📈 Status: PRODUCTION
-├─ 💎 Version: 2.4.3
-├─ 🏆 TypeScript: Full Strict Mode
-├─ 🚀 Performance: <11ms operations
-├─ 📦 Dependencies: 1 (MCP SDK - THE platform)
-├─ 🧪 Tests: 35/35 passing (3 suites)
-├─ 🔨 Build: Zero errors
-└─ 📏 Codebase: 4,400+ lines protected
+Version:       2.5.0
+Performance:   <11ms operations
+TypeScript:    100% strict mode
+Dependencies:  1 (MCP SDK only)
+Tests:         35/35 passing
+Build:         Zero errors
+Coverage:      4,400+ lines
 ```
 
-## 🏁 Development
+---
+
+## 🎉 What's New in v2.5.0
+
+### Championship Edition
+- **7-tier medal system** for AI-readiness scoring
+- **Visual progress bars** in terminal output
+- **Milestone tracking** with next-level guidance
+- **Enhanced scoring** for better project analysis
+
+### v2.4 Highlights
+- **TypeScript Championship** - Full strict mode enabled
+- **Chrome Extension** auto-detection
+- **Fuzzy matching** for tool discovery
+- **Performance boost** - Maintained <11ms operations
+
+---
+
+## 🏗️ Development
 
 ```bash
-# Clone repo
+# Clone
 git clone https://github.com/wolfejam/claude-faf-mcp.git
 cd claude-faf-mcp
 
-# Install & build
+# Install & Build
 npm install
 npm run build
 
 # Test
 npm test
+
+# Link locally
+npm link
 ```
+
+---
 
 ## 📋 Requirements
 
-- Node.js 18+
-- Claude Desktop (latest)
-- macOS, Linux, or Windows
+- **Node.js** 18+
+- **Claude Desktop** (latest version)
+- **OS**: macOS, Linux, or Windows
+
+---
+
+## 🔗 The FAF Ecosystem
+
+- [🩵 **faf-cli**](https://npmjs.com/package/faf-cli) - Command line tool (v2.4.6)
+- [🧡 **claude-faf-mcp**](https://npmjs.com/package/claude-faf-mcp) - This MCP server
+- [💚 **faf.one**](https://faf.one) - Documentation & guides
+- [🖥️ **Chrome Extension**](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm) - Browser integration
+
+---
 
 ## 📄 License
 
-MIT License - see LICENSE file
+MIT License - See [LICENSE](./LICENSE) file
 
-**Note**: The .faf-Engine(s) are proprietary and available under license.
-
-## 🔗 Links
-
-- **NPM**: [claude-faf-mcp](https://www.npmjs.com/package/claude-faf-mcp)
-- **Website**: [faf.one](https://faf.one)
-- **Support**: support@faf.one
+**Note**: The .faf-Engine is proprietary and available under separate license.
 
 ---
 
-## ⚡️💥 The Complete FAF Ecosystem
+## 🤝 Contributing
 
-[🩵⚡️ Cyan CLI](https://npmjs.com/package/faf-cli) • [🧡⚡️ Orange Smiley MCP](https://npmjs.com/package/claude-faf-mcp) • [💚⚡️ WEB](https://faf.one) • [🧰⚡️ DevOps](https://fafdev.tools) • [🖥️⚡️ Chrome](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
-
-**🏎️⚡️ FAST AF - Project DNA for ANY AI ✨**
+We welcome contributions! Join our [community discussions](https://github.com/Wolfe-Jam/faf/discussions) or submit issues/PRs.
 
 ---
 
-**Made with 🧡 by wolfejam** | **ZERO DEPENDENCIES, ZERO FAFF™** | **Growing Community** 🎉
+<div align="center">
 
-**100% FREE Forever** • **No Strings Attached** • **Just Build with Claude**
+**Made with 🧡 by wolfejam**
+
+**100% FREE Forever** • **Zero Dependencies** • **Zero Faff™**
+
+[⭐ Star on GitHub](https://github.com/Wolfe-Jam/faf) • [📦 View on NPM](https://www.npmjs.com/package/claude-faf-mcp)
+
+</div>
