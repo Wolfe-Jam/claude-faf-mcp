@@ -1,4 +1,4 @@
-# claude-faf-mcp v2.5.0
+# claude-faf-mcp v2.5.1
 
 <div align="center">
 
@@ -119,7 +119,7 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.5.0
+Version:       2.5.1
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -130,9 +130,14 @@ Coverage:      4,400+ lines
 
 ---
 
-## 🎉 What's New in v2.5.0
+## 🎉 What's New in v2.5.1
 
-### Championship Edition
+### Documentation Polish
+- **Championship README** - Trophy section leads for immediate impact
+- **Optimized description** - Cleaner NPM presence
+- **Professional structure** - Scannable, modern layout
+
+### v2.5.0 - Championship Edition
 - **7-tier medal system** for AI-readiness scoring
 - **Visual progress bars** in terminal output
 - **Milestone tracking** with next-level guidance
