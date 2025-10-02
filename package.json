@@ -2,6 +2,10 @@
   "name": "claude-faf-mcp",
   "version": "2.5.2",
   "description": "MCP for .faf | Project DNA for true AI context in Claude Desktop ✨ - Transform projects with perfect AI understanding • 33+ tools, Championship scoring • 100% TypeScript strict 🧡 Orange Smiley MCP • FREE & Open Source",
+  "icon": "https://faf.one/images/faf-icon-64.png",
+  "logo": "https://faf.one/images/faf-icon-64.png",
+  "banner": "https://faf.one/images/faf-championship-scorecard.png",
+  "displayName": ".faf 🧡⚡️",
   "main": "dist/src/index.js",
   "bin": {
     "claude-faf-mcp": "dist/src/index.js"
@@ -87,7 +91,5 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.3.0"
-  },
-  "icon": "./assets/icons/orange-smiley.svg",
-  "displayName": ".faf 🧡⚡️"
+  }
 }
