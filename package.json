@@ -52,10 +52,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wolfejam/claude-faf-mcp.git"
+    "url": "https://github.com/Wolfe-Jam/claude-faf-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/wolfejam/claude-faf-mcp/issues"
+    "url": "https://github.com/Wolfe-Jam/claude-faf-mcp/issues"
   },
   "homepage": "https://faf.one",
   "engines": {
