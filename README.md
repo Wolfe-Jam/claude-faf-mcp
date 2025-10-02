@@ -1,6 +1,6 @@
 # claude-faf-mcp v2.5.2
 
-![Orange Smiley](https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-64.png)
+![Orange Smiley](https://faf.one/images/faf-icon-64.png)
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
 
@@ -19,7 +19,7 @@
 
 ## 🏆 Championship Scoring System
 
-![FAF Championship Score Card](https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/faf-championship-scorecard.png)
+![FAF Championship Score Card](https://faf.one/images/faf-championship-scorecard.png)
 
 Track your project's AI-readiness with F1-inspired tiers:
 
@@ -207,7 +207,7 @@ We welcome contributions! Join our [community discussions](https://github.com/Wo
 
 <div align="center">
 
-**Made with 🧡 by wolfejam**
+**Made with 🧡 by wolfejam.dev**
 
 **100% FREE Forever** • **Zero Dependencies** • **Zero Faff™**
 
