@@ -1,6 +1,6 @@
 # claude-faf-mcp v2.5.2
 
-<img src="https://raw.githubusercontent.com/wolfejam/claude-faf-mcp/main/assets/icons/orange-smiley.svg" alt="Orange Smiley" width="60" align="left" style="margin-right: 15px;" />
+![Orange Smiley](https://raw.githubusercontent.com/wolfejam/claude-faf-mcp/main/assets/icons/orange-smiley.svg)
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
 
@@ -15,17 +15,11 @@
 
 </div>
 
-<br clear="left"/>
-
 ---
 
 ## 🏆 Championship Scoring System
 
-<div align="center">
-
 ![FAF Championship Score Card](https://raw.githubusercontent.com/wolfejam/claude-faf-mcp/main/assets/faf-championship-scorecard.png)
-
-</div>
 
 Track your project's AI-readiness with F1-inspired tiers:
 
@@ -142,7 +136,7 @@ Coverage:      4,400+ lines
 
 ## 🎉 What's New in v2.5.2
 
-### Visual Championship Experience! 🏆🧡
+### Visual Championship Experience! 🏆
 - **Orange Smiley branding** - Complete visual identity on NPM
 - **Score card screenshot** - See the actual terminal output
 - **Championship polish** - Professional presentation
