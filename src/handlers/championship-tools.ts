@@ -11,10 +11,9 @@
 import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-// ✅ FIXED: Removed unused imports (formatScore, format3Lines, formatBigOrange, ChampionshipFormatter, AchievementStatus)
+// ✅ FIXED: Removed unused imports (formatScore, format3Lines, formatBigOrange, ChampionshipFormatter, AchievementStatus, wrapWithInstruction)
 import { FafEngineAdapter } from './engine-adapter.js';
 import { DisplayProtocol } from '../utils/display-protocol.js';
-import { wrapWithInstruction } from './behavioral-instruction.js';
 
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
@@ -379,8 +378,13 @@ ${enhancedOutput}`;
         // Developer Tools
         {
           name: 'faf_status',
-          description: 'Comprehensive project status',
-          inputSchema: { type: 'object', properties: {} }
+          description: 'Comprehensive project status with Championship Medal System',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Project directory (defaults to current)' }
+            }
+          }
         },
         {
           name: 'faf_check',
@@ -1090,25 +1094,19 @@ faf_score --save      # Save this scorecard
 **AI-Readiness: ${score}%** ${score >= 99 ? '🏆' : ''}`;
 
       // 🍫 CHOCOLATE ORANGE - UNWRAPPED AND READY!
-      // Return JUST the content - no wrappers!
-      // Wrap with behavioral instruction so Claude shows it!
-      return {
-        content: [{
-          type: 'text' as const,
-          text: wrapWithInstruction(output)
-        }],
-        isError: false
-      };
+      // Use DisplayProtocol for consistent global rendering
+      return DisplayProtocol.createResponse(output, {
+        tool: 'faf_show',
+        command: command,
+        timestamp: new Date().toISOString()
+      });
     }
 
-    // Default fallback
-    return {
-      content: [{
-        type: 'text' as const,
-        text: 'Command not recognized. Try: faf_show --command score'
-      }],
-      isError: false
-    };
+    // Default fallback - also use DisplayProtocol
+    return DisplayProtocol.createResponse(
+      'Command not recognized. Try: faf_show --command score',
+      { tool: 'faf_show', isError: true }
+    );
   }
 
   private async handleScore(args: any): Promise<CallToolResult> {
@@ -1692,11 +1690,99 @@ faf_score --save      # Save this scorecard
   }
 
   // Developer Tool Handlers
-  private async handleStatus(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    const cwd = process.cwd();
-    const hasFaf = await this.fileExists(path.join(cwd, '.faf'));
-    const status = hasFaf ? '✅ FAF initialized' : '❌ No FAF file';
-    return await this.formatResult('📊 FAF Status', status);
+  private async handleStatus(args: any): Promise<CallToolResult> {
+    const targetDir = args?.directory || process.cwd();
+
+    // Calculate score
+    const score = await this.calculateScore(targetDir);
+
+    // Get medal from Championship Medal System (matching CLI)
+    const { medal } = this.getScoreMedal(score);
+
+    // Get next target info
+    const tierInfo = this.getTierInfo(score);
+
+    // Build status output
+    let output = `🏎️ FAF Status\n━━━━━━━━━━━━\n`;
+    output += `Score: ${score}% ${medal} ${tierInfo.current}\n`;
+
+    if (tierInfo.next && tierInfo.nextTarget && tierInfo.nextMedal) {
+      const pointsToGo = tierInfo.nextTarget - score;
+      output += `Next: ${tierInfo.nextTarget}% ${tierInfo.nextMedal} ${tierInfo.next} (${pointsToGo}% to go!)`;
+    }
+
+    return await this.formatResult('📊 FAF Status', output, undefined, targetDir);
+  }
+
+  /**
+   * Get championship medal emoji and status based on score
+   * Matches CLI medal system exactly
+   */
+  private getScoreMedal(score: number): { medal: string; status: string } {
+    if (score >= 100) return { medal: '🏆', status: 'Trophy - Championship' };
+    if (score >= 99) return { medal: '🥇', status: 'Gold' };
+    if (score >= 95) return { medal: '🥈', status: 'Target 2 - Silver' };
+    if (score >= 85) return { medal: '🥉', status: 'Target 1 - Bronze' };
+    if (score >= 70) return { medal: '🟢', status: 'GO! - Ready for Target 1' };
+    if (score >= 55) return { medal: '🟡', status: 'Caution - Getting ready' };
+    return { medal: '🔴', status: 'Stop - Needs work' };
+  }
+
+  /**
+   * Get tier progression info
+   * Shows current tier and next target
+   */
+  private getTierInfo(score: number): {
+    current: string;
+    next?: string;
+    nextTarget?: number;
+    nextMedal?: string;
+  } {
+    if (score >= 100) {
+      return { current: 'Trophy - Championship' };
+    } else if (score >= 99) {
+      return {
+        current: 'Gold',
+        next: 'Trophy - Championship',
+        nextTarget: 100,
+        nextMedal: '🏆'
+      };
+    } else if (score >= 95) {
+      return {
+        current: 'Target 2 - Silver',
+        next: 'Gold',
+        nextTarget: 99,
+        nextMedal: '🥇'
+      };
+    } else if (score >= 85) {
+      return {
+        current: 'Target 1 - Bronze',
+        next: 'Target 2 - Silver',
+        nextTarget: 95,
+        nextMedal: '🥈'
+      };
+    } else if (score >= 70) {
+      return {
+        current: 'GO! - Ready for Target 1',
+        next: 'Target 1 - Bronze',
+        nextTarget: 85,
+        nextMedal: '🥉'
+      };
+    } else if (score >= 55) {
+      return {
+        current: 'Caution - Getting ready',
+        next: 'GO! - Ready for Target 1',
+        nextTarget: 70,
+        nextMedal: '🟢'
+      };
+    } else {
+      return {
+        current: 'Stop - Needs work',
+        next: 'Caution - Getting ready',
+        nextTarget: 55,
+        nextMedal: '🟡'
+      };
+    }
   }
 
   private async handleCheck(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
@@ -1754,10 +1840,7 @@ faf_score --save      # Save this scorecard
   }
 
   private async handleAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    return {
-      content: [{
-        type: 'text',
-        text: `Version 2.2.0
+    const aboutText = `Version 2.2.0
 🏎️ Championship Edition
 
 33+ Tools Available
@@ -1771,9 +1854,14 @@ You're done⚡
 
 Performance: <50ms per operation
 Zero shell dependencies
-100% native TypeScript`
-      }]
-    };
+100% native TypeScript`;
+
+    // Use DisplayProtocol for consistent global rendering
+    return DisplayProtocol.createResponse(aboutText, {
+      tool: 'faf_about',
+      version: '2.2.0',
+      timestamp: new Date().toISOString()
+    });
   }
 
   private async handleRead(args: any): Promise<CallToolResult> {
@@ -1910,12 +1998,12 @@ Zero shell dependencies
     menu += `💡 **PRO TIP:** Drop any file → type \`faf\` → 99% ready!\n`;
     menu += `🏎️⚡ wolfejam.dev - Championship Software!`;
 
-    return {
-      content: [{
-        type: 'text',
-        text: menu
-      }]
-    };
+    // Use DisplayProtocol for consistent global rendering
+    return DisplayProtocol.createResponse(menu, {
+      tool: 'faf_choose',
+      projectCount: wolfjamProjects.length,
+      timestamp: new Date().toISOString()
+    });
   }
 
   /**
