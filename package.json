@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.4.2",
+  "version": "2.4.3",
   "description": "🧡 Orange Smiley MCP - Brings .faf AI context directly into Claude Desktop. Transform any project into perfect AI context. 100% TypeScript strict mode. 100% FREE • Open Source • If helpful, a ⭐ is appreciated!",
   "main": "dist/src/index.js",
   "bin": {

@@ -45,34 +45,28 @@ export function createASCIIBar(percentage: number, width: number = 24): string {
 }
 
 /**
- * Format score display with Big Orange + Cyan style
+ * Get championship medal emoji and status based on score
+ */
+export function getScoreMedal(score: number): { medal: string; status: string } {
+  if (score >= 100) return { medal: '🏆', status: 'Trophy - Championship' };
+  if (score >= 99) return { medal: '🥇', status: 'Gold' };
+  if (score >= 95) return { medal: '🥈', status: 'Target 2 - Silver' };
+  if (score >= 85) return { medal: '🥉', status: 'Target 1 - Bronze' };
+  if (score >= 70) return { medal: '🟢', status: 'GO! - Ready for Target 1' };
+  if (score >= 55) return { medal: '🟡', status: 'Caution - Getting ready' };
+  return { medal: '🔴', status: 'Stop - Needs work' };
+}
+
+/**
+ * Format score display with Championship Medal System
  */
 export function formatScore(score: number): DisplayStyle {
-  // Determine status based on score
-  let status = '';
-  let statusEmoji = '';
-
-  if (score >= 90) {
-    status = 'Championship!';
-    statusEmoji = '🏆';
-  } else if (score >= 80) {
-    status = 'Excellent!';
-    statusEmoji = '🧡';  // BIG ORANGE!
-  } else if (score >= 70) {
-    status = 'Very Good';
-    statusEmoji = '⭐';
-  } else if (score >= 60) {
-    status = 'Good Progress';
-    statusEmoji = '📈';
-  } else {
-    status = 'Building Up';
-    statusEmoji = '🚀';
-  }
+  const { medal, status } = getScoreMedal(score);
 
   return {
-    line1: `🧡 ${BRIGHT_CYAN}Score: ${score}/100${RESET}`,
+    line1: `${medal} ${BRIGHT_CYAN}Score: ${score}/100${RESET}`,
     line2: createASCIIBar(score),
-    line3: `${statusEmoji} ${CYAN}Status: ${status}${RESET}`
+    line3: `🏎️ ${CYAN}Status: ${status}${RESET}`
   };
 }
 
