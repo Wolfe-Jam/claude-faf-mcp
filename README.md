@@ -1,8 +1,12 @@
 # claude-faf-mcp v2.5.2
 
-![Orange Smiley](https://faf.one/images/faf-icon-64.png)
+<div align="center">
+
+<img src="./assets/icons/orange-smiley.svg" alt="Orange Smiley" width="48" />
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
+
+</div>
 
 <div align="center">
 
@@ -19,7 +23,7 @@
 
 ## 🏆 Championship Scoring System
 
-![FAF Championship Score Card](https://faf.one/images/faf-championship-scorecard.png)
+![FAF Championship Score Card](./assets/faf-championship-scorecard.png)
 
 Track your project's AI-readiness with F1-inspired tiers:
 
