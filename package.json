@@ -60,6 +60,7 @@
   },
   "files": [
     "dist/**/*",
+    "assets/**/*",
     "README.md",
     "CLAUDE.md",
     ".faf",
