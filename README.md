@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="./assets/icons/orange-smiley.svg" alt="Orange Smiley" width="48" />
+<img src="./assets/icons/faf-icon-64.png" alt="Orange Smiley" width="48" />
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
 
