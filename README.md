@@ -1,8 +1,10 @@
-# claude-faf-mcp v2.5.1
+# claude-faf-mcp v2.5.2
 
-<div align="center">
+<img src="https://raw.githubusercontent.com/wolfejam/claude-faf-mcp/main/assets/icons/orange-smiley.svg" alt="Orange Smiley" width="60" align="left" style="margin-right: 15px;" />
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
+
+<div align="center">
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
@@ -12,6 +14,8 @@
 **[Website](https://faf.one)** • **[Community](https://github.com/Wolfe-Jam/faf/discussions)** • **[Issues](https://github.com/Wolfe-Jam/faf/issues)**
 
 </div>
+
+<br clear="left"/>
 
 ---
 
@@ -119,7 +123,7 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.5.1
+Version:       2.5.2
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -130,9 +134,13 @@ Coverage:      4,400+ lines
 
 ---
 
-## 🎉 What's New in v2.5.1
+## 🎉 What's New in v2.5.2
 
-### Documentation Polish
+### Orange Smiley Returns! 🧡
+- **Visual branding** - Orange Smiley now displays on NPM page
+- **Championship polish** - Complete visual identity
+
+### v2.5.1 - Documentation Polish
 - **Championship README** - Trophy section leads for immediate impact
 - **Optimized description** - Cleaner NPM presence
 - **Professional structure** - Scannable, modern layout
@@ -142,12 +150,6 @@ Coverage:      4,400+ lines
 - **Visual progress bars** in terminal output
 - **Milestone tracking** with next-level guidance
 - **Enhanced scoring** for better project analysis
-
-### v2.4 Highlights
-- **TypeScript Championship** - Full strict mode enabled
-- **Chrome Extension** auto-detection
-- **Fuzzy matching** for tool discovery
-- **Performance boost** - Maintained <11ms operations
 
 ---
 
