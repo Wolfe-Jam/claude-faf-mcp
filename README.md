@@ -1,4 +1,4 @@
-# claude-faf-mcp v2.5.2
+# claude-faf-mcp v2.5.3
 
 <div align="center">
 
@@ -127,7 +127,7 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.5.2
+Version:       2.5.3
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -138,7 +138,11 @@ Coverage:      4,400+ lines
 
 ---
 
-## 🎉 What's New in v2.5.2
+## 🎉 What's New in v2.5.3
+
+**Championship branding complete** - Orange Smiley logo & score card now display on NPM (third time's the charm! 🏆)
+
+### v2.5.2 - Visual Championship Experience
 
 ### Visual Championship Experience!
 - **Orange Smiley branding** - Complete visual identity on NPM
