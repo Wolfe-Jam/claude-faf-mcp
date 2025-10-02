@@ -21,6 +21,12 @@
 
 ## 🏆 Championship Scoring System
 
+<div align="center">
+
+![FAF Championship Score Card](https://raw.githubusercontent.com/wolfejam/claude-faf-mcp/main/assets/faf-championship-scorecard.png)
+
+</div>
+
 Track your project's AI-readiness with F1-inspired tiers:
 
 ```
@@ -136,9 +142,10 @@ Coverage:      4,400+ lines
 
 ## 🎉 What's New in v2.5.2
 
-### Orange Smiley Returns! 🧡
-- **Visual branding** - Orange Smiley now displays on NPM page
-- **Championship polish** - Complete visual identity
+### Visual Championship Experience! 🏆🧡
+- **Orange Smiley branding** - Complete visual identity on NPM
+- **Score card screenshot** - See the actual terminal output
+- **Championship polish** - Professional presentation
 
 ### v2.5.1 - Documentation Polish
 - **Championship README** - Trophy section leads for immediate impact
