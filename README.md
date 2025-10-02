@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-64.png" alt="Orange Smiley" width="48" />
+<img src="https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/icons/faf-icon-64.png" alt="Orange Smiley" width="48" />
 
 **Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
 
@@ -23,7 +23,7 @@
 
 ## 🏆 Championship Scoring System
 
-![FAF Championship Score Card](https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/faf-championship-scorecard.png)
+![FAF Championship Score Card](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/faf-championship-scorecard.png)
 
 Track your project's AI-readiness with F1-inspired tiers:
 
@@ -140,20 +140,13 @@ Coverage:      4,400+ lines
 
 ## ✨ What's New in v2.5.4
 
-**Image Fix Release** - GitHub raw URLs ensure reliable display across npm, GitHub, and docs.
+**Image Fix Release** - jsdelivr CDN URLs ensure reliable display across npm, GitHub, and docs.
 - Fixed broken image links on npmjs.com package page
 - Orange Smiley logo now renders at top
 - Championship Score Card displays in scoring section
 - All v2.5.2 functionality maintained
 
 ### v2.5.2 - Visual Championship Experience
-[keep rest as-is...]
-
-**Championship branding complete** - Orange Smiley logo & score card now display on NPM (third time's the charm! 🏆)
-
-### v2.5.2 - Visual Championship Experience
-
-### Visual Championship Experience!
 - **Orange Smiley branding** - Complete visual identity on NPM
 - **Score card screenshot** - See the actual terminal output
 - **Championship polish** - Professional presentation
