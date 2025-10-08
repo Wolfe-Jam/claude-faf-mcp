@@ -109,3 +109,7 @@ coverage/
 # FAF specific
 .faf-test*
 .claude-faf-test*
+
+# Internal documents - ALL .md files go to FAF-GOLD/PLANET-FAF
+*.md
+!README.md
