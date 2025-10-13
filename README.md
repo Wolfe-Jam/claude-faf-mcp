@@ -15,7 +15,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-**[Website](https://faf.one)** • **[Community](https://github.com/Wolfe-Jam/faf/discussions)** • **[Issues](https://github.com/Wolfe-Jam/faf/issues)**
+**[Website](https://faf.one)** • **[GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp)** • **[Community](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)** • **[Issues](https://github.com/Wolfe-Jam/claude-faf-mcp/issues)**
 
 </div>
 
@@ -131,7 +131,7 @@ Version:       2.5.5
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
-Tests:         35/35 passing
+Testing:       730 C.O.R.E empirical tests (part of 12,500+ FAF ecosystem validation)
 Build:         Zero errors
 Coverage:      4,400+ lines
 ```
@@ -211,7 +211,7 @@ MIT License - See [LICENSE](./LICENSE) file
 
 ## 🤝 Contributing
 
-We welcome contributions! Join our [community discussions](https://github.com/Wolfe-Jam/faf/discussions) or submit issues/PRs.
+We welcome contributions! Join our [community discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions) or submit issues/PRs.
 
 ---
 
@@ -221,6 +221,6 @@ We welcome contributions! Join our [community discussions](https://github.com/Wo
 
 **100% FREE Forever** • **Zero Dependencies** • **Zero Faff™**
 
-[⭐ Star on GitHub](https://github.com/Wolfe-Jam/faf) • [📦 View on NPM](https://www.npmjs.com/package/claude-faf-mcp)
+[⭐ Star on GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) • [📦 View on NPM](https://www.npmjs.com/package/claude-faf-mcp)
 
 </div>

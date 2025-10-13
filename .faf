@@ -115,7 +115,8 @@ ai_scoring_details:
   scoring_method: Honest percentage - no fake minimums
   trust_embedded: PODIUM architecture - Bronze/Silver/Gold/Trophy
 projectName: claude-faf-mcp
-projectGoal: 🏎️ FAF MCP - ALWAYS SHOW AI-READINESS SCORE! Universal AI context
-  management with .faf format. 33+ tools for Claude Desktop. Every command shows
-  AI-Readiness score. Drop file → Type 'faf' → 99% ready! ZERO FAF INNIT! 🏎️⚡
-generated: 2025-09-17T22:11:26.607Z
+projectGoal: MCP for .faf | Project DNA for true AI context in Claude Desktop ✨ - Transform projects with perfect AI understanding • 33+ tools, Championship scoring • 100% TypeScript strict 🧡 Orange Smiley MCP • FREE & Open Source
+generated: 2025-10-03T23:43:42.838Z
+metadata:
+  last_claude_sync: 2025-10-03T23:52:21.494Z
+  bi_sync: active
