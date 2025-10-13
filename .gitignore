@@ -113,3 +113,4 @@ coverage/
 # Internal documents - ALL .md files go to FAF-GOLD/PLANET-FAF
 *.md
 !README.md
+!docs/**/*.md
