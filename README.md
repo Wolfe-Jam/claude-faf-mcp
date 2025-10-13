@@ -12,10 +12,20 @@
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
+[![Weekly Downloads](https://img.shields.io/npm/dw/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 
-**[Website](https://faf.one)** • **[GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp)** • **[Community](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)** • **[Issues](https://github.com/Wolfe-Jam/claude-faf-mcp/issues)**
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
+[![Node Version](https://img.shields.io/node/v/claude-faf-mcp)](https://nodejs.org)
+[![GitHub Stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
+
+[![Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)](https://wolfe-jam.github.io/claude-faf-mcp/)
+[![Gold Standard](https://img.shields.io/badge/Evaluation-94.4%2F100%20Gold-FFD700)](./docs/evaluations/WJTTC-Comprehensive-Evaluation-2025-10-12.md)
+[![Tests](https://img.shields.io/badge/Tests-730%20C.O.R.E-success)](./docs/evaluations/)
+[![Performance](https://img.shields.io/badge/Performance-%3C11ms-success)](./docs/evaluations/)
+
+**[Website](https://faf.one)** • **[Docs](https://wolfe-jam.github.io/claude-faf-mcp/)** • **[Community](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)** • **[Contributing](./CONTRIBUTING.md)**
 
 </div>
 

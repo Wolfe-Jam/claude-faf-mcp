@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/Wolfe-Jam/claude-faf-mcp/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📚 Documentation
+    url: https://wolfe-jam.github.io/claude-faf-mcp/
+    about: Read the full documentation
+  - name: 🌐 Website
+    url: https://faf.one
+    about: Visit the FAF project website
