@@ -1,10 +1,10 @@
-# claude-faf-mcp v2.5.5
+# claude-faf-mcp v2.6.0 🏆
 
 <div align="center">
 
 <img src="https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/icons/faf-icon-64.png" alt="Orange Smiley" width="48" />
 
-**Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
+**94.4/100 Gold Standard** • **Project DNA ✨ for ANY AI** • **33+ Tools**
 
 </div>
 
@@ -137,7 +137,7 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.5.5
+Version:       2.6.0
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -148,13 +148,13 @@ Coverage:      4,400+ lines
 
 ---
 
-## ✨ What's New in v2.5.5
+## ✨ What's New in v2.6.0
 
-**Image Fix Release** - jsdelivr CDN URLs ensure reliable display across npm, GitHub, and docs.
-- Fixed broken image links on npmjs.com package page
-- Orange Smiley logo now renders at top
-- Championship Score Card displays in scoring section
-- All v2.5.2 functionality maintained
+🏆 **Post-Evaluation Release (94.4/100 Gold Standard)**
+- Type-safe tool handlers with proper TypeScript definitions
+- Community contribution framework (templates, guidelines, funding)
+- Repository cleanup: Removed 17K+ lines of legacy docs
+- Improved TypeScript strict mode compliance across all handlers
 
 ### v2.5.2 - Visual Championship Experience
 - **Orange Smiley branding** - Complete visual identity on NPM
