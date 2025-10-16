@@ -20,6 +20,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
+[![MCP Registry](https://img.shields.io/badge/MCP-Registry-blue?logo=github)](https://registry.modelcontextprotocol.io/servers/io.github.Wolfe-Jam/claude-faf-mcp)
 [![Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)](https://wolfe-jam.github.io/claude-faf-mcp/)
 [![Gold Standard](https://img.shields.io/badge/Evaluation-94.4%2F100%20Gold-FFD700)](./docs/evaluations/WJTTC-Comprehensive-Evaluation-2025-10-12.md)
 [![Tests](https://img.shields.io/badge/Tests-730%20C.O.R.E-success)](./docs/evaluations/)
@@ -86,8 +87,8 @@ Restart Claude Desktop → Ready! 🏁
 
 MCP server that brings `.faf` format to Claude Desktop for instant project understanding.
 
-**.faf = Project DNA for ANY AI ✨**
-Universal, shareable context for Claude, ChatGPT, Gemini, or any AI - regardless of stack, size, or setup.
+**.faf = Project DNA ✨ for AI-Context, On-Demand**
+Universal, shareable context for Claude, Codex, Gemini, or any AI - regardless of stack, size, or setup.
 
 ### Key Features
 
@@ -204,7 +205,7 @@ npm link
 
 ## 🔗 The FAF Ecosystem
 
-- [🩵 **faf-cli**](https://npmjs.com/package/faf-cli) - Command line tool (v2.4.6)
+- [🩵 **faf-cli**](https://npmjs.com/package/faf-cli) - Command line tool (v3.0.2 - Championship Edition 🏆 with Turbo Cat 😽)
 - [🧡 **claude-faf-mcp**](https://npmjs.com/package/claude-faf-mcp) - This MCP server
 - [💚 **faf.one**](https://faf.one) - Documentation & guides
 - [🖥️ **Chrome Extension**](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm) - Browser integration
