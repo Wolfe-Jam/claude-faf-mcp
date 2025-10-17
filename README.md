@@ -20,7 +20,7 @@
 [![GitHub Stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
 
-[![MCP Registry](https://img.shields.io/badge/MCP-Registry-blue?logo=github)](https://registry.modelcontextprotocol.io/servers/io.github.Wolfe-Jam/claude-faf-mcp)
+[![Official MCP Registry](https://img.shields.io/badge/Anthropic-Official%20MCP%20Registry-success?logo=github)](https://github.com/modelcontextprotocol/servers)
 [![Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)](https://wolfe-jam.github.io/claude-faf-mcp/)
 [![Gold Standard](https://img.shields.io/badge/Evaluation-94.4%2F100%20Gold-FFD700)](./docs/evaluations/WJTTC-Comprehensive-Evaluation-2025-10-12.md)
 [![Tests](https://img.shields.io/badge/Tests-730%20C.O.R.E-success)](./docs/evaluations/)
@@ -80,6 +80,18 @@ npm install -g claude-faf-mcp
 ```
 
 Restart Claude Desktop → Ready! 🏁
+
+---
+
+## 🏆 Officially in Anthropic's MCP Registry
+
+**claude-faf-mcp** is now officially part of the [Anthropic MCP Ecosystem](https://github.com/modelcontextprotocol/servers).
+
+✅ **[PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759) merged Oct 17, 2025** - First .faf format server validated by Anthropic
+
+Registry listing: *"MCP server for .faf format. Context scoring engine with project context management."*
+
+**This is just the beginning.** 🧡⚡🏎️
 
 ---
 
@@ -236,7 +248,9 @@ We welcome contributions! Join our [community discussions](https://github.com/Wo
 
 <div align="center">
 
-**Made with 🧡 by wolfejam.dev**
+**AI? Context? faf innit ✨**
+
+Made with 🧡 by wolfejam.dev
 
 **100% FREE Forever** • **Zero Dependencies** • **Zero Faff™**
 
