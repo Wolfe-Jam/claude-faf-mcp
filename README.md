@@ -212,6 +212,14 @@ npm link
 
 ---
 
+## 👤 Author
+
+**James Wolfe (Wolfe-Jam)**
+Creator, .faf Format
+ORCID: [0009-0007-0801-3841](https://orcid.org/0009-0007-0801-3841)
+
+---
+
 ## 📄 License
 
 MIT License - See [LICENSE](./LICENSE) file
