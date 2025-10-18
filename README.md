@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/wolfe-jam-claude-faf-mcp-badge.png)](https://mseep.ai/app/wolfe-jam-claude-faf-mcp)
+
 # claude-faf-mcp v2.6.0 🏆
 
 <div align="center">
