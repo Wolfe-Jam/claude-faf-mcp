@@ -2,7 +2,7 @@
   "name": "claude-faf-mcp",
   "version": "2.6.1",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "🧡⚡️ MCP for .faf | Project DNA ✨ for AI-Context, On-Demand - Transform projects with perfect AI understanding • 33+ tools, Championship scoring • Works with Claude Desktop, VS Code, GitHub Copilot • Part of .faf ecosystem (see also: faf-cli) • 100% TypeScript strict • FREE & Open Source",
+  "description": "Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-64.png",
   "logo": "./assets/icons/faf-icon-64.png",
   "displayName": ".faf 🧡⚡️",
