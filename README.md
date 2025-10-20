@@ -1,4 +1,4 @@
-# claude-faf-mcp v2.6.2 🏆 1st Persistant Project AI Context MCP Server.
+# claude-faf-mcp v2.6.3 🏆 1st Persistent Project AI Context MCP Server.
 
 <div align="center">
 
