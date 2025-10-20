@@ -1,4 +1,4 @@
-# claude-faf-mcp v2.6.0 🏆
+# claude-faf-mcp v2.6.2 🏆
 
 <div align="center">
 
@@ -99,10 +99,19 @@ Registry listing: *"MCP server for .faf format. Context scoring engine with proj
 
 ## 🎯 What is claude-faf-mcp?
 
+**The first and only AI Context MCP introducing Persistent Project Context.**
+
 MCP server that brings `.faf` format to Claude Desktop for instant project understanding.
 
-**.faf = Project DNA ✨ for AI-Context, On-Demand**
-Universal, shareable context for Claude, Codex, Gemini, or any AI - regardless of stack, size, or setup.
+**.faf = Foundational AI-Context Format | Project DNA ✨ for AI-Context, On-Demand**
+
+**Format-Driven Architecture:**
+- **Persistent** - Context survives across sessions, tools, and AIs
+- **Universal** - Works with any MCP client, CLI, workflow automation (n8n, Make, etc.), or AI assistant
+- **Stack-Agnostic** - Any language, framework, or setup
+- **Built with Claude** - Optimized for Claude Desktop while maintaining compatibility with ANY AI model or platform
+
+No limits. No restrictions. No boundaries. The only true format-first architecture for the AI era.
 
 ### Key Features
 
@@ -152,7 +161,6 @@ The `.faf` file persists across conversations - no need to re-explain your proje
 ## 📊 Technical Specs
 
 ```
-Version:       2.6.0
 Performance:   <11ms operations
 TypeScript:    100% strict mode
 Dependencies:  1 (MCP SDK only)
@@ -163,7 +171,20 @@ Coverage:      4,400+ lines
 
 ---
 
-## ✨ What's New in v2.6.0
+## ✨ What's New
+
+### v2.6.2 - Documentation Improvements
+- **DRY Principle** - Version management simplified
+- **Single Source of Truth** - Version appears once in title
+- **Easier Maintenance** - Streamlined documentation updates
+
+### v2.6.1 - Official MCP Registry Publication
+- ☑️ **Published to Anthropic MCP Registry** - [PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759) MERGED
+- **server.json** added for official registry listing
+- **mcpName** updated with correct capitalization format
+- **Registry validation** - First .faf format server in official ecosystem
+
+### v2.6.0 - Post-Evaluation Release (94.4/100 Gold Standard)
 
 🏆 **Post-Evaluation Release (94.4/100 Gold Standard)**
 - Type-safe tool handlers with proper TypeScript definitions

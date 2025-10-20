@@ -5,6 +5,34 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.2] - 2025-10-20
+
+### Changed
+- README version management - DRY principle implementation
+- Removed duplicate version references from Technical Specs section
+- Version now appears once in title for simplified maintenance
+
+### Documentation
+- Version only in title (single source of truth) and historical changelog entries
+- Streamlined documentation for easier version updates
+
+## [2.6.1] - 2025-10-16
+
+☑️ **Official MCP Registry Publication**
+
+### Added
+- server.json configuration for Anthropic MCP Registry listing
+- Official registry validation and publication ([PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759) MERGED)
+
+### Changed
+- mcpName field updated with correct capitalization format (io.github.Wolfe-Jam/claude-faf-mcp)
+- First .faf format server officially listed in Anthropic MCP ecosystem
+
+### Registry Status
+- ☑️ Published to official Anthropic MCP Registry
+- ☑️ Validated by Anthropic engineering team
+- ☑️ Available for one-click installation in MCP-compatible hosts
+
 ## [2.6.0] - 2025-10-14
 
 🏆 **Post-Evaluation Release (94.4/100 Gold Standard)**
