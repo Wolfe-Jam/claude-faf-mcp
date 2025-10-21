@@ -120,3 +120,8 @@ generated: 2025-10-03T23:43:42.838Z
 metadata:
   last_claude_sync: 2025-10-03T23:52:21.494Z
   bi_sync: active
+skills:
+  - faf
+  - mcp-builder
+  - skill-creator
+  - wjttc-tester

@@ -1,4 +1,5 @@
-# claude-faf-mcp v2.6.3 🏆 1st Persistent Project AI Context MCP Server.
+# claude-faf-mcp v2.6.4 🏆 1st Persistent Project AI Context MCP Server.
+Now featuring New Skills.md 🎸 integration 
 
 <div align="center">
 
@@ -143,7 +144,10 @@ No limits. No restrictions. No boundaries. The only true format-first architectu
 - `faf_list` - List directories
 - `faf_search` - Search content
 
-[See all 33+ tools →](https://faf.one/docs/tools)
+### Skills & Integration
+- `faf_skills` - 🎸 List Claude Code skills from .faf file
+
+[See all 34+ tools →](https://faf.one/docs/tools)
 
 ---
 

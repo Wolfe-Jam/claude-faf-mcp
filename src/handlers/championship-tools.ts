@@ -504,6 +504,16 @@ export class ChampionshipToolHandler {
             },
             required: ['path', 'content']
           }
+        },
+        {
+          name: 'faf_skills',
+          description: '🎸 List Claude Code skills from .faf file - See which skills are configured for this project',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Project directory (defaults to current)' }
+            }
+          }
         }
       ] as Tool[]
     };
@@ -608,6 +618,8 @@ export class ChampionshipToolHandler {
           return await this.handleRead(_args);
         case 'faf_write':
           return await this.handleWrite(_args);
+        case 'faf_skills':
+          return await this.handleSkills(_args);
 
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -1874,6 +1886,28 @@ Zero shell dependencies
   private async handleWrite(args: ToolTypes.FafWriteArgs): Promise<CallToolResult> {
     await fs.writeFile(args.path, args.content);
     return await this.formatResult('💾 File Written', `Saved to ${args.path}`);
+  }
+
+  private async handleSkills(args: { directory?: string }): Promise<CallToolResult> {
+    const dir = args?.directory || this.currentProjectDir;
+    const startTime = Date.now();
+
+    try {
+      // Call faf-cli skills command
+      this.fafEngine.setWorkingDirectory(dir);
+      const result = await this.fafEngine.callEngine('skills', []);
+
+      const duration = Date.now() - startTime;
+
+      if (result.success && result.data?.output) {
+        return await this.formatResult('🎸 Claude Code Skills', result.data.output, duration, dir);
+      } else {
+        return await this.formatResult('🎸 Skills', 'No skills configured in .faf file', duration, dir);
+      }
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      return await this.formatResult('🎸 Skills', `Error: ${error.message}`, duration, dir);
+    }
   }
 
   private async handleChoose(args: ToolTypes.FafChooseArgs): Promise<CallToolResult> {
