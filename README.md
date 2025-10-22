@@ -1,11 +1,52 @@
-# claude-faf-mcp v2.6.4 🏆 1st Persistent Project AI Context MCP Server.
-Now featuring New Skills.md 🎸 integration 
+# claude-faf-mcp
+
+## TL;DR
+
+**Problem:** AI needs persistent project context to work at its best.
+
+**Solution:** The .faf format provides that context. This MCP server gives Claude 33+ tools to create, score, and improve your project context interactively.
+
+**How it works:** Get a score (0-100%) showing how well AI understands your project. Higher scores = AI more in-tune with your codebase. Use tools to improve your score and context quality.
+
+**Install:**
+```bash
+npm install -g claude-faf-mcp
+```
+
+**Configure:** Add to `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "claude-faf-mcp": {
+      "command": "claude-faf-mcp"
+    }
+  }
+}
+```
+
+**CLI vs MCP clarity**
+- **faf-cli** ([npm](https://www.npmjs.com/package/faf-cli)): Runs on your machine locally in a terminal
+- **claude-faf-mcp** (this): Runs through Claude Desktop as a tool
+
+Same .faf, different way to use. Same Project DNA and scoring. Same capabilities. Different execution layer.
+
+Use CLI for raw speed and local development; use MCP for AI-integrated workflows. No feature gaps between them - pick based on your flow.
+
+Most users want both: faf-cli for local work, claude-faf-mcp for Claude Desktop integration.
+
+[Website](https://faf.one) | [GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) | [Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
+
+---
+
+## 📚 Complete Documentation
+
+**For developers who want the full story**, here's everything about FAF's architecture, testing, and championship engineering standards.
 
 <div align="center">
 
 <img src="https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/icons/faf-icon-64.png" alt="Orange Smiley" width="48" />
 
-**🏆 Anthropic-Approved MCP Server** • **100% error-free TS strict Gold Code Standard** • **Project DNA ✨ for AI-Context, On-Demand.**
+**🏆 Anthropic-Approved MCP Server** • **100% error-free TS strict code** • **Project DNA ✨ for AI-Context, On-Demand**
 
 </div>
 
@@ -13,21 +54,13 @@ Now featuring New Skills.md 🎸 integration
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
-[![Weekly Downloads](https://img.shields.io/npm/dw/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Node Version](https://img.shields.io/node/v/claude-faf-mcp)](https://nodejs.org)
-[![GitHub Stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](./CONTRIBUTING.md)
-
 [![Official MCP Registry](https://img.shields.io/badge/Anthropic-Official%20MCP%20Registry-success?logo=github)](https://github.com/modelcontextprotocol/servers)
-[![Production Ready](https://img.shields.io/badge/Status-Production%20Ready-success)](https://wolfe-jam.github.io/claude-faf-mcp/)
-[![Gold Standard](https://img.shields.io/badge/Evaluation-94.4%2F100%20Gold-FFD700)](./docs/evaluations/WJTTC-Comprehensive-Evaluation-2025-10-12.md)
+[![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tests](https://img.shields.io/badge/Tests-730%20C.O.R.E-success)](./docs/evaluations/)
-[![Performance](https://img.shields.io/badge/Performance-%3C11ms-success)](./docs/evaluations/)
 
-**[Website](https://faf.one)** • **[Docs](https://wolfe-jam.github.io/claude-faf-mcp/)** • **[Community](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)** • **[Contributing](./CONTRIBUTING.md)**
+**[Website](https://faf.one)** • **[Docs](https://github.com/Wolfe-Jam/claude-faf-mcp)** • **[Community](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)**
 
 </div>
 
@@ -279,7 +312,7 @@ We welcome contributions! Join our [community discussions](https://github.com/Wo
 
 Made with 🧡 by wolfejam.dev
 
-**100% FREE Forever** • **Zero Dependencies** • **Zero Faff™**
+**Free forever** • **Zero dependencies** • **Zero Faff™**
 
 [⭐ Star on GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) • [📦 View on NPM](https://www.npmjs.com/package/claude-faf-mcp)
 

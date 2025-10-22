@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.6.4",
+  "version": "2.6.5",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-64.png",
@@ -112,7 +112,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0"
+    "@modelcontextprotocol/sdk": "^1.20.1"
   },
   "devDependencies": {
     "@jest/globals": "^30.1.2",
