@@ -116,3 +116,12 @@ coverage/
 !CONTRIBUTING.md
 !REDDIT_POST.md
 !docs/**/*.md
+
+# MCP Registry tokens (sensitive)
+.mcpregistry_*
+*_token
+*.token
+
+# Backup files
+*.backup
+*.backup-*

@@ -28,11 +28,9 @@ npm install -g claude-faf-mcp
 - **faf-cli** ([npm](https://www.npmjs.com/package/faf-cli)): Runs on your machine locally in a terminal
 - **claude-faf-mcp** (this): Runs through Claude Desktop as a tool
 
-Same .faf, different way to use. Same Project DNA and scoring. Same capabilities. Different execution layer.
+Same .faf, different way to use. Same Project DNA and scoring. Same capabilities (create, score, improve). Different execution layer.
 
 Use CLI for raw speed and local development; use MCP for AI-integrated workflows. No feature gaps between them - pick based on your flow.
-
-Most users want both: faf-cli for local work, claude-faf-mcp for Claude Desktop integration.
 
 [Website](https://faf.one) | [GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) | [Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
 
@@ -66,14 +64,14 @@ Most users want both: faf-cli for local work, claude-faf-mcp for Claude Desktop 
 
 ---
 
-## 🏆 Championship Scoring System
+## 🏆 Podium Scoring System
 
-![FAF Championship Score Card](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/faf-championship-scorecard.png)
+![FAF Podium Score Card](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/faf-championship-scorecard.png)
 
 Track your project's AI-readiness with F1-inspired tiers:
 
 ```
-🏆 Trophy (100%)    - Championship - Perfect AI|HUMAN balance
+🏆 Trophy (100%)    - Podium - Perfect AI|HUMAN balance
 🥇 Gold (99%)       - Gold standard
 🥈 Silver (95-98%)  - Excellence
 🥉 Bronze (85-94%)  - Production ready
@@ -151,7 +149,7 @@ No limits. No restrictions. No boundaries. The only true format-first architectu
 
 - ✅ **Zero Config** - Works out of the box
 - ✅ **33+ Tools** - Complete project management
-- ✅ **<11ms Speed** - Championship performance
+- ✅ **<11ms Speed** - Podium performance
 - ✅ **Bi-Sync** - .faf ↔ CLAUDE.md synchronization
 - ✅ **Type Safe** - 100% TypeScript strict mode
 - ✅ **Production Ready** - 35/35 tests passing
@@ -229,17 +227,17 @@ Coverage:      4,400+ lines
 - Repository cleanup: Removed 17K+ lines of legacy docs
 - Improved TypeScript strict mode compliance across all handlers
 
-### v2.5.2 - Visual Championship Experience
+### v2.5.2 - Visual Podium Experience
 - **Orange Smiley branding** - Complete visual identity on NPM
 - **Score card screenshot** - See the actual terminal output
-- **Championship polish** - Professional presentation
+- **Podium polish** - Professional presentation
 
 ### v2.5.1 - Documentation Polish
-- **Championship README** - Trophy section leads for immediate impact
+- **Podium README** - Trophy section leads for immediate impact
 - **Optimized description** - Cleaner NPM presence
 - **Professional structure** - Scannable, modern layout
 
-### v2.5.0 - Championship Edition
+### v2.5.0 - Podium Edition
 - **7-tier medal system** for AI-readiness scoring
 - **Visual progress bars** in terminal output
 - **Milestone tracking** with next-level guidance
@@ -277,7 +275,7 @@ npm link
 
 ## 🔗 The FAF Ecosystem
 
-- [🩵 **faf-cli**](https://npmjs.com/package/faf-cli) - Command line tool (v3.0.2 - Championship Edition 🏆 with Turbo Cat 😽)
+- [🩵 **faf-cli**](https://npmjs.com/package/faf-cli) - Command line tool (v3.0.2 - Podium Edition 🏆 with Turbo Cat 😽)
 - [🧡 **claude-faf-mcp**](https://npmjs.com/package/claude-faf-mcp) - This MCP server
 - [💚 **faf.one**](https://faf.one) - Documentation & guides
 - [🖥️ **Chrome Extension**](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm) - Browser integration
