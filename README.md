@@ -55,6 +55,7 @@ Use CLI for raw speed and local development; use MCP for AI-integrated workflows
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 [![Official MCP Registry](https://img.shields.io/badge/Anthropic-Official%20MCP%20Registry-success?logo=github)](https://github.com/modelcontextprotocol/servers)
+[![MseeP.ai Security Assessment](https://mseep.net/pr/wolfe-jam-claude-faf-mcp-badge.png)](https://mseep.ai/app/wolfe-jam-claude-faf-mcp)
 [![TypeScript](https://img.shields.io/badge/TypeScript-100%25%20Strict-3178C6?logo=typescript)](https://www.typescriptlang.org/)
 [![Tests](https://img.shields.io/badge/Tests-730%20C.O.R.E-success)](./docs/evaluations/)
 
