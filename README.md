@@ -122,7 +122,7 @@ Restart Claude Desktop → Ready! 🏁
 
 ☑️ **Published to official Anthropic MCP registry** - Validated by Anthropic engineering team
 ☑️ **[PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759)** - Approved and available in registry
-☑️ **3,600+ total downloads** - Growing adoption across the Claude community
+☑️ **4,100+ total downloads** - 584/week run rate (up from 108/week low, 5.4x growth)
 
 Registry listing: *"MCP server for .faf format. Context scoring engine with project context management."*
 
