@@ -17,7 +17,7 @@ npm install -g claude-faf-mcp
 
 Via Homebrew:
 ```bash
-brew install Wolfe-Jam/tap/claude-faf-mcp
+brew install wolfe-jam/faf/claude-faf-mcp
 ```
 
 **Configure:** Add to `claude_desktop_config.json`:
@@ -86,7 +86,7 @@ npm install -g claude-faf-mcp
 
 Or via Homebrew:
 ```bash
-brew install Wolfe-Jam/tap/claude-faf-mcp
+brew install wolfe-jam/faf/claude-faf-mcp
 ```
 
 Add to Claude Desktop configuration. On macOS and Linux, edit ~/Library/Application Support/Claude/claude_desktop_config.json. On Windows, edit %APPDATA%\Claude\claude_desktop_config.json.
