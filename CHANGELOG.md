@@ -5,6 +5,24 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.6] - 2025-10-25
+
+### Changed
+- Redesigned README for professional clarity and credibility
+- Removed decorative emoji and formatting from meta-content
+- Emphasized "persistent project context" in official registry listing
+- Clarified format-driven architecture (format-first, not tools-first)
+
+### Added
+- "Scoring System Experience" section with product screenshot
+- Homebrew installation option (brew install Wolfe-Jam/tap/claude-faf-mcp)
+- Strengthened positioning: "first and only persistent project context server"
+
+### Documentation
+- Format-driven architecture now leads value proposition
+- Distinguished .faf from tools.md and CLAUDE.md
+- Professional, noise-free README structure
+
 ## [2.6.3] - 2025-10-20
 
 ### Fixed
