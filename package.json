@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "2.6.7",
+  "version": "2.6.8",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-64.png",
@@ -80,7 +80,9 @@
     "warp",
     "free-forever",
     "open-source",
-    "mit-license"
+    "mit-license",
+    "persistent",
+    "persistent-project-context"
   ],
   "author": {
     "name": "wolfejam",
