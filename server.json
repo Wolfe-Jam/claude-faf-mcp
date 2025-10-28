@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "Anthropic-Approved MCP Server. 33+ tools for .faf Project DNA. 3.6k downloads.",
+  "description": "First & Only Persistent Project Context MCP. 33+ tools for .faf Project DNA. 10k+ downloads. Official Anthropic Registry.",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
   },
-  "version": "2.6.2",
+  "version": "2.6.8",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "2.6.1",
+      "version": "2.6.8",
       "transport": {
         "type": "stdio"
       }
