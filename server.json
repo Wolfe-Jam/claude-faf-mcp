@@ -1,7 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "First & Only Persistent Project Context MCP. 33+ tools for .faf Project DNA. 10k+ downloads. Official Anthropic Registry.",
+  "description": "First & Only Persistent Project Context MCP. 33+ tools. 10k+ downloads. Official Anthropic.",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"

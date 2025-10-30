@@ -5,6 +5,34 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2025-10-30
+
+### Added
+- project.faf as the new standard for all projects
+- File discovery utility supporting both project.faf and legacy .faf
+- NPM badges in README (version, downloads, license)
+- What's New section showcasing project.faf visibility
+
+### Changed
+- New projects now create project.faf (instead of hidden .faf)
+- All MCP tools support both project.faf and legacy .faf files
+- README updated with simplified v2.7.0 announcement
+- Updated 18 locations across codebase for new standard
+
+### Fixed
+- File discovery now handles all .faf filename variations
+- EISDIR protection for edge cases
+
+### Testing
+- Championship-grade stress testing completed
+- WJTTC Gold Certified
+- Backward compatibility verified with legacy .faf files
+
+### Migration
+- Existing .faf files continue to work perfectly
+- Use faf migrate (CLI v3.1.0) to upgrade to project.faf
+- Coordinated release with faf-cli v3.1.0
+
 ## [2.6.7] - 2025-10-25
 
 ### Fixed

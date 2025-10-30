@@ -4,6 +4,7 @@ import { fileHandlers } from './fileHandler';
 import * as fs from 'fs';
 import * as path from 'path';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
+import { findFafFile, getNewFafFilePath } from '../utils/faf-file-finder.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -223,25 +224,26 @@ export class FafToolHandler {
   private async handleFafStatus(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     // Native implementation - no CLI needed!
     const cwd = this.engineAdapter.getWorkingDirectory();
-    const fafPath = path.join(cwd, '.faf');
 
     try {
-      if (!fs.existsSync(fafPath)) {
+      const fafResult = await findFafFile(cwd);
+
+      if (!fafResult) {
         return {
           content: [{
             type: 'text',
-            text: `🤖 Claude FAF Project Status:\n\n❌ No .faf file found in ${cwd}\n💡 Run faf_init to create one`
+            text: `🤖 Claude FAF Project Status:\n\n❌ No FAF file found in ${cwd}\n💡 Run faf_init to create project.faf`
           }]
         };
       }
 
-      const fafContent = fs.readFileSync(fafPath, 'utf-8');
+      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
       const lines = fafContent.split('\n').slice(0, 20);
 
       return {
         content: [{
           type: 'text',
-          text: `🤖 Claude FAF Project Status:\n\n✅ .faf file found in ${cwd}\n\nContent preview:\n${lines.join('\n')}`
+          text: `🤖 Claude FAF Project Status:\n\n✅ ${fafResult.filename} found in ${cwd}\n\nContent preview:\n${lines.join('\n')}`
         }]
       };
     } catch (error: any) {
@@ -267,16 +269,15 @@ export class FafToolHandler {
       let score = 0;
       const details: string[] = [];
 
-      // 1. Check for .faf file (40 points)
-      const fafPath = path.join(cwd, '.faf');
+      // 1. Check for FAF file (40 points) - v1.2.0: project.faf, *.faf, or .faf
+      const fafResult = await findFafFile(cwd);
       let hasFaf = false;
-      try {
-        await fs.access(fafPath);
+      if (fafResult) {
         hasFaf = true;
         score += 40;
-        details.push('✅ .faf file present (+40)');
-      } catch {
-        details.push('❌ .faf file missing (0/40)');
+        details.push(`✅ ${fafResult.filename} present (+40)`);
+      } else {
+        details.push('❌ FAF file missing (0/40)');
       }
 
       // 2. Check for CLAUDE.md (30 points)
@@ -325,7 +326,7 @@ export class FafToolHandler {
       let easterEggActivated = false;
       if (hasFaf && hasClaude) {
         try {
-          const fafContent = await fs.readFile(fafPath, 'utf-8');
+          const fafContent = await fs.readFile(fafResult!.path, 'utf-8');
           const claudeContent = await fs.readFile(claudePath, 'utf-8');
 
           // Check for rich content (more than 500 chars each, has sections)
@@ -417,17 +418,18 @@ export class FafToolHandler {
   }
 
   private async handleFafInit(args: any): Promise<CallToolResult> {
-    // Native implementation - creates .faf without CLI!
+    // Native implementation - creates project.faf without CLI! (v1.2.0)
     const cwd = this.engineAdapter.getWorkingDirectory();
-    const fafPath = path.join(cwd, '.faf');
+    const fafPath = getNewFafFilePath(cwd); // v1.2.0: Always create project.faf
 
     try {
-      // Check if .faf exists and force flag
-      if (fs.existsSync(fafPath) && !args?.force) {
+      // Check if any FAF file exists and force flag
+      const existingFaf = await findFafFile(cwd);
+      if (existingFaf && !args?.force) {
         return {
           content: [{
             type: 'text',
-            text: `🚀 Claude FAF Initialization:\n\n⚠️ .faf file already exists in ${cwd}\n💡 Use force: true to overwrite`
+            text: `🚀 Claude FAF Initialization:\n\n⚠️ ${existingFaf.filename} already exists in ${cwd}\n💡 Use force: true to overwrite`
           }]
         };
       }
@@ -489,7 +491,7 @@ package_manager: ${projectData.package_manager}` : ''}
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ Created .faf file in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
+          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
             chromeDetection.detected ? '\n\n🎯 Friday Feature: Chrome Extension detected!\n📈 Auto-filled 7 slots for 90%+ score!' : ''
           }${
             chromeDetection.corrected ? `\n📝 Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''
@@ -780,10 +782,10 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
         debugInfo.permissions.fafError = error instanceof Error ? error.message : String(error);
       }
       
-      // Check for existing .faf file
-      const fafFile = path.join(cwd, '.faf');
-      const hasFafFile = fs.existsSync(fafFile);
-      
+      // Check for existing FAF file (v1.2.0: project.faf, *.faf, or .faf)
+      const fafResult = await findFafFile(cwd);
+      const hasFaf = fafResult !== null;
+
       const debugOutput = `🔍 Claude FAF MCP Server Debug Information:
 
 📂 Working Directory: ${debugInfo.workingDirectory}
@@ -791,7 +793,7 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
 ${debugInfo.permissions.writeError ? `   Error: ${debugInfo.permissions.writeError}\n` : ''}🤖 FAF Engine Path: ${debugInfo.enginePath}
 🏎️ FAF CLI Path: ${debugInfo.fafCliPath || '❌ Not found'}
 📋 FAF Version: ${debugInfo.fafVersion || 'Unknown'}
-${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafError}\n` : ''}📄 .faf File: ${hasFafFile ? '✅ Exists' : '❌ Not found (run faf_init)'}
+${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafError}\n` : ''}📄 FAF File: ${hasFaf ? `✅ ${fafResult!.filename} exists` : '❌ Not found (run faf_init)'}
 🛤️ System PATH: ${debugInfo.pathEnv.slice(0, 3).join(', ')}${debugInfo.pathEnv.length > 3 ? '...' : ''}
 
 💡 Quick Start:

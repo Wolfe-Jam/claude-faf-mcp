@@ -1,5 +1,9 @@
 # claude-faf-mcp
 
+[![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp?color=FF4500)](https://www.npmjs.com/package/claude-faf-mcp)
+[![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ## TL;DR
 
 **Problem:** AI needs persistent project context—not just docs or tools, but foundational infrastructure.
@@ -48,6 +52,53 @@ claude-faf-mcp is officially published in the Anthropic MCP Registry (PR #2759).
 Registry listing: "MCP server for .faf format. The only persistent project context scoring engine in the Anthropic registry."
 
 Published to official Anthropic MCP registry with validation by Anthropic engineering team. Current metrics: 4,100+ total downloads with 462 downloads per week (4.5x growth from 108/week baseline).
+
+---
+
+## What's New in v2.7.0 - The Visibility Revolution
+
+**v2.7.0 introduces `project.faf` as the new standard for every repository.**
+
+![project.faf in file structure](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/project-faf-screenshot.png)
+
+**`package.json` for AI.**
+
+Just like `package.json` tells npm what your project needs, `project.faf` tells AI what your project IS.
+
+| File | Purpose | Who Reads It |
+|------|---------|--------------|
+| `package.json` | Dependencies, scripts, metadata | npm, Node.js, developers |
+| `project.faf` | **Context, architecture, purpose** | **AI, Claude, Cursor, any AI tool** |
+
+Same pattern. Same universality. Same necessity.
+
+**What changed:**
+- New projects create `project.faf` (not hidden `.faf`)
+- Your existing `.faf` files work perfectly
+- Rename with `faf migrate` (CLI v3.1.0) for better visibility
+
+**Why it matters:**
+
+```bash
+# Before (hidden like secrets)
+ls -la
+.env          # Hidden (secrets - should be hidden)
+.faf          # Hidden (AI context - should be visible!)
+
+# After (visible like package.json)
+ls
+package.json  # Visible (dependencies)
+project.faf   # Visible (AI context)
+.env          # Still hidden (secrets stay secret)
+```
+
+`.env` hides secrets. `project.faf` shares context.
+
+`.faf` was hiding in the wrong category. `project.faf` fixes that.
+
+You wouldn't skip `package.json`. Don't skip `project.faf`.
+
+Coordinated with faf-cli v3.1.0 for seamless ecosystem integration.
 
 ---
 

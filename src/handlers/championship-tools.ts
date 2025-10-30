@@ -14,6 +14,7 @@ import * as path from 'path';
 // ✅ FIXED: Removed unused imports (formatScore, format3Lines, formatBigOrange, ChampionshipFormatter, AchievementStatus, wrapWithInstruction)
 import { FafEngineAdapter } from './engine-adapter.js';
 import { DisplayProtocol } from '../utils/display-protocol.js';
+import { findFafFile, getNewFafFilePath, hasFafFile } from '../utils/faf-file-finder.js';
 import type * as ToolTypes from './tool-types.js';
 
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
@@ -33,11 +34,12 @@ export class ChampionshipToolHandler {
 
   /**
    * 🏁 Calculate current FAF score for footer
+   * v1.2.0: Uses findFafFile() for project.faf support
    */
   private async calculateQuickScore(directory: string = this.currentProjectDir): Promise<number> {
     let score = 0;
     try {
-      if (await this.fileExists(path.join(directory, '.faf'))) score += 40;
+      if (await hasFafFile(directory)) score += 40;
       if (await this.fileExists(path.join(directory, 'CLAUDE.md'))) score += 30;
       if (await this.fileExists(path.join(directory, 'README.md'))) score += 15;
       if (await this.fileExists(path.join(directory, 'package.json'))) score += 14;
@@ -730,8 +732,8 @@ export class ChampionshipToolHandler {
         output += `📦 Tech: ${techDetails.join(', ')}\n`;
       }
 
-      // Step 3: Create rich .faf file
-      output += `\n⚡ Creating intelligent .faf...\n`;
+      // Step 3: Create rich project.faf file (v1.2.0 standard)
+      output += `\n⚡ Creating intelligent project.faf...\n`;
 
       const fafContent = `# FAF - Foundational AI Context
 project: ${projectName}
@@ -761,7 +763,7 @@ Status: Championship grade achieved
 Generated: ${new Date().toISOString()}
 By: FAF AUTO - The One Command Championship`;
 
-      const fafPath = path.join(dir, '.faf');
+      const fafPath = getNewFafFilePath(dir); // v1.2.0: Creates project.faf
       await fs.writeFile(fafPath, fafContent);
 
       // Step 4: Create CLAUDE.md
@@ -793,7 +795,7 @@ Working towards 🍊 105% Big Orange status!
 
       // Step 5: Report completion
       output += `\n✅ FAF AUTO complete!\n`;
-      output += `Created: .faf and CLAUDE.md\n`;
+      output += `Created: project.faf and CLAUDE.md\n`;
       output += `Run 'faf_score' to check AI-Readiness`;
 
       // Step 6: Activate bi-sync
@@ -810,7 +812,7 @@ Working towards 🍊 105% Big Orange status!
 
       // Step 7: Show completion
       output += `\n✅ FAF AUTO Complete!\n\n`;
-      output += `🤖 .faf is THE JPEG for AI\n`;
+      output += `🤖 project.faf is THE JPEG for AI\n`;
       output += `🧡 Trust: Context verified\n`;
       output += `⚡️ Speed: Generated in ${Date.now() - this.startTime}ms\n`;
       output += `SPEEDY AI you can TRUST!\n\n`;
@@ -843,8 +845,8 @@ Working towards 🍊 105% Big Orange status!
         const output = result.data?.output || 'FAF initialized successfully';
         return await this.formatResult('🚀 FAF Init', output);
       } else {
-        // Fallback to native if engine fails
-        const fafPath = path.join(dir, '.faf');
+        // Fallback to native if engine fails (v1.2.0: creates project.faf)
+        const fafPath = getNewFafFilePath(dir);
 
         if (await this.fileExists(fafPath) && !args.force) {
           return await this.formatResult('🚀 FAF Init', 'File exists, use force: true to overwrite');
@@ -871,7 +873,7 @@ Generated: ${new Date().toISOString()}
 By: claude-faf-mcp v2.2.0`;
 
         await fs.writeFile(fafPath, fafContent);
-        return await this.formatResult('🚀 FAF Init', `Created .faf in ${dir} (native fallback)`);
+        return await this.formatResult('🚀 FAF Init', `Created project.faf in ${dir} (native fallback)`);
       }
     } catch (error: any) {
       return await this.formatResult('🚀 FAF Init', `Error: ${error.message}`);
@@ -889,14 +891,14 @@ By: claude-faf-mcp v2.2.0`;
 
 
   private async handleDisplay(args: ToolTypes.FafDisplayArgs): Promise<CallToolResult> {
-    // Generate HTML display of FAF score
+    // Generate HTML display of FAF score (v1.2.0: supports project.faf)
     const targetDir = args?.directory || process.cwd();
     const outputPath = args?.output || path.join(targetDir, 'faf-score-display.html');
 
-    // Calculate score
+    // Calculate score using v1.2.0 file finder
     let score = 0;
-    const hasFaf = await this.fileExists(path.join(targetDir, '.faf'));
-    if (hasFaf) score += 40;
+    const fafResult = await findFafFile(targetDir);
+    if (fafResult) score += 40;
     const hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
     if (hasClaude) score += 30;
     const hasReadme = await this.fileExists(path.join(targetDir, 'README.md'));
@@ -977,7 +979,7 @@ ${progressBar} ${score}%
 ${emoji} <span class="cyan">Status: ${status}</span>
 
 Breakdown:
-• .faf:         ${hasFaf ? '☑️' : '❌'} ${hasFaf ? '40pts' : 'Missing'}
+• FAF:          ${fafResult ? `☑️ ${fafResult.filename}` : '❌'} ${fafResult ? '40pts' : 'Missing'}
 • CLAUDE.md:    ${hasClaude ? '☑️' : '❌'} ${hasClaude ? '30pts' : 'Missing'}
 • README.md:    ${hasReadme ? '☑️' : '❌'} ${hasReadme ? '15pts' : 'Missing'}
 • package.json: ${hasPackage ? '☑️' : '❌'} ${hasPackage ? '14pts' : 'Missing'}
@@ -1020,8 +1022,9 @@ AI-Readiness: ${score}% ${emoji}
       let hasReadme = false;
       let hasPackage = false;
 
-      // Check files
-      hasFaf = await this.fileExists(path.join(targetDir, '.faf'));
+      // Check files (v1.2.0: supports project.faf)
+      const fafResult = await findFafFile(targetDir);
+      hasFaf = fafResult !== null;
       if (hasFaf) score += 40;
       hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
       if (hasClaude) score += 30;
@@ -1148,9 +1151,10 @@ faf_score --save      # Save this scorecard
       console.warn('FAF Engine score failed, using native:', engineError);
     }
 
-    // If engine failed or gave no score, calculate natively
+    // If engine failed or gave no score, calculate natively (v1.2.0: supports project.faf)
     if (score === 0) {
-      hasFaf = await this.fileExists(path.join(targetDir, '.faf'));
+      const fafResult = await findFafFile(targetDir);
+      hasFaf = fafResult !== null;
       if (hasFaf) score += 40;
 
       hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
@@ -1346,13 +1350,20 @@ faf_score --save      # Save this scorecard
     const direction = args.direction || 'to-claude';
 
     if (direction === 'to-claude') {
-      const fafContent = await fs.readFile(path.join(cwd, '.faf'), 'utf-8');
-      await fs.writeFile(path.join(cwd, 'CLAUDE.md'), fafContent + '\n\n# Synced from .faf');
-      return await this.formatResult('🔄 FAF Sync', 'Synced .faf → CLAUDE.md (native fallback)');
+      // Read from any existing FAF file (project.faf, *.faf, or .faf)
+      const fafResult = await findFafFile(cwd);
+      if (!fafResult) {
+        return await this.formatResult('🔄 FAF Sync', 'No FAF file found to sync from');
+      }
+      const fafContent = await fs.readFile(fafResult.path, 'utf-8');
+      await fs.writeFile(path.join(cwd, 'CLAUDE.md'), fafContent + `\n\n# Synced from ${fafResult.filename}`);
+      return await this.formatResult('🔄 FAF Sync', `Synced ${fafResult.filename} → CLAUDE.md (native fallback)`);
     } else {
+      // Write to project.faf (new standard)
       const claudeContent = await fs.readFile(path.join(cwd, 'CLAUDE.md'), 'utf-8');
-      await fs.writeFile(path.join(cwd, '.faf'), claudeContent);
-      return await this.formatResult('🔄 FAF Sync', 'Synced CLAUDE.md → .faf (native fallback)');
+      const fafPath = getNewFafFilePath(cwd);
+      await fs.writeFile(fafPath, claudeContent);
+      return await this.formatResult('🔄 FAF Sync', 'Synced CLAUDE.md → project.faf (native fallback)');
     }
   }
 
@@ -1378,13 +1389,16 @@ faf_score --save      # Save this scorecard
     }
 
     // Fallback to native implementation
-    const faf = await fs.readFile(path.join(cwd, '.faf'), 'utf-8').catch(() => '');
+    const fafResult = await findFafFile(cwd);
+    const faf = fafResult ? await fs.readFile(fafResult.path, 'utf-8').catch(() => '') : '';
     const claude = await fs.readFile(path.join(cwd, 'CLAUDE.md'), 'utf-8').catch(() => '');
 
     const merged = `${faf}\n\n# BI-SYNC ACTIVE 🔗\n\n${claude}`;
 
+    // Write to project.faf (new standard)
+    const fafPath = getNewFafFilePath(cwd);
     await Promise.all([
-      fs.writeFile(path.join(cwd, '.faf'), merged),
+      fs.writeFile(fafPath, merged),
       fs.writeFile(path.join(cwd, 'CLAUDE.md'), merged)
     ]);
 
@@ -1940,7 +1954,7 @@ Zero shell dependencies
               const fullPath = path.join(projPath, dir.name);
               // Check if it's a real project
               const hasPackage = await this.fileExists(path.join(fullPath, 'package.json'));
-              const hasFaf = await this.fileExists(path.join(fullPath, '.faf'));
+              const hasFaf = await hasFafFile(fullPath);
 
               if (hasPackage || hasFaf) {
                 // Calculate score
@@ -2049,7 +2063,7 @@ Zero shell dependencies
     const targetDir = dir || process.cwd();
     let score = 0;
 
-    if (await this.fileExists(path.join(targetDir, '.faf'))) score += 40;
+    if (await hasFafFile(targetDir)) score += 40;
     if (await this.fileExists(path.join(targetDir, 'CLAUDE.md'))) score += 30;
     if (await this.fileExists(path.join(targetDir, 'README.md'))) score += 15;
     if (await this.fileExists(path.join(targetDir, 'package.json'))) score += 14;
