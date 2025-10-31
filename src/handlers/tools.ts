@@ -663,7 +663,7 @@ package_manager: ${projectData.package_manager}` : ''}
       name: 'claude-faf-mcp',
       version: '2.2.0',
       description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
-      author: 'wolfejam (happy@faf.one)',
+      author: 'FAF Team (team@faf.one)',
       website: 'https://faf.one',
       npm: 'https://www.npmjs.com/package/claude-faf-mcp'
     };
