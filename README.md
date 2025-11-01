@@ -1,7 +1,13 @@
 # claude-faf-mcp
 
+> **🏆 IANA-Registered Format** - .FAF is now an Internet-standard format.
+> MCP server for creating official `application/vnd.faf+yaml` files in Claude Desktop
+> Official MCP server for FAF (Foundational AI-context Format) with 33+ tools -
+> Persistent project context that integrates seamlessly with Claude Desktop workflows
+
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp?color=FF4500)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
+[![IANA Registered](https://img.shields.io/badge/IANA-application%2Fvnd.faf%2Byaml-blue)](https://faf.one/blog/iana-registration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## TL;DR
@@ -53,6 +59,33 @@ Registry listing: "MCP server for .faf format. The only persistent project conte
 
 Published to official Anthropic MCP registry with validation by Anthropic engineering team. Current metrics: 4,100+ total downloads with 462 downloads per week (4.5x growth from 108/week baseline).
 
+## Major Milestones
+
+- **Aug 8, 2024** - Format created
+- **Sep 11, 2025** - Google Chrome Web Store approval (#1)
+- **Oct 17, 2025** - Official Anthropic MCP Registry merger (PR #2759)
+- **Oct 29, 2025** - Google Chrome Web Store approval (#2)
+- **Oct 29, 2025** - Submitted to awesome-mcp-servers (PR #1449 pending)
+- **Oct 31, 2025** - **IANA Registration** 🏆 (`application/vnd.faf+yaml`)
+
+**4 Platform Approvals in 85 Days**
+
+---
+
+## What's New in v2.7.2 - IANA Registration
+
+**v2.7.2 updates documentation with IANA registration achievement.**
+
+On **October 31, 2025**, the Internet Assigned Numbers Authority (IANA) officially registered `.faf` as `application/vnd.faf+yaml` - making it an Internet-standard format alongside PDF, JSON, and XML.
+
+**What this means:**
+- Official Internet media type recognition
+- Proper HTTP Content-Type headers
+- Browser and email client support
+- API standardization across platforms
+
+This documentation update adds IANA information throughout the README to reflect this major infrastructure-level achievement.
+
 ---
 
 ## What's New in v2.7.0 - The Visibility Revolution
@@ -102,6 +135,42 @@ Coordinated with faf-cli v3.1.0 for seamless ecosystem integration.
 
 ---
 
+## What is FAF?
+
+FAF (Foundational AI-context Format) is the **IANA-registered format** for persistent project context in AI development tools.
+
+**Official Media Type:** `application/vnd.faf+yaml`
+**Registration Date:** October 31, 2025
+**IANA Status:** Recognized Internet standard
+
+### Why IANA Registration Matters
+
+- **Internet-Scale Legitimacy** - Same recognition as PDF (`application/pdf`), JSON (`application/json`), XML (`application/xml`)
+- **Universal Compatibility** - Browsers, email clients, APIs handle `.faf` files properly
+- **HTTP Standard Headers** - `Content-Type: application/vnd.faf+yaml` is officially registered
+- **Future-Proof** - Format backed by Internet standards body
+
+### The .faf Advantage
+
+Traditional approach:
+```bash
+# Manual context setup (5+ minutes)
+1. Copy README
+2. List files
+3. Explain architecture
+4. Share with AI
+```
+
+FAF approach:
+```bash
+# Automated context (< 1 second)
+npx -y claude-faf-mcp
+faf init
+# Done - complete project DNA in .faf file
+```
+
+---
+
 ## What is claude-faf-mcp?
 
 An MCP server that brings the .faf format to Claude Desktop for persistent project context. The .faf format (Foundational AI-Context Format) is a structured, machine-readable context layer designed as foundational infrastructure—not tools, not documentation, but format.
@@ -114,7 +183,26 @@ Format-driven means the architecture is built on data structure first, not tooli
 
 **Key Features**
 
-Zero configuration required - works out of the box after installation. Includes 33+ tools for format operations. Operations average under 11 milliseconds. Synchronizes .faf files with CLAUDE.md automatically (keeping human-readable docs in sync with machine-readable persistent context). Built with 100% TypeScript strict mode. All 35 tests passing with production readiness confirmed.
+- **IANA-Registered Format** - Official Internet media type `application/vnd.faf+yaml`
+  - Proper HTTP Content-Type headers
+  - Browser recognition and handling
+  - Email client support
+  - API standardization across platforms
+
+- **33 MCP Tools** - Complete project context management
+  - Project DNA generation and scoring
+  - Bi-directional CLAUDE.md sync
+  - Format validation and conversion
+
+- **Podium Quality Scoring** - 0-100% AI-readiness assessment
+  - 🏆 Trophy (85%+), 🥇 Gold (70%+), 🥈 Silver (55%+), 🥉 Bronze (40%+)
+
+- **Official Anthropic Registry** - PR #2759 merged
+  - Listed in official MCP server catalog
+  - 3,600+ npm downloads
+  - Production-tested and validated
+
+Zero configuration required - works out of the box after installation. Operations average under 11 milliseconds. Synchronizes .faf files with CLAUDE.md automatically. Built with 100% TypeScript strict mode. All 35 tests passing with production readiness confirmed.
 
 ---
 
