@@ -12,7 +12,7 @@
 
 ## TL;DR
 
-**Problem:** AI needs persistent project context—not just docs or tools, but foundational infrastructure.
+**Problem:** AI needs persistent project context—not just md docs or tools, but foundational infrastructure.
 
 **Solution:** The .faf format is a structured, machine-readable context layer. This MCP server gives Claude 33+ tools to create, score, and improve your project's persistent context through format-driven architecture.
 
@@ -42,12 +42,26 @@ brew install wolfe-jam/faf/claude-faf-mcp
 ```
 
 **CLI vs MCP clarity**
+- **faf-cli** ([npm](https://www.npmjs.com/package/faf-cli)): Runs on your machine locally in a terminal
+- **claude-faf-mcp** (this): Runs through Claude Desktop as a tool
 
-faf-cli (npm) runs on your machine locally in a terminal. claude-faf-mcp (this) runs through Claude Desktop as a tool. Same .faf format, different execution layer. Same persistent context and scoring. Same capabilities (create, score, improve).
+Same .faf, different way to use. Same Project DNA and scoring. Same capabilities (create, score, improve). Different execution layer.
 
 Use CLI for raw speed and local development; use MCP for AI-integrated workflows. No feature gaps between them - pick based on your flow.
 
-Website: https://faf.one | GitHub: https://github.com/Wolfe-Jam/claude-faf-mcp | Discussions: https://github.com/Wolfe-Jam/claude-faf-mcp/discussions
+[Website](https://faf.one) | [GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) | [Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
+
+---
+
+### 📸 See It In Action
+
+<div align="center">
+<img src="https://cdn.jsdelivr.net/npm/faf-cli@latest/assets/screenshots/package-json+project-faf.png" alt="project.faf sits between package.json and README.md" width="500" />
+
+**`project.faf` sits right between `package.json` and `README.md`** - exactly where it belongs.
+
+Visible. Discoverable. Universal.
+</div>
 
 ---
 
@@ -57,18 +71,20 @@ claude-faf-mcp is officially published in the Anthropic MCP Registry (PR #2759).
 
 Registry listing: "MCP server for .faf format. The only persistent project context scoring engine in the Anthropic registry."
 
-Published to official Anthropic MCP registry with validation by Anthropic engineering team. Current metrics: 4,100+ total downloads with 462 downloads per week (4.5x growth from 108/week baseline).
+Published to official Anthropic MCP registry with validation by Anthropic engineering team. Current metrics: 4,700 total downloads with 598 downloads per week.
 
 ## Major Milestones
 
-- **Aug 8, 2024** - Format created
-- **Sep 11, 2025** - Google Chrome Web Store approval (#1)
+- **Aug 8, 2025** - Format created, first official .faf file is generated
+- **Sep 1, 2025** - Developer platform launch (fafdev.tools)
+- **Sep 11, 2025** - First Google Chrome Web Store approval
+- **Sep 16, 2025** - MCP Server v2.0.0 published to npm
+- **Sep 24, 2025** - CLI v2.1.0 published to npm
 - **Oct 17, 2025** - Official Anthropic MCP Registry merger (PR #2759)
-- **Oct 29, 2025** - Google Chrome Web Store approval (#2)
-- **Oct 29, 2025** - Submitted to awesome-mcp-servers (PR #1449 pending)
+- **Oct 29, 2025** - Second Google Chrome Web Store approval
 - **Oct 31, 2025** - **IANA Registration** 🏆 (`application/vnd.faf+yaml`)
 
-**4 Platform Approvals in 85 Days**
+**Quadruple Validation: IANA, Anthropic, Google (2x)**
 
 ---
 
@@ -199,7 +215,7 @@ Format-driven means the architecture is built on data structure first, not tooli
 
 - **Official Anthropic Registry** - PR #2759 merged
   - Listed in official MCP server catalog
-  - 3,600+ npm downloads
+  - 4,700 total downloads (598/week)
   - Production-tested and validated
 
 Zero configuration required - works out of the box after installation. Operations average under 11 milliseconds. Synchronizes .faf files with CLAUDE.md automatically. Built with 100% TypeScript strict mode. All 35 tests passing with production readiness confirmed.

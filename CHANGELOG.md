@@ -5,6 +5,22 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.2] - 2025-10-31
+
+### Changed
+- Updated package.json description to highlight IANA registration
+- Enhanced README with IANA registration messaging throughout
+- Added visual "See It In Action" section showing project.faf placement
+- Improved CLI vs MCP clarity section with better formatting
+- Expanded Major Milestones timeline with complete chronological dates
+- Updated download statistics to current metrics (4,700 total, 598/week)
+- Changed platform validation messaging to "Quadruple Validation"
+
+### Documentation
+- Added screenshot showing project.faf between package.json and README.md
+- Improved milestone presentation with all key dates from Aug 2024 to Oct 2025
+- Enhanced IANA registration visibility across README sections
+
 ## [2.7.1] - 2025-10-30
 
 ### Fixed
