@@ -51,7 +51,7 @@ export interface FafBiSyncArgs {
 
 // Trust Suite Args
 export interface FafTrustArgs {
-  mode?: 'confidence' | 'garage' | 'panic' | 'guarantee';
+  mode?: 'confidence' | 'garage' | 'panic' | 'validated';
 }
 
 export interface FafCreditArgs {
@@ -158,6 +158,52 @@ export interface FafReadArgs {
 export interface FafWriteArgs {
   path: string;
   content: string;
+}
+
+// NEW: 10 HIGH-PRIORITY CLI→MCP Continuity Tool Args
+export interface FafFormatsArgs {
+  directory?: string;
+}
+
+export interface FafValidateArgs {
+  file?: string;
+}
+
+export interface FafDoctorArgs {
+  directory?: string;
+}
+
+export interface FafDnaArgs {
+  file?: string;
+}
+
+export interface FafLogArgs {
+  file?: string;
+  limit?: number;
+}
+
+export interface FafUpdateArgs {
+  file?: string;
+  force?: boolean;
+}
+
+export interface FafRecoverArgs {
+  file?: string;
+  timestamp?: string;
+}
+
+export interface FafAuthArgs {
+  action?: 'login' | 'logout' | 'status';
+}
+
+export interface FafAuditArgs {
+  file?: string;
+  detailed?: boolean;
+}
+
+export interface FafMigrateArgs {
+  directory?: string;
+  backup?: boolean;
 }
 
 // Empty args (tools that take no parameters)

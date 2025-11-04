@@ -16,12 +16,13 @@ import { FafEngineAdapter } from './engine-adapter.js';
 import { DisplayProtocol } from '../utils/display-protocol.js';
 import { findFafFile, getNewFafFilePath, hasFafFile } from '../utils/faf-file-finder.js';
 import type * as ToolTypes from './tool-types.js';
+import { VERSION } from '../version.js';
 
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
 
 // Trust mode type for type safety
-type TrustMode = 'confidence' | 'garage' | 'panic' | 'guarantee';
+type TrustMode = 'confidence' | 'garage' | 'panic' | 'validated';
 
 export class ChampionshipToolHandler {
   private startTime: number = 0;
@@ -230,7 +231,7 @@ export class ChampionshipToolHandler {
             properties: {
               mode: {
                 type: 'string',
-                enum: ['confidence', 'garage', 'panic', 'guarantee'],
+                enum: ['confidence', 'garage', 'panic', 'validated'],
                 description: 'Trust mode'
               }
             }
@@ -252,8 +253,8 @@ export class ChampionshipToolHandler {
           inputSchema: { type: 'object', properties: {} }
         },
         {
-          name: 'faf_trust_guarantee',
-          description: 'Trust guarantee mode - championship seal',
+          name: 'faf_trust_validated',
+          description: 'Trust validated mode - championship seal',
           inputSchema: { type: 'object', properties: {} }
         },
 
@@ -482,6 +483,134 @@ export class ChampionshipToolHandler {
           description: 'About FAF - stop FAFfing about!',
           inputSchema: { type: 'object', properties: {} }
         },
+        {
+          name: 'faf_version',
+          description: 'Show FAF version with MK2 engine and TURBO-CAT status',
+          inputSchema: { type: 'object', properties: {} }
+        },
+        {
+          name: 'faf_innit',
+          description: '🇬🇧 British version of init - same championship, more bruv!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Target directory' },
+              force: { type: 'boolean', description: 'Overwrite existing .faf file' },
+              project_type: { type: 'string', description: 'Project template type' }
+            }
+          }
+        },
+
+        // NEW: 10 HIGH-PRIORITY CLI→MCP Continuity Tools
+        {
+          name: 'faf_formats',
+          description: '🐱 TURBO-CAT format discovery (153 validated formats)',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Project directory to analyze' }
+            }
+          }
+        },
+        {
+          name: 'faf_validate',
+          description: 'Validate .faf file structure and completeness',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file (auto-detects if not specified)' }
+            }
+          }
+        },
+        {
+          name: 'faf_doctor',
+          description: '🏥 Comprehensive health check for .faf and environment',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Project directory to check' }
+            }
+          }
+        },
+        {
+          name: 'faf_dna',
+          description: '🧬 Show Birth DNA and evolution tracking',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file' }
+            }
+          }
+        },
+        {
+          name: 'faf_log',
+          description: '📜 Show DNA evolution history and changes',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file' },
+              limit: { type: 'number', description: 'Number of entries to show' }
+            }
+          }
+        },
+        {
+          name: 'faf_update',
+          description: '🔄 Update .faf file with latest project information',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file' },
+              force: { type: 'boolean', description: 'Force update even if file is newer' }
+            }
+          }
+        },
+        {
+          name: 'faf_recover',
+          description: '🚑 Recover .faf from backups or DNA history',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file to recover' },
+              timestamp: { type: 'string', description: 'Specific timestamp to recover from' }
+            }
+          }
+        },
+        {
+          name: 'faf_auth',
+          description: '🔐 Authenticate for Birth DNA tracking',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: {
+                type: 'string',
+                enum: ['login', 'logout', 'status'],
+                description: 'Authentication action'
+              }
+            }
+          }
+        },
+        {
+          name: 'faf_audit',
+          description: '📊 Comprehensive audit of .faf quality and completeness',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              file: { type: 'string', description: 'Path to .faf file' },
+              detailed: { type: 'boolean', description: 'Show detailed audit report' }
+            }
+          }
+        },
+        {
+          name: 'faf_migrate',
+          description: '🔄 Migrate .faf to project.faf (v1.2.0 standard)',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'Project directory containing .faf' },
+              backup: { type: 'boolean', description: 'Create backup of original .faf (default: true)' }
+            }
+          }
+        },
 
         // Keep file operations
         {
@@ -558,8 +687,8 @@ export class ChampionshipToolHandler {
           return await this.handleTrust({ mode: 'garage' });
         case 'faf_trust_panic':
           return await this.handleTrust({ mode: 'panic' });
-        case 'faf_trust_guarantee':
-          return await this.handleTrust({ mode: 'guarantee' });
+        case 'faf_trust_validated':
+          return await this.handleTrust({ mode: 'validated' });
 
         // Revolutionary Tools
         case 'faf_credit':
@@ -616,6 +745,33 @@ export class ChampionshipToolHandler {
         // About & File operations
         case 'faf_about':
           return await this.handleAbout(_args);
+        case 'faf_version':
+          return await this.handleVersion(_args);
+        case 'faf_innit':
+          return await this.handleInnit(_args);
+
+        // NEW: 10 HIGH-PRIORITY CLI→MCP Continuity Tools
+        case 'faf_formats':
+          return await this.handleFormats(_args);
+        case 'faf_validate':
+          return await this.handleValidate(_args);
+        case 'faf_doctor':
+          return await this.handleDoctor(_args);
+        case 'faf_dna':
+          return await this.handleDna(_args);
+        case 'faf_log':
+          return await this.handleLog(_args);
+        case 'faf_update':
+          return await this.handleUpdate(_args);
+        case 'faf_recover':
+          return await this.handleRecover(_args);
+        case 'faf_auth':
+          return await this.handleAuth(_args);
+        case 'faf_audit':
+          return await this.handleAudit(_args);
+        case 'faf_migrate':
+          return await this.handleMigrate(_args);
+
         case 'faf_read':
           return await this.handleRead(_args);
         case 'faf_write':
@@ -659,167 +815,17 @@ export class ChampionshipToolHandler {
         );
       }
 
-      const projectName = path.basename(dir);
-      let output = `🏆 FAF AUTO - Championship Mode Activated!\n\n`;
+      // Delegate to CLI - Single source of truth
+      this.fafEngine.setWorkingDirectory(dir);
+      const result = await this.fafEngine.callEngine('auto', []);
 
-      // Step 1: Auto-scan directory
-      output += `⚡ Scanning ${projectName}...\n`;
-      const files = await fs.readdir(dir, { withFileTypes: true });
-      const fileCount = files.filter(f => f.isFile()).length;
-      const dirCount = files.filter(f => f.isDirectory()).length;
-
-      // Step 2: 💥 FORMAT-FINDER (FF) GAME-CHANGING DETECTION!
-      let stack = 'Unknown';
-      let techDetails: string[] = [];
-
-      // Try Format-Finder FIRST for intelligent detection
-      try {
-        this.fafEngine.setWorkingDirectory(dir);
-        const ffResult = await this.fafEngine.callEngine('format-finder', [dir]);
-
-        if (ffResult.success && ffResult.data) {
-          // Format-Finder returns detailed stack analysis
-          if (ffResult.data.stack) {
-            stack = ffResult.data.stack;
-            techDetails.push(`FF: ${ffResult.data.confidence || 100}% confidence`);
-          }
-          if (ffResult.data.technologies) {
-            techDetails = techDetails.concat(ffResult.data.technologies);
-          }
-        }
-      } catch (ffError) {
-        // Fallback to basic detection if FF not available
-        output += `⚠️ Format-Finder not available, using basic detection\n`;
+      if (!result.success) {
+        return await this.formatResult('🏆 FAF AUTO',
+          `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally:\n  npm install -g faf-cli\n  or\n  brew install faf-cli`
+        );
       }
 
-      // FALLBACK: Only if FF didn't work
-      if (stack === 'Unknown') {
-        // Basic file-based detection as backup
-        if (await this.fileExists(path.join(dir, '.svelte-kit'))) {
-          stack = 'SvelteKit';
-          techDetails.push('SvelteKit detected');
-        } else if (await this.fileExists(path.join(dir, 'svelte.config.js'))) {
-          stack = 'Svelte';
-          techDetails.push('Svelte config found');
-        } else if (await this.fileExists(path.join(dir, 'next.config.js'))) {
-          stack = 'Next.js';
-          techDetails.push('Next.js config found');
-        } else if (await this.fileExists(path.join(dir, 'angular.json'))) {
-          stack = 'Angular';
-          techDetails.push('Angular workspace');
-        } else if (await this.fileExists(path.join(dir, 'package.json'))) {
-          const pkgJson = JSON.parse(await fs.readFile(path.join(dir, 'package.json'), 'utf-8'));
-
-          if (pkgJson.dependencies?.react || pkgJson.devDependencies?.react) {
-            stack = 'React';
-          } else if (pkgJson.dependencies?.vue || pkgJson.devDependencies?.vue) {
-            stack = 'Vue';
-          } else if (pkgJson.dependencies?.express) {
-            stack = 'Node.js/Express';
-          }
-        } else if (await this.fileExists(path.join(dir, 'requirements.txt'))) {
-          stack = 'Python';
-        } else if (await this.fileExists(path.join(dir, 'Cargo.toml'))) {
-          stack = 'Rust';
-        } else if (await this.fileExists(path.join(dir, 'go.mod'))) {
-          stack = 'Go';
-        }
-      }
-
-      output += `📊 Found: ${fileCount} files, ${dirCount} directories\n`;
-      output += `🔧 Stack: ${stack}\n`;
-      if (techDetails.length > 0) {
-        output += `📦 Tech: ${techDetails.join(', ')}\n`;
-      }
-
-      // Step 3: Create rich project.faf file (v1.2.0 standard)
-      output += `\n⚡ Creating intelligent project.faf...\n`;
-
-      const fafContent = `# FAF - Foundational AI Context
-project: ${projectName}
-version: 2.2.0
-championship: true
-auto_generated: true
-
-## Project Overview
-- Name: ${projectName}
-- Stack: ${stack}
-- Files: ${fileCount}
-- Directories: ${dirCount}
-${techDetails.length > 0 ? `- Technologies: ${techDetails.join(', ')}` : ''}
-
-## Directory Structure
-${files.slice(0, 10).map(f => `- ${f.name}${f.isDirectory() ? '/' : ''}`).join('\n')}
-${files.length > 10 ? `- ... and ${files.length - 10} more items` : ''}
-
-## Context
-Automatically discovered project structure and dependencies.
-Ready for AI synchronization and enhancement.
-
-## Performance
-Target: <50ms per operation
-Status: Championship grade achieved
-
-Generated: ${new Date().toISOString()}
-By: FAF AUTO - The One Command Championship`;
-
-      const fafPath = getNewFafFilePath(dir); // v1.2.0: Creates project.faf
-      await fs.writeFile(fafPath, fafContent);
-
-      // Step 4: Create CLAUDE.md
-      output += `⚡ Generating CLAUDE.md...\n`;
-
-      const claudeContent = `# 🏎️ CLAUDE.md - ${projectName}
-
-## Project: ${projectName}
-**Stack**: ${stack}
-**Status**: FAF AUTO initialized
-**Achievement**: Ready for championship development
-
-${techDetails.length > 0 ? `### Technologies Detected:\n${techDetails.map(t => `- ${t}`).join('\n')}\n` : ''}
-
-## Project Structure
-- Files: ${fileCount}
-- Directories: ${dirCount}
-
-## FAF Score Target
-Working towards 🍊 105% Big Orange status!
-
----
-*Generated by FAF AUTO - No faffing about!*
-*${new Date().toISOString()}*
-`;
-
-      const claudePath = path.join(dir, 'CLAUDE.md');
-      await fs.writeFile(claudePath, claudeContent);
-
-      // Step 5: Report completion
-      output += `\n✅ FAF AUTO complete!\n`;
-      output += `Created: project.faf and CLAUDE.md\n`;
-      output += `Run 'faf_score' to check AI-Readiness`;
-
-      // Step 6: Activate bi-sync
-      output += `\n⚡ Activating bi-sync (40ms championship sync)...\n`;
-      try {
-        // Merge content for bi-sync
-        const mergedContent = `${fafContent}\n\n---\n\n${claudeContent}`;
-        await fs.writeFile(fafPath, mergedContent);
-        await fs.writeFile(claudePath, mergedContent);
-        output += `✅ Bi-sync active - .faf ↔️ CLAUDE.md synchronized\n`;
-      } catch (e) {
-        output += `⚠️ Bi-sync activation pending\n`;
-      }
-
-      // Step 7: Show completion
-      output += `\n✅ FAF AUTO Complete!\n\n`;
-      output += `🤖 project.faf is THE JPEG for AI\n`;
-      output += `🧡 Trust: Context verified\n`;
-      output += `⚡️ Speed: Generated in ${Date.now() - this.startTime}ms\n`;
-      output += `SPEEDY AI you can TRUST!\n\n`;
-      output += `Your project is now AI-readable - any AI assistant can understand it!\n`;
-      output += `\n⚡ No faffing about - Championship mode achieved!`;
-
-      return await this.formatResult(`🏆 FAF AUTO`, output, undefined, dir);
+      return await this.formatResult('🏆 FAF AUTO', result.data?.output || 'Success');
 
     } catch (error: any) {
       return await this.formatResult('❌ FAF AUTO Failed', error.message);
@@ -829,6 +835,24 @@ Working towards 🍊 105% Big Orange status!
   private async handleInit(args: ToolTypes.FafInitArgs): Promise<CallToolResult> {
     try {
       const dir = args.directory || process.cwd();
+
+      // 🚨 Claude Desktop Protection: Detect root filesystem
+      if (dir === '/' || dir === '') {
+        const helpMessage = `🚨 Directory Required!
+
+Claude Desktop needs a target directory:
+
+**Usage**:
+  faf_init directory=/Users/wolfejam/my-project
+
+**Example**:
+  faf_init directory=/Users/wolfejam/GALLERY-SVELTE
+
+📁 Can't determine working directory automatically in Claude Desktop.
+⚠️  Root filesystem (/) is read-only - specify your project path!`;
+
+        return await this.formatResult('🚀 FAF Init', helpMessage);
+      }
 
       // ⚡ USE THE FAF ENGINE!
       this.fafEngine.setWorkingDirectory(dir);
@@ -841,40 +865,13 @@ Working towards 🍊 105% Big Orange status!
 
       const result = await this.fafEngine.callEngine('init', initArgs);
 
-      if (result.success) {
-        const output = result.data?.output || 'FAF initialized successfully';
-        return await this.formatResult('🚀 FAF Init', output);
-      } else {
-        // Fallback to native if engine fails (v1.2.0: creates project.faf)
-        const fafPath = getNewFafFilePath(dir);
-
-        if (await this.fileExists(fafPath) && !args.force) {
-          return await this.formatResult('🚀 FAF Init', 'File exists, use force: true to overwrite');
-        }
-
-        const fafContent = `# FAF - Foundational AI Context
-project: ${path.basename(dir)}
-version: 2.2.0
-championship: true
-
-## Context
-The Championship MCP Edition with 33+ native tools
-
-## Stack
-- TypeScript
-- Node.js
-- MCP Protocol
-
-## Performance
-Target: <50ms per operation
-Achieved: Championship grade
-
-Generated: ${new Date().toISOString()}
-By: claude-faf-mcp v2.2.0`;
-
-        await fs.writeFile(fafPath, fafContent);
-        return await this.formatResult('🚀 FAF Init', `Created project.faf in ${dir} (native fallback)`);
+      if (!result.success) {
+        return await this.formatResult('🚀 FAF Init',
+          `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally:\n  npm install -g faf-cli\n  or\n  brew install faf-cli`
+        );
       }
+
+      return await this.formatResult('🚀 FAF Init', result.data?.output || 'Success');
     } catch (error: any) {
       return await this.formatResult('🚀 FAF Init', `Error: ${error.message}`);
     }
@@ -1185,7 +1182,7 @@ faf_score --save      # Save this scorecard
         },
         ai_readiness: score,
         timestamp: new Date().toISOString(),
-        version: '2.2.0'
+        version: VERSION
       }, null, 2);
     } else if (format === 'html') {
       // HTML format (delegate to display handler)
@@ -1306,7 +1303,7 @@ faf_score --save      # Save this scorecard
 
       // Footer
       result += `---\n\n`;
-      result += `*Generated by FAF Championship Edition v2.2.0* ⚡\n`;
+      result += `*Generated by FAF Podium Edition v${VERSION}* ⚡\n`;
       result += `*${new Date().toISOString()}*`;
 
       // NOTE: AI-Readiness footer is added by formatResult() - don't duplicate!
@@ -1412,7 +1409,7 @@ faf_score --save      # Save this scorecard
       confidence: '✅ High confidence - Ready for production',
       garage: '🔧 Under the hood - Everything looks good',
       panic: '🚨 PANIC MODE - But we got this!',
-      guarantee: '🏆 Championship guarantee - 100% trusted'
+      validated: '🏆 Championship validated - 100% trusted'
     };
     return await this.formatResult(`🔒 FAF Trust (${mode})`, messages[mode]);
   }
@@ -1590,7 +1587,7 @@ faf_score --save      # Save this scorecard
           `• faf_trust confidence - Daily checks\n` +
           `• faf_trust garage     - Under the hood\n` +
           `• faf_trust panic      - Emergency mode\n` +
-          `• faf_trust guarantee  - Production seal\n\n` +
+          `• faf_trust validated  - Production seal\n\n` +
 
           `File Operations:\n` +
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -1649,7 +1646,7 @@ faf_score --save      # Save this scorecard
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
           `Click "Always Allow" once.\n` +
           `We've added file:// resources.\n` +
-          `Should be fixed in v2.2.0!\n\n` +
+          `Should be fixed in v${VERSION}!\n\n` +
 
           `"Where do I start?"\n` +
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -1868,8 +1865,9 @@ faf_score --save      # Save this scorecard
   }
 
   private async handleAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    const aboutText = `Version 2.2.0
-🏎️ Championship Edition
+    const aboutText = `Version ${VERSION}
+🌐 IANA Registered Format
+🏎️ Podium Edition
 
 33+ Tools Available
 Drop a file, Paste the path
@@ -1879,6 +1877,7 @@ You're done⚡
 
 🩵 You just made Claude Happy
 🧡 .faf AI you can TRUST
+IANA Registered: application/vnd.faf+yaml
 
 Performance: <50ms per operation
 Zero shell dependencies
@@ -1887,9 +1886,172 @@ Zero shell dependencies
     // Use DisplayProtocol for consistent global rendering
     return DisplayProtocol.createResponse(aboutText, {
       tool: 'faf_about',
-      version: '2.2.0',
+      version: VERSION,
       timestamp: new Date().toISOString()
     });
+  }
+
+  private async handleVersion(_args: any): Promise<CallToolResult> {
+    // Call the CLI's version command - CLI is source of truth
+    const result = await this.fafEngine.callEngine('version', []);
+
+    if (!result.success) {
+      return DisplayProtocol.createResponse(
+        `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally:\n  npm install -g faf-cli\n  or\n  brew install faf-cli`,
+        {
+          tool: 'faf_version',
+          timestamp: new Date().toISOString()
+        }
+      );
+    }
+
+    return DisplayProtocol.createResponse(result.data?.output || 'Success', {
+      tool: 'faf_version',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  private async handleInnit(args: ToolTypes.FafInitArgs): Promise<CallToolResult> {
+    // British wrapper around faf_init - just adds charm to the message
+    return await this.handleInit(args);
+  }
+
+  // NEW: 10 HIGH-PRIORITY CLI→MCP Continuity Tool Handlers
+
+  private async handleFormats(args: ToolTypes.FafFormatsArgs): Promise<CallToolResult> {
+    const dir = args.directory || process.cwd();
+    
+    if (dir === '/' || dir === '') {
+      return await this.formatResult('🐱 TURBO-CAT', 'Directory required for format detection');
+    }
+    
+    this.fafEngine.setWorkingDirectory(dir);
+    const result = await this.fafEngine.callEngine('formats', []);
+    
+    if (!result.success) {
+      return await this.formatResult('🐱 TURBO-CAT', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🐱 TURBO-CAT Format Discovery', result.data?.output || 'Success');
+  }
+
+  private async handleValidate(args: ToolTypes.FafValidateArgs): Promise<CallToolResult> {
+    const validateArgs = args.file ? [args.file] : [];
+    const result = await this.fafEngine.callEngine('validate', validateArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('✅ FAF Validate', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('✅ FAF Validate', result.data?.output || 'Success');
+  }
+
+  private async handleDoctor(args: ToolTypes.FafDoctorArgs): Promise<CallToolResult> {
+    if (args.directory) {
+      this.fafEngine.setWorkingDirectory(args.directory);
+    }
+    
+    const result = await this.fafEngine.callEngine('doctor', []);
+    
+    if (!result.success) {
+      return await this.formatResult('🏥 FAF Doctor', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🏥 FAF Doctor', result.data?.output || 'Success');
+  }
+
+  private async handleDna(args: ToolTypes.FafDnaArgs): Promise<CallToolResult> {
+    const dnaArgs = args.file ? [args.file] : [];
+    const result = await this.fafEngine.callEngine('dna', dnaArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('🧬 FAF DNA', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🧬 Birth DNA', result.data?.output || 'Success');
+  }
+
+  private async handleLog(args: ToolTypes.FafLogArgs): Promise<CallToolResult> {
+    const logArgs: string[] = [];
+    if (args.file) logArgs.push(args.file);
+    if (args.limit) logArgs.push('--limit', args.limit.toString());
+    
+    const result = await this.fafEngine.callEngine('log', logArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('📜 FAF Log', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('📜 DNA Evolution Log', result.data?.output || 'Success');
+  }
+
+  private async handleUpdate(args: ToolTypes.FafUpdateArgs): Promise<CallToolResult> {
+    const updateArgs: string[] = [];
+    if (args.file) updateArgs.push(args.file);
+    if (args.force) updateArgs.push('--force');
+    
+    const result = await this.fafEngine.callEngine('update', updateArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('🔄 FAF Update', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🔄 FAF Update', result.data?.output || 'Success');
+  }
+
+  private async handleRecover(args: ToolTypes.FafRecoverArgs): Promise<CallToolResult> {
+    const recoverArgs: string[] = [];
+    if (args.file) recoverArgs.push(args.file);
+    if (args.timestamp) recoverArgs.push('--timestamp', args.timestamp);
+    
+    const result = await this.fafEngine.callEngine('recover', recoverArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('🚑 FAF Recover', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🚑 FAF Recovery', result.data?.output || 'Success');
+  }
+
+  private async handleAuth(args: ToolTypes.FafAuthArgs): Promise<CallToolResult> {
+    const authArgs = args.action ? [args.action] : [];
+    const result = await this.fafEngine.callEngine('auth', authArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('🔐 FAF Auth', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🔐 FAF Authentication', result.data?.output || 'Success');
+  }
+
+  private async handleAudit(args: ToolTypes.FafAuditArgs): Promise<CallToolResult> {
+    const auditArgs: string[] = [];
+    if (args.file) auditArgs.push(args.file);
+    if (args.detailed) auditArgs.push('--detailed');
+    
+    const result = await this.fafEngine.callEngine('audit', auditArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('📊 FAF Audit', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('📊 FAF Audit Report', result.data?.output || 'Success');
+  }
+
+  private async handleMigrate(args: ToolTypes.FafMigrateArgs): Promise<CallToolResult> {
+    const migrateArgs: string[] = [];
+    if (args.directory) {
+      this.fafEngine.setWorkingDirectory(args.directory);
+    }
+    if (args.backup === false) migrateArgs.push('--no-backup');
+    
+    const result = await this.fafEngine.callEngine('migrate', migrateArgs);
+    
+    if (!result.success) {
+      return await this.formatResult('🔄 FAF Migrate', `CLI Error: ${result.error}\n\nPlease ensure faf-cli v3.1.1+ is installed globally.`);
+    }
+    
+    return await this.formatResult('🔄 FAF Migration', result.data?.output || 'Success');
   }
 
   private async handleRead(args: ToolTypes.FafReadArgs): Promise<CallToolResult> {

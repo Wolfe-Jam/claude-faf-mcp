@@ -4,7 +4,7 @@
  * SET IN STONE: Universal display enforcement for Claude Desktop MCP
  *
  * MANDATE: Every FAF tool response MUST use DisplayProtocol.createResponse()
- * GUARANTEE: Works globally for ANY user, anywhere in the world
+ * VALIDATED: Works globally for ANY user, anywhere in the world
  * STANDARD: MCP-compliant metadata + multi-layer display forcing
  *
  * Key Instructions Embedded in EVERY Response:

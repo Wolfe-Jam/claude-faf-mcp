@@ -8,6 +8,7 @@ import { FafEngineAdapter } from './handlers/engine-adapter';
 import express from 'express';
 import cors from 'cors';
 import { isError } from './utils/type-guards.js';
+import { VERSION } from './version';
 
 export interface ClaudeFafMcpServerConfig {
   transport: 'stdio' | 'http-sse';
@@ -36,7 +37,7 @@ export class ClaudeFafMcpServer {
     this.server = new Server(
       {
         name: 'claude-faf-mcp',
-        version: '1.0.0',
+        version: VERSION,
       },
       {
         capabilities: {
@@ -115,7 +116,7 @@ export class ClaudeFafMcpServer {
       res.json({
         status: 'healthy',
         server: 'claude-faf-mcp',
-        version: '1.0.0',
+        version: VERSION,
         transport: 'http-sse',
         timestamp: new Date().toISOString(),
         championship: '33+ tools, zero shell execution'
@@ -126,7 +127,7 @@ export class ClaudeFafMcpServer {
     app.get('/info', (_req, res) => {
       res.json({
         name: 'claude-faf-mcp',
-        version: '1.0.0',
+        version: VERSION,
         description: 'Universal FAF MCP Server for Claude - AI Context Intelligence & Project Enhancement',
         transport: 'http-sse',
         capabilities: {
@@ -195,7 +196,7 @@ export class ClaudeFafMcpServer {
   getServerInfo() {
     return {
       name: 'claude-faf-mcp',
-      version: '1.0.0',
+      version: VERSION,
       transport: this.config.transport,
       port: this.config.port,
       host: this.config.host,

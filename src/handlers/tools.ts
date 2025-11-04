@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile, getNewFafFilePath } from '../utils/faf-file-finder.js';
+import { VERSION } from '../version';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -448,7 +449,7 @@ export class FafToolHandler {
         project_type: projectType,
         description: projectDescription,
         generated: new Date().toISOString(),
-        version: '1.0.0'
+        version: VERSION
       };
 
       // Apply Intel-Friday: Auto-fill Chrome Extension slots for 90%+ score!
@@ -661,7 +662,7 @@ package_manager: ${projectData.package_manager}` : ''}
     // Stop FAFfing about and get the facts!
     const packageInfo = {
       name: 'claude-faf-mcp',
-      version: '2.2.0',
+      version: VERSION,
       description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
       author: 'FAF Team (team@faf.one)',
       website: 'https://faf.one',
