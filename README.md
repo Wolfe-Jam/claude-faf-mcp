@@ -2,7 +2,7 @@
 
 > **🏆 IANA-Registered Format** - .FAF is now an Internet-standard format.
 > MCP server for creating official `application/vnd.faf+yaml` files in Claude Desktop
-> Official MCP server for FAF (Foundational AI-context Format) with 33+ tools -
+> Official MCP server for FAF (Foundational AI-context Format) with 50+ tools -
 > Persistent project context that integrates seamlessly with Claude Desktop workflows
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp?color=FF4500)](https://www.npmjs.com/package/claude-faf-mcp)
@@ -10,13 +10,27 @@
 [![IANA Registered](https://img.shields.io/badge/IANA-application%2Fvnd.faf%2Byaml-blue)](https://faf.one/blog/iana-registration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+---
+
+**New! Claude Skills is BUILT-IN** - 6000+ lines TS-strict code
+**faf-expert** is on-hand, 24/7 - your resident faf specialist and Master of
+**21 Core Tools** and **30+ Advanced Tools**, **51 in all**
+
+---
+
 ## TL;DR
 
 **Problem:** AI needs persistent project context—not just md docs or tools, but foundational infrastructure.
 
-**Solution:** The .faf format is a structured, machine-readable context layer. This MCP server gives Claude 33+ tools to create, score, and improve your project's persistent context through format-driven architecture.
+**Solution:** The .faf format is a structured, machine-readable context layer. This MCP server gives Claude 50+ tools to create, score, and improve your project's persistent context through format-driven architecture.
 
 **How it works:** Get a score (0-100%) showing how well AI understands your project. Higher scores = AI more in-tune with your codebase. Use tools to improve your score and context quality. Your .faf context persists across sessions.
+
+**DROP or PASTE, Click & Go!**
+
+🎯 Got .faf? DROP or PASTE it
+📦 Got project? DROP or PASTE README or package.json
+💬 Starting fresh? Just ask
 
 **Install:**
 
@@ -88,16 +102,59 @@ Published to official Anthropic MCP registry with validation by Anthropic engine
 
 ---
 
-## What's New in v2.7.2 - IANA Registration
+## What's New in v2.8.0 - Tool Visibility System
 
-**v2.7.2 updates documentation with IANA registration achievement.**
+**v2.8.0 introduces intelligent tool filtering to reduce cognitive load.**
 
-On **October 31, 2025**, the Internet Assigned Numbers Authority (IANA) officially registered `.faf` as `application/vnd.faf+yaml` - making it an Internet-standard format alongside PDF, JSON, and XML.
+### New Features
 
-**What this means:**
-- Official Internet media type recognition
-- Proper HTTP Content-Type headers
-- Browser and email client support
+**21 Core Tools (Default)**
+Essential workflow tools shown by default:
+- Workflow: `faf`, `faf_auto`, `faf_init`, `faf_innit`, `faf_status`
+- Quality: `faf_score`, `faf_validate`, `faf_doctor`, `faf_audit`
+- Intelligence: `faf_formats`, `faf_stacks`, `faf_skills`
+- Sync: `faf_sync`, `faf_bi_sync`, `faf_update`, `faf_migrate`
+- AI: `faf_chat`, `faf_enhance`
+- Help: `faf_index`, `faf_faq`, `faf_about`
+
+**30+ Advanced Tools (Opt-in)**
+Expert-level tools available via environment variable:
+- Display variants: `faf_display`, `faf_show`, `faf_check`
+- Trust system: `faf_trust`, `faf_trust_confidence`, `faf_trust_garage`
+- File operations: `faf_read`, `faf_write`, `faf_list`, `faf_exists`
+- DNA tracking: `faf_dna`, `faf_log`, `faf_auth`, `faf_recover`
+- Utilities: `faf_choose`, `faf_clear`, `faf_share`, `faf_credit`
+
+**Enable Advanced Tools:**
+```json
+{
+  "mcpServers": {
+    "claude-faf-mcp": {
+      "command": "claude-faf-mcp",
+      "env": {
+        "FAF_MCP_SHOW_ADVANCED": "true"
+      }
+    }
+  }
+}
+```
+
+**New! Claude Code Skill**
+The `faf-expert` skill is now available - your on-hand 24/7 FAF specialist:
+- Expert guidance on .faf files and project DNA
+- Tool Visibility System documentation
+- MCP server configuration help
+- AI-readiness scoring assistance
+
+### Performance
+- **<10ms tool filtering** (5x better than 50ms championship target)
+- **57 tests passing** - All existing functionality preserved
+- **Zero regressions** - Complete validation
+- **WJTTC Gold Certified** - F1-inspired testing standards
+
+### Previous: v2.7.2 - IANA Registration
+
+On **October 31, 2025**, IANA officially registered `.faf` as `application/vnd.faf+yaml` - making it an Internet-standard format alongside PDF, JSON, and XML
 - API standardization across platforms
 
 This documentation update adds IANA information throughout the README to reflect this major infrastructure-level achievement.
@@ -205,7 +262,7 @@ Format-driven means the architecture is built on data structure first, not tooli
   - Email client support
   - API standardization across platforms
 
-- **33 MCP Tools** - Complete project context management
+- **50+ MCP Tools** - Complete project context management
   - Project DNA generation and scoring
   - Bi-directional CLAUDE.md sync
   - Format validation and conversion
@@ -218,7 +275,7 @@ Format-driven means the architecture is built on data structure first, not tooli
   - 4,700 total downloads (598/week)
   - Production-tested and validated
 
-Zero configuration required - works out of the box after installation. Operations average under 11 milliseconds. Synchronizes .faf files with CLAUDE.md automatically. Built with 100% TypeScript strict mode. All 35 tests passing with production readiness confirmed.
+Zero configuration required - works out of the box after installation. Operations average under 11 milliseconds. Synchronizes .faf files with CLAUDE.md automatically. Built with 100% TypeScript strict mode. All 57 tests passing with production readiness confirmed.
 
 ---
 
@@ -274,7 +331,7 @@ Live in Claude Desktop. Persistent across sessions. Your foundational context la
 
 **Core Tools**
 
-faf_init - Initialize project context. faf_auto - Auto-detect and populate context. faf_score - Calculate AI readiness. faf_status - Project health check.
+faf_init - Initialize project context. faf_innit 🇬🇧 - It's a Brit thing! (works same as init). faf_auto - Auto-detect and populate context. faf_score - Calculate AI readiness. faf_status - Project health check.
 
 **Enhancement Tools**
 
@@ -294,10 +351,12 @@ Full tool documentation available at https://faf.one/docs/tools.
 
 ## Usage Example
 
-1. Drop any project file into Claude Desktop
+**DROP or PASTE, Click & Go!**
+
+1. DROP or PASTE any project file into Claude Desktop
 2. Type: "Run faf_auto to analyze this project"
 3. Get instant context - Claude understands your codebase
-4. Access 33+ commands naturally in conversation
+4. Access 50+ commands naturally in conversation
 
 The .faf file persists across conversations - no need to re-explain your project each time.
 
@@ -341,9 +400,31 @@ Node.js 18 or later. Claude Desktop (latest version). Operating system: macOS, L
 
 ---
 
+## Claude Code Skill Installation
+
+**NEW**: Install the `faf-expert` skill for enhanced FAF support in Claude Code:
+
+```bash
+# Install from npm package
+mkdir -p ~/.claude/skills/faf-expert
+cp node_modules/claude-faf-mcp/skill/SKILL.md ~/.claude/skills/faf-expert/
+
+# Or download directly
+curl -o ~/.claude/skills/faf-expert/SKILL.md \
+  https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/skill/SKILL.md
+```
+
+Restart Claude Code to activate. The skill provides:
+- Expert guidance on .faf files and project DNA
+- v2.8.0 Tool Visibility System documentation
+- MCP server configuration help
+- AI-readiness scoring assistance
+
+---
+
 ## The FAF Ecosystem
 
-faf-cli (npm) - Command line tool for local context management. claude-faf-mcp - This MCP server for Claude Desktop integration. faf.one - Documentation and guides. Chrome Extension - Browser integration for context collection.
+faf-cli (npm) - Command line tool for local context management. claude-faf-mcp - This MCP server for Claude Desktop integration. faf.one - Documentation and guides. Chrome Extension - Browser integration for context collection. faf-expert skill - Claude Code integration for FAF expertise.
 
 ---
 

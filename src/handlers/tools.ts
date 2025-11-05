@@ -165,6 +165,15 @@ export class FafToolHandler {
           }
         },
         {
+          name: 'faf_chat',
+          description: '🗣️ Natural language .faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: false
+          }
+        },
+        {
           name: 'faf_friday',
           description: '🎉 Friday Features - Chrome Extension detection, fuzzy matching & more! 🧡⚡️',
           inputSchema: {
@@ -213,6 +222,8 @@ export class FafToolHandler {
         return await this.handleFafWhat(args);
       case 'faf_read':
         return await fileHandlers.faf_read(args);
+      case 'faf_chat':
+        return await this.handleFafChat(args);
       case 'faf_friday':
         return await this.handleFafFriday(args);
       case 'faf_write':
@@ -814,6 +825,42 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         content: [{
           type: 'text',
           text: `🔍 Claude FAF Debug Failed: ${error instanceof Error ? error.message : String(error)}`
+        }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafChat(_args: any): Promise<CallToolResult> {
+    try {
+      const result = await this.engineAdapter.callEngine('chat');
+
+      if (!result.success) {
+        return {
+          content: [{
+            type: 'text',
+            text: `Error running faf chat: ${result.error || 'Unknown error'}`
+          }],
+          isError: true
+        };
+      }
+
+      // Format the response text
+      const responseText = typeof result.data === 'string'
+        ? result.data
+        : result.data?.output || JSON.stringify(result.data, null, 2);
+
+      return {
+        content: [{
+          type: 'text',
+          text: responseText
+        }]
+      };
+    } catch (error) {
+      return {
+        content: [{
+          type: 'text',
+          text: `Error running faf chat: ${error instanceof Error ? error.message : String(error)}`
         }],
         isError: true
       };
