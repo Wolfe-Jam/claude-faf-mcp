@@ -1523,10 +1523,28 @@ faf_score --save      # Save this scorecard
   }
 
   private async handleQuick(args: { input?: string; force?: boolean; directory?: string }): Promise<CallToolResult> {
-    const dir = args.directory || this.currentProjectDir;
     const startTime = Date.now();
 
     try {
+      // No directory provided = prompt for project name
+      if (!args?.directory) {
+        const duration = Date.now() - startTime;
+        return await this.formatResult(
+          '⚡ FAF Quick - Create New Project',
+          `**Enter a name for your project**\n\n` +
+          `I'll create a new directory with a project.faf file.\n\n` +
+          `💡 **Examples:**\n` +
+          `\`faf_quick { directory: "~/Projects/my-new-app" }\`\n` +
+          `\`faf_quick { directory: "/Users/yourname/cool-project" }\`\n\n` +
+          `**Optional - Add project details:**\n` +
+          `\`faf_quick { input: "MyApp, Next.js e-commerce, TypeScript", directory: "~/Projects/MyApp" }\`\n\n` +
+          `🎯 The directory will be created if it doesn't exist!`,
+          duration
+        );
+      }
+
+      const dir = args.directory;
+
       // Call faf-cli quick command
       this.fafEngine.setWorkingDirectory(dir);
 
@@ -1548,7 +1566,7 @@ faf_score --save      # Save this scorecard
       }
     } catch (error: any) {
       const duration = Date.now() - startTime;
-      return await this.formatResult('⚡ FAF Quick', `Error: ${error.message}`, duration, dir);
+      return await this.formatResult('⚡ FAF Quick', `Error: ${error.message}`, duration);
     }
   }
 
