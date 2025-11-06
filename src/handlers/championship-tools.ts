@@ -885,6 +885,19 @@ Working on REAL filesystem: ${targetDir}
 
       // Smart Start - No directory provided = show DROP | PASTE | CREATE
       if (!args?.directory || dir === '.' || dir === '/' || dir.length < 3) {
+        // Check if faf-expert skill is installed
+        const homeDir = process.env.HOME || process.env.USERPROFILE || '/';
+        const skillPath = path.join(homeDir, '.claude', 'skills', 'faf-expert', 'SKILL.md');
+        const skillInstalled = await this.fileExists(skillPath);
+
+        const championshipSection = skillInstalled
+          ? `🏆 **Championship Mode Ready!**\n` +
+            `• faf-expert skill is installed ✅\n` +
+            `• Invoke it anytime for 99/100 AI-readiness!\n\n`
+          : `🏆 **Want Championship Mode?**\n` +
+            `• Install faf-expert skill: Say "Run faf_install_skill"\n` +
+            `• Get 99/100 AI-readiness with world-class guidance!\n\n`;
+
         return await this.formatResult(
           '🧡⚡️ FAF - AI Context, On-Demand',
           `**DROP | PASTE | CREATE** - Click & Go!\n\n` +
@@ -894,9 +907,7 @@ Working on REAL filesystem: ${targetDir}
           `• **DROP** any file from your project (I'll find the root!)\n` +
           `• **PASTE** your project path: \`faf_auto /path/to/project\`\n` +
           `• **CREATE** instantly: Say "Run faf_quick"\n\n` +
-          `🏆 **Or go championship:**\n` +
-          `• Install faf-expert skill: Say "Run faf_install_skill"\n` +
-          `• Then invoke it for 99/100 AI-readiness!\n\n` +
+          championshipSection +
           `💡 **Examples:**\n` +
           `\`faf_auto ~/Documents/my-app\`\n` +
           `\`faf_auto /Users/yourname/cool-project\`\n\n` +
@@ -2033,6 +2044,15 @@ faf_score --save      # Save this scorecard
   }
 
   private async handleAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
+    // Check if faf-expert skill is installed
+    const homeDir = process.env.HOME || process.env.USERPROFILE || '/';
+    const skillPath = path.join(homeDir, '.claude', 'skills', 'faf-expert', 'SKILL.md');
+    const skillInstalled = await this.fileExists(skillPath);
+
+    const skillStatus = skillInstalled
+      ? 'Claude Skills: faf-expert installed ✅'
+      : 'Claude Skills: faf-expert available (not installed)\n💡 Run faf_install_skill to install!';
+
     const aboutText = `<!-- CLAUDE:INSTRUCTION -->
 Content between DISPLAY:REQUIRED:VERBATIM tags is user-facing UX.
 Present verbatim, do not summarize, interpret, or reformat.
@@ -2050,7 +2070,7 @@ Version ${VERSION}
 
 50+ Tools Available
 21 Core • 30+ Advanced
-Claude Skills: faf-expert to help 24/7
+${skillStatus}
 
 DROP or PASTE, Click & Go!
 
