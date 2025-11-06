@@ -39,9 +39,41 @@ export class ChampionshipToolHandler {
   private startTime: number = 0;
   private fafEngine: FafEngineAdapter;
   private currentProjectDir: string = process.cwd();
+  private contextWarningShown: boolean = false;
 
   constructor(enginePath?: string) {
     this.fafEngine = new FafEngineAdapter(enginePath || 'faf');
+  }
+
+  /**
+   * 🏁 Hybrid Context Establishment
+   * Detect missing .faf and warn user (don't auto-create)
+   * Shows REAL filesystem paths to establish ground truth
+   */
+  private async getContextWarningIfNeeded(directory?: string): Promise<string> {
+    // Only show warning once per session
+    if (this.contextWarningShown) return '';
+
+    const targetDir = directory || this.currentProjectDir;
+
+    // Check if .faf file exists
+    if (!await hasFafFile(targetDir)) {
+      this.contextWarningShown = true;
+
+      return `
+⚠️ No project.faf found in ${targetDir}
+
+For best results, create one:
+- Say: "Create a project.faf file for this project"
+- Or DROP/PASTE your README.md or package.json
+
+Working on REAL filesystem: ${targetDir}
+(Not in /home/claude container)
+
+`;
+    }
+
+    return '';
   }
 
   /**
@@ -107,11 +139,14 @@ export class ChampionshipToolHandler {
    * Championship Display Strategy: FORCE VISIBILITY!
    */
   private async formatResult(title: string, content: string, duration?: number, directory?: string): Promise<CallToolResult> {
+    // 🏁 HYBRID CONTEXT: Check for missing .faf and warn (once per session)
+    const contextWarning = await this.getContextWarningIfNeeded(directory);
+
     // Pass directory to footer so it calculates the right score!
     const footer = await this.getUniversalFooter(directory);
 
     // 🏆 CHAMPIONSHIP DISPLAY MODE - Using DisplayProtocol!
-    const fullOutput = `${content}${footer}`;
+    const fullOutput = `${contextWarning}${content}${footer}`;
 
     // Return using DisplayProtocol's enhanced response format
     // (No duplicate - DisplayProtocol.createResponse handles the display forcing)
