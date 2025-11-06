@@ -6,6 +6,16 @@ import { isError } from '../utils/type-guards.js';  // ✅ FIXED: Removed unused
 import { scoreFafFile } from '../faf-core/commands/score.js';
 import { initFafFile } from '../faf-core/commands/init.js';
 import { autoCommand } from '../faf-core/commands/auto.js';
+import { syncFafFile } from '../faf-core/commands/sync.js';
+import { syncBiDirectional } from '../faf-core/commands/bi-sync.js';
+import { formatsCommand } from '../faf-core/commands/formats.js';
+import { doctorCommand } from '../faf-core/commands/doctor.js';
+import { validateFafFile } from '../faf-core/commands/validate.js';
+import { auditFafFile } from '../faf-core/commands/audit.js';
+import { updateFafFile } from '../faf-core/commands/update.js';
+import { migrateFafFile } from '../faf-core/commands/migrate.js';
+import { innitFafFile } from '../faf-core/commands/innit.js';
+import { quickCommand } from '../faf-core/commands/quick.js';
 
 const execAsync = promisify(exec);
 
@@ -54,49 +64,39 @@ export class FafEngineAdapter {
       return mcpWorkingDir;
     }
 
-    // Priority 3: Check common project locations
+    // Priority 3: FORCE ~/Projects as universal default
     const homeDir = process.env.HOME ?? process.env.USERPROFILE;
     if (homeDir) {
-      // Check for common project directories
-      const projectPaths = [
-        path.join(homeDir, 'projects'),
-        path.join(homeDir, 'Projects'),
-        path.join(homeDir, 'dev'),
-        path.join(homeDir, 'Dev'),
-        path.join(homeDir, 'workspace'),
-        path.join(homeDir, 'FAF'),
-        homeDir
-      ];
+      // Try capitalized Projects first (macOS/Windows convention)
+      const projectsDir = path.join(homeDir, 'Projects');
+      if (fs.existsSync(projectsDir)) {
+        return projectsDir;
+      }
 
-      for (const projPath of projectPaths) {
-        if (fs.existsSync(projPath)) {
-          try {
-            const testFile = path.join(projPath, '.faf-test-write');
-            fs.writeFileSync(testFile, 'test');
-            fs.unlinkSync(testFile);
-            return projPath;
-          } catch {
-            // Not writable, continue
-          }
+      // Create ~/Projects if it doesn't exist
+      try {
+        fs.mkdirSync(projectsDir, { recursive: true });
+        return projectsDir;
+      } catch {
+        // If we can't create Projects, try lowercase
+        const projectsLower = path.join(homeDir, 'projects');
+        if (fs.existsSync(projectsLower)) {
+          return projectsLower;
         }
+
+        // Fall back to home
+        return homeDir;
       }
     }
 
     // Priority 4: Current directory if not root
     const currentDir = process.cwd();
-    if (currentDir !== '/' && fs.existsSync(currentDir)) {
-      try {
-        const testFile = path.join(currentDir, '.faf-test-write');
-        fs.writeFileSync(testFile, 'test');
-        fs.unlinkSync(testFile);
-        return currentDir;
-      } catch {
-        // Not writable
-      }
+    if (currentDir !== '/' && currentDir !== '/root' && fs.existsSync(currentDir)) {
+      return currentDir;
     }
 
-    // Fall back to home or temp
-    return homeDir ?? '/tmp';
+    // Last resort: /tmp (should rarely happen)
+    return '/tmp';
   }
 
   async callEngine(command: string, args: string[] = []): Promise<FafEngineResult> {
@@ -142,7 +142,9 @@ export class FafEngineAdapter {
     // INIT command - use bundled init
     if (command === 'init') {
       try {
-        const projectPath = args[0] || this.workingDirectory;
+        // Filter out flags to get the actual path argument
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
         const force = args.includes('--force');
         const result = await initFafFile(projectPath, { force });
         const duration = Date.now() - startTime;
@@ -167,7 +169,9 @@ export class FafEngineAdapter {
     // AUTO command - use bundled auto (init + score)
     if (command === 'auto') {
       try {
-        const directory = args[0] || this.workingDirectory;
+        // Filter out flags to get the actual path argument
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const directory = pathArgs[0] || this.workingDirectory;
         const force = args.includes('--force');
         const result = await autoCommand(directory, { force });
         const duration = Date.now() - startTime;
@@ -184,6 +188,242 @@ export class FafEngineAdapter {
         return {
           success: false,
           error: errorMessage,
+          duration
+        };
+      }
+    }
+
+    // SYNC command - use bundled sync
+    if (command === 'sync') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const auto = args.includes('--auto');
+        const result = await syncFafFile(projectPath, { auto, json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Sync command failed',
+          duration
+        };
+      }
+    }
+
+    // BI-SYNC command - use bundled bi-sync
+    if (command === 'bi-sync' || command === 'bisync') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await syncBiDirectional(projectPath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Bi-sync command failed',
+          duration
+        };
+      }
+    }
+
+    // FORMATS command - use bundled formats
+    if (command === 'formats') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await formatsCommand(projectPath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Formats command failed',
+          duration
+        };
+      }
+    }
+
+    // DOCTOR command - use bundled doctor
+    if (command === 'doctor') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await doctorCommand(projectPath);
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Doctor command failed',
+          duration
+        };
+      }
+    }
+
+    // VALIDATE command - use bundled validate
+    if (command === 'validate') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await validateFafFile(projectPath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Validate command failed',
+          duration
+        };
+      }
+    }
+
+    // AUDIT command - use bundled audit
+    if (command === 'audit') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await auditFafFile(projectPath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Audit command failed',
+          duration
+        };
+      }
+    }
+
+    // UPDATE command - use bundled update
+    if (command === 'update') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const result = await updateFafFile(projectPath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Update command failed',
+          duration
+        };
+      }
+    }
+
+    // MIGRATE command - use bundled migrate
+    if (command === 'migrate') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const force = args.includes('--force');
+        const result = await migrateFafFile(projectPath, { force, json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Migrate command failed',
+          duration
+        };
+      }
+    }
+
+    // INNIT command - use bundled innit (British init)
+    if (command === 'innit') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const force = args.includes('--force');
+        const result = await innitFafFile(projectPath, { force });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Innit command failed',
+          duration
+        };
+      }
+    }
+
+    // QUICK command - use bundled quick
+    if (command === 'quick') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const input = pathArgs[1]; // optional input string
+        const force = args.includes('--force');
+        const json = args.includes('--json');
+        const result = await quickCommand(projectPath, input, { force, json });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Quick command failed',
           duration
         };
       }
