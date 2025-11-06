@@ -64,6 +64,7 @@ export class ChampionshipToolHandler {
 ⚠️ No project.faf found in ${targetDir}
 
 For best results, create one:
+- INSTALL: Say "Run faf_install_skill" (→ install faf-expert skill!)
 - BEST: Invoke the faf-expert skill (→ 99/100 AI-readiness!)
 - QUICK: Say "Run faf quick" (→ instant project.faf)
 - PASTE: DROP/PASTE your README.md or package.json
@@ -708,6 +709,14 @@ Working on REAL filesystem: ${targetDir}
               directory: { type: 'string', description: 'Project directory (defaults to current)' }
             }
           }
+        },
+        {
+          name: 'faf_install_skill',
+          description: '🏆 Install faf-expert skill to Claude Code - Automatic installation of world-class FAF expertise',
+          inputSchema: {
+            type: 'object',
+            properties: {}
+          }
         }
       ] as Tool[];
 
@@ -849,6 +858,8 @@ Working on REAL filesystem: ${targetDir}
           return await this.handleWrite(_args);
         case 'faf_skills':
           return await this.handleSkills(_args);
+        case 'faf_install_skill':
+          return await this.handleInstallSkill(_args);
 
         default:
           throw new Error(`Unknown tool: ${name}`);
@@ -2219,6 +2230,89 @@ Performance: <50ms per operation
     } catch (error: any) {
       const duration = Date.now() - startTime;
       return await this.formatResult('🎸 Skills', `Error: ${error.message}`, duration, dir);
+    }
+  }
+
+  private async handleInstallSkill(_args: {}): Promise<CallToolResult> {
+    const startTime = Date.now();
+
+    try {
+      // Find the skill file in the npm package
+      // It should be at: node_modules/claude-faf-mcp/skill/SKILL.md
+      const homeDir = process.env.HOME || process.env.USERPROFILE || '/';
+      const claudeSkillsDir = path.join(homeDir, '.claude', 'skills', 'faf-expert');
+      const targetSkillPath = path.join(claudeSkillsDir, 'SKILL.md');
+
+      // Find source skill file - check multiple possible locations
+      let sourceSkillPath: string | null = null;
+
+      // Location 1: If this is the dev repo
+      const devRepoPath = path.join(__dirname, '../../skill/SKILL.md');
+      if (await this.fileExists(devRepoPath)) {
+        sourceSkillPath = devRepoPath;
+      }
+
+      // Location 2: In node_modules (global or local)
+      if (!sourceSkillPath) {
+        const globalNodeModules = path.join(homeDir, '.npm', 'lib', 'node_modules', 'claude-faf-mcp', 'skill', 'SKILL.md');
+        if (await this.fileExists(globalNodeModules)) {
+          sourceSkillPath = globalNodeModules;
+        }
+      }
+
+      // Location 3: In current working directory node_modules
+      if (!sourceSkillPath) {
+        const localNodeModules = path.join(process.cwd(), 'node_modules', 'claude-faf-mcp', 'skill', 'SKILL.md');
+        if (await this.fileExists(localNodeModules)) {
+          sourceSkillPath = localNodeModules;
+        }
+      }
+
+      // Location 4: Search using require.resolve
+      if (!sourceSkillPath) {
+        try {
+          const mcpPackageRoot = path.dirname(require.resolve('claude-faf-mcp/package.json'));
+          const resolvedPath = path.join(mcpPackageRoot, 'skill', 'SKILL.md');
+          if (await this.fileExists(resolvedPath)) {
+            sourceSkillPath = resolvedPath;
+          }
+        } catch (e) {
+          // require.resolve failed, continue
+        }
+      }
+
+      if (!sourceSkillPath) {
+        const duration = Date.now() - startTime;
+        return await this.formatResult(
+          '🏆 Install faf-expert Skill',
+          `❌ Could not locate skill file in npm package.\n\nSearched:\n- ${devRepoPath}\n- Global node_modules\n- Local node_modules\n\nPlease ensure claude-faf-mcp is installed.`,
+          duration
+        );
+      }
+
+      // Create directory if needed
+      await fs.mkdir(claudeSkillsDir, { recursive: true });
+
+      // Copy skill file
+      const skillContent = await fs.readFile(sourceSkillPath, 'utf-8');
+      await fs.writeFile(targetSkillPath, skillContent, 'utf-8');
+
+      const duration = Date.now() - startTime;
+
+      return await this.formatResult(
+        '🏆 Install faf-expert Skill',
+        `✅ faf-expert skill installed successfully!\n\n` +
+        `📍 Location: ${targetSkillPath}\n\n` +
+        `🔄 RESTART REQUIRED:\n` +
+        `   Please restart Claude Desktop to activate the skill.\n\n` +
+        `🎯 Once restarted, invoke the faf-expert skill to reach\n` +
+        `   99/100 AI-readiness with championship-grade guidance!\n\n` +
+        `💡 Usage: Just say "Invoke faf-expert skill" in Claude Desktop`,
+        duration
+      );
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      return await this.formatResult('🏆 Install faf-expert Skill', `Error: ${error.message}`, duration);
     }
   }
 
