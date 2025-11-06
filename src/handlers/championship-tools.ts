@@ -665,7 +665,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_migrate',
-          description: '🔄 Migrate .faf to project.faf (v1.2.0 standard)',
+          description: '🔄 Migrate .faf to project.faf (format v2.5.0)',
           inputSchema: {
             type: 'object',
             properties: {
