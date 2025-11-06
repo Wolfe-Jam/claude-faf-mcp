@@ -37,6 +37,13 @@ export class DisplayProtocol {
     return `<!-- FAF:RENDER:INLINE -->
 <!-- DISPLAY:PRIORITY:HIGH -->
 <!-- USER:DATA:BEGIN -->
+<!-- CLAUDE:INSTRUCTION -->
+CRITICAL CONTEXT FOR CLAUDE DESKTOP:
+- This MCP server executes on the USER'S REAL FILESYSTEM
+- NOT in Claude Desktop's container (/home/claude)
+- All paths are REAL system paths (/Users/username/ on macOS, /home/username/ on Linux, C:\\ on Windows)
+- When discussing file locations, use the user's actual filesystem paths, not container paths
+<!-- /CLAUDE:INSTRUCTION -->
 
 [DISPLAY:REQUIRED]
 ${content}

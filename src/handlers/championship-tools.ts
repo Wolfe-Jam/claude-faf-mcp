@@ -23,6 +23,15 @@ import { filterTools } from './tool-registry.js';
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
 
+// Claude Desktop filesystem context instruction
+const FILESYSTEM_CONTEXT_INSTRUCTION = `
+CRITICAL CONTEXT FOR CLAUDE DESKTOP:
+- This MCP server executes on the USER'S REAL FILESYSTEM
+- NOT in Claude Desktop's container (/home/claude)
+- All paths are REAL system paths (/Users/username/ on macOS, /home/username/ on Linux, C:\\ on Windows)
+- When discussing file locations, use the user's actual filesystem paths, not container paths
+`;
+
 // Trust mode type for type safety
 type TrustMode = 'confidence' | 'garage' | 'panic' | 'validated';
 
@@ -1883,6 +1892,8 @@ faf_score --save      # Save this scorecard
 Content between DISPLAY:REQUIRED:VERBATIM tags is user-facing UX.
 Present verbatim, do not summarize, interpret, or reformat.
 Think: pit crew relaying engineer's exact instructions to driver.
+
+${FILESYSTEM_CONTEXT_INSTRUCTION}
 <!-- /CLAUDE:INSTRUCTION -->
 
 [DISPLAY:REQUIRED:VERBATIM]
@@ -1925,6 +1936,8 @@ Zero shell dependencies
 Content between DISPLAY:REQUIRED:VERBATIM tags is user-facing UX.
 Present verbatim, do not summarize, interpret, or reformat.
 Think: pit crew relaying engineer's exact instructions to driver.
+
+${FILESYSTEM_CONTEXT_INSTRUCTION}
 <!-- /CLAUDE:INSTRUCTION -->
 
 [DISPLAY:REQUIRED:VERBATIM]
