@@ -889,7 +889,7 @@ Working on REAL filesystem: ${targetDir}
           '🧡⚡️ FAF - AI Context, On-Demand',
           `**DROP | PASTE | CREATE** - Click & Go!\n\n` +
           `🎯 **What is FAF?**\n` +
-          `.faf creates THE JPEG for AI - makes your project AI-readable in <50ms\n\n` +
+          `Persistent Project Context - makes your project AI-readable in <50ms\n\n` +
           `📂 **How to start:**\n` +
           `• **DROP** any file from your project (I'll find the root!)\n` +
           `• **PASTE** your project path: \`faf_auto /path/to/project\`\n` +
