@@ -345,11 +345,13 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_quick',
-          description: '⚡ Quick .faf creation - one-liner for instant context',
+          description: '⚡ Quick .faf creation - one-liner for instant context. Creates in ~/Projects/ (or ~/projects/ if exists).',
           inputSchema: {
             type: 'object',
             properties: {
-              input: { type: 'string', description: 'Comma-separated: "name, description, language, framework, hosting"' },
+              projectName: { type: 'string', description: 'Project name (creates ~/Projects/projectName/project.faf)' },
+              directory: { type: 'string', description: 'Full path to project directory (overrides projectName)' },
+              input: { type: 'string', description: 'Optional: Comma-separated project details' },
               force: { type: 'boolean', description: 'Overwrite existing .faf file' }
             }
           }
@@ -1522,28 +1524,58 @@ faf_score --save      # Save this scorecard
     return await this.formatResult('💬 FAF Chat', fafContent);
   }
 
-  private async handleQuick(args: { input?: string; force?: boolean; directory?: string }): Promise<CallToolResult> {
+  private async handleQuick(args: { input?: string; force?: boolean; directory?: string; projectName?: string }): Promise<CallToolResult> {
     const startTime = Date.now();
 
     try {
       // No directory provided = prompt for project name
-      if (!args?.directory) {
+      if (!args?.directory && !args?.projectName) {
         const duration = Date.now() - startTime;
+
         return await this.formatResult(
           '⚡ FAF Quick - Create New Project',
           `**Enter a name for your project**\n\n` +
-          `I'll create a new directory with a project.faf file.\n\n` +
-          `💡 **Examples:**\n` +
-          `\`faf_quick { directory: "~/Projects/my-new-app" }\`\n` +
-          `\`faf_quick { directory: "/Users/yourname/cool-project" }\`\n\n` +
-          `**Optional - Add project details:**\n` +
-          `\`faf_quick { input: "MyApp, Next.js e-commerce, TypeScript", directory: "~/Projects/MyApp" }\`\n\n` +
-          `🎯 The directory will be created if it doesn't exist!`,
+          `I'll create: \`~/Projects/your-project-name/project.faf\`\n` +
+          `(or \`~/projects/\` if that folder exists)\n\n` +
+          `💡 **Quick create:**\n` +
+          `\`faf_quick { projectName: "my-cool-app" }\`\n\n` +
+          `**Custom location:**\n` +
+          `\`faf_quick { directory: "/custom/path/to/project" }\`\n\n` +
+          `**With details:**\n` +
+          `\`faf_quick { projectName: "MyApp", input: "Next.js e-commerce, TypeScript" }\`\n\n` +
+          `🎯 Projects-based: We organize your work in a Projects folder`,
           duration
         );
       }
 
-      const dir = args.directory;
+      // Determine directory: explicit path OR projectName in Projects folder
+      let dir: string;
+      if (args.directory) {
+        dir = args.directory;
+      } else if (args.projectName) {
+        const homeDir = process.env.HOME || process.env.USERPROFILE || '~';
+
+        // Smart Projects folder detection
+        // Priority: ~/projects/ (lowercase) > ~/Projects/ (capitalized) > create ~/Projects/
+        let projectsDir: string;
+        const projectsLower = path.join(homeDir, 'projects');
+        const projectsUpper = path.join(homeDir, 'Projects');
+
+        if (await this.fileExists(projectsLower)) {
+          projectsDir = projectsLower;
+        } else if (await this.fileExists(projectsUpper)) {
+          projectsDir = projectsUpper;
+        } else {
+          projectsDir = projectsUpper; // Default to capitalized if creating new
+        }
+
+        dir = path.join(projectsDir, args.projectName);
+      } else {
+        throw new Error('Either directory or projectName is required');
+      }
+
+      // Create the project directory (and parent if needed)
+      await fs.mkdir(dir, { recursive: true });
 
       // Call faf-cli quick command
       this.fafEngine.setWorkingDirectory(dir);
