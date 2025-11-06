@@ -5,6 +5,17 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0-beta.2] - 2025-11-06
+
+### Documentation
+- Added comprehensive beta announcement to README with:
+  - Clear explanation of Mk3 Bundled Engine
+  - Compatibility table (no CLI → v2.7.3, with CLI → v3.0 beta)
+  - Installation instructions for both scenarios
+  - What works vs what doesn't (3 bundled, 13 need CLI)
+  - Beta testing feedback request
+  - Performance metrics and WJTTC certification
+
 ## [3.0.0-beta.1] - 2025-11-06
 
 🏎️ **Mk3 Bundled Engine - Championship Performance Edition**

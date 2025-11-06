@@ -12,20 +12,73 @@
 
 ---
 
-## 🏎️ What's New in v3.0.0-beta.1 (Mk3 Bundled Engine)
+## 🏎️ v3.0.0-beta - Thank You for Testing!
 
-**Championship Performance Edition** - CLI engine code now bundled directly into MCP!
+**You're using the Mk3 Bundled Engine beta** - Thank you for being an early tester!
 
-- **6-16x faster** for score, init, and auto commands (24.7ms avg, 104 calls/sec)
-- **Zero memory leaks** (-1.88MB heap growth over 100 iterations)
-- **3 commands bundled** (score, init, auto) - covers 80% of typical usage
-- **WJTTC Championship Grade** certified (6/6 stress tests passed)
+### What is Mk3?
 
-**⚠️ Beta Compatibility Notice:**
-- **With faf-cli installed**: Safe to upgrade (performance boost + full features)
-- **Without faf-cli**: Use v2.7.3 instead (wait for Mk3 stable with all commands bundled)
+The **Mk3 Bundled Engine** is a major architectural upgrade that embeds the FAF CLI compiler code directly into the MCP package. This means:
 
-📖 [Full Mk3 Release Notes](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/tag/v3.0.0-beta.1)
+- **No more CLI dependency** (for bundled commands)
+- **6-16x faster performance** (direct function calls instead of process spawning)
+- **Lower latency** (24.7ms average for score command)
+- **Better reliability** (zero memory leaks, championship-grade tested)
+
+### ⚠️ Important: Compatibility
+
+**This beta has partial functionality.** Choose your version based on your setup:
+
+| Your Setup | Recommended Version | What Works |
+|------------|-------------------|------------|
+| **No faf-cli installed** | **v2.7.3** (stable) | ✅ All features (fully standalone) |
+| **With faf-cli installed** | **v3.0.0-beta** (this version) | ✅ All features + 3 commands 6-16x faster |
+
+**In this beta (v3.0.0-beta.1):**
+- ✅ **3 commands bundled** (score, init, auto) - 80% of typical usage
+- ⚠️ **13 commands require faf-cli** (quick, sync, bi-sync, enhance, formats, validate, doctor, dna, log, update, recover, auth, audit)
+
+**Mk3 stable (coming soon):**
+- ✅ **All 16 commands bundled** - truly standalone, no CLI needed
+
+### How to Install the Right Version
+
+**If you have faf-cli installed** (check with `which faf` or `faf --version`):
+```bash
+npm install -g claude-faf-mcp@beta  # Get this beta
+```
+
+**If you DON'T have faf-cli**:
+```bash
+npm install -g claude-faf-mcp@2.7.3  # Use stable standalone version
+```
+
+**To check your current version**:
+```bash
+npm list -g claude-faf-mcp --depth=0
+```
+
+### Performance Improvements
+
+This beta delivers **championship-grade performance**:
+
+- **Score command**: 24.7ms average (beating 50ms target by 50%)
+- **Concurrent mode**: 9.6ms per call, 104 calls/second throughput
+- **Memory efficient**: -1.88MB heap growth (negative = no leak!)
+- **WJTTC certified**: 6/6 stress tests passed, 57/57 unit tests passing
+
+### Beta Testing & Feedback
+
+We need your help! Please test Mk3 in real-world scenarios and report:
+
+1. **Performance**: Is it noticeably faster?
+2. **Reliability**: Any crashes, errors, or unexpected behavior?
+3. **Compatibility**: Do your existing workflows still work?
+
+**Report issues**: https://github.com/Wolfe-Jam/claude-faf-mcp/issues
+Tag with `[Mk3 Beta]` in the issue title.
+
+📖 **Full release notes**: https://github.com/Wolfe-Jam/claude-faf-mcp/releases/tag/v3.0.0-beta.1
 
 ---
 
