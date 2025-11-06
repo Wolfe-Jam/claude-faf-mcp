@@ -881,18 +881,23 @@ Working on REAL filesystem: ${targetDir}
     try {
       const dir = args?.directory || process.cwd();
 
-      // Smart Start - Detect sandbox or invalid paths
-      if (dir === '.' || dir === '/' || dir.length < 3) {
+      // Smart Start - No directory provided = show DROP | PASTE | CREATE
+      if (!args?.directory || dir === '.' || dir === '/' || dir.length < 3) {
         return await this.formatResult(
-          '📂 FAF AUTO - Smart Start',
-          `Drop a file or paste/type your folder location!\n` +
-          `.faf creates THE JPEG for AI - makes your project AI-readable.\n\n` +
-          `Examples:\n` +
-          `• faf_auto ~/Documents/my-project\n` +
-          `• faf_auto /Users/yourname/cool-app\n` +
-          `• faf_auto ../actual-project-folder\n\n` +
-          `Bonus: You can drag any file from your project\n` +
-          `and I'll find the project root!\n\n` +
+          '🧡⚡️ FAF - AI Context, On-Demand',
+          `**DROP | PASTE | CREATE** - Click & Go!\n\n` +
+          `🎯 **What is FAF?**\n` +
+          `.faf creates THE JPEG for AI - makes your project AI-readable in <50ms\n\n` +
+          `📂 **How to start:**\n` +
+          `• **DROP** any file from your project (I'll find the root!)\n` +
+          `• **PASTE** your project path: \`faf_auto /path/to/project\`\n` +
+          `• **CREATE** instantly: Say "Run faf_quick"\n\n` +
+          `🏆 **Or go championship:**\n` +
+          `• Install faf-expert skill: Say "Run faf_install_skill"\n` +
+          `• Then invoke it for 99/100 AI-readiness!\n\n` +
+          `💡 **Examples:**\n` +
+          `\`faf_auto ~/Documents/my-app\`\n` +
+          `\`faf_auto /Users/yourname/cool-project\`\n\n` +
           `🧡⚡️ SPEEDY AI you can TRUST!`
         );
       }
