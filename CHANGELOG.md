@@ -5,6 +5,21 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2025-11-06
+
+### Added
+- faf_install_skill tool for automatic installation of faf-expert skill to Claude Code
+- DROP | PASTE | CREATE user guidance when bare faf command called without directory
+- Smart Projects folder detection in faf_quick with projectName parameter (~/projects/ > ~/Projects/ > create ~/Projects/)
+
+### Changed
+- Updated messaging from "THE JPEG for AI" to "Persistent Project Context" (official Anthropic terminology)
+- Enhanced user onboarding experience with clear three-pathway guidance
+- faf_quick now supports projectName parameter for instant project creation in Projects folder
+
+### Documentation
+- CLI synced with DROP | PASTE | CREATE messaging and Persistent Project Context terminology
+
 ## [2.8.1] - 2025-11-05
 
 ### Fixed
