@@ -12,7 +12,24 @@
 
 ---
 
-**New! Claude Skills is BUILT-IN** - 6000+ lines TS-strict code
+## 🏎️ What's New in v3.0.0-beta.1 (Mk3 Bundled Engine)
+
+**Championship Performance Edition** - CLI engine code now bundled directly into MCP!
+
+- **6-16x faster** for score, init, and auto commands (24.7ms avg, 104 calls/sec)
+- **Zero memory leaks** (-1.88MB heap growth over 100 iterations)
+- **3 commands bundled** (score, init, auto) - covers 80% of typical usage
+- **WJTTC Championship Grade** certified (6/6 stress tests passed)
+
+**⚠️ Beta Compatibility Notice:**
+- **With faf-cli installed**: Safe to upgrade (performance boost + full features)
+- **Without faf-cli**: Use v2.7.3 instead (wait for Mk3 stable with all commands bundled)
+
+📖 [Full Mk3 Release Notes](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/tag/v3.0.0-beta.1)
+
+---
+
+**Claude Skills BUILT-IN** - 6000+ lines TS-strict code
 **faf-expert** is on-hand, 24/7 - your resident faf specialist and Master of
 **21 Core Tools** and **30+ Advanced Tools**, **51 in all**
 
