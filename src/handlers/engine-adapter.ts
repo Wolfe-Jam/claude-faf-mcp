@@ -3,6 +3,9 @@ import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
 import { isError } from '../utils/type-guards.js';  // ✅ FIXED: Removed unused isDefined
+import { scoreFafFile } from '../faf-core/commands/score.js';
+import { initFafFile } from '../faf-core/commands/init.js';
+import { autoCommand } from '../faf-core/commands/auto.js';
 
 const execAsync = promisify(exec);
 
@@ -98,7 +101,7 @@ export class FafEngineAdapter {
 
   async callEngine(command: string, args: string[] = []): Promise<FafEngineResult> {
     const startTime = Date.now();
-    
+
     // Input validation
     if (!command || typeof command !== 'string') {
       return {
@@ -108,11 +111,93 @@ export class FafEngineAdapter {
       };
     }
 
+    // ============================================================================
+    // MK3 BUNDLED ENGINE - Direct function calls (no CLI dependency!)
+    // ============================================================================
+
+    // SCORE command - use bundled FafCompiler
+    if (command === 'score') {
+      try {
+        const filePath = args[0] || this.workingDirectory;
+        const result = await scoreFafFile(filePath, { json: true });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: true,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        const errorMessage = isError(error) ? error.message : 'Score command failed';
+
+        return {
+          success: false,
+          error: errorMessage,
+          duration
+        };
+      }
+    }
+
+    // INIT command - use bundled init
+    if (command === 'init') {
+      try {
+        const projectPath = args[0] || this.workingDirectory;
+        const force = args.includes('--force');
+        const result = await initFafFile(projectPath, { force });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        const errorMessage = isError(error) ? error.message : 'Init command failed';
+
+        return {
+          success: false,
+          error: errorMessage,
+          duration
+        };
+      }
+    }
+
+    // AUTO command - use bundled auto (init + score)
+    if (command === 'auto') {
+      try {
+        const directory = args[0] || this.workingDirectory;
+        const force = args.includes('--force');
+        const result = await autoCommand(directory, { force });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        const errorMessage = isError(error) ? error.message : 'Auto command failed';
+
+        return {
+          success: false,
+          error: errorMessage,
+          duration
+        };
+      }
+    }
+
+    // ============================================================================
+    // FALLBACK: Shell out to CLI for commands not yet bundled
+    // ============================================================================
+
     // Sanitize arguments to prevent injection
-    const sanitizedArgs = args.map(arg => 
+    const sanitizedArgs = args.map(arg =>
       typeof arg === 'string' ? arg.replace(/[;&|`$(){}[\]]/g, '') : ''
     );
-    
+
     try {
       // Try to use the enginePath as provided (could be 'faf' for global install or a full path)
       let fullCommand: string;
