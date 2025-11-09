@@ -159,13 +159,19 @@ brew install wolfe-jam/faf/claude-faf-mcp
 }
 ```
 
-**CLI vs MCP clarity**
-- **faf-cli** ([npm](https://www.npmjs.com/package/faf-cli)): Runs on your machine locally in a terminal
-- **claude-faf-mcp** (this): Runs through Claude Desktop as a tool
+## Using Other AI Tools?
 
-Same .faf, different way to use. Same Project DNA and scoring. Same capabilities (create, score, improve). Different execution layer.
+This MCP server is for **Claude Desktop**. If you also use **Claude Code**, **Cursor**, **Windsurf**, **Gemini CLI**, **OpenAI Codex**, **Warp**, or any terminal-based AI:
 
-Use CLI for raw speed and local development; use MCP for AI-integrated workflows. No feature gaps between them - pick based on your flow.
+**Get faf-cli for universal AI context:**
+```bash
+npm install -g faf-cli
+# or
+brew install faf-cli
+```
+
+Same `project.faf` format (lives right next to package.json and README.md).
+Works with every AI tool. **[faf-cli on npm →](https://www.npmjs.com/package/faf-cli)**
 
 **[Website](https://faf.one)** • **[Discord](https://discord.com/invite/3pjzpKsP)** • **[GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp)** • **[Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)**
 
