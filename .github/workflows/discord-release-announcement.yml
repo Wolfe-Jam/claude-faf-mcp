@@ -50,44 +50,51 @@ jobs:
           # Get timestamp
           TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
 
-          # Format the Discord message
-          DISCORD_MESSAGE=$(cat <<EOF
-          {
-            "content": null,
-            "embeds": [{
-              "title": "$EMOJI claude-faf-mcp ${{ steps.release.outputs.version }}",
-              "description": "**$TYPE** - IANA-registered MCP Server for Claude Desktop",
-              "color": 16753920,
-              "fields": [
-                {
-                  "name": "📦 Install",
-                  "value": "\`\`\`bash\nnpm install -g claude-faf-mcp@${{ steps.release.outputs.version }}\n\`\`\`",
-                  "inline": false
+          # Escape changelog for JSON (replace newlines with \n)
+          CHANGELOG_ESCAPED=$(echo "${{ steps.release.outputs.changelog }}" | sed ':a;N;$!ba;s/\n/\\n/g' | sed 's/"/\\"/g')
+
+          # Build JSON with jq for proper escaping
+          DISCORD_MESSAGE=$(jq -n \
+            --arg emoji "$EMOJI" \
+            --arg version "${{ steps.release.outputs.version }}" \
+            --arg type "$TYPE" \
+            --arg timestamp "$TIMESTAMP" \
+            --arg changelog "$CHANGELOG_ESCAPED" \
+            --arg url "${{ steps.release.outputs.url }}" \
+            '{
+              "content": null,
+              "embeds": [{
+                "title": "\($emoji) claude-faf-mcp \($version)",
+                "description": "**\($type)** - IANA-registered MCP Server for Claude Desktop",
+                "color": 16753920,
+                "fields": [
+                  {
+                    "name": "📦 Install",
+                    "value": "```bash\nnpm install -g claude-faf-mcp@\($version)\n```",
+                    "inline": false
+                  },
+                  {
+                    "name": "🔧 Add to Claude Desktop",
+                    "value": "```json\n{\n  \"mcpServers\": {\n    \"faf\": {\n      \"command\": \"npx\",\n      \"args\": [\"claude-faf-mcp@\($version)\"]\n    }\n  }\n}\n```",
+                    "inline": false
+                  },
+                  {
+                    "name": "📋 What Changed",
+                    "value": $changelog,
+                    "inline": false
+                  },
+                  {
+                    "name": "🔗 Links",
+                    "value": "[GitHub Release](\($url)) • [npm Package](https://www.npmjs.com/package/claude-faf-mcp) • [Docs](https://faf.one) • [MCP Registry](https://github.com/modelcontextprotocol/servers)",
+                    "inline": false
+                  }
+                ],
+                "footer": {
+                  "text": "claude-faf-mcp • Official Anthropic MCP Registry"
                 },
-                {
-                  "name": "🔧 Add to Claude Desktop",
-                  "value": "\`\`\`json\n{\n  \"mcpServers\": {\n    \"faf\": {\n      \"command\": \"npx\",\n      \"args\": [\"claude-faf-mcp@${{ steps.release.outputs.version }}\"]\n    }\n  }\n}\n\`\`\`",
-                  "inline": false
-                },
-                {
-                  "name": "📋 What Changed",
-                  "value": "${{ steps.release.outputs.changelog }}",
-                  "inline": false
-                },
-                {
-                  "name": "🔗 Links",
-                  "value": "[GitHub Release](${{ steps.release.outputs.url }}) • [npm Package](https://www.npmjs.com/package/claude-faf-mcp) • [Docs](https://faf.one) • [MCP Registry](https://github.com/modelcontextprotocol/servers)",
-                  "inline": false
-                }
-              ],
-              "footer": {
-                "text": "claude-faf-mcp • Official Anthropic MCP Registry"
-              },
-              "timestamp": "$TIMESTAMP"
-            }]
-          }
-          EOF
-          )
+                "timestamp": $timestamp
+              }]
+            }')
 
           # Send to Discord webhook
           curl -H "Content-Type: application/json" \
