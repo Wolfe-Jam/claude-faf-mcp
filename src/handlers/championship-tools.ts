@@ -917,7 +917,9 @@ Working on REAL filesystem: ${targetDir}
 
       // Delegate to CLI - Single source of truth
       this.fafEngine.setWorkingDirectory(dir);
-      const result = await this.fafEngine.callEngine('auto', []);
+      const autoArgs = [];
+      if (args.force) autoArgs.push('--force');
+      const result = await this.fafEngine.callEngine('auto', autoArgs);
 
       if (!result.success) {
         return await this.formatResult('🏆 FAF AUTO',

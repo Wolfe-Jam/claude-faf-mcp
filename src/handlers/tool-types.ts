@@ -15,6 +15,7 @@ export interface FafDisplayArgs {
 
 export interface FafAutoArgs {
   directory?: string;
+  force?: boolean;
 }
 
 export interface FafChooseArgs {

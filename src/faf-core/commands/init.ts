@@ -52,7 +52,7 @@ export async function initFafFile(
       };
     }
 
-    // v1.2.0: Use project.faf (standard) instead of .faf (legacy)
+    // v3.0.0: ONLY supports project.faf (no legacy .faf)
     const outputPath = options.output || `${projectRoot}/project.faf`;
 
     // Check if project.faf file already exists

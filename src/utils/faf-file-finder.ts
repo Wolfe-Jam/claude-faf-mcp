@@ -3,29 +3,29 @@ import * as path from 'path';
 
 /**
  * FAF File Discovery Utility
- * Implements v1.2.0 Specification: The Visibility Revolution
+ * v3.0.0 Specification: Prioritizes project.faf, supports legacy .faf with warnings
  *
- * Priority Order:
- * 1. project.faf (standard visible file)
- * 2. *.faf (any .faf file in directory)
- * 3. .faf (legacy hidden file)
+ * READS both formats (with migration suggestion for .faf)
+ * WRITES only project.faf (new files always use standard)
  */
 
 export interface FafFileResult {
   /** Full path to the discovered FAF file */
   path: string;
-  /** Filename (e.g., "project.faf", ".faf", "custom.faf") */
+  /** Filename (e.g., "project.faf", ".faf") */
   filename: string;
-  /** Discovery tier: 1 (project.faf), 2 (*.faf), 3 (.faf) */
-  tier: 1 | 2 | 3;
-  /** True if this is the new standard (project.faf) */
+  /** Always true for project.faf, false for legacy .faf */
   isStandard: boolean;
-  /** True if this is legacy format (.faf) and migration recommended */
+  /** True if this is legacy .faf and should be migrated */
   needsMigration: boolean;
 }
 
 /**
- * Find FAF file in directory following v1.2.0 priority
+ * Find FAF file in directory (v3.0.0)
+ *
+ * Priority:
+ * 1. project.faf (standard - no warning)
+ * 2. .faf (legacy - shows migration suggestion)
  *
  * @param directory - Directory to search (defaults to cwd)
  * @returns FafFileResult if found, null if no FAF file exists
@@ -33,9 +33,9 @@ export interface FafFileResult {
  * @example
  * const result = await findFafFile('/path/to/project');
  * if (result) {
- *   console.log(`Found: ${result.filename} (tier ${result.tier})`);
+ *   console.log(`Found: ${result.filename}`);
  *   if (result.needsMigration) {
- *     console.log('Consider migrating to project.faf');
+ *     console.log('💡 Run "faf migrate" to upgrade to project.faf');
  *   }
  * }
  */
@@ -43,7 +43,7 @@ export async function findFafFile(directory?: string): Promise<FafFileResult | n
   const dir = directory || process.cwd();
 
   try {
-    // Priority 1: project.faf (standard visible file)
+    // Priority 1: project.faf (standard)
     const projectFafPath = path.join(dir, 'project.faf');
     try {
       await fs.access(projectFafPath);
@@ -52,55 +52,23 @@ export async function findFafFile(directory?: string): Promise<FafFileResult | n
         return {
           path: projectFafPath,
           filename: 'project.faf',
-          tier: 1,
           isStandard: true,
           needsMigration: false
         };
       }
     } catch {
-      // Not found, continue to next priority
+      // Not found - check for legacy .faf
     }
 
-    // Priority 2: *.faf (any .faf file in directory, excluding .faf itself)
+    // Priority 2: .faf (legacy - still readable, but suggest migration)
+    const legacyFafPath = path.join(dir, '.faf');
     try {
-      const files = await fs.readdir(dir);
-      const fafFiles = files.filter(f =>
-        f.endsWith('.faf') &&
-        f !== '.faf' &&
-        f !== 'project.faf' && // Exclude project.faf (already checked)
-        !f.startsWith('.faf.backup-') // Exclude backup files
-      );
-
-      if (fafFiles.length > 0) {
-        // If multiple *.faf files, prefer alphabetically first
-        const filename = fafFiles.sort()[0];
-        const fafPath = path.join(dir, filename);
-        const stats = await fs.stat(fafPath);
-
-        if (stats.isFile()) {
-          return {
-            path: fafPath,
-            filename,
-            tier: 2,
-            isStandard: false,
-            needsMigration: true
-          };
-        }
-      }
-    } catch {
-      // Directory read failed, continue to next priority
-    }
-
-    // Priority 3: .faf (legacy hidden file)
-    const dotFafPath = path.join(dir, '.faf');
-    try {
-      await fs.access(dotFafPath);
-      const stats = await fs.stat(dotFafPath);
+      await fs.access(legacyFafPath);
+      const stats = await fs.stat(legacyFafPath);
       if (stats.isFile()) {
         return {
-          path: dotFafPath,
+          path: legacyFafPath,
           filename: '.faf',
-          tier: 3,
           isStandard: false,
           needsMigration: true
         };
@@ -109,10 +77,10 @@ export async function findFafFile(directory?: string): Promise<FafFileResult | n
       // Not found
     }
 
-    // No FAF file found at any priority level
+    // No FAF file found
     return null;
 
-  } catch (error) {
+  } catch {
     // Directory doesn't exist or permission error
     return null;
   }
@@ -120,7 +88,7 @@ export async function findFafFile(directory?: string): Promise<FafFileResult | n
 
 /**
  * Get the path where a new FAF file should be created
- * Always returns project.faf (v1.2.0 standard)
+ * v3.0.0: ALWAYS returns project.faf (never creates .faf)
  *
  * @param directory - Directory where FAF file will be created
  * @returns Full path to project.faf
@@ -131,7 +99,7 @@ export function getNewFafFilePath(directory?: string): string {
 }
 
 /**
- * Check if a FAF file exists (any priority level)
+ * Check if a FAF file exists (either format)
  *
  * @param directory - Directory to check
  * @returns True if any FAF file exists
@@ -142,17 +110,15 @@ export async function hasFafFile(directory?: string): Promise<boolean> {
 }
 
 /**
- * Get deprecation warning for legacy FAF files
+ * Get migration suggestion message if needed
  *
  * @param result - Result from findFafFile()
- * @returns Deprecation message if applicable, null otherwise
+ * @returns Migration message if applicable, null otherwise
  */
-export function getDeprecationWarning(result: FafFileResult | null): string | null {
+export function getMigrationSuggestion(result: FafFileResult | null): string | null {
   if (!result || !result.needsMigration) {
     return null;
   }
 
-  return `⚠️  Using ${result.filename} (tier ${result.tier})
-💡 Migrate to project.faf for better visibility:
-   faf migrate`;
+  return '\n💡 Using legacy .faf file. Run "faf migrate" to upgrade to project.faf (<1 second)\n';
 }

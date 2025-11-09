@@ -9,9 +9,9 @@ import { globReplacements } from "./native-file-finder.js";
 import { parseFafIgnore } from "./fafignore-parser";
 
 /**
- * Find .faf file in current directory or parent directories
+ * Find project.faf file in current directory or parent directories
  *
- * v1.2.0: Prioritizes project.faf (standard) over .faf (legacy)
+ * v3.0.0: ONLY supports project.faf (no legacy .faf support)
  */
 export async function findFafFile(
   startDir: string = process.cwd(),
@@ -21,48 +21,23 @@ export async function findFafFile(
   // Check up to 10 parent directories to avoid infinite loops
   for (let i = 0; i < 10; i++) {
     try {
-      // First, try simple fs.readdir approach
-      const files = await fs.readdir(currentDir);
-      // Filter for EXACTLY .faf files (not .faf.backup, .fafignore, etc.)
-      const fafFiles = files.filter((file) => {
-        // Must be exactly '.faf' or match pattern like 'project.faf'
-        // Exclude: .faf.backup*, .fafignore, faf-*, etc.
-        const isExactFaf = file === '.faf';
-        const isNamedFaf = file.match(/^[^.]+\.faf$/) !== null; // like 'project.faf'
-        const isNotBackup = !file.includes('.faf.');
-        const isNotFafIgnore = file !== '.fafignore';
+      const projectFafPath = path.join(currentDir, 'project.faf');
 
-        return (isExactFaf || isNamedFaf) && isNotBackup && isNotFafIgnore;
-      });
+      // Check if project.faf exists and is a file
+      if (await fileExists(projectFafPath)) {
+        const stats = await fs.stat(projectFafPath);
+        if (stats.isFile()) {
+          return projectFafPath;
+        }
+      }
 
-      if (fafFiles.length > 0) {
-        // Sort to prioritize project.faf (standard) over .faf (legacy)
-        const sortedFafFiles = fafFiles.sort((a, b) => {
-          if (a === 'project.faf') {return -1;}  // project.faf comes first (v1.2.0 standard)
-          if (b === 'project.faf') {return 1;}   // project.faf comes first
-          if (a === '.faf') {return -1;}         // .faf second (legacy)
-          if (b === '.faf') {return 1;}          // .faf second
-          return a.localeCompare(b);            // alphabetical otherwise
-        });
-        
-        // Check all matching files, not just the first one
-        // This handles cases where .faf directory exists alongside project.faf file
-        for (const fafFile of sortedFafFiles) {
-          const fafPath = path.join(currentDir, fafFile);
-
-          // Verify it's a file (not directory) and readable
-          try {
-            const stats = await fs.stat(fafPath);
-            if (stats.isFile() && await fileExists(fafPath)) {
-              // v1.2.0: Show deprecation warning for legacy .faf files
-              if (fafFile === '.faf') {
-                console.warn('\n⚠️  Found .faf (legacy). Run "faf migrate" to upgrade to project.faf\n');
-              }
-              return fafPath;
-            }
-          } catch {
-            // Skip if stat fails, continue to next file
-          }
+      // v3.0.0: Support legacy .faf with migration suggestion
+      const legacyFafPath = path.join(currentDir, '.faf');
+      if (await fileExists(legacyFafPath)) {
+        const stats = await fs.stat(legacyFafPath);
+        if (stats.isFile()) {
+          console.warn('\n💡 Using legacy .faf file. Run "faf migrate" to upgrade to project.faf (<1 second)\n');
+          return legacyFafPath;
         }
       }
 

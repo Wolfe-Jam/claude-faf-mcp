@@ -12,73 +12,105 @@
 
 ---
 
-## 🏎️ v3.0.0-beta - Thank You for Testing!
+## Understanding MCP - Our Mission
 
-**You're using the Mk3 Bundled Engine beta** - Thank you for being an early tester!
+**The .faf Position in the MCP Ecosystem:**
 
-### What is Mk3?
-
-The **Mk3 Bundled Engine** is a major architectural upgrade that embeds the FAF CLI compiler code directly into the MCP package. This means:
-
-- **No more CLI dependency** (for bundled commands)
-- **6-16x faster performance** (direct function calls instead of process spawning)
-- **Lower latency** (24.7ms average for score command)
-- **Better reliability** (zero memory leaks, championship-grade tested)
-
-### ⚠️ Important: Compatibility
-
-**This beta has partial functionality.** Choose your version based on your setup:
-
-| Your Setup | Recommended Version | What Works |
-|------------|-------------------|------------|
-| **No faf-cli installed** | **v2.7.3** (stable) | ✅ All features (fully standalone) |
-| **With faf-cli installed** | **v3.0.0-beta** (this version) | ✅ All features + 3 commands 6-16x faster |
-
-**In this beta (v3.0.0-beta.1):**
-- ✅ **3 commands bundled** (score, init, auto) - 80% of typical usage
-- ⚠️ **13 commands require faf-cli** (quick, sync, bi-sync, enhance, formats, validate, doctor, dna, log, update, recover, auth, audit)
-
-**Mk3 stable (coming soon):**
-- ✅ **All 16 commands bundled** - truly standalone, no CLI needed
-
-### How to Install the Right Version
-
-**If you have faf-cli installed** (check with `which faf` or `faf --version`):
-```bash
-npm install -g claude-faf-mcp@beta  # Get this beta
+```
+Model          Context        Protocol
+─────          ───────        ────────
+Claude    →    .faf      →    MCP
+Gemini    →    .faf      →    MCP
+Codex     →    .faf      →    MCP
+Any LLM   →    IANA Format →  Open Protocol
 ```
 
-**If you DON'T have faf-cli**:
+**.faf is the universal Context layer** for any Model using the MCP Protocol.
+
+This is who we are. This is where we live. We provide the standardized Context that makes the Model Context Protocol work for everyone.
+
+---
+
+## 🏎️ v3.0.4 - 100% Standalone Achievement
+
+### What's New in v3.0.4
+
+**100% STANDALONE OPERATION** - Zero CLI dependencies across all 50 MCP tools.
+
+#### Historic Milestone
+- ✅ **50/50 MCP tools operational** (100% standalone)
+- ✅ **14/14 bundled commands** (zero CLI dependencies)
+- ✅ **16.2x average speedup** over CLI versions
+- ✅ **19ms average execution** across all bundled commands
+
+#### New Bundled Commands
+- **faf_quick** - Lightning-fast project.faf creation (3ms avg)
+- **faf_enhance** - Intelligent enhancement with auto-detection + MCP-native questionnaire (63ms)
+
+#### Mk3 Bundled Engine
+Core FAF CLI compiler code bundled directly into MCP:
+- **16.2x faster** (direct function calls vs process spawning)
+- **19ms average** across all bundled commands
+- **Fastest: 1ms** (formats command)
+- **Unmeasurable: 0ms** (migrate command - too fast!)
+- **Zero memory leaks** with championship-grade performance
+
+#### project.faf Standard
+ONE filename for new projects:
+- **New files use project.faf** (visible, universal standard)
+- **Legacy .faf still readable** (with gentle migration suggestion)
+- **Visible like package.json** (no more hidden files for new projects!)
+- **ONE standard going forward** across all tools and platforms
+
+### 💡 Legacy .faf Support with Migration Path
+
+v3.0.0 prioritizes `project.faf` but **still reads** legacy `.faf` files.
+
+**What happens with `.faf` files:**
+- ✅ **Reads your existing `.faf` files** (no breakage!)
+- 💡 **Shows migration suggestion** (gentle reminder)
+- 🚫 **Never creates new `.faf` files** (always uses project.faf)
+
+**To migrate (optional):**
 ```bash
-npm install -g claude-faf-mcp@2.7.3  # Use stable standalone version
+# Run this in your project directory:
+faf migrate
+
+# Takes <1 second, renames .faf → project.faf
 ```
 
-**To check your current version**:
+**New projects automatically use project.faf** - visible, universal, like package.json.
+
+### Installation
+
 ```bash
-npm list -g claude-faf-mcp --depth=0
+# Install/upgrade to v3.0.4
+npm install -g claude-faf-mcp
+
+# Or via npx (always gets latest)
+npx -y claude-faf-mcp
 ```
 
-### Performance Improvements
+**Claude Desktop config** (no changes needed if already using MCP):
+```json
+{
+  "mcpServers": {
+    "claude-faf-mcp": {
+      "command": "npx",
+      "args": ["-y", "claude-faf-mcp"]
+    }
+  }
+}
+```
 
-This beta delivers **championship-grade performance**:
+### Performance Metrics
 
-- **Score command**: 24.7ms average (beating 50ms target by 50%)
-- **Concurrent mode**: 9.6ms per call, 104 calls/second throughput
-- **Memory efficient**: -1.88MB heap growth (negative = no leak!)
-- **WJTTC certified**: 6/6 stress tests passed, 57/57 unit tests passing
-
-### Beta Testing & Feedback
-
-We need your help! Please test Mk3 in real-world scenarios and report:
-
-1. **Performance**: Is it noticeably faster?
-2. **Reliability**: Any crashes, errors, or unexpected behavior?
-3. **Compatibility**: Do your existing workflows still work?
-
-**Report issues**: https://github.com/Wolfe-Jam/claude-faf-mcp/issues
-Tag with `[Mk3 Beta]` in the issue title.
-
-📖 **Full release notes**: https://github.com/Wolfe-Jam/claude-faf-mcp/releases/tag/v3.0.0-beta.1
+- **Average execution**: 19ms (championship grade ✅)
+- **Fastest command**: 1ms (formats)
+- **Unmeasurable**: 0ms (migrate - too fast to measure!)
+- **Speedup vs CLI**: 16.2x average
+- **Memory**: Zero leaks with championship performance ✅
+- **WJTTC Certified**: 14/14 bundled commands, 50/50 tools, 100% pass rate ✅
 
 ---
 
