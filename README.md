@@ -7,6 +7,7 @@
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp?color=FF4500)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/3pjzpKsP)
 [![IANA Registered](https://img.shields.io/badge/IANA-application%2Fvnd.faf%2Byaml-blue)](https://faf.one/blog/iana-registration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -165,7 +166,7 @@ Same .faf, different way to use. Same Project DNA and scoring. Same capabilities
 
 Use CLI for raw speed and local development; use MCP for AI-integrated workflows. No feature gaps between them - pick based on your flow.
 
-[Website](https://faf.one) | [GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp) | [Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
+**[Website](https://faf.one)** • **[Discord](https://discord.com/invite/3pjzpKsP)** • **[GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp)** • **[Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)**
 
 ---
 
