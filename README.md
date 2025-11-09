@@ -15,26 +15,27 @@
 
 ## Understanding MCP - Our Mission
 
-**The .faf Position in the MCP Ecosystem:**
+**The .FAF Position in the MCP Ecosystem:**
 
 ```
 Model          Context        Protocol
 ─────          ───────        ────────
-Claude    →    .faf      →    MCP
-Gemini    →    .faf      →    MCP
-Codex     →    .faf      →    MCP
-Any LLM   →    IANA Format →  Open Protocol
+LLM   →    IANA Format →  Open Protocol
+Claude    →    .FAF      →    MCP
+Gemini    →    .FAF      →    MCP
+Codex     →    .FAF      →    MCP
+Any LLM   →  .FAF IANA Format →  Open Protocol
 ```
 
-**.faf is the universal Context layer** for any Model using the MCP Protocol.
+**.FAF is the universal Context layer** for any Model using the MCP Protocol.
 
 This is who we are. This is where we live. We provide the standardized Context that makes the Model Context Protocol work for everyone.
 
 ---
 
-## 🏎️ v3.0.4 - 100% Standalone Achievement
+## 🏎️ v3.0.5 - 100% Standalone Achievement
 
-### What's New in v3.0.4
+### What's New in v3.0.5
 
 **100% STANDALONE OPERATION** - Zero CLI dependencies across all 50 MCP tools.
 
@@ -85,7 +86,7 @@ faf migrate
 ### Installation
 
 ```bash
-# Install/upgrade to v3.0.4
+# Install/upgrade to v3.0.5
 npm install -g claude-faf-mcp
 
 # Or via npx (always gets latest)
