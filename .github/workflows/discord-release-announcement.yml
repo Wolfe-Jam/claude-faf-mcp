@@ -47,6 +47,9 @@ jobs:
             TYPE="New Release"
           fi
 
+          # Get timestamp
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%S.000Z)
+
           # Format the Discord message
           DISCORD_MESSAGE=$(cat <<EOF
           {
@@ -80,7 +83,7 @@ jobs:
               "footer": {
                 "text": "claude-faf-mcp • Official Anthropic MCP Registry"
               },
-              "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+              "timestamp": "$TIMESTAMP"
             }]
           }
           EOF
