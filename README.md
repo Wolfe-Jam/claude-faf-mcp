@@ -1,7 +1,10 @@
-# claude-faf-mcp
+<div align="left">
+  <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/logos/orange-smiley.svg" alt="FAF" width="40" align="left" style="margin-right: 12px;" />
+  <h1>claude-faf-mcp</h1>
+  <p><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
+</div>
+<br clear="left"/>
 
-> **🏆 IANA-Registered Format** - .FAF is now an Internet-standard format.
-> MCP server for creating official `application/vnd.faf+yaml` files in Claude Desktop
 > Official MCP server for FAF (Foundational AI-context Format) with 50+ tools -
 > Persistent project context that integrates seamlessly with Claude Desktop workflows
 
@@ -180,7 +183,7 @@ Works with every AI tool. **[faf-cli on npm →](https://www.npmjs.com/package/f
 ### 📸 See It In Action
 
 <div align="center">
-<img src="https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/project-faf-screenshot.png" alt="project.faf sits between package.json and README.md" width="500" />
+<img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/screenshots/package-json-project-faf.png" alt="project.faf sits between package.json and README.md" width="500" />
 
 **`project.faf` sits right between `package.json` and `README.md`** - exactly where it belongs.
 
@@ -275,7 +278,7 @@ This documentation update adds IANA information throughout the README to reflect
 
 **v2.7.0 introduces `project.faf` as the new standard for every repository.**
 
-![project.faf in file structure](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/project-faf-screenshot.png)
+![project.faf in file structure](https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/screenshots/package-json-project-faf.png)
 
 **`package.json` for AI.**
 
@@ -431,7 +434,7 @@ Restart Claude Desktop to load the server.
 
 This is what persistent project context looks like in action. When you run `faf_auto`, Claude scores your project's AI-readiness with a visual breakdown showing exactly where you stand and what to improve next.
 
-![FAF Scoring Dashboard](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/faf-championship-scorecard.png)
+![FAF Scoring Dashboard](https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/demos/faf-championship-scorecard.png)
 
 Live in Claude Desktop. Persistent across sessions. Your foundational context layer, measured and actionable.
 

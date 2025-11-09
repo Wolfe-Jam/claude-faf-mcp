@@ -1,12 +1,11 @@
-# claude-faf-mcp
+<div align="left">
+  <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/logos/orange-smiley.svg" alt="FAF" width="40" align="left" style="margin-right: 12px;" />
+  <h1>claude-faf-mcp</h1>
+  <p><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
+</div>
+<br clear="left"/>
 
-<div align="center">
-
-<img src="https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/icons/faf-icon-64.png" alt="Orange Smiley" width="64" />
-
-**🧡⚡️ .faf Orange Smiley Version | Claude Desktop MCP Server**
-
-**Project DNA ✨ for ANY AI** • **33+ Tools** • **Championship Scoring**
+**Project DNA for ANY AI** • **50+ Tools** • **Championship Scoring**
 
 [![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp)](https://www.npmjs.com/package/claude-faf-mcp)
@@ -14,13 +13,11 @@
 
 [**Install**](#-quick-start) • [**GitHub**](https://github.com/Wolfe-Jam/claude-faf-mcp) • [**NPM**](https://www.npmjs.com/package/claude-faf-mcp) • [**Website**](https://faf.one)
 
-</div>
-
 ---
 
 ## 🏆 Championship Scoring System
 
-![FAF Championship Score Card](https://cdn.jsdelivr.net/npm/claude-faf-mcp@latest/assets/faf-championship-scorecard.png)
+![FAF Championship Score Card](https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/demos/faf-championship-scorecard.png)
 
 Track your project's AI-readiness with F1-inspired tiers:
 
