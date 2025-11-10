@@ -1,6 +1,7 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
+  "title": "Project DNA - Universal AI Context Format",
   "description": "Persistent project context via IANA-registered .faf format. 50 MCP tools. 6k+ downloads.",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
