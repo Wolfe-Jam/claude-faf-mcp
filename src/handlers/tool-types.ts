@@ -39,6 +39,7 @@ export interface FafScoreArgs {
   directory?: string;
   save?: boolean;
   format?: 'markdown' | 'html' | 'json' | 'ascii';
+  full?: boolean;
 }
 
 export interface FafSyncArgs {

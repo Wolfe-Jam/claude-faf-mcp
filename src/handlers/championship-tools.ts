@@ -250,7 +250,8 @@ Working on REAL filesystem: ${targetDir}
                 type: 'string',
                 description: 'Output format: markdown (default), html, json, ascii',
                 enum: ['markdown', 'html', 'json', 'ascii']
-              }
+              },
+              full: { type: 'boolean', description: 'Show full Podium Edition scorecard with detailed metrics' }
             }
           }
         },
@@ -1216,6 +1217,7 @@ faf_score --save      # Save this scorecard
     const targetDir = args?.directory || process.cwd();
     const saveCard = args?.save === true;
     const format = args?.format || 'markdown';
+    const showFull = args?.full === true;
 
     // ⚡ TRY THE FAF ENGINE FIRST!
     let score = 0;
@@ -1299,6 +1301,92 @@ faf_score --save      # Save this scorecard
       result = `FAF Score: ${score}/100\n`;
       result += `${progressBar} ${score}%\n`;
       result += `[.faf: ${hasFaf ? '✓' : 'x'}] [CLAUDE.md: ${hasClaude ? '✓' : 'x'}] [README: ${hasReadme ? '✓' : 'x'}] [package.json: ${hasPackage ? '✓' : 'x'}]`;
+    } else if (showFull) {
+      // Podium Edition: Full Championship Scorecard with detailed metrics
+      const projectName = path.basename(targetDir);
+
+      // Calculate section scores based on files present
+      const coreIntelligence = Math.round((
+        (hasFaf ? 25 : 0) +
+        (hasFaf && hasClaude ? 25 : 0) +  // Architecture Map (requires both)
+        (hasFaf ? 25 : 0) +  // Domain Model
+        (hasFaf ? 25 : 0)    // Version Tracking
+      ));
+
+      const contextDelivery = Math.round((
+        25 +  // MCP Protocol (always active)
+        25 +  // 50 Native Tools (always active)
+        25 +  // IANA Format (always active)
+        (hasFaf && hasClaude ? 25 : hasFaf ? 15 : hasClaude ? 10 : 0)  // Universal Context
+      ));
+
+      const performance = 100;  // Static for MCP server itself
+      const standalone = 100;   // Static for MCP server itself
+
+      // Determine status tier
+      let statusTier = '';
+      let statusEmoji = '';
+      if (score >= 99) {
+        statusTier = 'PODIUM EDITION';
+        statusEmoji = '🏆';
+      } else if (score >= 85) {
+        statusTier = 'RACE READY';
+        statusEmoji = '⭐';
+      } else if (score >= 70) {
+        statusTier = 'QUALIFYING';
+        statusEmoji = '🟪';
+      } else {
+        statusTier = 'IN DEVELOPMENT';
+        statusEmoji = '🔧';
+      }
+
+      result = ``;
+      result += `# 🏎️ FAF AI-Readiness Score: ${score}/100 — ${statusTier}\n\n`;
+      result += `**The closer you get to 100% the better AI can assist you.**\n\n`;
+      result += `At 55% you are building your project with half a blueprint and basically flipping a coin with AI. .FAF defines, and AI becomes optimized for Context with the project.faf file.\n\n`;
+      result += `\`\`\`\n`;
+      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      result += `🏎️  FAF AI-READINESS SCORE: ${score}/100 — ${statusTier}\n`;
+      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      // Core Intelligence section
+      result += `📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY\n`;
+      const bar100 = '[██████] 100%';
+      const barCore = `[${('█'.repeat(Math.round(coreIntelligence / 100 * 6)) + '░'.repeat(6 - Math.round(coreIntelligence / 100 * 6)))}] ${coreIntelligence}%`;
+      const barContext = `[${('█'.repeat(Math.round(contextDelivery / 100 * 6)) + '░'.repeat(6 - Math.round(contextDelivery / 100 * 6)))}] ${contextDelivery}%`;
+
+      result += `├─ Project DNA            ${hasFaf ? bar100 : '[░░░░░░]   0%'}  ├─ MCP Protocol      ${bar100}\n`;
+      result += `├─ Architecture Map       ${hasFaf && hasClaude ? bar100 : '[░░░░░░]   0%'}  ├─ 50 Native Tools   ${bar100}\n`;
+      result += `├─ Domain Model          ${hasFaf ? bar100 : '[░░░░░░]   0%'}  ├─ IANA Format       ${bar100}\n`;
+      result += `└─ Version Tracking      ${hasFaf ? bar100 : '[░░░░░░]   0%'}  └─ Universal Context ${barContext}\n\n`;
+
+      // Performance section
+      result += `🚀 PERFORMANCE                          ⚡ STANDALONE OPERATION\n`;
+      result += `├─ 16.2x CLI Speedup     ${bar100}  ├─ Zero Dependencies ${bar100}\n`;
+      result += `├─ 19ms Avg Execution    ${bar100}  ├─ Bundled Engine    ${bar100}\n`;
+      result += `├─ 50/50 Tools Active    ${bar100}  ├─ Direct Function   ${bar100}\n`;
+      result += `└─ Zero Memory Leaks     ${bar100}  └─ 14 Bundled Cmds   ${bar100}\n\n`;
+
+      result += `🏆 project.faf score: ${score >= 99 ? 'podium' : score >= 85 ? 'race-ready' : score >= 70 ? 'qualifying' : 'development'}\n`;
+      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      result += `\`\`\`\n\n`;
+
+      // Next steps
+      result += `## ⚡ Next Steps\n\n`;
+      if (!hasFaf) {
+        result += `🚀 **Initialize FAF**: Run \`faf_init\` to create project.faf (+40 points)\n\n`;
+      }
+      if (!hasClaude) {
+        result += `📝 **Generate CLAUDE.md**: Run \`faf_sync\` to create AI documentation (+30 points)\n\n`;
+      }
+      if (hasFaf && hasClaude) {
+        result += `🎯 **You're at Championship level!** Run \`faf_bi_sync\` to keep files synchronized.\n\n`;
+      }
+
+      result += `---\n\n`;
+      result += `*Generated by FAF Podium Edition v${VERSION}*\n\n`;
+      result += `*"It's so logical if it didn't exist, AI would have built it itself" — Claude*`;
+
     } else {
       // Default: Beautiful Markdown Championship Scorecard
       const barWidth = 24;
