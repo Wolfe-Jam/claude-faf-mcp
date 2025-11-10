@@ -20,6 +20,7 @@
     "strictFunctionTypes": true,
     "strictBindCallApply": true,
     "strictPropertyInitialization": true,
+    "noEmitOnError": false,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "noUnusedLocals": false,
