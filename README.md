@@ -1,6 +1,6 @@
 <div align="left">
   <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/logos/orange-smiley.svg" alt="FAF" width="40" align="left" style="margin-right: 12px;" />
-  <h1>&nbsp;claude-faf-mcp</h1>
+  <h1 style="margin-left: 52px;">claude-faf-mcp</h1>
   <p><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
 </div>
 <br clear="left"/>
@@ -26,10 +26,11 @@
 ```
 Model        Context          Protocol
 ─────        ───────          ────────
+LLM      →   IANA Format →    Open Protocol
 Claude   →   .faf        →    MCP
 Gemini   →   .faf        →    MCP
 Codex    →   .faf        →    MCP
-Any LLM  →   IANA Format →    Open Protocol
+Any LLM  →   .faf        →    MCP
 ```
 
 **.FAF is the foundational, universal base layer** for any Model using the MCP Protocol.
