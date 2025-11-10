@@ -34,6 +34,7 @@ jobs:
 
       - name: Publish to npm
         run: npm publish
+        continue-on-error: true  # Allow failure if version already exists
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
