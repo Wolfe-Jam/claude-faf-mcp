@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          submodules: false  # Disable submodule checkout
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
