@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "First & Only Persistent Project Context MCP. 33+ tools. 10k+ downloads. Official Anthropic.",
+  "description": "Persistent project context via IANA-registered .faf format. 50 MCP tools. 6k+ downloads.",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
   },
-  "version": "2.6.8",
+  "version": "3.1.4",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "2.6.8",
+      "version": "3.1.4",
       "transport": {
         "type": "stdio"
       }
