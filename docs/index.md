@@ -139,7 +139,7 @@ Any LLM  →   IANA Format →    Open Protocol
 ## 📦 Ecosystem
 
 - **[FAF Format Spec](https://github.com/Wolfe-Jam/faf)** - Official IANA specification
-- **[FAF CLI](https://github.com/Wolfe-Jam/faf/tree/main/cli)** - Command-line tooling
+- **[FAF CLI](https://github.com/Wolfe-Jam/faf-cli)** - Command-line tooling
 - **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** - Browser integration
 - **[faf.one](https://faf.one)** - Official website and documentation
 
