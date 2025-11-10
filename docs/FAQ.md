@@ -8,7 +8,7 @@ A Model Context Protocol server that enhances Claude Desktop with project intell
 
 ### Do I need the FAF CLI installed?
 
-No. Core features work natively. Some advanced features currently require the CLI but are being migrated to native implementations.
+No. As of v3.0.5, the MCP server is 100% standalone with all 50 tools operational. Zero CLI dependencies required.
 
 ### What's the difference between FAF and FAF MCP?
 
@@ -64,28 +64,15 @@ Check after significant changes to documentation or project structure. The score
 
 ## Features
 
-### Which commands work without the CLI?
+### What commands are available?
 
-Native features (no CLI required):
-- `faf_score` - Project scoring
-- `faf_detect` - Project detection
-- `faf_list` - Directory listing
-- `faf_read` - File reading
-- `faf_write` - File writing
-- `faf_debug` - Diagnostics
+All 50 MCP tools work natively (no CLI required):
+- **Core Tools**: `faf_score`, `faf_detect`, `faf_list`, `faf_read`, `faf_write`
+- **Advanced Tools**: `faf_init`, `faf_enhance`, `faf_quick`, `faf_sync`, `faf_trust`
+- **Utilities**: `faf_debug`, `faf_status`, `faf_clear`, `faf_migrate`, `faf_formats`
+- **Plus**: 35+ additional specialized tools
 
-### Why do some commands show "command not found"?
-
-These commands currently require the FAF CLI:
-- `faf_init`
-- `faf_enhance`
-- `faf_sync`
-- `faf_bi_sync`
-- `faf_trust`
-- `faf_status`
-- `faf_clear`
-
-We're actively migrating these to native implementations.
+As of v3.0.5, all features are bundled and operational standalone.
 
 ### What is bi-directional sync?
 
