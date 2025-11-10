@@ -32,9 +32,9 @@ Codex    →   .faf        →    MCP
 Any LLM  →   IANA Format →    Open Protocol
 ```
 
-**.FAF is the universal Context layer** for any Model using the MCP Protocol.
+**.FAF is the foundational, universal base layer** for any Model using the MCP Protocol.
 
-This is who we are. This is where we live. We provide the standardized Context that makes the Model Context Protocol work for everyone.
+.FAF provides the standardized Context that makes the Model Context Protocol work for everyone.
 
 ---
 
