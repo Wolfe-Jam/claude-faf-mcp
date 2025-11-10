@@ -9,7 +9,6 @@
 > Official MCP server for FAF (Foundational AI-context Format) with 50+ tools -
 > Persistent project context that integrates seamlessly with Claude Desktop workflows
 
-[![GitHub stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/3pjzpKsP)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
