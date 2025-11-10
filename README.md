@@ -8,9 +8,12 @@
 > Official MCP server for FAF (Foundational AI-context Format) with 50+ tools -
 > Persistent project context that integrates seamlessly with Claude Desktop workflows
 
-[![NPM Version](https://img.shields.io/npm/v/claude-faf-mcp?color=FF4500)](https://www.npmjs.com/package/claude-faf-mcp)
-[![Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
+[![GitHub stars](https://img.shields.io/github/stars/Wolfe-Jam/claude-faf-mcp?style=social)](https://github.com/Wolfe-Jam/claude-faf-mcp)
+[![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/3pjzpKsP)
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
+[![Website](https://img.shields.io/badge/Website-faf.one-orange)](https://faf.one)
+[![Spec Version](https://img.shields.io/badge/Spec-v1.1.0-green)](https://github.com/Wolfe-Jam/faf/blob/main/SPECIFICATION.md)
 [![IANA Registered](https://img.shields.io/badge/IANA-application%2Fvnd.faf%2Byaml-blue)](https://faf.one/blog/iana-registration)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
