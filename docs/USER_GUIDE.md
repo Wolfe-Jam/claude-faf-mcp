@@ -9,7 +9,7 @@ The FAF MCP Server enhances Claude Desktop with intelligent project context mana
 ### Installation
 
 ```bash
-npm install -g @faf/mcp-server
+npm install -g claude-faf-mcp
 ```
 
 ### Configuration
@@ -21,7 +21,7 @@ Add to your Claude Desktop configuration:
   "mcpServers": {
     "faf": {
       "command": "npx",
-      "args": ["@faf/mcp-server"]
+      "args": ["claude-faf-mcp"]
     }
   }
 }

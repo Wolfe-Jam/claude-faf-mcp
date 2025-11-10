@@ -5,7 +5,7 @@
 ### 1. Install
 
 ```bash
-npm install -g @faf/mcp-server
+npm install -g claude-faf-mcp
 ```
 
 ### 2. Configure Claude Desktop
@@ -17,7 +17,7 @@ Add to your configuration file:
   "mcpServers": {
     "faf": {
       "command": "npx",
-      "args": ["@faf/mcp-server"]
+      "args": ["claude-faf-mcp"]
     }
   }
 }

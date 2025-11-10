@@ -20,7 +20,7 @@ No. Core features work natively. Some advanced features currently require the CL
 ### How do I install the MCP server?
 
 ```bash
-npm install -g @faf/mcp-server
+npm install -g claude-faf-mcp
 ```
 
 Then add the configuration to Claude Desktop's settings.
@@ -172,7 +172,7 @@ Yes. The MCP server:
 ### How do I update the MCP server?
 
 ```bash
-npm update -g @faf/mcp-server
+npm update -g claude-faf-mcp
 ```
 
 ### Will updates break my setup?
