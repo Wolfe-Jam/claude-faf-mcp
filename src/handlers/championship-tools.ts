@@ -2310,7 +2310,7 @@ Performance: <50ms per operation
     }
   }
 
-  private async handleInstallSkill(_args: {}): Promise<CallToolResult> {
+  private async handleInstallSkill(_args: Record<string, unknown>): Promise<CallToolResult> {
     const startTime = Date.now();
 
     try {

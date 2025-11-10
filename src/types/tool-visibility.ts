@@ -30,8 +30,8 @@ export interface ToolMetadata {
  * CORE TOOLS (20) - Essential FAF workflow
  * Note: This list is for reference. Actual visibility is determined by TOOL_REGISTRY.
  */
-// @ts-ignore - Reference list, not directly used
-const CORE_TOOLS = [
+// @ts-expect-error - Reference list, not directly used
+const _CORE_TOOLS = [
   // Essential Workflow (5)
   'faf',
   'faf_auto',
@@ -70,8 +70,8 @@ const CORE_TOOLS = [
  * ADVANCED TOOLS (31) - Power user features
  * Note: This list is for reference. Actual visibility is determined by TOOL_REGISTRY.
  */
-// @ts-ignore - Reference list, not directly used
-const ADVANCED_TOOLS = [
+// @ts-expect-error - Reference list, not directly used
+const _ADVANCED_TOOLS = [
   // Display Variants (3)
   'faf_display',
   'faf_show',
