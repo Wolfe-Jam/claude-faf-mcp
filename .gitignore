@@ -114,8 +114,12 @@ coverage/
 *.md
 !README.md
 !CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+!SECURITY.md
+!SUPPORT.md
 !REDDIT_POST.md
 !docs/**/*.md
+!.github/**/*.md
 
 # MCP Registry tokens (sensitive)
 .mcpregistry_*

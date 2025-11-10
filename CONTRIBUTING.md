@@ -1,13 +1,36 @@
-# Contributing to claude-faf-mcp 🧡⚡️
+# Contributing to claude-faf-mcp
 
-Thank you for your interest in contributing! We love the community and welcome all contributions.
+Thank you for your interest in contributing to claude-faf-mcp. This document provides guidelines for contributing to the project.
 
-## 🚀 Quick Start
+## Development Philosophy
 
-### Development Setup
+This project follows F1-inspired engineering standards:
+
+- **Championship-grade quality** - No compromises on reliability or performance
+- **Sub-50ms performance targets** - Speed matters
+- **100% TypeScript strict mode** - Type safety is non-negotiable
+- **Zero errors** - Every build must be clean
+- **Test everything** - If it's not tested, it doesn't work
+
+## Before You Start
+
+- Read the [Code of Conduct](CODE_OF_CONDUCT.md)
+- Check [existing issues](https://github.com/Wolfe-Jam/claude-faf-mcp/issues) to avoid duplicates
+- For major changes, open an issue first to discuss your proposal
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or higher
+- npm or yarn
+- Git
+- Claude Desktop (for testing)
+
+### Setup
 
 ```bash
-# Clone the repo
+# Clone the repository
 git clone https://github.com/Wolfe-Jam/claude-faf-mcp.git
 cd claude-faf-mcp
 
@@ -20,140 +43,174 @@ npm run build
 # Run tests
 npm test
 
-# Link locally for testing
+# Link for local testing
 npm link
 ```
 
-### Testing Your Changes
+### Development Workflow
 
-After linking locally, add to your Claude Desktop config:
+1. **Create a branch** from `main`:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-```json
-{
-  "mcpServers": {
-    "claude-faf-mcp-dev": {
-      "command": "node",
-      "args": ["/path/to/your/clone/dist/src/index.js"]
-    }
-  }
-}
-```
+2. **Make your changes** following our coding standards
 
-Restart Claude Desktop and test your changes!
+3. **Test thoroughly**:
+   ```bash
+   npm test
+   npm run build
+   ```
 
----
+4. **Commit your changes** using our commit format:
+   ```
+   <type>: <what changed>
+   
+   - <specific detail>
+   - <specific detail>
+   ```
+   
+   Types: `feat`, `fix`, `docs`, `test`, `refactor`, `perf`, `chore`
+   
+   Example:
+   ```
+   feat: add faf_enhance tool for context optimization
+   
+   - Implements scoring algorithm with 21-slot system
+   - Adds TypeScript interfaces for tool parameters
+   - Includes test coverage for edge cases
+   ```
 
-## 📋 Ways to Contribute
+5. **Push to your fork** and submit a pull request
 
-### 🐛 Report Bugs
-- Use the [Bug Report template](https://github.com/Wolfe-Jam/claude-faf-mcp/issues/new?template=bug_report.yml)
-- Include version, OS, Node.js version, and steps to reproduce
-- Check existing issues first to avoid duplicates
+## Code Standards
 
-### 💡 Suggest Features
-- Use the [Feature Request template](https://github.com/Wolfe-Jam/claude-faf-mcp/issues/new?template=feature_request.yml)
-- Explain the problem you're trying to solve
-- Describe your proposed solution
+### TypeScript
 
-### 💬 Join Discussions
-- Ask questions in [GitHub Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
-- Share your .faf scores and use cases
-- Help other users
-
-### 📚 Improve Documentation
-- Fix typos or unclear explanations
-- Add examples and use cases
-- Improve code comments
-
-### 🔧 Submit Code
-- Fix bugs
-- Implement features
-- Improve performance
-- Add tests
-
----
-
-## 🎯 Code Guidelines
-
-### TypeScript Standards
-- **100% strict mode** - No `any` types allowed
-- Use explicit types for function parameters and returns
-- Follow existing code style
-
-### Testing Requirements
-- Add tests for new features
-- Ensure existing tests pass: `npm test`
-- Aim for high coverage
-
-### Commit Messages
-Follow the existing style:
-```
-Add feature for X
-
-- Detailed point 1
-- Detailed point 2
-
-🧡⚡️ Generated with Claude Code
-Co-Authored-By: Claude <noreply@anthropic.com>
-```
-
----
-
-## 🔄 Pull Request Process
-
-1. **Fork the repo** and create your branch from `main`
-2. **Make your changes** following the code guidelines
-3. **Test thoroughly** - Run `npm test` and `npm run build`
-4. **Update documentation** if needed
-5. **Create a PR** with a clear title and description
-6. **Wait for review** - We'll review as soon as possible!
-
-### PR Checklist
-- [ ] Code follows TypeScript strict mode
-- [ ] Tests added/updated and passing
-- [ ] Documentation updated
-- [ ] Commit messages are clear
-- [ ] No merge conflicts
-
----
-
-## 🏆 Championship Standards
-
-We follow F1-inspired engineering principles:
-
-### Performance
-- **<11ms** target for core operations
-- Profile before optimizing
-- No premature optimization
-
-### Quality
-- **Zero tolerance** for type errors
-- **100% TypeScript strict** mode
-- Comprehensive error handling
+- Use TypeScript strict mode (already configured)
+- All functions must have explicit return types
+- No `any` types (use `unknown` if truly needed)
+- Prefer interfaces over types for object shapes
 
 ### Testing
-- **730+ C.O.R.E tests** passing
-- Test edge cases
-- Test error conditions
+
+- All new features require tests
+- Maintain or improve code coverage
+- Test both success and error cases
+- Include edge case testing
+
+### Performance
+
+- Profile performance-critical code
+- Target sub-50ms for operations
+- No blocking operations in hot paths
+- Document any performance considerations
+
+### Documentation
+
+- Update README.md for user-facing changes
+- Add JSDoc comments for exported functions
+- Update CHANGELOG.md following Keep a Changelog format
+- Include examples for new features
+
+## Pull Request Process
+
+1. **Ensure tests pass**:
+   ```bash
+   npm test
+   npm run build
+   ```
+
+2. **Update documentation** as needed
+
+3. **Add your changes** to CHANGELOG.md under "Unreleased"
+
+4. **Fill out the PR template** completely
+
+5. **Request review** from maintainers
+
+### PR Guidelines
+
+- One feature or fix per PR
+- Keep PRs focused and small when possible
+- Link related issues
+- Include screenshots for UI changes
+- Respond to review feedback promptly
+
+## Testing with Claude Desktop
+
+To test your changes locally with Claude Desktop:
+
+1. Link your local build:
+   ```bash
+   npm link
+   ```
+
+2. Update Claude Desktop config:
+   ```json
+   {
+     "mcpServers": {
+       "claude-faf-mcp": {
+         "command": "node",
+         "args": ["/path/to/your/local/claude-faf-mcp/build/index.js"]
+       }
+     }
+   }
+   ```
+
+3. Restart Claude Desktop
+
+4. Test your changes in conversation
+
+## What We're Looking For
+
+### High Priority
+
+- Performance improvements
+- Bug fixes with reproducible test cases
+- Enhanced error handling
+- Better TypeScript types
+- Documentation improvements
+
+### Welcome Contributions
+
+- New tool implementations
+- Test coverage improvements
+- Example use cases
+- Integration guides
+- Bug reports with detailed reproduction steps
+
+### Not Accepting
+
+- Changes that increase dependencies unnecessarily
+- Breaking changes without migration path
+- Performance regressions
+- Code that doesn't pass TypeScript strict checks
+
+## Getting Help
+
+- **Issues**: For bug reports and feature requests
+- **Discussions**: For questions and general discussion at [github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
+- **Email**: team@faf.one for security issues or private inquiries
+
+## Recognition
+
+Contributors are recognized in several ways:
+
+- Listed in CHANGELOG.md for their contributions
+- Mentioned in release notes for significant features
+- Added to package.json contributors list
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License. See [LICENSE](LICENSE) file for details.
+
+## Questions?
+
+If you have questions about contributing, open a discussion or reach out to team@faf.one.
 
 ---
 
-## 📞 Getting Help
+**Built with championship standards by the FAF community**
 
-- **Questions?** Open a [Discussion](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
-- **Bug?** File an [Issue](https://github.com/Wolfe-Jam/claude-faf-mcp/issues)
-- **Not sure?** Ask in discussions first!
-
----
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
----
-
-## 🙏 Thank You!
-
-Every contribution, no matter how small, makes this project better. We appreciate your time and effort! 🧡
-
-**Made with 🧡 by the FAF community**
+*Created by Wolfe James ([ORCID: 0009-0007-0801-3841](https://orcid.org/0009-0007-0801-3841))*
