@@ -805,7 +805,7 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
 ${debugInfo.permissions.writeError ? `   Error: ${debugInfo.permissions.writeError}\n` : ''}🤖 FAF Engine Path: ${debugInfo.enginePath}
 🏎️ FAF CLI Path: ${debugInfo.fafCliPath || '❌ Not found'}
 📋 FAF Version: ${debugInfo.fafVersion || 'Unknown'}
-${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafError}\n` : ''}📄 FAF File: ${hasFaf ? `✅ ${fafResult!.filename} exists` : '❌ Not found (run faf_init)'}
+${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafError}\n` : ''}📄 FAF File: ${hasFaf ? `✅ ${fafResult.filename} exists` : '❌ Not found (run faf_init)'}
 🛤️ System PATH: ${debugInfo.pathEnv.slice(0, 3).join(', ')}${debugInfo.pathEnv.length > 3 ? '...' : ''}
 
 💡 Quick Start:

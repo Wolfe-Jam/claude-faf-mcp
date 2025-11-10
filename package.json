@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "3.1.5",
+  "version": "3.1.4",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "IANA-registered format (application/vnd.faf+yaml) • Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-64.png",
@@ -18,6 +18,10 @@
     "test": "jest",
     "test:mcp": "mcp-inspector stdio ts-node src/cli.ts",
     "lint": "eslint src/**/*.ts",
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "type-check": "tsc --noEmit",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
