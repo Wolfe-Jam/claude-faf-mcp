@@ -24,13 +24,12 @@
 **The .FAF Position in the MCP Ecosystem:**
 
 ```
-Model          Context        Protocol
-─────          ───────        ────────
-LLM   →    IANA Format →  Open Protocol
-Claude    →    .FAF      →    MCP
-Gemini    →    .FAF      →    MCP
-Codex     →    .FAF      →    MCP
-Any LLM   →  .FAF IANA Format →  Open Protocol
+Model        Context          Protocol
+─────        ───────          ────────
+Claude   →   .faf        →    MCP
+Gemini   →   .faf        →    MCP
+Codex    →   .faf        →    MCP
+Any LLM  →   IANA Format →    Open Protocol
 ```
 
 **.FAF is the universal Context layer** for any Model using the MCP Protocol.
