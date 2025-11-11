@@ -5,6 +5,28 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2025-11-10
+
+### Added
+- **Podium Edition Scorecard** - Full championship-style scorecard with `faf_score --full` flag
+  - Dynamic status tiers (PODIUM EDITION, RACE READY, QUALIFYING, IN DEVELOPMENT)
+  - Four detailed sections with live progress bars (Core Intelligence, Context Delivery, Performance, Standalone Operation)
+  - Real-time metrics calculated based on project files (project.faf, CLAUDE.md, README.md, package.json)
+  - Smart next steps based on what's missing in your project
+  - Mobile-friendly "project.faf score: podium" format
+  - Includes new Claude quote: "It's so logical if it didn't exist, AI would have built it itself"
+
+### Changed
+- **README Restructure** - Following Svelte/Vercel pattern for clean landing page
+  - README.md now uses clean landing page content (155 lines → from 564 lines)
+  - Version history moved to CHANGELOG.md (this file)
+  - GitHub Pages (wolfe-jam.github.io/claude-faf-mcp/) is now canonical documentation
+  - Landing page tagline updated to new Claude quote
+  - Title color changed to orange (#FF8C00) for brand consistency
+
+### Project Milestone
+This release inaugurates the "project.faf scorecard era" - transforming the static documentation scorecard into a dynamic, interactive feature accessible through MCP tools.
+
 ## [3.0.5] - 2025-11-07
 
 ### Added

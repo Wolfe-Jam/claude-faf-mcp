@@ -1,7 +1,7 @@
 <div style="display: flex; align-items: center; gap: 12px;">
   <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/logos/orange-smiley.svg" alt="FAF" width="40" />
   <div>
-    <h1 style="margin: 0;">claude-faf-mcp</h1>
+    <h1 style="margin: 0; color: #FF8C00;">claude-faf-mcp</h1>
     <p style="margin: 4px 0 0 0;"><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
   </div>
 </div>
