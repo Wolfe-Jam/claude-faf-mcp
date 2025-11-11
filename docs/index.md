@@ -35,6 +35,11 @@ title: claude-faf-mcp
 
 At 55% you are building your project with half a blueprint and basically flipping a coin with AI. .FAF defines, and AI becomes optimized for Context with the project.faf file.
 
+<div align="center">
+  <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/Project-faf-pckg-json-README.png" alt="project.faf file positioning" width="600" />
+  <p><em>project.faf lives at the project root, between package.json and README.md</em></p>
+</div>
+
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🏎️  FAF AI-READINESS SCORE: 100/100 — PODIUM EDITION
