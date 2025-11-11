@@ -1,10 +1,23 @@
+---
+title: claude-faf-mcp
+---
+
 <div style="display: flex; align-items: center; gap: 12px;">
   <img src="https://raw.githubusercontent.com/Wolfe-Jam/faf/main/assets/logos/orange-smiley.svg" alt="FAF" width="40" />
   <div>
-    <h1 style="margin: 0; color: #FF8C00;">claude-faf-mcp</h1>
+    <h1 style="margin: 0; color: #000000;">claude-faf-mcp</h1>
     <p style="margin: 4px 0 0 0;"><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
   </div>
 </div>
+
+<style>
+  /* Make the Jekyll page title orange */
+  header h1 a,
+  .site-title,
+  .page-title {
+    color: #ff7557 !important;
+  }
+</style>
 
 > Official MCP server for FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
 
