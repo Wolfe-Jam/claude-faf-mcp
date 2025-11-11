@@ -71,6 +71,8 @@ npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
 
 # Or install globally
 npm install -g claude-faf-mcp
+
+# For Claude Code, Gemini, Cursor, Codex, WARP, any AI → npm install -g faf-cli
 ```
 
 **Claude Desktop Configuration:**
