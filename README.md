@@ -52,12 +52,14 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
-**Install CLI first (required):**
+**⚠️ INSTALLATION ORDER REQUIRED:**
+
+**Step 1: Install CLI First (Required)**
 ```bash
 npm install -g faf-cli
 ```
 
-**Then install MCP server:**
+**Step 2: Then Install MCP Server**
 ```bash
 # Via npx (recommended - always latest)
 npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
@@ -66,7 +68,7 @@ npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
 npm install -g claude-faf-mcp
 ```
 
-**Architecture:** MCP auto-detects CLI using absolute paths. Works in Claude Desktop sandbox. No configuration needed.
+**Why this order?** MCP auto-detects CLI at startup. Installing MCP first will show warnings. Always install faf-cli before claude-faf-mcp.
 
 **Claude Desktop Configuration:**
 ```json

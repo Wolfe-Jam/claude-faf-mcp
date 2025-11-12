@@ -24,6 +24,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
+    "postinstall": "node scripts/postinstall.js",
     "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
   },
   "keywords": [
@@ -107,6 +108,7 @@
   "files": [
     "dist/**/*",
     "assets/**/*",
+    "scripts/**/*",
     "skill/SKILL.md",
     "README.md",
     "CLAUDE.md",

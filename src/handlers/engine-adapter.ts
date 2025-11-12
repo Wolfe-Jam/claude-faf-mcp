@@ -70,9 +70,21 @@ export class FafEngineAdapter {
         console.warn(`FAF CLI version ${this.cliVersion} is below minimum required version 3.1.1. Some features may not work correctly.`);
       }
 
-      console.error(`FAF CLI detected: ${this.detectedCliPath} (v${this.cliVersion || 'unknown'}) via ${detection.method}`);
+      console.error(`✅ FAF CLI detected: ${this.detectedCliPath} (v${this.cliVersion || 'unknown'}) via ${detection.method}`);
     } else {
-      console.warn('FAF CLI not detected. Only bundled MCP commands will work. Install faf-cli: npm install -g faf-cli');
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('⚠️  FAF CLI NOT DETECTED');
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('');
+      console.error('INSTALLATION ORDER REQUIRED:');
+      console.error('  1️⃣  npm install -g faf-cli        (REQUIRED FIRST)');
+      console.error('  2️⃣  npm install -g claude-faf-mcp  (THEN THIS)');
+      console.error('');
+      console.error('Most MCP tools require faf-cli to be installed.');
+      console.error('Only basic file operations will work without it.');
+      console.error('');
+      console.error('After installing faf-cli, restart Claude Desktop.');
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
   }
   
@@ -489,7 +501,7 @@ export class FafEngineAdapter {
       const duration = Date.now() - startTime;
       return {
         success: false,
-        error: `FAF CLI not detected. Command '${command}' requires faf-cli. Install with: npm install -g faf-cli`,
+        error: `FAF CLI not detected. Command '${command}' requires faf-cli.\n\nINSTALLATION ORDER:\n  1️⃣  npm install -g faf-cli\n  2️⃣  npm install -g claude-faf-mcp\n\nAfter installing faf-cli, restart Claude Desktop.`,
         duration
       };
     }

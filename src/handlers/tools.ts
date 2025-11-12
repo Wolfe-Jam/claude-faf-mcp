@@ -838,27 +838,16 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
         debugInfo.permissions.writeError = error instanceof Error ? error.message : String(error);
       }
       
-      // Check FAF CLI availability
+      // Check FAF CLI availability using championship auto-detection
       try {
-        const enginePath = this.engineAdapter.getEnginePath();
-        const whichCmd = 'which faf';
-        
-        if (enginePath !== 'faf') {
-          // Custom path provided
-          debugInfo.fafCliPath = enginePath;
+        const cliInfo = this.engineAdapter.getCliInfo();
+
+        if (cliInfo.detected && cliInfo.path) {
+          debugInfo.fafCliPath = cliInfo.path;
+          debugInfo.fafVersion = cliInfo.version || null;
         } else {
-          // Try to find global faf installation
-          const whichResult = await execAsync(whichCmd);
-          debugInfo.fafCliPath = whichResult.stdout.trim();
-        }
-        
-        // Get FAF version using the engine adapter
-        const healthCheck = await this.engineAdapter.checkHealth();
-        if (healthCheck) {
-          const versionResult = await this.engineAdapter.callEngine('--version');
-          if (versionResult.success) {
-            debugInfo.fafVersion = versionResult.data?.output || versionResult.data;
-          }
+          debugInfo.fafCliPath = null;
+          debugInfo.fafVersion = null;
         }
       } catch (error) {
         debugInfo.permissions.fafError = error instanceof Error ? error.message : String(error);
