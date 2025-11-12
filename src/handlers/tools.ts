@@ -573,7 +573,7 @@ package_manager: ${projectData.package_manager}` : ''}
 
   private async handleFafTrust(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const result = await this.engineAdapter.callEngine('trust');
-    
+
     if (!result.success) {
       return {
         content: [{
@@ -584,17 +584,21 @@ package_manager: ${projectData.package_manager}` : ''}
       };
     }
 
+    const output = typeof result.data === 'string'
+      ? result.data
+      : result.data?.output || JSON.stringify(result.data, null, 2);
+
     return {
       content: [{
         type: 'text',
-        text: `🔒 Claude FAF Trust Validation:\n\n${result.data?.output || result.data}`
+        text: `🔒 Claude FAF Trust Validation:\n\n${output}`
       }]
     };
   }
 
   private async handleFafSync(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     const result = await this.engineAdapter.callEngine('sync');
-    
+
     if (!result.success) {
       return {
         content: [{
@@ -605,21 +609,25 @@ package_manager: ${projectData.package_manager}` : ''}
       };
     }
 
+    const output = typeof result.data === 'string'
+      ? result.data
+      : result.data?.output || JSON.stringify(result.data, null, 2);
+
     return {
       content: [{
         type: 'text',
-        text: `🔄 Claude FAF Sync:\n\n${result.data?.output || result.data}`
+        text: `🔄 Claude FAF Sync:\n\n${output}`
       }]
     };
   }
 
   private async handleFafEnhance(args: any): Promise<CallToolResult> {
     const enhanceArgs: string[] = [];
-    
+
     // Default to Claude optimization if no model specified
     const model = args?.model || 'claude';
     enhanceArgs.push('--model', model);
-    
+
     if (args?.focus) {
       enhanceArgs.push('--focus', args.focus);
     }
@@ -629,9 +637,9 @@ package_manager: ${projectData.package_manager}` : ''}
     if (args?.dryRun) {
       enhanceArgs.push('--dry-run');
     }
-    
+
     const result = await this.engineAdapter.callEngine('enhance', enhanceArgs);
-    
+
     if (!result.success) {
       return {
         content: [{
@@ -642,17 +650,21 @@ package_manager: ${projectData.package_manager}` : ''}
       };
     }
 
+    const output = typeof result.data === 'string'
+      ? result.data
+      : result.data?.output || JSON.stringify(result.data, null, 2);
+
     return {
       content: [{
         type: 'text',
-        text: `🚀 Claude FAF Enhancement:\n\n${result.data?.output || result.data}`
+        text: `🚀 Claude FAF Enhancement:\n\n${output}`
       }]
     };
   }
 
   private async handleFafBiSync(args: any): Promise<CallToolResult> {
     const biSyncArgs: string[] = [];
-    
+
     if (args?.auto) {
       biSyncArgs.push('--auto');
     }
@@ -662,9 +674,9 @@ package_manager: ${projectData.package_manager}` : ''}
     if (args?.force) {
       biSyncArgs.push('--force');
     }
-    
+
     const result = await this.engineAdapter.callEngine('bi-sync', biSyncArgs);
-    
+
     if (!result.success) {
       return {
         content: [{
@@ -675,10 +687,14 @@ package_manager: ${projectData.package_manager}` : ''}
       };
     }
 
+    const output = typeof result.data === 'string'
+      ? result.data
+      : result.data?.output || JSON.stringify(result.data, null, 2);
+
     return {
       content: [{
         type: 'text',
-        text: `🔗 Claude FAF Bi-Sync:\n\n${result.data?.output || result.data}`
+        text: `🔗 Claude FAF Bi-Sync:\n\n${output}`
       }]
     };
   }
@@ -698,9 +714,9 @@ package_manager: ${projectData.package_manager}` : ''}
     if (args?.all || (!args?.cache && !args?.todos && !args?.backups)) {
       clearArgs.push('--all');
     }
-    
+
     const result = await this.engineAdapter.callEngine('clear', clearArgs);
-    
+
     if (!result.success) {
       return {
         content: [{
@@ -711,10 +727,14 @@ package_manager: ${projectData.package_manager}` : ''}
       };
     }
 
+    const output = typeof result.data === 'string'
+      ? result.data
+      : result.data?.output || JSON.stringify(result.data, null, 2);
+
     return {
       content: [{
         type: 'text',
-        text: `🧹 Claude FAF Clear:\n\n${result.data?.output || result.data}`
+        text: `🧹 Claude FAF Clear:\n\n${output}`
       }]
     };
   }
