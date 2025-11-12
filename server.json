@@ -3,16 +3,28 @@
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
   "title": "Project DNA - Universal AI Context Format",
   "description": "Persistent project context via IANA-registered .faf format. 50 MCP tools. 6k+ downloads.",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-256.png",
+      "mimeType": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-512.png",
+      "mimeType": "image/png",
+      "sizes": "512x512"
+    }
+  ],
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
   },
-  "version": "3.1.4",
+  "version": "3.2.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "3.1.4",
+      "version": "3.2.1",
       "transport": {
         "type": "stdio"
       }
