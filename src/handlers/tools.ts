@@ -6,6 +6,7 @@ import * as path from 'path';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile, getNewFafFilePath } from '../utils/faf-file-finder.js';
 import { VERSION } from '../version';
+import { resolveProjectPath, ensureProjectsDirectory, formatPathConfirmation } from '../utils/path-resolver';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -15,7 +16,7 @@ export class FafToolHandler {
       tools: [
         {
           name: 'faf_about',
-          description: 'Learn what .faf is - THE JPEG for AI 🧡⚡️',
+          description: 'Learn what .faf format is - THE JPEG for AI 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -24,7 +25,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_what',
-          description: 'What is .faf? Quick explanation of THE JPEG for AI 🧡⚡️',
+          description: 'What is .faf format? Quick explanation of THE JPEG for AI 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -33,7 +34,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_status',
-          description: 'Check if your project has .faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
+          description: 'Check if your project has project.faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -42,7 +43,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate your project\'s AI-readability from .faf file (THE JPEG for AI) - F1-inspired metrics! 🧡⚡️',
+          description: 'Calculate your project\'s AI-readability from project.faf (THE JPEG for AI) - F1-inspired metrics! 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -53,18 +54,21 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create .faf file (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️',
+          description: 'Create project.faf (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️. Use Projects convention (~/Projects/[name]/project.faf) by default. Run faf_guide for path resolution rules.',
           inputSchema: {
             type: 'object',
             properties: {
-              force: { type: 'boolean', description: 'Force reinitialize existing FAF context' }
+              force: { type: 'boolean', description: 'Force reinitialize existing FAF context' },
+              directory: { type: 'string', description: 'Project directory path (supports ~ tilde expansion). Creates directory if it doesn\'t exist.' },
+              path: { type: 'string', description: 'Alias for directory parameter' },
+              projectName: { type: 'string', description: 'Project name for path inference (used with Projects convention)' }
             },
             additionalProperties: false
           }
         },
         {
           name: 'faf_trust',
-          description: 'Validate .faf integrity - Trust metrics for THE JPEG for AI 🧡⚡️',
+          description: 'Validate project.faf integrity - Trust metrics for THE JPEG for AI 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -73,7 +77,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Sync .faf (THE JPEG for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
+          description: 'Sync project.faf (THE JPEG for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -82,7 +86,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Enhance .faf (THE JPEG for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
+          description: 'Enhance project.faf (THE JPEG for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -96,7 +100,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_bi_sync',
-          description: 'Bi-directional sync between .faf context and claude.md for persistent Claude collaboration',
+          description: 'Bi-directional sync between project.faf context and claude.md for persistent Claude collaboration',
           inputSchema: {
             type: 'object',
             properties: {
@@ -166,7 +170,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_chat',
-          description: '🗣️ Natural language .faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️',
+          description: '🗣️ Natural language project.faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {},
@@ -184,6 +188,15 @@ export class FafToolHandler {
                 description: 'Test fuzzy matching with typos like "raect" or "chr ext"'
               }
             },
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_guide',
+          description: 'FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns',
+          inputSchema: {
+            type: 'object',
+            properties: {},
             additionalProperties: false
           }
         }
@@ -228,6 +241,8 @@ export class FafToolHandler {
         return await this.handleFafFriday(args);
       case 'faf_write':
         return await fileHandlers.faf_write(args);
+      case 'faf_guide':
+        return await this.handleFafGuide(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -430,24 +445,59 @@ export class FafToolHandler {
   }
 
   private async handleFafInit(args: any): Promise<CallToolResult> {
-    // Native implementation - creates project.faf without CLI! (v1.2.0)
-    const cwd = this.engineAdapter.getWorkingDirectory();
-    const fafPath = getNewFafFilePath(cwd); // v1.2.0: Always create project.faf
-
+    // Native implementation - creates project.faf with Projects convention!
     try {
+      // Determine project path using Projects convention or explicit path
+      let targetDir: string;
+      let projectName: string;
+
+      // Accept both 'directory' (legacy) and 'path' (new)
+      const explicitPath = args?.path || args?.directory;
+
+      if (explicitPath) {
+        // User explicit path always wins
+        // Expand tilde (~) to home directory
+        const expandedPath = explicitPath.startsWith('~')
+          ? path.join(require('os').homedir(), explicitPath.slice(1))
+          : explicitPath;
+        targetDir = path.resolve(expandedPath);
+        projectName = path.basename(targetDir);
+
+        // Ensure directory exists
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+      } else if (args?.projectName) {
+        // Use Projects convention with provided name
+        ensureProjectsDirectory();
+        const resolution = resolveProjectPath(args.projectName);
+        targetDir = resolution.projectPath;
+        projectName = resolution.projectName;
+
+        // Ensure project directory exists
+        if (!fs.existsSync(targetDir)) {
+          fs.mkdirSync(targetDir, { recursive: true });
+        }
+      } else {
+        // Use current working directory (legacy behavior)
+        targetDir = this.engineAdapter.getWorkingDirectory();
+        projectName = path.basename(targetDir);
+      }
+
+      const fafPath = path.join(targetDir, 'project.faf');
+
       // Check if any FAF file exists and force flag
-      const existingFaf = await findFafFile(cwd);
+      const existingFaf = await findFafFile(targetDir);
       if (existingFaf && !args?.force) {
         return {
           content: [{
             type: 'text',
-            text: `🚀 Claude FAF Initialization:\n\n⚠️ ${existingFaf.filename} already exists in ${cwd}\n💡 Use force: true to overwrite`
+            text: `🚀 Claude FAF Initialization:\n\n⚠️ ${existingFaf.filename} already exists in ${targetDir}\n💡 Use force: true to overwrite`
           }]
         };
       }
 
       // Check project type with fuzzy detection (Friday Feature!)
-      const projectName = path.basename(cwd);
       const projectDescription = args?.description || '';
 
       // Detect Chrome Extension with fuzzy matching
@@ -483,7 +533,7 @@ multiplier: FAF Context
 output: 105% Big Orange Performance
 
 # Quick Context
-working_directory: ${cwd}
+working_directory: ${targetDir}
 initialized_by: claude-faf-mcp${projectData._friday_feature ? `\nfriday_feature: ${projectData._friday_feature}` : ''}
 vitamin_context: true
 faffless: true
@@ -503,7 +553,7 @@ package_manager: ${projectData.package_manager}` : ''}
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf in ${cwd}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
+          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf in ${targetDir}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
             chromeDetection.detected ? '\n\n🎯 Friday Feature: Chrome Extension detected!\n📈 Auto-filled 7 slots for 90%+ score!' : ''
           }${
             chromeDetection.corrected ? `\n📝 Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''
@@ -912,6 +962,84 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
       content: [{
         type: 'text',
         text: response
+      }]
+    };
+  }
+
+  private async handleFafGuide(_args: any): Promise<CallToolResult> {
+    const guide = `# FAF MCP - Claude Desktop Guide
+
+## Path Convention (CRITICAL)
+**Default**: \`~/Projects/[project-name]/project.faf\`
+
+**Project name from:**
+1. AI inference (README, files, context)
+2. User statement
+3. User custom path (always wins)
+
+**Example Flow:**
+- User uploads README for "Heritage Club Dubai"
+- Infer: \`~/Projects/heritage-club-dubai/project.faf\`
+- Confirm: "Creating at ~/Projects/heritage-club-dubai/"
+
+## Real Filesystem Only
+- ✅ \`/Users/wolfejam/Projects/my-app/\`
+- ❌ \`/mnt/user-data/\` (container paths)
+- ❌ \`/home/claude/\` (container paths)
+
+## Commands
+All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
+
+**Core:**
+- \`faf init\` - create FAF (infer path from context)
+- \`faf score\` - show AI-readiness
+- \`faf sync\` - synchronize files
+- \`faf quick\` - rapid FAF creation
+
+**Extensions:**
+- \`new\` - force overwrite existing
+- \`full\` - detailed output
+- \`bi\` - bi-directional sync
+
+## UX Rules
+1. **Don't offer option menus** - just solve it
+2. **Infer project name** from context
+3. **Suggest Projects path** if ambiguous
+4. **User path always wins**
+5. **No CLI talk** - you ARE the FAF system
+
+## Quick Patterns
+
+**User uploads README:**
+→ Infer project name
+→ Create at \`~/Projects/[name]/project.faf\`
+→ Confirm location
+
+**User gives path:**
+→ Use exactly as provided
+→ No validation needed
+
+**No context available:**
+→ Ask once: "Project name or path?"
+→ Use Projects convention with answer
+
+## Username Detection
+- Check \`$HOME\` environment
+- Default to \`~/Projects/\` structure
+- Works across macOS/Linux/Windows
+
+## Test Your Understanding
+❌ "I need more information" (when README uploaded)
+❌ "Option 1, Option 2, Option 3..." (option menus)
+❌ Creating files in \`/mnt/user-data/\`
+✅ "Creating FAF for [project] at ~/Projects/[name]/"
+✅ Using context to infer and act
+✅ Real filesystem paths only`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: guide
       }]
     };
   }

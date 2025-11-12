@@ -3,7 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { FafResourceHandler } from './handlers/resources';
-import { ChampionshipToolHandler } from './handlers/championship-tools';
+import { FafToolHandler } from './handlers/tools';
 import { FafEngineAdapter } from './handlers/engine-adapter';
 import express from 'express';
 import cors from 'cors';
@@ -22,7 +22,7 @@ export interface ClaudeFafMcpServerConfig {
 export class ClaudeFafMcpServer {
   private server: Server;
   private resourceHandler: FafResourceHandler;
-  private toolHandler: ChampionshipToolHandler;
+  private toolHandler: FafToolHandler;
   private config: ClaudeFafMcpServerConfig;
   private httpServer?: any;
 
@@ -33,7 +33,7 @@ export class ClaudeFafMcpServer {
       cors: true,
       ...config
     };
-    
+
     this.server = new Server(
       {
         name: 'claude-faf-mcp',
@@ -54,9 +54,9 @@ export class ClaudeFafMcpServer {
 
     // Create engine adapter to pass to handlers
     const engineAdapter = new FafEngineAdapter(config.fafEnginePath);
-    
+
     this.resourceHandler = new FafResourceHandler(engineAdapter);
-    this.toolHandler = new ChampionshipToolHandler(config.fafEnginePath);
+    this.toolHandler = new FafToolHandler(engineAdapter);
 
     this.setupHandlers();
   }
