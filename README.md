@@ -76,6 +76,41 @@ npm install -g claude-faf-mcp
 
 ---
 
+## 📁 Projects Convention
+
+**Default Path Structure:** `~/Projects/[project-name]/project.faf`
+
+The MCP server uses an intelligent path resolution system:
+
+1. **AI Inference** - Automatically detects project name from README titles, package.json, or uploaded files
+2. **User Statement** - Explicit project name provided by user
+3. **Custom Path** - User-provided path always wins
+
+**Example Workflows:**
+
+```bash
+# Upload README titled "Heritage Club Dubai"
+# → Automatically creates: ~/Projects/heritage-club-dubai/project.faf
+
+# Provide project name
+faf_init projectName:"my-app"
+# → Creates: ~/Projects/my-app/project.faf
+
+# Explicit path (always respected)
+faf_init path:"/Users/you/custom/location"
+# → Creates: /Users/you/custom/location/project.faf
+```
+
+**Cross-Platform Support:**
+- macOS: `~/Projects/`
+- Linux: `~/Projects/`
+- Windows: `%USERPROFILE%\Projects\`
+
+**Guide Tool:**
+Run `faf_guide` in Claude Desktop for complete path resolution rules and UX patterns.
+
+---
+
 ## 🎯 What is FAF?
 
 **The .FAF Position in the MCP Ecosystem:**
