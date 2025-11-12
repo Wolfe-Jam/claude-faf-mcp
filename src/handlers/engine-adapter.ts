@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import * as path from 'path';
 import * as fs from 'fs';
 import { isError } from '../utils/type-guards.js';  // ✅ FIXED: Removed unused isDefined
+import { detectFafCli, validateCliVersion } from '../utils/cli-detector.js';
 import { scoreFafFile } from '../faf-core/commands/score.js';
 import { initFafFile } from '../faf-core/commands/init.js';
 import { autoCommand } from '../faf-core/commands/auto.js';
@@ -43,6 +44,8 @@ export interface FafEngineResult {
 
 export class FafEngineAdapter {
   private enginePath: string;
+  private detectedCliPath: string | null = null;
+  private cliVersion: string | undefined;
   private timeout: number;
   private workingDirectory: string;
 
@@ -50,6 +53,27 @@ export class FafEngineAdapter {
     this.enginePath = enginePath;
     this.timeout = timeout;
     this.workingDirectory = this.findBestWorkingDirectory();
+
+    // Auto-detect CLI on initialization
+    this.detectCli();
+  }
+
+  private detectCli(): void {
+    const detection = detectFafCli();
+
+    if (detection.found && detection.path) {
+      this.detectedCliPath = detection.path;
+      this.cliVersion = detection.version;
+
+      // Validate version meets minimum requirement
+      if (this.cliVersion && !validateCliVersion(this.cliVersion, '3.1.1')) {
+        console.warn(`FAF CLI version ${this.cliVersion} is below minimum required version 3.1.1. Some features may not work correctly.`);
+      }
+
+      console.error(`FAF CLI detected: ${this.detectedCliPath} (v${this.cliVersion || 'unknown'}) via ${detection.method}`);
+    } else {
+      console.warn('FAF CLI not detected. Only bundled MCP commands will work. Install faf-cli: npm install -g faf-cli');
+    }
   }
   
   private findBestWorkingDirectory(): string {
@@ -460,40 +484,38 @@ export class FafEngineAdapter {
     // FALLBACK: Shell out to CLI for commands not yet bundled
     // ============================================================================
 
+    // Check if CLI is available
+    if (!this.detectedCliPath) {
+      const duration = Date.now() - startTime;
+      return {
+        success: false,
+        error: `FAF CLI not detected. Command '${command}' requires faf-cli. Install with: npm install -g faf-cli`,
+        duration
+      };
+    }
+
     // Sanitize arguments to prevent injection
     const sanitizedArgs = args.map(arg =>
       typeof arg === 'string' ? arg.replace(/[;&|`$(){}[\]]/g, '') : ''
     );
 
     try {
-      // Try to use the enginePath as provided (could be 'faf' for global install or a full path)
-      let fullCommand: string;
-      
-      if (this.enginePath === 'faf' || !this.enginePath.includes('/')) {
-        // Global FAF CLI command
-        fullCommand = `${this.enginePath} ${command} ${sanitizedArgs.join(' ')}`;
-      } else {
-        // Specific path to FAF CLI
-        if (this.enginePath.endsWith('.js')) {
-          fullCommand = `node ${this.enginePath} ${command} ${sanitizedArgs.join(' ')}`;
-        } else {
-          fullCommand = `${this.enginePath} ${command} ${sanitizedArgs.join(' ')}`;
-        }
-      }
-      
+      // Use detected absolute path to CLI
+      const fullCommand = `"${this.detectedCliPath}" ${command} ${sanitizedArgs.join(' ')}`;
+
       const { stdout, stderr } = await execAsync(fullCommand, {
         env: getEnhancedEnv(),
         timeout: this.timeout,
         maxBuffer: 1024 * 1024, // 1MB buffer limit
         cwd: this.workingDirectory
       });
-      
+
       const duration = Date.now() - startTime;
-      
+
       if (stderr?.trim()) {
-        console.warn(`FAF engine warning: ${stderr.trim()}`);
+        console.warn(`FAF CLI warning: ${stderr.trim()}`);
       }
-      
+
       return {
         success: true,
         data: this.parseOutput(stdout),
@@ -501,29 +523,29 @@ export class FafEngineAdapter {
       };
     } catch (error: unknown) {
       const duration = Date.now() - startTime;
-      
+
       let errorMessage = 'Unknown error occurred';
-      
+
       if (isError(error)) {
         errorMessage = error.message;
-        
+
         // Handle specific error codes
         if ('code' in error) {
           if (error.code === 'ETIMEDOUT') {
             errorMessage = `Command timed out after ${this.timeout}ms`;
           } else if (error.code === 'ENOENT') {
-            errorMessage = `FAF CLI not found. Please ensure 'faf' is installed and accessible. Path: ${this.enginePath}`;
+            errorMessage = `FAF CLI not found at ${this.detectedCliPath}. Please reinstall: npm install -g faf-cli`;
           }
         }
-        
+
         // Handle signal termination
         if ('signal' in error && error.signal === 'SIGTERM') {
           errorMessage = 'Command was terminated';
         }
       }
-      
-      console.error(`FAF engine error: ${errorMessage}`);
-      
+
+      console.error(`FAF CLI error: ${errorMessage}`);
+
       return {
         success: false,
         error: errorMessage,
@@ -579,5 +601,14 @@ export class FafEngineAdapter {
   // Get the engine path being used
   getEnginePath(): string {
     return this.enginePath;
+  }
+
+  // Get CLI detection info for debugging
+  getCliInfo(): { detected: boolean; path?: string; version?: string } {
+    return {
+      detected: this.detectedCliPath !== null,
+      path: this.detectedCliPath || undefined,
+      version: this.cliVersion
+    };
   }
 }
