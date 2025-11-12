@@ -169,6 +169,35 @@ export class FafToolHandler {
           }
         },
         {
+          name: 'faf_list',
+          description: 'List directories and discover projects with project.faf files - Essential for FAF discovery workflow',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: {
+                type: 'string',
+                description: 'Directory path to list (e.g., ~/Projects, /Users/username/Projects)'
+              },
+              filter: {
+                type: 'string',
+                enum: ['faf', 'dirs', 'all'],
+                description: 'Filter: "faf" (only dirs with project.faf), "dirs" (all directories), "all" (dirs and files). Default: "dirs"'
+              },
+              depth: {
+                type: 'number',
+                enum: [1, 2],
+                description: 'Directory depth to scan: 1 (immediate children) or 2 (one level deeper). Default: 1'
+              },
+              showHidden: {
+                type: 'boolean',
+                description: 'Show hidden files/directories (starting with .). Default: false'
+              }
+            },
+            required: ['path'],
+            additionalProperties: false
+          }
+        },
+        {
           name: 'faf_chat',
           description: '🗣️ Natural language project.faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️',
           inputSchema: {
@@ -241,6 +270,8 @@ export class FafToolHandler {
         return await this.handleFafFriday(args);
       case 'faf_write':
         return await fileHandlers.faf_write(args);
+      case 'faf_list':
+        return await this.handleFafList(args);
       case 'faf_guide':
         return await this.handleFafGuide(args);
       default:
@@ -1051,5 +1082,134 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         text: guide
       }]
     };
+  }
+
+  private async handleFafList(args: any): Promise<CallToolResult> {
+    try {
+      const fs = await import('fs');
+      const path = await import('path');
+
+      // Parse arguments
+      const targetPath = args?.path || this.engineAdapter.getWorkingDirectory();
+      const filter = args?.filter || 'dirs';
+      const depth = args?.depth || 1;
+      const showHidden = args?.showHidden || false;
+
+      // Expand tilde
+      const expandedPath = targetPath.startsWith('~')
+        ? path.join(require('os').homedir(), targetPath.slice(1))
+        : targetPath;
+
+      const resolvedPath = path.resolve(expandedPath);
+
+      // Check if directory exists
+      if (!fs.existsSync(resolvedPath)) {
+        return {
+          content: [{
+            type: 'text',
+            text: `❌ Directory not found: ${resolvedPath}`
+          }],
+          isError: true
+        };
+      }
+
+      // Check if it's actually a directory
+      const stats = fs.statSync(resolvedPath);
+      if (!stats.isDirectory()) {
+        return {
+          content: [{
+            type: 'text',
+            text: `❌ Not a directory: ${resolvedPath}`
+          }],
+          isError: true
+        };
+      }
+
+      // Scan directory
+      const results: Array<{name: string; path: string; hasFaf: boolean; isDir: boolean}> = [];
+
+      const scanDir = (dirPath: string, currentDepth: number) => {
+        if (currentDepth > depth) return;
+
+        const entries = fs.readdirSync(dirPath);
+
+        for (const entry of entries) {
+          // Skip hidden files unless requested
+          if (!showHidden && entry.startsWith('.')) continue;
+
+          const fullPath = path.join(dirPath, entry);
+          const entryStats = fs.statSync(fullPath);
+          const isDir = entryStats.isDirectory();
+
+          // Check for project.faf
+          const hasFaf = isDir && fs.existsSync(path.join(fullPath, 'project.faf'));
+
+          // Apply filter
+          if (filter === 'faf' && !hasFaf) continue;
+          if (filter === 'dirs' && !isDir) continue;
+
+          results.push({
+            name: entry,
+            path: fullPath,
+            hasFaf,
+            isDir
+          });
+
+          // Recurse if needed
+          if (isDir && currentDepth < depth) {
+            scanDir(fullPath, currentDepth + 1);
+          }
+        }
+      };
+
+      scanDir(resolvedPath, 1);
+
+      // Sort: FAF projects first, then alphabetically
+      results.sort((a, b) => {
+        if (a.hasFaf && !b.hasFaf) return -1;
+        if (!a.hasFaf && b.hasFaf) return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      // Format output
+      let output = `📁 ${resolvedPath}\n\n`;
+
+      if (results.length === 0) {
+        output += '(empty)\n';
+      } else {
+        for (const item of results) {
+          const indent = item.path.split('/').length - resolvedPath.split('/').length - 1;
+          const prefix = '  '.repeat(indent);
+          const icon = item.isDir ? '📁' : '📄';
+          const status = item.hasFaf ? '✅ project.faf' : '';
+
+          output += `${prefix}${icon} ${item.name}`;
+          if (status) output += ` ${status}`;
+          output += '\n';
+        }
+      }
+
+      output += `\nTotal: ${results.length} items`;
+      if (filter === 'faf') {
+        const fafCount = results.filter(r => r.hasFaf).length;
+        output += ` (${fafCount} with project.faf)`;
+      }
+
+      return {
+        content: [{
+          type: 'text',
+          text: output
+        }]
+      };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      return {
+        content: [{
+          type: 'text',
+          text: `❌ Failed to list directory: ${errorMessage}`
+        }],
+        isError: true
+      };
+    }
   }
 }
