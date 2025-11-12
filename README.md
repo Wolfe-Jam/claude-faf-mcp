@@ -57,8 +57,6 @@ At 55% you are building your project with half a blueprint and basically flippin
 npm install -g faf-cli
 ```
 
-The MCP uses the CLI as its engine. Battle-tested commands, proven reliability.
-
 **Then install MCP server:**
 ```bash
 # Via npx (recommended - always latest)
@@ -67,6 +65,8 @@ npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
 # Or install globally
 npm install -g claude-faf-mcp
 ```
+
+**Architecture:** MCP auto-detects CLI using absolute paths. Works in Claude Desktop sandbox. No configuration needed.
 
 **Claude Desktop Configuration:**
 ```json
@@ -114,6 +114,30 @@ faf_init path:"/Users/you/custom/location"
 
 **Guide Tool:**
 Run `faf_guide` in Claude Desktop for complete path resolution rules and UX patterns.
+
+---
+
+## 🔧 Troubleshooting
+
+**CLI Not Detected?**
+
+The MCP auto-detects faf-cli in common locations. If detection fails, set the path manually:
+
+```json
+{
+  "mcpServers": {
+    "faf": {
+      "command": "npx",
+      "args": ["-y", "claude-faf-mcp"],
+      "env": {
+        "FAF_CLI_PATH": "/custom/path/to/faf"
+      }
+    }
+  }
+}
+```
+
+Find your CLI path: `which faf`
 
 ---
 
