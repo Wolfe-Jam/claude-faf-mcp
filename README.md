@@ -52,6 +52,23 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
+### Option 1: Desktop Extension (Recommended 🧡)
+
+**One-click install with FAF orange icon:**
+
+1. **Download** the `.mcpb` file:
+   https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest
+
+2. **Install in Claude Desktop:**
+   - Settings → Extensions → Advanced settings
+   - Click "Install Extension"
+   - Select `claude-faf-mcp-v3.2.1.mcpb`
+   - Restart Claude Desktop
+
+3. **Verify the FAF orange icon** shows in your MCP list!
+
+### Option 2: npm Installation
+
 **⚠️ INSTALLATION ORDER REQUIRED:**
 
 **Step 1: Install CLI First (Required)**
@@ -148,12 +165,12 @@ Find your CLI path: `which faf`
 **The .FAF Position in the MCP Ecosystem:**
 
 ```
-Model        Context          Protocol
-─────        ───────          ────────
-Claude   →   .faf        →    MCP
-Gemini   →   .faf        →    MCP
-Codex    →   .faf        →    MCP
-Any LLM  →   IANA Format →    Open Protocol
+  Model        Context          Protocol
+  ─────        ───────          ────────
+  LLM       →   IANA Format →    Open Protocol
+  Claude   →   .faf        →    MCP
+  Gemini   →   .faf        →    MCP
+  Codex    →   .faf        →    MCP
 ```
 
 **.FAF is the foundational, universal base layer** for any Model using the MCP Protocol. It provides the standardized Context that makes the Model Context Protocol work for everyone.
@@ -162,7 +179,7 @@ Any LLM  →   IANA Format →    Open Protocol
 
 ## 🛠️ Core Features
 
-### 50 MCP Tools (100% Standalone)
+### 51 MCP Tools (100% Standalone)
 - **faf_quick** - Lightning-fast project.faf creation (3ms avg)
 - **faf_enhance** - Intelligent enhancement with auto-detection
 - **faf_read** - Parse and validate FAF files
