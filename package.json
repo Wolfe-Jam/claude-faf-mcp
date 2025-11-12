@@ -117,6 +117,9 @@
   "publishConfig": {
     "access": "public"
   },
+  "peerDependencies": {
+    "faf-cli": ">=3.1.1"
+  },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.1",
     "yaml": "^2.4.1"

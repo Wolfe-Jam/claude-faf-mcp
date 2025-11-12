@@ -52,14 +52,20 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
+**Install CLI first (required):**
 ```bash
-# Install via npx (recommended - always latest)
+npm install -g faf-cli
+```
+
+The MCP uses the CLI as its engine. Battle-tested commands, proven reliability.
+
+**Then install MCP server:**
+```bash
+# Via npx (recommended - always latest)
 npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
 
 # Or install globally
 npm install -g claude-faf-mcp
-
-# For Claude Code, Gemini, Cursor, Codex, WARP, any AI → npm install -g faf-cli
 ```
 
 **Claude Desktop Configuration:**
