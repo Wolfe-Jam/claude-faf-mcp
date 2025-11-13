@@ -52,13 +52,37 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
-**Both options require faf-cli to be installed first.** This enables separate download metrics for CLI and MCP server.
+### Option 1: npm (One Command 🚀)
 
-### Option 1: Desktop Extension (Recommended 🧡)
+**One command installs everything:**
 
-**Easy install with FAF orange icon - no config editing needed!**
+```bash
+npm install -g claude-faf-mcp
+```
 
-**Step 1: Install CLI First**
+That's it! Auto-installs faf-cli + MCP server. Both get download metrics.
+
+**Configure Claude Desktop:**
+```json
+{
+  "mcpServers": {
+    "faf": {
+      "command": "npx",
+      "args": ["-y", "claude-faf-mcp"]
+    }
+  }
+}
+```
+
+Restart Claude Desktop and you're ready!
+
+---
+
+### Option 2: Desktop Extension (With Icon 🧡)
+
+**Get the FAF orange icon in Claude Desktop!**
+
+**Step 1: Install CLI**
 ```bash
 npm install -g faf-cli
 ```
@@ -77,37 +101,6 @@ npm install -g faf-cli
 
 **Why this is easier:** No config file editing, auto-detects CLI, branded icon everywhere.
 
-### Option 2: npm Installation
-
-**⚠️ INSTALLATION ORDER REQUIRED:**
-
-**Step 1: Install CLI First (Required)**
-```bash
-npm install -g faf-cli
-```
-
-**Step 2: Then Install MCP Server**
-```bash
-# Via npx (recommended - always latest)
-npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
-
-# Or install globally
-npm install -g claude-faf-mcp
-```
-
-**Why this order?** MCP auto-detects CLI at startup. Installing MCP first will show warnings. Always install faf-cli before claude-faf-mcp.
-
-**Claude Desktop Configuration:**
-```json
-{
-  "mcpServers": {
-    "faf": {
-      "command": "npx",
-      "args": ["-y", "claude-faf-mcp"]
-    }
-  }
-}
-```
 
 ---
 
