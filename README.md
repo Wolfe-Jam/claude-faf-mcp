@@ -52,10 +52,18 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
+**Both options require faf-cli to be installed first.** This enables separate download metrics for CLI and MCP server.
+
 ### Option 1: Desktop Extension (Recommended 🧡)
 
-**One-click install with FAF orange icon:**
+**Easy install with FAF orange icon - no config editing needed!**
 
+**Step 1: Install CLI First**
+```bash
+npm install -g faf-cli
+```
+
+**Step 2: Install Desktop Extension**
 1. **Download** the `.mcpb` file:
    https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest
 
@@ -66,6 +74,8 @@ At 55% you are building your project with half a blueprint and basically flippin
    - Restart Claude Desktop
 
 3. **Verify the FAF orange icon** shows in your MCP list!
+
+**Why this is easier:** No config file editing, auto-detects CLI, branded icon everywhere.
 
 ### Option 2: npm Installation
 
