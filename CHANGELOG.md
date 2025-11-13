@@ -5,6 +5,22 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.1] - 2025-11-12
+
+### Changed
+- **README Simplification** - Minimalist Quick Start following Claude Code's clean approach
+  - "Copy and paste this to Claude/your AI" - Zero friction installation
+  - Single-line config instruction (no verbose JSON blocks)
+  - npm as primary install method (traffic/discovery optimized)
+  - Desktop Extension as one-click alternative
+- **Strategic Positioning** - Optimized for npm search ranking and discoverability
+  - Removed Projects Convention section (moved to docs)
+  - Removed Troubleshooting section (moved to docs)
+  - Clean, professional landing page
+
+### User Experience
+This release perfects the installation messaging: users get ultra-minimal instructions while we maintain maximum npm download metrics for ecosystem discoverability.
+
 ## [3.3.0] - 2025-11-12
 
 ### Added

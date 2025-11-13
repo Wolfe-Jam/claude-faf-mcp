@@ -6,7 +6,7 @@
   </div>
 </div>
 
-> Official MCP server for FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
+> Official MCP server for .FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
 
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/3pjzpKsP)
@@ -52,114 +52,11 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## ⚡ Quick Start
 
-### Option 1: npm (One Command 🚀)
+**Copy and paste this to Claude/your AI:**
 
-**One command installs everything:**
+> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
 
-```bash
-npm install -g claude-faf-mcp
-```
-
-That's it! Auto-installs faf-cli + MCP server. Both get download metrics.
-
-**Configure Claude Desktop:**
-```json
-{
-  "mcpServers": {
-    "faf": {
-      "command": "npx",
-      "args": ["-y", "claude-faf-mcp"]
-    }
-  }
-}
-```
-
-Restart Claude Desktop and you're ready!
-
----
-
-### Option 2: Desktop Extension (With Icon 🧡)
-
-**Get the FAF orange icon in Claude Desktop!**
-
-**Step 1: Install CLI**
-```bash
-npm install -g faf-cli
-```
-
-**Step 2: Install Desktop Extension**
-1. **Download** the `.mcpb` file:
-   https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest
-
-2. **Install in Claude Desktop:**
-   - Settings → Extensions → Advanced settings
-   - Click "Install Extension"
-   - Select `claude-faf-mcp-v3.2.1.mcpb`
-   - Restart Claude Desktop
-
-3. **Verify the FAF orange icon** shows in your MCP list!
-
-**Why this is easier:** No config file editing, auto-detects CLI, branded icon everywhere.
-
-
----
-
-## 📁 Projects Convention
-
-**Default Path Structure:** `~/Projects/[project-name]/project.faf`
-
-The MCP server uses an intelligent path resolution system:
-
-1. **AI Inference** - Automatically detects project name from README titles, package.json, or uploaded files
-2. **User Statement** - Explicit project name provided by user
-3. **Custom Path** - User-provided path always wins
-
-**Example Workflows:**
-
-```bash
-# Upload README titled "Heritage Club Dubai"
-# → Automatically creates: ~/Projects/heritage-club-dubai/project.faf
-
-# Provide project name
-faf_init projectName:"my-app"
-# → Creates: ~/Projects/my-app/project.faf
-
-# Explicit path (always respected)
-faf_init path:"/Users/you/custom/location"
-# → Creates: /Users/you/custom/location/project.faf
-```
-
-**Cross-Platform Support:**
-- macOS: `~/Projects/`
-- Linux: `~/Projects/`
-- Windows: `%USERPROFILE%\Projects\`
-
-**Guide Tool:**
-Run `faf_guide` in Claude Desktop for complete path resolution rules and UX patterns.
-
----
-
-## 🔧 Troubleshooting
-
-**CLI Not Detected?**
-
-The MCP auto-detects faf-cli in common locations. If detection fails, set the path manually:
-
-```json
-{
-  "mcpServers": {
-    "faf": {
-      "command": "npx",
-      "args": ["-y", "claude-faf-mcp"],
-      "env": {
-        "FAF_CLI_PATH": "/custom/path/to/faf"
-      }
-    }
-  }
-}
-```
-
-Find your CLI path: `which faf`
+**One-Click Alternative:** [Desktop Extension (.mcpb)](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest)
 
 ---
 
@@ -219,7 +116,7 @@ Find your CLI path: `which faf`
 
 ## 🏆 Why FAF?
 
-> "README for the AI era" — Gemini CLI
+> "README for the AI era" — Gemini CLI 
 
 **Persistent Context** - Your project's DNA lives in `project.faf`, readable by any AI or human
 

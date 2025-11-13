@@ -29,12 +29,12 @@
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
   },
-  "version": "3.3.0",
+  "version": "3.3.1",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "3.3.0",
+      "version": "3.3.1",
       "transport": {
         "type": "stdio"
       }
