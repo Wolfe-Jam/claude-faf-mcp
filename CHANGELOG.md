@@ -5,6 +5,30 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.0] - 2025-11-12
+
+### Added
+- **Desktop Extension (.mcpb)** - One-click installation bundle with branded FAF orange icon
+  - Packaged .mcpb format for drag-and-drop installation in Claude Desktop
+  - Orange smiley icon displays in all MCP server views
+  - Available from GitHub releases page
+- **MCP Protocol Icons** - Added full icon set (48x48, 128x128, 256x256, 512x512) to server.json
+  - Icons hosted on GitHub raw URLs for registry display
+  - Proper MIME types and size specifications
+
+### Changed
+- **One-Command Installation** - Moved faf-cli from peerDependencies to dependencies
+  - `npm install -g claude-faf-mcp` now auto-installs both packages
+  - Dual download metrics maintained (both packages counted separately)
+  - Eliminated manual two-step installation process
+- **README Restructure** - Added two installation options
+  - Option 1: npm (one command, no config editing)
+  - Option 2: Desktop Extension (with branded icon)
+  - Clear documentation of path resolution system
+
+### Installation Experience
+This release perfects the installation flow: users get one-command simplicity while we maintain accurate download metrics for both claude-faf-mcp and faf-cli packages.
+
 ## [3.2.0] - 2025-11-10
 
 ### Added
