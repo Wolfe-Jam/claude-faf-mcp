@@ -22,7 +22,7 @@ title: claude-faf-mcp
 > Official MCP server for FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
 
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
-[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/3pjzpKsP)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/56fPBUJKfk)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
 [![Website](https://img.shields.io/badge/Website-faf.one-orange)](https://faf.one)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -138,7 +138,7 @@ Any LLM  →   IANA Format →    Open Protocol
 - **[Getting Started](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/getting-started.md)** - Installation & setup
 - **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)** - All 50 tools
 - **[Website](https://faf.one)** - faf.one
-- **[Discord Community](https://discord.com/invite/3pjzpKsP)** - Join the discussion
+- **[Discord Community](https://discord.com/invite/56fPBUJKfk)** - Join the discussion
 
 ---
 
