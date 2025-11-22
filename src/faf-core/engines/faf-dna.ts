@@ -595,9 +595,10 @@ export function displayScoreWithBirthDNA(
   current: number,
   birthDNA: number,
   birthDate: Date,
-  options: { showGrowth?: boolean; showJourney?: boolean } = {}
+  _options: { showGrowth?: boolean; showJourney?: boolean } = {}
 ): void {
-  // Import championship medal system
+  // Import championship medal system dynamically (legacy pattern)
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const { getScoreMedal, getTierInfo } = require('../utils/championship-core');
 
   // Get medal for current score
@@ -658,7 +659,7 @@ export function displayScoreWithBirthDNA(
 /**
  * Get emoji for score
  */
-function getScoreEmoji(score: number): string {
+function _getScoreEmoji(score: number): string {
   if (score >= 100) return '💎';
   if (score >= 90) return '🏆';
   if (score >= 85) return '⭐';

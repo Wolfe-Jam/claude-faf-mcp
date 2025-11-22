@@ -4,6 +4,7 @@
  * No console output, returns structured data
  */
 
+import * as os from 'os';
 import { findFafFile } from '../utils/file-utils.js';
 import { initFafFile, InitResult } from './init.js';
 import { scoreFafFile, ScoreResult } from './score.js';
@@ -35,7 +36,7 @@ export async function autoCommand(
 
   try {
     const targetDir = directory || process.cwd();
-    const homeDir = require('os').homedir();
+    const homeDir = os.homedir();
 
     // CRITICAL: Prevent running in home or root directory
     if (!directory && (targetDir === homeDir || targetDir === '/')) {

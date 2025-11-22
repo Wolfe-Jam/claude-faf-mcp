@@ -91,7 +91,8 @@ export interface FafVerifyArgs {
 
 export interface FafSearchArgs {
   query?: string;
-  scope?: string;
+  type?: 'content' | 'filename' | 'both';
+  directory?: string;
 }
 
 export interface FafFaqArgs {

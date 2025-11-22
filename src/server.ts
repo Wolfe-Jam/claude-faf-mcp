@@ -176,7 +176,7 @@ export class ClaudeFafMcpServer {
         throw error;
       });
     } else {
-      throw new Error(`Unsupported transport: ${this.config.transport}`);
+      throw new Error(`Unsupported transport: ${this.config.transport as string}`);
     }
   }
 

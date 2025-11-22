@@ -26,7 +26,7 @@ export interface ValidateResult {
   message: string;
 }
 
-export async function validateFafFile(projectPath?: string, options: ValidateOptions = {}): Promise<ValidateResult> {
+export async function validateFafFile(projectPath?: string, _options: ValidateOptions = {}): Promise<ValidateResult> {
   try {
     const fafPath = projectPath ? `${projectPath}/project.faf` : await findFafFile();
 

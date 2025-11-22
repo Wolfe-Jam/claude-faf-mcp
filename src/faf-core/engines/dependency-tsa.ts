@@ -11,7 +11,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { findSourceFiles } from '../utils/native-file-finder';
-import { execSync } from 'child_process';
 
 export interface DependencyInspection {
   package: string;

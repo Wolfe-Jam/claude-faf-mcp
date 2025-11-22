@@ -85,7 +85,7 @@ export function findProjectPath(identifier: string): string | null {
 
     // Normalize identifier for search
     // Remove scope: @blackhole/universe → universe
-    let searchTerm = identifier.replace(/^@[\w-]+\//, '').toLowerCase();
+    const searchTerm = identifier.replace(/^@[\w-]+\//, '').toLowerCase();
 
     // Try exact match first, then partial match
     for (const exact of [true, false]) {

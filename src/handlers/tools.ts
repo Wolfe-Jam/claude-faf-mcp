@@ -2,11 +2,11 @@ import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import { FafEngineAdapter } from './engine-adapter';
 import { fileHandlers } from './fileHandler';
 import * as fs from 'fs';
-import * as path from 'path';
+import * as os from 'os';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
-import { findFafFile, getNewFafFilePath } from '../utils/faf-file-finder.js';
+import { findFafFile } from '../utils/faf-file-finder.js';
 import { VERSION } from '../version';
-import { resolveProjectPath, ensureProjectsDirectory, formatPathConfirmation } from '../utils/path-resolver';
+import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -54,14 +54,15 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create project.faf (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️. Use Projects convention (~/Projects/[name]/project.faf) by default. Run faf_guide for path resolution rules.',
+          description: 'Create project.faf (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️. Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
           inputSchema: {
             type: 'object',
             properties: {
-              force: { type: 'boolean', description: 'Force reinitialize existing FAF context' },
-              directory: { type: 'string', description: 'Project directory path (supports ~ tilde expansion). Creates directory if it doesn\'t exist.' },
-              path: { type: 'string', description: 'Alias for directory parameter' },
-              projectName: { type: 'string', description: 'Project name for path inference (used with Projects convention)' }
+              path: {
+                type: 'string',
+                description: 'Project path or name. Smart resolution: "my-app" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too. Omit to use current directory.'
+              },
+              force: { type: 'boolean', description: 'Overwrite existing project.faf if it exists' }
             },
             additionalProperties: false
           }
@@ -476,46 +477,20 @@ export class FafToolHandler {
   }
 
   private async handleFafInit(args: any): Promise<CallToolResult> {
-    // Native implementation - creates project.faf with Projects convention!
+    // Native implementation - creates project.faf with Pomelli-simple path resolution!
     try {
-      // Determine project path using Projects convention or explicit path
-      let targetDir: string;
-      let projectName: string;
+      // Use smart path resolution (supports "my-app", "~/Projects/my-app", "/full/path")
+      const userInput = args?.path;
+      const resolution = resolveProjectPath(userInput);
 
-      // Accept both 'directory' (legacy) and 'path' (new)
-      const explicitPath = args?.path || args?.directory;
+      const targetDir = resolution.projectPath;
+      const projectName = resolution.projectName;
+      const fafPath = resolution.fafFilePath;
 
-      if (explicitPath) {
-        // User explicit path always wins
-        // Expand tilde (~) to home directory
-        const expandedPath = explicitPath.startsWith('~')
-          ? path.join(require('os').homedir(), explicitPath.slice(1))
-          : explicitPath;
-        targetDir = path.resolve(expandedPath);
-        projectName = path.basename(targetDir);
-
-        // Ensure directory exists
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-      } else if (args?.projectName) {
-        // Use Projects convention with provided name
-        ensureProjectsDirectory();
-        const resolution = resolveProjectPath(args.projectName);
-        targetDir = resolution.projectPath;
-        projectName = resolution.projectName;
-
-        // Ensure project directory exists
-        if (!fs.existsSync(targetDir)) {
-          fs.mkdirSync(targetDir, { recursive: true });
-        }
-      } else {
-        // Use current working directory (legacy behavior)
-        targetDir = this.engineAdapter.getWorkingDirectory();
-        projectName = path.basename(targetDir);
+      // Ensure project directory exists
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
       }
-
-      const fafPath = path.join(targetDir, 'project.faf');
 
       // Check if any FAF file exists and force flag
       const existingFaf = await findFafFile(targetDir);
@@ -581,14 +556,20 @@ package_manager: ${projectData.package_manager}` : ''}
 
       fs.writeFileSync(fafPath, fafContent);
 
+      // Pomelli-style success confirmation with path resolution info
+      const pathConfirmation = formatPathConfirmation(resolution);
+      const sourceExplanation = resolution.source === 'user-name'
+        ? `\n\n💡 Smart resolution: "${userInput}" → ${targetDir}`
+        : '';
+
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf in ${targetDir}\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
+          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf\n\n${pathConfirmation}${sourceExplanation}\n\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${
             chromeDetection.detected ? '\n\n🎯 Friday Feature: Chrome Extension detected!\n📈 Auto-filled 7 slots for 90%+ score!' : ''
           }${
             chromeDetection.corrected ? `\n📝 Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''
-          }`
+          }\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_enhance to improve context`
         }]
       };
     } catch (error: any) {
@@ -846,7 +827,7 @@ REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
       const path = await import('path');
       const { exec } = await import('child_process');
       const { promisify } = await import('util');
-      const execAsync = promisify(exec);
+      const _execAsync = promisify(exec);
 
       const cwd = this.engineAdapter.getWorkingDirectory();
       const debugInfo = {
@@ -1097,7 +1078,7 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
 
       // Expand tilde
       const expandedPath = targetPath.startsWith('~')
-        ? path.join(require('os').homedir(), targetPath.slice(1))
+        ? path.join(os.homedir(), targetPath.slice(1))
         : targetPath;
 
       const resolvedPath = path.resolve(expandedPath);

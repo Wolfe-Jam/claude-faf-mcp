@@ -1,0 +1,413 @@
+{
+  "timestamp": "2025-11-06T13:20:32.082Z",
+  "version": "3.0.1",
+  "tests": [
+    {
+      "name": "faf",
+      "category": "workflow",
+      "passed": true,
+      "duration": 7,
+      "error": null
+    },
+    {
+      "name": "faf_auto",
+      "category": "workflow",
+      "passed": true,
+      "duration": 56,
+      "error": null
+    },
+    {
+      "name": "faf_init",
+      "category": "workflow",
+      "passed": true,
+      "duration": 17,
+      "error": null
+    },
+    {
+      "name": "faf_innit",
+      "category": "workflow",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_status",
+      "category": "workflow",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_score",
+      "category": "quality",
+      "passed": true,
+      "duration": 2,
+      "error": null
+    },
+    {
+      "name": "faf_validate",
+      "category": "quality",
+      "passed": true,
+      "duration": 7,
+      "error": null
+    },
+    {
+      "name": "faf_doctor",
+      "category": "quality",
+      "passed": true,
+      "duration": 13,
+      "error": null
+    },
+    {
+      "name": "faf_audit",
+      "category": "quality",
+      "passed": true,
+      "duration": 63,
+      "error": null
+    },
+    {
+      "name": "faf_formats",
+      "category": "intelligence",
+      "passed": true,
+      "duration": 2,
+      "error": null
+    },
+    {
+      "name": "faf_stacks",
+      "category": "intelligence",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_sync",
+      "category": "sync",
+      "passed": true,
+      "duration": 12,
+      "error": null
+    },
+    {
+      "name": "faf_bi_sync",
+      "category": "sync",
+      "passed": true,
+      "duration": 12,
+      "error": null
+    },
+    {
+      "name": "faf_update",
+      "category": "sync",
+      "passed": true,
+      "duration": 12,
+      "error": null
+    },
+    {
+      "name": "faf_migrate",
+      "category": "sync",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_chat",
+      "category": "ai",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_enhance",
+      "category": "ai",
+      "passed": true,
+      "duration": 35,
+      "error": null
+    },
+    {
+      "name": "faf_index",
+      "category": "help",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_faq",
+      "category": "help",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_about",
+      "category": "help",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_display",
+      "category": "display",
+      "passed": true,
+      "duration": 2,
+      "error": null
+    },
+    {
+      "name": "faf_show",
+      "category": "display",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_check",
+      "category": "display",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_trust",
+      "category": "trust",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_trust_confidence",
+      "category": "trust",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_trust_garage",
+      "category": "trust",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_read",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_write",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_list",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_exists",
+      "category": "file",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_dna",
+      "category": "dna",
+      "passed": true,
+      "duration": 1017,
+      "error": null
+    },
+    {
+      "name": "faf_log",
+      "category": "dna",
+      "passed": true,
+      "duration": 353,
+      "error": null
+    },
+    {
+      "name": "faf_auth",
+      "category": "dna",
+      "passed": true,
+      "duration": 307,
+      "error": null
+    },
+    {
+      "name": "faf_recover",
+      "category": "dna",
+      "passed": true,
+      "duration": 602,
+      "error": null
+    },
+    {
+      "name": "faf_choose",
+      "category": "utility",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_clear",
+      "category": "utility",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_share",
+      "category": "utility",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_credit",
+      "category": "utility",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_quick",
+      "category": "utility",
+      "passed": true,
+      "duration": 8,
+      "error": null
+    },
+    {
+      "name": "faf_version",
+      "category": "help",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_analyze",
+      "category": "ai",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_verify",
+      "category": "quality",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_search",
+      "category": "discovery",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_edit",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_delete",
+      "category": "file",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_mkdir",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_copy",
+      "category": "file",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_move",
+      "category": "file",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    },
+    {
+      "name": "faf_todo",
+      "category": "utility",
+      "passed": true,
+      "duration": 0,
+      "error": null
+    },
+    {
+      "name": "faf_install_skill",
+      "category": "utility",
+      "passed": true,
+      "duration": 1,
+      "error": null
+    }
+  ],
+  "summary": {
+    "total": 50,
+    "passed": 50,
+    "failed": 0,
+    "passRate": "100.0%",
+    "avgDuration": "50.92ms",
+    "byCategory": {
+      "workflow": {
+        "passed": 5,
+        "total": 5
+      },
+      "quality": {
+        "passed": 5,
+        "total": 5
+      },
+      "intelligence": {
+        "passed": 2,
+        "total": 2
+      },
+      "sync": {
+        "passed": 4,
+        "total": 4
+      },
+      "ai": {
+        "passed": 3,
+        "total": 3
+      },
+      "help": {
+        "passed": 4,
+        "total": 4
+      },
+      "display": {
+        "passed": 3,
+        "total": 3
+      },
+      "trust": {
+        "passed": 3,
+        "total": 3
+      },
+      "file": {
+        "passed": 9,
+        "total": 9
+      },
+      "dna": {
+        "passed": 4,
+        "total": 4
+      },
+      "utility": {
+        "passed": 7,
+        "total": 7
+      },
+      "discovery": {
+        "passed": 1,
+        "total": 1
+      }
+    }
+  }
+}

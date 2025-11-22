@@ -19,6 +19,7 @@ import type * as ToolTypes from './tool-types.js';
 import { VERSION } from '../version.js';
 import { getVisibilityConfig } from '../config/visibility.js';
 import { filterTools } from './tool-registry.js';
+import { autoDetectPath } from '../utils/auto-path-detection.js';
 
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
@@ -195,12 +196,23 @@ Working on REAL filesystem: ${targetDir}
           }
         },
         {
-          name: 'faf_auto',
-          description: '🏆 ONE COMMAND CHAMPIONSHIP - Auto-scan, populate, score, sync - No faffing about!',
+          name: 'faf',
+          description: '🧡⚡️ FAF - Main command. IMPORTANT: Users provide LOCAL filesystem paths (e.g., /Users/username/projects/myapp). DO NOT use claude.ai containers (/mnt/user-data). Ask user for local path if needed. Uses real FAF file tools on local projects.',
           inputSchema: {
             type: 'object',
             properties: {
-              directory: { type: 'string', description: 'Project directory (defaults to current)' }
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' },
+              force: { type: 'boolean', description: 'Force overwrite existing files' }
+            }
+          }
+        },
+        {
+          name: 'faf_auto',
+          description: '🏆 ONE COMMAND CHAMPIONSHIP - IMPORTANT: Users work on LOCAL projects. Ask for LOCAL filesystem path (e.g., /Users/username/projects/myapp). DO NOT use containers. Auto-scan, populate, score, sync using real FAF file tools.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' }
             }
           }
         },
@@ -261,6 +273,7 @@ Working on REAL filesystem: ${targetDir}
           inputSchema: {
             type: 'object',
             properties: {
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' },
               direction: { type: 'string', description: 'Sync direction: to-claude|from-claude' }
             }
           }
@@ -271,6 +284,7 @@ Working on REAL filesystem: ${targetDir}
           inputSchema: {
             type: 'object',
             properties: {
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' },
               watch: { type: 'boolean', description: 'Enable file watching' }
             }
           }
@@ -375,6 +389,7 @@ Working on REAL filesystem: ${targetDir}
           inputSchema: {
             type: 'object',
             properties: {
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' },
               model: { type: 'string', description: 'AI model to use' },
               focus: { type: 'string', description: 'Enhancement focus area' }
             }
@@ -405,23 +420,35 @@ Working on REAL filesystem: ${targetDir}
         {
           name: 'faf_index',
           description: 'A-Z reference catalog of your project',
-          inputSchema: { type: 'object', properties: {} }
-        },
-        {
-          name: 'faf_search',
-          description: 'Content search with highlighting',
           inputSchema: {
             type: 'object',
             properties: {
-              query: { type: 'string', description: 'Search query' },
-              type: { type: 'string', description: 'Search type: content|filename|both' }
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' }
             }
+          }
+        },
+        {
+          name: 'faf_search',
+          description: 'Search filesystem for files by name (TURBO-CAT powered). Solves the "dropped file path" problem - find where a file lives.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Filename to search for (e.g., "README.md")' },
+              type: { type: 'string', description: 'Search type: filename (default) | content | both' },
+              directory: { type: 'string', description: 'Directory to search (defaults to current directory)' }
+            },
+            required: ['query']
           }
         },
         {
           name: 'faf_stacks',
           description: 'STACKTISTICS technology discovery',
-          inputSchema: { type: 'object', properties: {} }
+          inputSchema: {
+            type: 'object',
+            properties: {
+              directory: { type: 'string', description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)' }
+            }
+          }
         },
         {
           name: 'faf_faq',
@@ -431,6 +458,15 @@ Working on REAL filesystem: ${targetDir}
             properties: {
               topic: { type: 'string', description: 'Help topic' }
             }
+          }
+        },
+        {
+          name: 'faf_guide',
+          description: 'FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns',
+          inputSchema: {
+            type: 'object',
+            properties: {},
+            additionalProperties: false
           }
         },
 
@@ -800,6 +836,8 @@ Working on REAL filesystem: ${targetDir}
           return await this.handleStacks(_args);
         case 'faf_faq':
           return await this.handleFaq(_args);
+        case 'faf_guide':
+          return await this.handleGuide(_args);
 
         // Developer Tools
         case 'faf_status':
@@ -882,7 +920,30 @@ Working on REAL filesystem: ${targetDir}
   // Core Tool Handlers - Native implementations, no shell!
   private async handleAuto(args: ToolTypes.FafAutoArgs): Promise<CallToolResult> {
     try {
-      const dir = args?.directory || process.cwd();
+      let dir = args?.directory || process.cwd();
+
+      // 🎯 AUTO-PATH DETECTION: Extract project path from dropped files
+      if (dir && dir.startsWith('/mnt/user-data/uploads/')) {
+        const detection = autoDetectPath(dir);
+
+        if (detection.found && detection.path) {
+          dir = detection.path;
+          // Show success message
+          console.log(`✅ Auto-detected: "${detection.identifier}" → ${dir}`);
+        } else if (detection.error) {
+          return await this.formatResult(
+            '🎯 FAF Auto-Path Detection',
+            `${detection.error}\n\n` +
+            `**What I tried:**\n` +
+            `• Extracted identifier: ${detection.identifier || 'none'}\n` +
+            `• Searched filesystem (case-insensitive)\n` +
+            `• No matching project directory found\n\n` +
+            `**What you can do:**\n` +
+            `• Provide the full path: \`faf_auto /full/path/to/project\`\n` +
+            `• Or navigate to the project and run: \`faf_quick\``
+          );
+        }
+      }
 
       // Smart Start - No directory provided = show DROP | PASTE | CREATE
       if (!args?.directory || dir === '.' || dir === '/' || dir.length < 3) {
@@ -1303,7 +1364,7 @@ faf_score --save      # Save this scorecard
       result += `[.faf: ${hasFaf ? '✓' : 'x'}] [CLAUDE.md: ${hasClaude ? '✓' : 'x'}] [README: ${hasReadme ? '✓' : 'x'}] [package.json: ${hasPackage ? '✓' : 'x'}]`;
     } else if (showFull) {
       // Podium Edition: Full Championship Scorecard with detailed metrics
-      const projectName = path.basename(targetDir);
+      const _projectName = path.basename(targetDir);
 
       // Calculate section scores based on files present
       const coreIntelligence = Math.round((
@@ -1320,24 +1381,24 @@ faf_score --save      # Save this scorecard
         (hasFaf && hasClaude ? 25 : hasFaf ? 15 : hasClaude ? 10 : 0)  // Universal Context
       ));
 
-      const performance = 100;  // Static for MCP server itself
-      const standalone = 100;   // Static for MCP server itself
+      const _performance = 100;  // Static for MCP server itself
+      const _standalone = 100;   // Static for MCP server itself
 
       // Determine status tier
       let statusTier = '';
-      let statusEmoji = '';
+      let _statusEmoji = '';
       if (score >= 99) {
         statusTier = 'PODIUM EDITION';
-        statusEmoji = '🏆';
+        _statusEmoji = '🏆';
       } else if (score >= 85) {
         statusTier = 'RACE READY';
-        statusEmoji = '⭐';
+        _statusEmoji = '⭐';
       } else if (score >= 70) {
         statusTier = 'QUALIFYING';
-        statusEmoji = '🟪';
+        _statusEmoji = '🟪';
       } else {
         statusTier = 'IN DEVELOPMENT';
-        statusEmoji = '🔧';
+        _statusEmoji = '🔧';
       }
 
       result = ``;
@@ -1352,7 +1413,7 @@ faf_score --save      # Save this scorecard
       // Core Intelligence section
       result += `📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY\n`;
       const bar100 = '[██████] 100%';
-      const barCore = `[${('█'.repeat(Math.round(coreIntelligence / 100 * 6)) + '░'.repeat(6 - Math.round(coreIntelligence / 100 * 6)))}] ${coreIntelligence}%`;
+      const _barCore = `[${('█'.repeat(Math.round(coreIntelligence / 100 * 6)) + '░'.repeat(6 - Math.round(coreIntelligence / 100 * 6)))}] ${coreIntelligence}%`;
       const barContext = `[${('█'.repeat(Math.round(contextDelivery / 100 * 6)) + '░'.repeat(6 - Math.round(contextDelivery / 100 * 6)))}] ${contextDelivery}%`;
 
       result += `├─ Project DNA            ${hasFaf ? bar100 : '[░░░░░░]   0%'}  ├─ MCP Protocol      ${bar100}\n`;
@@ -1760,7 +1821,60 @@ faf_score --save      # Save this scorecard
 
   private async handleSearch(args: ToolTypes.FafSearchArgs): Promise<CallToolResult> {
     const query = args.query || '';
-    return await this.formatResult('🔍 FAF Search', `Searching for "${query}"... Found 3 matches`);
+    const searchType = args.type || 'filename';
+    const searchDir = args.directory || process.cwd();
+
+    if (!query) {
+      return await this.formatResult('🔍 FAF Search', 'Please provide a search query');
+    }
+
+    // Import native file finder
+    const { findFiles } = await import('../faf-core/utils/native-file-finder.js');
+
+    try {
+      // For filename search, find all files matching the name
+      if (searchType === 'filename' || searchType === 'both') {
+        const allFiles = await findFiles(searchDir, {
+          maxFiles: 100,  // Limit to prevent overwhelming results
+          absolute: true
+        });
+
+        // Filter files that match the query (case-insensitive)
+        const queryLower = query.toLowerCase();
+        const matches = allFiles.filter(filePath => {
+          const basename = path.basename(filePath);
+          return basename.toLowerCase().includes(queryLower);
+        });
+
+        if (matches.length === 0) {
+          return await this.formatResult(
+            '🔍 FAF Search',
+            `No files found matching "${query}"\n\nSearched in: ${searchDir}`
+          );
+        }
+
+        // Format results
+        const resultText = matches.length === 1
+          ? `Found 1 match:\n\n${matches[0]}`
+          : `Found ${matches.length} matches:\n\n${matches.slice(0, 20).join('\n')}${
+              matches.length > 20 ? `\n\n... and ${matches.length - 20} more` : ''
+            }`;
+
+        return await this.formatResult('🔍 FAF Search', resultText);
+      }
+
+      // Content search not yet implemented
+      return await this.formatResult(
+        '🔍 FAF Search',
+        'Content search not yet implemented. Use type="filename" for now.'
+      );
+
+    } catch (error: any) {
+      return await this.formatResult(
+        '🔍 FAF Search Error',
+        `Search failed: ${error.message}`
+      );
+    }
   }
 
   private async handleStacks(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
@@ -1966,6 +2080,76 @@ faf_score --save      # Save this scorecard
     }
 
     return await this.formatResult('💡 FAF HELP', answer);
+  }
+
+  private async handleGuide(_args: any): Promise<CallToolResult> {
+    const guide = `# FAF MCP - Claude Desktop Guide
+
+## Core Principle: Local Path First
+
+Claude Desktop has full filesystem access with local paths. All 52 MCP tools work perfectly when you provide local project paths.
+
+**The Pattern:**
+1. Ask: "What's your project path?"
+2. For new projects, suggest: \`~/Projects/[project-name]\`
+3. For existing projects, use their exact path
+
+## Path Resolution
+
+**New Projects:**
+- Suggest normalized paths: \`~/Projects/heritage-club-dubai\`
+- Convert spaces to hyphens, lowercase preferred
+- Confirm before creating
+
+**Existing Projects:**
+- Ask for current location
+- Use exact path provided
+- No guessing, no auto-detection
+
+## What Works
+
+☑️ \`~/Projects/my-app\` (macOS/Linux)
+☑️ \`/Users/username/Projects/my-app\` (absolute)
+☑️ \`C:\\Users\\username\\Projects\\my-app\` (Windows)
+
+## What Doesn't Work
+
+Container paths like \`/mnt/user-data/\` are incompatible with MCP tools.
+
+## Migration Path
+
+Old \`.faf\` files → new \`project.faf\` format:
+
+\`\`\`bash
+faf_migrate directory:"/path/to/project"
+\`\`\`
+
+This upgrades to visible format v2.5.0, sitting alongside package.json and README.md.
+
+## Command Examples
+
+All commands need local paths:
+
+- \`faf_init directory:"~/Projects/my-app"\`
+- \`faf_score directory:"~/Projects/my-app"\`
+- \`faf_sync directory:"~/Projects/my-app"\`
+- \`faf_migrate directory:"~/Projects/old-project"\`
+
+## UX Pattern
+
+User: "Create a .faf"
+Claude: "Project name?"
+User: "my-app"
+Claude: "Creating at ~/Projects/my-app/"
+
+Simple, fast, championship-grade.`;
+
+    return {
+      content: [{
+        type: 'text',
+        text: guide
+      }]
+    };
   }
 
   // Developer Tool Handlers

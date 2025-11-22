@@ -26,7 +26,7 @@ export interface AuditResult {
   message: string;
 }
 
-export async function auditFafFile(projectPath?: string, options: AuditOptions = {}): Promise<AuditResult> {
+export async function auditFafFile(projectPath?: string, _options: AuditOptions = {}): Promise<AuditResult> {
   try {
     const fafPath = projectPath ? `${projectPath}/project.faf` : await findFafFile();
 

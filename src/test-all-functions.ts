@@ -131,7 +131,7 @@ function createTestArgs(toolName: string): any {
   // Return appropriate test args based on tool
   switch (toolName) {
     case 'faf_init':
-      return { directory: '/tmp/faf-test' };
+      return { path: '/tmp/faf-test' };
     case 'faf_score':
       return { details: false };
     case 'faf_trust':

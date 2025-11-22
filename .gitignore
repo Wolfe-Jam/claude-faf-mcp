@@ -129,3 +129,4 @@ coverage/
 # Backup files
 *.backup
 *.backup-*
+.vercel

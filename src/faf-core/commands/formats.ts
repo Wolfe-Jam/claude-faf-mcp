@@ -3,7 +3,6 @@
  * Lists all discovered formats in the project
  */
 
-import * as fs from 'fs';
 import * as path from 'path';
 import { fileExists } from '../utils/file-utils';
 
@@ -26,7 +25,7 @@ export interface FormatsResult {
   message: string;
 }
 
-export async function formatsCommand(projectPath?: string, options: FormatsOptions = {}): Promise<FormatsResult> {
+export async function formatsCommand(projectPath?: string, _options: FormatsOptions = {}): Promise<FormatsResult> {
   try {
     const projectRoot = projectPath || process.cwd();
     const startTime = Date.now();

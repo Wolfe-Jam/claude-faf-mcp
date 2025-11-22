@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-11-06T10:16:05.267Z",
+  "version": "3.0.0",
+  "engine": "Mk3 Bundled",
+  "tests": [
+    {
+      "name": "init",
+      "passed": true,
+      "duration": 51,
+      "details": {
+        "success": true,
+        "fileCreated": true,
+        "correctFilename": true,
+        "apiDuration": 51
+      }
+    },
+    {
+      "name": "score",
+      "passed": true,
+      "duration": 11,
+      "details": {
+        "score": 33,
+        "filled": 4,
+        "total": 12
+      }
+    },
+    {
+      "name": "auto",
+      "passed": true,
+      "duration": 31,
+      "details": {
+        "success": true,
+        "fileCreated": true,
+        "correctFilename": true,
+        "score": 33,
+        "apiDuration": 29
+      }
+    },
+    {
+      "name": "legacy_faf_support",
+      "passed": true,
+      "duration": 1,
+      "details": {
+        "foundFile": ".faf",
+        "canRead": true
+      }
+    }
+  ],
+  "summary": {
+    "total": 4,
+    "passed": 4,
+    "failed": 0,
+    "passRate": "100.0%",
+    "avgDuration": "23.50ms"
+  }
+}

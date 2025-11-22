@@ -1,0 +1,49 @@
+{
+  "timestamp": "2025-11-06T10:16:30.166Z",
+  "version": "3.0.0",
+  "tests": [
+    {
+      "name": "faf_init",
+      "passed": true,
+      "duration": 42,
+      "details": {
+        "fileCreated": true,
+        "resultContent": "<!-- FAF:RENDER:INLINE -->\n<!-- DISPLAY:PRIORITY:HIGH -->\n<!-- USER:DATA:BEGIN -->\n<!-- CLAUDE:INSTR"
+      }
+    },
+    {
+      "name": "faf_score",
+      "passed": true,
+      "duration": 2,
+      "details": {
+        "resultContent": "<!-- FAF:RENDER:INLINE -->\n<!-- DISPLAY:PRIORITY:HIGH -->\n<!-- USER:DATA:BEGIN -->\n<!-- CLAUDE:INSTRUCTION -->\nCRITICAL CONTEXT FOR CLAUDE DESKTOP:\n- This MCP server executes on the USER'S REAL FILESY"
+      }
+    },
+    {
+      "name": "faf_auto",
+      "passed": true,
+      "duration": 69,
+      "details": {
+        "fileCreated": true,
+        "resultContent": "<!-- FAF:RENDER:INLINE -->\n<!-- DISPLAY:PRIORITY:HIGH -->\n<!-- USER:DATA:BEGIN -->\n<!-- CLAUDE:INSTR"
+      }
+    },
+    {
+      "name": "faf_status",
+      "passed": true,
+      "duration": 1
+    },
+    {
+      "name": "faf_about",
+      "passed": true,
+      "duration": 1
+    }
+  ],
+  "summary": {
+    "total": 5,
+    "passed": 5,
+    "failed": 0,
+    "passRate": "100.0%",
+    "avgDuration": "23.00ms"
+  }
+}

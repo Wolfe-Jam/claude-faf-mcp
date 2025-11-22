@@ -160,6 +160,7 @@ export async function awardCredit(
     await saveTechnicalCredit(credit, fafPath);
 
     // Check if we can actually write to cache before showing message
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const cacheDir = path.join(require('os').homedir(), '.faf-cli-cache');
     try {
       await fs.access(cacheDir, fs.constants.W_OK);

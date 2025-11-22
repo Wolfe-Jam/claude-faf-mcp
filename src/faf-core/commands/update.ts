@@ -16,7 +16,7 @@ export interface UpdateResult {
   message: string;
 }
 
-export async function updateFafFile(projectPath?: string, options: UpdateOptions = {}): Promise<UpdateResult> {
+export async function updateFafFile(projectPath?: string, _options: UpdateOptions = {}): Promise<UpdateResult> {
   try {
     const fafPath = projectPath ? `${projectPath}/project.faf` : await findFafFile();
 

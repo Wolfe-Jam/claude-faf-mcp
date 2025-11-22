@@ -6,7 +6,7 @@
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { parse as parseYAML, stringify as stringifyYAML } from '../fix-once/yaml';
-import { findFafFile, findPackageJson, fileExists } from '../utils/file-utils';
+import { findFafFile, fileExists } from '../utils/file-utils';
 
 export interface SyncOptions {
   auto?: boolean;

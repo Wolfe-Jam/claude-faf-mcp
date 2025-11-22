@@ -89,7 +89,7 @@ export class FabFormatsProcessor {
     // Stage 2: Process - Extract intelligence with deduplication
     const results: ProcessedFileResult[] = [];
     let totalBonus = 0;
-    let highestGrade = 'MINIMAL';
+    const highestGrade = 'MINIMAL';
 
     for (const filePath of files) {
       const result = await this.processFile(filePath);
@@ -510,7 +510,7 @@ export class FabFormatsProcessor {
   /**
    * QUALITY GRADING SYSTEM - The secret sauce!
    */
-  private gradePackageJsonQuality(packageData: any, content: string): QualityGrade {
+  private gradePackageJsonQuality(packageData: any, _content: string): QualityGrade {
     const criteria: string[] = [];
 
     // TIER 1: EXCEPTIONAL (90%+ score) - 90-150 points
@@ -1278,7 +1278,7 @@ export class FabFormatsProcessor {
    * Generic file processor (fallback)
    */
   private async processGenericFile(fileName: string, content: string): Promise<ProcessedFileResult> {
-    let intelligenceBonus = 10;
+    const intelligenceBonus = 10;
     const metadata: Record<string, any> = {};
 
     metadata.fileSize = content.length;

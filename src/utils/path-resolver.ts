@@ -99,6 +99,35 @@ export function getProjectsDirectory(): string {
 }
 
 /**
+ * Try to find existing project directory from short name
+ * Pomelli-style: "my-app" → finds ~/Projects/my-app OR ~/my-app OR ~/Code/my-app
+ */
+function findExistingProject(shortName: string): string | null {
+  const home = getHomeDirectory();
+  const slugified = slugify(shortName);
+
+  // Search locations in priority order
+  const searchLocations = [
+    path.join(home, 'Projects', slugified),
+    path.join(home, 'projects', slugified),
+    path.join(home, 'FAF', slugified),          // F1 projects location
+    path.join(home, 'Code', slugified),
+    path.join(home, 'code', slugified),
+    path.join(home, 'Development', slugified),
+    path.join(home, 'dev', slugified),
+    path.join(home, slugified)
+  ];
+
+  for (const location of searchLocations) {
+    if (fs.existsSync(location)) {
+      return location;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Resolve project path using Projects convention
  *
  * @param userInput - User-provided path or project name
@@ -111,7 +140,13 @@ export function resolveProjectPath(
 ): PathResolution {
   // USER EXPLICIT PATH ALWAYS WINS
   if (userInput && (userInput.includes('/') || userInput.includes('\\'))) {
-    const normalized = path.resolve(userInput);
+    // Handle tilde expansion
+    let normalized = userInput;
+    if (userInput.startsWith('~')) {
+      normalized = path.join(getHomeDirectory(), userInput.slice(1));
+    }
+    normalized = path.resolve(normalized);
+
     const projectName = path.basename(normalized);
     const fafFilePath = path.join(normalized, 'project.faf');
 
@@ -123,8 +158,22 @@ export function resolveProjectPath(
     };
   }
 
-  // USER PROVIDED NAME (not path)
+  // USER PROVIDED NAME (not path) - Try to find existing first
   if (userInput) {
+    const existingPath = findExistingProject(userInput);
+    if (existingPath) {
+      const projectName = path.basename(existingPath);
+      const fafFilePath = path.join(existingPath, 'project.faf');
+
+      return {
+        projectPath: existingPath,
+        fafFilePath,
+        projectName,
+        source: 'user-name'
+      };
+    }
+
+    // Not found - default to ~/Projects/[name] for creation
     const projectName = slugify(userInput);
     const projectPath = path.join(getProjectsDirectory(), projectName);
     const fafFilePath = path.join(projectPath, 'project.faf');
@@ -140,6 +189,20 @@ export function resolveProjectPath(
   // AI INFERENCE FROM CONTEXT
   const inferredName = inferFromContext(context);
   if (inferredName) {
+    // Try to find existing project first
+    const existingPath = findExistingProject(inferredName);
+    if (existingPath) {
+      const fafFilePath = path.join(existingPath, 'project.faf');
+
+      return {
+        projectPath: existingPath,
+        fafFilePath,
+        projectName: inferredName,
+        source: 'ai-inference'
+      };
+    }
+
+    // Not found - create in Projects
     const projectPath = path.join(getProjectsDirectory(), inferredName);
     const fafFilePath = path.join(projectPath, 'project.faf');
 
