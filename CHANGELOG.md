@@ -5,6 +5,19 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.3] - 2025-11-27
+
+### Fixed
+- **Tier System Alignment** - Synchronized Mk3 tier system across all code paths
+  - JSON output now uses canonical tier names (Trophy, Gold, Silver, Bronze, Green, Yellow, Red, White)
+  - Fixed 0% edge case to show White tier (🤍)
+  - All scorecard renders now use unified `getScoreMedal()` function
+- **Removed Unauthorized Branding** - Cleaned up hallucinated F1/racing terminology
+  - Removed "Championship", "Podium Edition", "Race ready", "Pit Stop" from user-facing output
+  - Tool descriptions updated to neutral language
+  - Help text now shows proper Mk3 tier system
+- **README Cleanup** - Removed F1 branding, aligned with code changes
+
 ## [3.3.2] - 2025-11-16
 
 ### Fixed

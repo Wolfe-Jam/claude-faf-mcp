@@ -138,7 +138,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     name: 'faf_auto',
     visibility: 'core',
     category: 'workflow',
-    description: 'One-command championship - Initialize & optimize automatically',
+    description: 'One-command setup - Initialize & optimize automatically',
     priority: 2,
   },
   faf_init: {

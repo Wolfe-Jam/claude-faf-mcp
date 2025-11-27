@@ -208,7 +208,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_auto',
-          description: '🏆 ONE COMMAND CHAMPIONSHIP - IMPORTANT: Users work on LOCAL projects. Ask for LOCAL filesystem path (e.g., /Users/username/projects/myapp). DO NOT use containers. Auto-scan, populate, score, sync using real FAF file tools.',
+          description: '🏆 ONE COMMAND SETUP - IMPORTANT: Users work on LOCAL projects. Ask for LOCAL filesystem path (e.g., /Users/username/projects/myapp). DO NOT use containers. Auto-scan, populate, score, sync using real FAF file tools.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -229,7 +229,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_init',
-          description: 'Initialize FAF with intelligent project detection - Championship grade',
+          description: 'Initialize FAF with intelligent project detection',
           inputSchema: {
             type: 'object',
             properties: {
@@ -252,7 +252,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_score',
-          description: 'Championship scorecard with actionable insights. CRITICAL: Content between [DISPLAY:REQUIRED] tags MUST be displayed directly to user as formatted markdown. Do NOT summarize. Includes Quick Actions for immediate next steps.',
+          description: 'AI-Readiness scorecard with actionable insights. CRITICAL: Content between [DISPLAY:REQUIRED] tags MUST be displayed directly to user as formatted markdown. Do NOT summarize. Includes Quick Actions for immediate next steps.',
           inputSchema: {
             type: 'object',
             properties: {
@@ -263,7 +263,7 @@ Working on REAL filesystem: ${targetDir}
                 description: 'Output format: markdown (default), html, json, ascii',
                 enum: ['markdown', 'html', 'json', 'ascii']
               },
-              full: { type: 'boolean', description: 'Show full Podium Edition scorecard with detailed metrics' }
+              full: { type: 'boolean', description: 'Show full scorecard with detailed metrics' }
             }
           }
         },
@@ -280,7 +280,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_bi_sync',
-          description: '40ms bi-directional sync - Championship speed!',
+          description: '40ms bi-directional sync',
           inputSchema: {
             type: 'object',
             properties: {
@@ -322,7 +322,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_trust_validated',
-          description: 'Trust validated mode - championship seal',
+          description: 'Trust validated mode - production seal',
           inputSchema: { type: 'object', properties: {} }
         },
 
@@ -473,7 +473,7 @@ Working on REAL filesystem: ${targetDir}
         // Developer Tools
         {
           name: 'faf_status',
-          description: 'Comprehensive project status with Championship Medal System',
+          description: 'Comprehensive project status with Mk3 Tier System',
           inputSchema: {
             type: 'object',
             properties: {
@@ -593,7 +593,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_innit',
-          description: '🇬🇧 British version of init - same championship, more bruv!',
+          description: '🇬🇧 British version of init - same quality, more bruv!',
           inputSchema: {
             type: 'object',
             properties: {
@@ -952,11 +952,11 @@ Working on REAL filesystem: ${targetDir}
         const skillPath = path.join(homeDir, '.claude', 'skills', 'faf-expert', 'SKILL.md');
         const skillInstalled = await this.fileExists(skillPath);
 
-        const championshipSection = skillInstalled
-          ? `🏆 **Championship Mode Ready!**\n` +
+        const skillSection = skillInstalled
+          ? `🏆 **Expert Mode Ready!**\n` +
             `• faf-expert skill is installed ✅\n` +
             `• Invoke it anytime for 99/100 AI-readiness!\n\n`
-          : `🏆 **Want Championship Mode?**\n` +
+          : `🏆 **Want Expert Mode?**\n` +
             `• Install faf-expert skill: Say "Run faf_install_skill"\n` +
             `• Get 99/100 AI-readiness with world-class guidance!\n\n`;
 
@@ -969,7 +969,7 @@ Working on REAL filesystem: ${targetDir}
           `• **DROP** any file from your project (I'll find the root!)\n` +
           `• **PASTE** your project path: \`faf_auto /path/to/project\`\n` +
           `• **CREATE** instantly: Say "Run faf_quick"\n\n` +
-          championshipSection +
+          skillSection +
           `💡 **Examples:**\n` +
           `\`faf_auto ~/Documents/my-app\`\n` +
           `\`faf_auto /Users/yourname/cool-project\`\n\n` +
@@ -1076,7 +1076,7 @@ Claude Desktop needs a target directory:
     let status = '';
     let emoji = '';
     if (score >= 99) {
-      status = 'Championship!';
+      status = 'Trophy!';
       emoji = '🏆';
     } else if (score >= 90) {
       status = 'Excellent!';
@@ -1197,26 +1197,13 @@ AI-Readiness: ${score}% ${emoji}
       // Build CLEAN markdown - no wrappers!
       const progressBar = '█'.repeat(Math.floor(score * 24 / 100)) + '░'.repeat(24 - Math.floor(score * 24 / 100));
 
-      let statusEmoji = '';
-      let statusText = '';
-      if (score >= 99) {
-        statusEmoji = '🟢';
-        statusText = 'CHAMPIONSHIP!';
-      } else if (score >= 84) {
-        statusEmoji = '⭐';
-        statusText = 'PODIUM READY!';
-      } else if (score >= 69) {
-        statusEmoji = '🟡';
-        statusText = 'QUALIFYING!';
-      } else {
-        statusEmoji = '🔴';
-        statusText = 'PIT LANE';
-      }
+      // Mk3 Canonical Tier System
+      const { medal: statusEmoji, status: statusText } = this.getScoreMedal(score);
 
       // Build clean output - just markdown, no wrappers!
-      const output = `# 🏎️ FAF Championship Score Card
+      const output = `# FAF Score Card
 
-## **Project Score: ${score}/100** ${score >= 99 ? '🏆' : ''}
+## **Project Score: ${score}/100** ${statusEmoji}
 
 ${progressBar} ${score}%
 
@@ -1235,10 +1222,10 @@ ${progressBar} ${score}%
 
 ---
 
-## 🏁 Race Telemetry
+## Context Status
 
 ### **Strengths** 💚
-${hasFaf && hasClaude ? '- Bi-directional sync: 40ms championship speed\n' : ''}${hasClaude ? '- AI-Ready Documentation: Full CLAUDE.md integration\n' : ''}${hasFaf ? '- Core Systems: FAF foundation in place\n' : ''}${hasReadme ? '- Documentation: README.md providing clarity\n' : ''}${hasPackage ? '- Dependencies: package.json tracking enabled' : ''}
+${hasFaf && hasClaude ? '- Bi-directional sync active\n' : ''}${hasClaude ? '- AI-Ready Documentation: Full CLAUDE.md integration\n' : ''}${hasFaf ? '- Core Systems: FAF foundation in place\n' : ''}${hasReadme ? '- Documentation: README.md providing clarity\n' : ''}${hasPackage ? '- Dependencies: package.json tracking enabled' : ''}
 
 ---
 
@@ -1252,7 +1239,7 @@ faf_score --save      # Save this scorecard
 
 ---
 
-> "Championship teams measure everything. So does FAF."
+> "Context is everything. FAF delivers it."
 
 ---
 
@@ -1338,7 +1325,7 @@ faf_score --save      # Save this scorecard
         project: path.basename(targetDir),
         score: score,
         percentage: score,
-        status: score >= 90 ? 'Championship' : score >= 70 ? 'Podium Ready' : score >= 50 ? 'Qualifying' : score >= 30 ? 'In the Garage' : 'Needs Pit Stop',
+        status: this.getScoreMedal(score).status,
         components: {
           faf: { exists: hasFaf, points: hasFaf ? 40 : 0 },
           claude: { exists: hasClaude, points: hasClaude ? 30 : 0 },
@@ -1385,29 +1372,16 @@ faf_score --save      # Save this scorecard
       const _standalone = 100;   // Static for MCP server itself
 
       // Determine status tier
-      let statusTier = '';
-      let _statusEmoji = '';
-      if (score >= 99) {
-        statusTier = 'PODIUM EDITION';
-        _statusEmoji = '🏆';
-      } else if (score >= 85) {
-        statusTier = 'RACE READY';
-        _statusEmoji = '⭐';
-      } else if (score >= 70) {
-        statusTier = 'QUALIFYING';
-        _statusEmoji = '🟪';
-      } else {
-        statusTier = 'IN DEVELOPMENT';
-        _statusEmoji = '🔧';
-      }
+      // Mk3 Canonical Tier System
+      const { medal: tierEmoji, status: statusTier } = this.getScoreMedal(score);
 
       result = ``;
-      result += `# 🏎️ FAF AI-Readiness Score: ${score}/100 — ${statusTier}\n\n`;
+      result += `# FAF AI-Readiness Score: ${score}/100 ${tierEmoji}\n\n`;
       result += `**The closer you get to 100% the better AI can assist you.**\n\n`;
       result += `At 55% you are building your project with half a blueprint and basically flipping a coin with AI. .FAF defines, and AI becomes optimized for Context with the project.faf file.\n\n`;
       result += `\`\`\`\n`;
       result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      result += `🏎️  FAF AI-READINESS SCORE: ${score}/100 — ${statusTier}\n`;
+      result += `${tierEmoji}  FAF AI-READINESS SCORE: ${score}/100 — ${statusTier}\n`;
       result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
 
       // Core Intelligence section
@@ -1428,7 +1402,7 @@ faf_score --save      # Save this scorecard
       result += `├─ 50/50 Tools Active    ${bar100}  ├─ Direct Function   ${bar100}\n`;
       result += `└─ Zero Memory Leaks     ${bar100}  └─ 14 Bundled Cmds   ${bar100}\n\n`;
 
-      result += `🏆 project.faf score: ${score >= 99 ? 'podium' : score >= 85 ? 'race-ready' : score >= 70 ? 'qualifying' : 'development'}\n`;
+      result += `${tierEmoji} project.faf score: ${statusTier}\n`;
       result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
       result += `\`\`\`\n\n`;
 
@@ -1441,11 +1415,11 @@ faf_score --save      # Save this scorecard
         result += `📝 **Generate CLAUDE.md**: Run \`faf_sync\` to create AI documentation (+30 points)\n\n`;
       }
       if (hasFaf && hasClaude) {
-        result += `🎯 **You're at Championship level!** Run \`faf_bi_sync\` to keep files synchronized.\n\n`;
+        result += `🎯 **You're at 100%!** Run \`faf_bi_sync\` to keep files synchronized.\n\n`;
       }
 
       result += `---\n\n`;
-      result += `*Generated by FAF Podium Edition v${VERSION}*\n\n`;
+      result += `*Generated by FAF v${VERSION}*\n\n`;
       result += `*"It's so logical if it didn't exist, AI would have built it itself" — Claude*`;
 
     } else {
@@ -1458,35 +1432,17 @@ faf_score --save      # Save this scorecard
       // Determine status and emoji
       let statusEmoji = '';
       let statusText = '';
-      let statusColor = '';
 
-      if (score >= 90) {
-        statusEmoji = '🏆';
-        statusText = 'CHAMPIONSHIP!';
-        statusColor = '🟢';
-      } else if (score >= 70) {
-        statusEmoji = '⭐';
-        statusText = 'PODIUM READY!';
-        statusColor = '🟢';
-      } else if (score >= 50) {
-        statusEmoji = '🟪';
-        statusText = 'QUALIFYING!';
-        statusColor = '🟡';
-      } else if (score >= 30) {
-        statusEmoji = '🔧';
-        statusText = 'IN THE GARAGE!';
-        statusColor = '🟡';
-      } else {
-        statusEmoji = '🛟';
-        statusText = 'NEEDS PIT STOP!';
-        statusColor = '🔴';
-      }
+      // Mk3 Canonical Tier System
+      const { medal, status } = this.getScoreMedal(score);
+      statusEmoji = medal;
+      statusText = status;
 
-      // Build the championship scorecard
-      result = `# 🏎️ FAF Championship Score Card\n\n`;
+      // Build the scorecard
+      result = `# FAF Score Card\n\n`;
       result += `## **Project Score: ${score}/100** ${statusEmoji}\n\n`;
       result += `${progressBar} ${score}%\n\n`;
-      result += `### ${statusColor} **Status: ${statusText}**\n\n`;
+      result += `### ${statusEmoji} **Status: ${statusText}**\n\n`;
       result += `---\n\n`;
 
       // Performance Breakdown Table
@@ -1499,12 +1455,12 @@ faf_score --save      # Save this scorecard
       result += `| **package.json** | ${hasPackage ? '✅ **FOUND**' : '⚠️ **MISSING**'} | ${hasPackage ? '14' : '0'}pts | ${hasPackage ? 'Dependencies tracked' : '*Add for full score*'} |\n`;
       result += `\n---\n\n`;
 
-      // Race Telemetry Section
-      result += `## 🏁 Race Telemetry\n\n`;
+      // Context Status Section
+      result += `## Context Status\n\n`;
 
       // Strengths
       const strengths = [];
-      if (hasFaf && hasClaude) strengths.push('Bi-directional sync: 40ms championship speed');
+      if (hasFaf && hasClaude) strengths.push('Bi-directional sync active');
       if (hasClaude) strengths.push('AI-Ready Documentation: Full CLAUDE.md integration');
       if (hasFaf) strengths.push('Core Systems: FAF foundation in place');
       if (hasReadme) strengths.push('Documentation: README.md providing clarity');
@@ -1524,7 +1480,7 @@ faf_score --save      # Save this scorecard
       if (!hasPackage) improvements.push('Add package.json for +14 points → ${score + 14}% score');
 
       if (improvements.length > 0) {
-        result += `### **Pit Stop Required** 🔧\n`;
+        result += `### **Improvements Needed** 🔧\n`;
         improvements.forEach(i => result += `- ${i}\n`);
         result += `\n`;
       }
@@ -1540,13 +1496,13 @@ faf_score --save      # Save this scorecard
       result += `faf_score --save      # Save this scorecard\n`;
       result += `\`\`\`\n\n`;
 
-      // Championship Quote
+      // FAF Quote
       const quotes = [
-        '"In F1, the difference between championship and last place is milliseconds. In FAF, it\'s context."',
-        '"Every project deserves a pit crew. FAF is yours."',
-        '"Stop FAFfing about - get to 100% and race!"',
-        '"Championship teams measure everything. So does FAF."',
-        '"The best time to FAF was yesterday. The second best time is now."'
+        '"Context is everything. FAF delivers it."',
+        '"Stop FAFfing about - get to 100%!"',
+        '"The best time to FAF was yesterday. The second best time is now."',
+        '"AI without context is just guessing."',
+        '"One file. Complete understanding."'
       ];
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       result += `---\n\n`;
@@ -1554,7 +1510,7 @@ faf_score --save      # Save this scorecard
 
       // Footer
       result += `---\n\n`;
-      result += `*Generated by FAF Podium Edition v${VERSION}* ⚡\n`;
+      result += `*Generated by FAF v${VERSION}* ⚡\n`;
       result += `*${new Date().toISOString()}*`;
 
       // NOTE: AI-Readiness footer is added by formatResult() - don't duplicate!
@@ -1939,13 +1895,16 @@ faf_score --save      # Save this scorecard
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
           `faf_score\n\n` +
 
-          `Scoring:\n` +
-          `• 0-84%: Keep building\n` +
-          `• 85-98%: Race ready\n` +
-          `• 99%: Maximum technical\n` +
-          `• 🍊 105%: BIG ORANGE CHAMPIONSHIP!\n\n` +
+          `Scoring (Mk3 Tier System):\n` +
+          `• 🔴 <55%: AI working blind\n` +
+          `• 🟡 55%+: Needs improvement\n` +
+          `• 🟢 70%+: Solid foundation\n` +
+          `• 🥉 85%+: Bronze - Production ready\n` +
+          `• 🥈 95%+: Silver - Excellent\n` +
+          `• 🥇 99%+: Gold - Exceptional\n` +
+          `• 🏆 100%: Trophy - Perfect!\n\n` +
 
-          `That's it! You're ready to race! 🏎️⚡`;
+          `That's it! You're ready to go! ⚡`;
         break;
 
       case 'commands':
@@ -1984,8 +1943,8 @@ faf_score --save      # Save this scorecard
       case 'performance':
       case 'speed':
       case 'fast':
-        answer = `⚡ CHAMPIONSHIP PERFORMANCE\n\n` +
-          `Our Speed Achievements:\n` +
+        answer = `⚡ FAF PERFORMANCE\n\n` +
+          `Speed Benchmarks:\n` +
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
           `• faf_check    → 0ms (SUB-MILLISECOND!)\n` +
           `• faf_list     → 1ms\n` +
@@ -1996,10 +1955,10 @@ faf_score --save      # Save this scorecard
 
           `Speed Classifications:\n` +
           `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-          `🏎️ <10ms    = Championship\n` +
-          `🚗 10-50ms  = Race ready\n` +
-          `🚙 50-100ms = Street legal\n` +
-          `🐌 >100ms   = Large operations\n\n` +
+          `⚡ <10ms    = Instant\n` +
+          `🚀 10-50ms  = Fast\n` +
+          `✅ 50-100ms = Normal\n` +
+          `⏳ >100ms   = Large operations\n\n` +
 
           `The Secret:\n` +
           `• Native TypeScript (no shell)\n` +
@@ -2184,11 +2143,12 @@ Simple, fast, championship-grade.`;
   private getScoreMedal(score: number): { medal: string; status: string } {
     if (score >= 100) return { medal: '🏆', status: 'Trophy - Championship' };
     if (score >= 99) return { medal: '🥇', status: 'Gold' };
-    if (score >= 95) return { medal: '🥈', status: 'Target 2 - Silver' };
-    if (score >= 85) return { medal: '🥉', status: 'Target 1 - Bronze' };
-    if (score >= 70) return { medal: '🟢', status: 'GO! - Ready for Target 1' };
-    if (score >= 55) return { medal: '🟡', status: 'Caution - Getting ready' };
-    return { medal: '🔴', status: 'Stop - Needs work' };
+    if (score >= 95) return { medal: '🥈', status: 'Silver' };
+    if (score >= 85) return { medal: '🥉', status: 'Bronze' };
+    if (score >= 70) return { medal: '🟢', status: 'Green - Solid foundation' };
+    if (score >= 55) return { medal: '🟡', status: 'Yellow - Needs improvement' };
+    if (score > 0) return { medal: '🔴', status: 'Red - AI working blind' };
+    return { medal: '🤍', status: 'White - Empty' };
   }
 
   /**
@@ -2212,38 +2172,45 @@ Simple, fast, championship-grade.`;
       };
     } else if (score >= 95) {
       return {
-        current: 'Target 2 - Silver',
+        current: 'Silver',
         next: 'Gold',
         nextTarget: 99,
         nextMedal: '🥇'
       };
     } else if (score >= 85) {
       return {
-        current: 'Target 1 - Bronze',
-        next: 'Target 2 - Silver',
+        current: 'Bronze',
+        next: 'Silver',
         nextTarget: 95,
         nextMedal: '🥈'
       };
     } else if (score >= 70) {
       return {
-        current: 'GO! - Ready for Target 1',
-        next: 'Target 1 - Bronze',
+        current: 'Green - Solid foundation',
+        next: 'Bronze',
         nextTarget: 85,
         nextMedal: '🥉'
       };
     } else if (score >= 55) {
       return {
-        current: 'Caution - Getting ready',
-        next: 'GO! - Ready for Target 1',
+        current: 'Yellow - Needs improvement',
+        next: 'Green - Solid foundation',
         nextTarget: 70,
         nextMedal: '🟢'
       };
-    } else {
+    } else if (score > 0) {
       return {
-        current: 'Stop - Needs work',
-        next: 'Caution - Getting ready',
+        current: 'Red - AI working blind',
+        next: 'Yellow - Needs improvement',
         nextTarget: 55,
         nextMedal: '🟡'
+      };
+    } else {
+      return {
+        current: 'White - Empty',
+        next: 'Red - AI working blind',
+        nextTarget: 1,
+        nextMedal: '🔴'
       };
     }
   }
@@ -2340,7 +2307,6 @@ ${FILESYSTEM_CONTEXT_INSTRUCTION}
 
 Version ${VERSION}
 🌐 IANA Registered Format
-🏎️ Podium Edition
 
 50+ Tools Available
 21 Core • 30+ Advanced
@@ -2383,7 +2349,6 @@ ${FILESYSTEM_CONTEXT_INSTRUCTION}
 🎯 PASS TO USER AS-IS (DO NOT SUMMARIZE)
 
 MCP Server: v${VERSION}
-🏎️ Podium Edition
 🌐 IANA Registered: application/vnd.faf+yaml
 
 50+ Tools Available

@@ -29,7 +29,7 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏎️  FAF AI-READINESS SCORE: 100/100 — PODIUM EDITION
+🏆  FAF AI-READINESS SCORE: 100/100
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY
@@ -39,14 +39,27 @@ At 55% you are building your project with half a blueprint and basically flippin
 └─ Version Tracking      [██████] 100%  └─ Universal Context [██████] 100%
 
 🚀 PERFORMANCE                          ⚡ STANDALONE OPERATION
-├─ 16.2x CLI Speedup     [██████] 100%  ├─ Zero Dependencies [██████] 100%
+├─ 16.2x Speedup         [██████] 100%  ├─ Zero Dependencies [██████] 100%
 ├─ 19ms Avg Execution    [██████] 100%  ├─ Bundled Engine    [██████] 100%
 ├─ 50/50 Tools Active    [██████] 100%  ├─ Direct Function   [██████] 100%
 └─ Zero Memory Leaks     [██████] 100%  └─ 14 Bundled Cmds   [██████] 100%
 
-🏆 project.faf score: podium
+🏆 Status: Trophy - Perfect AI context
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+### Tier System
+
+| Tier | Score | Emoji | Meaning |
+|------|-------|-------|---------|
+| **Trophy** | 100% | 🏆 | Perfect AI context |
+| **Gold** | 99%+ | 🥇 | Exceptional |
+| **Silver** | 95%+ | 🥈 | Top tier - Excellent |
+| **Bronze** | 85%+ | 🥉 | Strong - Production ready |
+| **Green** | 70%+ | 🟢 | Good - Solid foundation |
+| **Yellow** | 55%+ | 🟡 | Caution - Needs improvement |
+| **Red** | <55% | 🔴 | Critical - AI working blind |
+| **White** | 0% | 🤍 | Empty - No context |
 
 ---
 
@@ -94,11 +107,11 @@ At 55% you are building your project with half a blueprint and basically flippin
 - Universal AI context protocol
 - Cross-platform compatibility
 
-### Championship Performance
+### Performance
 - **16.2x faster** than CLI versions (direct function calls vs process spawning)
 - **19ms average** execution across all bundled commands
 - **Fastest: 1ms** (formats command)
-- **Zero memory leaks** with F1-grade engineering
+- **Zero memory leaks**
 
 ---
 
@@ -124,7 +137,7 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 **Zero Setup Tax** - One file (`project.faf`) eliminates AI context setup across your entire team
 
-**Championship Engineering** - F1-inspired performance with strict TypeScript, zero runtime errors
+**Quality Engineering** - Strict TypeScript, zero runtime errors
 
 ---
 
@@ -132,6 +145,7 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 - **[FAF Format Spec](https://github.com/Wolfe-Jam/faf)** - Official IANA specification
 - **[FAF CLI](https://github.com/Wolfe-Jam/faf-cli)** - Command-line tooling
+- **[faf-wasm](https://www.npmjs.com/package/faf-wasm)** - WASM SDK for scoring (<5ms)
 - **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** - Browser integration
 - **[faf.one](https://faf.one)** - Official website and documentation
 
@@ -143,6 +157,6 @@ MIT License - Free and open source
 
 ---
 
-**Built with F1-inspired engineering principles** 🏎️⚡
+**Built for speed and reliability** ⚡
 
 *"It's so logical if it didn't exist, AI would have built it itself" — Claude*

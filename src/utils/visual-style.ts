@@ -50,11 +50,12 @@ export function createASCIIBar(percentage: number, width: number = 24): string {
 export function getScoreMedal(score: number): { medal: string; status: string } {
   if (score >= 100) return { medal: '🏆', status: 'Trophy - Championship' };
   if (score >= 99) return { medal: '🥇', status: 'Gold' };
-  if (score >= 95) return { medal: '🥈', status: 'Target 2 - Silver' };
-  if (score >= 85) return { medal: '🥉', status: 'Target 1 - Bronze' };
-  if (score >= 70) return { medal: '🟢', status: 'GO! - Ready for Target 1' };
-  if (score >= 55) return { medal: '🟡', status: 'Caution - Getting ready' };
-  return { medal: '🔴', status: 'Stop - Needs work' };
+  if (score >= 95) return { medal: '🥈', status: 'Silver' };
+  if (score >= 85) return { medal: '🥉', status: 'Bronze' };
+  if (score >= 70) return { medal: '🟢', status: 'Green - Solid foundation' };
+  if (score >= 55) return { medal: '🟡', status: 'Yellow - Needs improvement' };
+  if (score > 0) return { medal: '🔴', status: 'Red - AI working blind' };
+  return { medal: '🤍', status: 'White - Empty' };
 }
 
 /**
