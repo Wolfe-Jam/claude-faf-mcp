@@ -6,7 +6,7 @@
   </div>
 </div>
 
-> Official MCP server for .FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
+> Official MCP server for .FAF (Foundational AI-context Format) with 52 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
 
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-5865F2?logo=discord&logoColor=white)](https://discord.com/invite/56fPBUJKfk)
@@ -34,14 +34,14 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY
 ├─ Project DNA            [██████] 100%  ├─ MCP Protocol      [██████] 100%
-├─ Architecture Map       [██████] 100%  ├─ 50 Native Tools   [██████] 100%
+├─ Architecture Map       [██████] 100%  ├─ 52 Native Tools   [██████] 100%
 ├─ Domain Model          [██████] 100%  ├─ IANA Format       [██████] 100%
 └─ Version Tracking      [██████] 100%  └─ Universal Context [██████] 100%
 
 🚀 PERFORMANCE                          ⚡ STANDALONE OPERATION
 ├─ 16.2x Speedup         [██████] 100%  ├─ Zero Dependencies [██████] 100%
 ├─ 19ms Avg Execution    [██████] 100%  ├─ Bundled Engine    [██████] 100%
-├─ 50/50 Tools Active    [██████] 100%  ├─ Direct Function   [██████] 100%
+├─ 52/52 Tools Active    [██████] 100%  ├─ Direct Function   [██████] 100%
 └─ Zero Memory Leaks     [██████] 100%  └─ 14 Bundled Cmds   [██████] 100%
 
 🏆 Status: Trophy - Perfect AI context
@@ -92,12 +92,14 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 ## 🛠️ Core Features
 
-### 51 MCP Tools (100% Standalone)
+### 52 MCP Tools (100% Standalone)
 - **faf_quick** - Lightning-fast project.faf creation (3ms avg)
+- **faf_readme** - Smart 6 Ws extraction from README.md (+25-35% score boost)
+- **faf_human_add** - Non-interactive human context entry (Claude Code compatible)
 - **faf_enhance** - Intelligent enhancement with auto-detection
 - **faf_read** - Parse and validate FAF files
 - **faf_write** - Create/update FAF with validation
-- **faf_score** - AI-readiness scoring engine
+- **faf_score** - AI-readiness scoring engine (with subsite auto-detection)
 - **faf_compress** - Intelligent size optimization
 - **14 bundled commands** - Zero CLI dependencies, 16.2x faster
 
@@ -121,7 +123,7 @@ At 55% you are building your project with half a blueprint and basically flippin
 - **[Full Documentation](https://wolfe-jam.github.io/claude-faf-mcp/)** - Complete guide
 - **[FAQ](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/FAQ.md)** - Common questions
 - **[Getting Started](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/getting-started.md)** - Installation & setup
-- **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)** - All 50 tools
+- **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)** - All 52 tools
 - **[Website](https://faf.one)** - faf.one
 - **[Discord Community](https://discord.com/invite/56fPBUJKfk)** - Join the discussion
 

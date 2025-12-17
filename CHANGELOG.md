@@ -5,6 +5,42 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.6] - 2025-12-17
+
+### Added
+- **WJTTC MCP Certification Standard** - 7-tier certification system for MCP servers
+  - Tier 1: Protocol Compliance (MCP spec 2025-11-25)
+  - Tier 2: Capability Negotiation
+  - Tier 3: Tool Integrity
+  - Tier 4: Resource Management
+  - Tier 5: Security Validation
+  - Tier 6: Performance Benchmarks (<50ms operations)
+  - Tier 7: Integration Readiness
+- **wjttc-mcp.test.ts** - Comprehensive MCP certification test suite
+  - Performance metrics (tool list, tool call, file ops, concurrent ops)
+  - Memory growth tracking
+  - Full certification report output
+- **WJTTC-MCP-v3.3.6-REPORT.json** - Machine-readable test results
+
+### Changed
+- Test suite now outputs WJTTC certification level (CHAMPIONSHIP GRADE)
+- All 5 test suites passing (visibility, performance, security, wjttc-mcp, desktop-native)
+
+## [3.3.4] - 2025-12-01
+
+### Added
+- **Subsite Auto-Detection** - Smart scoring for static HTML subsites
+  - Pattern detection: No `package.json` + has `index.html`
+  - Auto-ignores package.json-derived stack slots (backend, api_type, runtime, database, etc.)
+  - Subsites can achieve 100% score without manual configuration
+  - Auto-fills: `stack.frontend`, `stack.hosting`, `stack.build`, `stack.cicd`
+  - Ideal for landing pages, demos, documentation subsites
+- **Path Context Enhancement** - All action tools now support explicit `path` parameter
+  - `faf_context` tool for explicit session context management
+  - Auto-set context when reading .faf files via `faf_read`
+  - Session state persists for subsequent calls
+- **faf_human_add** - Renamed from `faf_human_set` for consistency with CLI
+
 ## [3.3.3] - 2025-11-27
 
 ### Fixed

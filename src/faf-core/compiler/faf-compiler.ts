@@ -318,6 +318,18 @@ export class FafCompiler {
       if (ctx.buildTool) discovered.buildTool = ctx.buildTool;
     }
 
+    // Subsite detection: no package.json + has index.html = static subsite
+    const fs = await import('fs/promises');
+    const hasPackageJson = await fs.access(path.join(projectDir, 'package.json')).then(() => true).catch(() => false);
+    const hasIndexHtml = await fs.access(path.join(projectDir, 'index.html')).then(() => true).catch(() => false);
+
+    if (!hasPackageJson && hasIndexHtml) {
+      discovered.isSubsite = true;
+      if (process.env.FAF_DEBUG) {
+        console.log('[DEBUG] Subsite detected: no package.json + has index.html');
+      }
+    }
+
     return discovered;
   }
 
@@ -440,6 +452,39 @@ export class FafCompiler {
       this.addSlot(slots, 'stack.build', ast.stack.build, 'string', 'discovered', 1);
 
       // Leave backend, database, cicd as "None" - legitimate for static sites
+    }
+
+    // Subsite auto-fill: Static HTML without package.json (auto-detected via _discovered.isSubsite)
+    // These are minimal pages like landing pages, demos, documentation subsites
+    // Only score: project (3) + universal stack (4) + human (6) = 13 slots max
+    if (projectType === 'subsite' || ast._discovered?.isSubsite) {
+      if (process.env.FAF_DEBUG) {
+        console.log('[DEBUG] Subsite mode: auto-ignoring package.json-derived stack slots');
+      }
+      if (!ast.stack) ast.stack = {};
+
+      // Auto-fill subsite context
+      if (!ast.stack.frontend) ast.stack.frontend = 'HTML/CSS/JavaScript';
+      if (!ast.stack.hosting) ast.stack.hosting = 'Static Hosting';
+      if (!ast.stack.build) ast.stack.build = 'None (static files)';
+      if (!ast.stack.cicd) ast.stack.cicd = 'None (static subsite)';
+
+      // Only add universal stack slots for subsites (skip frontend/backend specific slots)
+      this.addSlot(slots, 'stack.frontend', ast.stack.frontend, 'string', 'discovered', 1);
+      this.addSlot(slots, 'stack.hosting', ast.stack.hosting, 'string', 'discovered', 1);
+      this.addSlot(slots, 'stack.build', ast.stack.build, 'string', 'discovered', 1);
+      this.addSlot(slots, 'stack.cicd', ast.stack.cicd, 'string', 'discovered', 1);
+
+      // Human context slots (6) - always applicable
+      this.addSlot(slots, 'human.who', ast.human_context?.who, 'string', 'original', 1);
+      this.addSlot(slots, 'human.what', ast.human_context?.what, 'string', 'original', 1);
+      this.addSlot(slots, 'human.why', ast.human_context?.why, 'string', 'original', 1);
+      this.addSlot(slots, 'human.where', ast.human_context?.where, 'string', 'original', 1);
+      this.addSlot(slots, 'human.when', ast.human_context?.when, 'string', 'original', 1);
+      this.addSlot(slots, 'human.how', ast.human_context?.how, 'string', 'original', 1);
+
+      // Return early - subsites don't need other stack slots
+      return slots;
     }
 
     // n8n Workflow auto-fill: Map n8n-specific fields to standard 21-slot system

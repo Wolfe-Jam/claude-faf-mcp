@@ -3,6 +3,7 @@ import { FafEngineAdapter } from './engine-adapter';
 import { fileHandlers } from './fileHandler';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as pathModule from 'path';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile } from '../utils/faf-file-finder.js';
 import { VERSION } from '../version';
@@ -10,6 +11,35 @@ import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolv
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
+
+  /**
+   * Get the project path - uses explicit path if provided, otherwise returns current context
+   * If an explicit path is provided, it also sets the session context for subsequent calls
+   */
+  private getProjectPath(explicitPath?: string): string {
+    if (explicitPath) {
+      // Expand tilde
+      const expandedPath = explicitPath.startsWith('~')
+        ? pathModule.join(os.homedir(), explicitPath.slice(1))
+        : explicitPath;
+
+      // Resolve to absolute path
+      const resolvedPath = pathModule.resolve(expandedPath);
+
+      // If it's a file path, get the directory
+      const projectDir = fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()
+        ? pathModule.dirname(resolvedPath)
+        : resolvedPath;
+
+      // Set as the new session context
+      if (fs.existsSync(projectDir)) {
+        this.engineAdapter.setWorkingDirectory(projectDir);
+      }
+
+      return projectDir;
+    }
+    return this.engineAdapter.getWorkingDirectory();
+  }
 
   async listTools() {
     return {
@@ -37,7 +67,9 @@ export class FafToolHandler {
           description: 'Check if your project has project.faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
           inputSchema: {
             type: 'object',
-            properties: {},
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
             additionalProperties: false
           }
         },
@@ -47,7 +79,8 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              details: { type: 'boolean', description: 'Include detailed breakdown and improvement suggestions' }
+              details: { type: 'boolean', description: 'Include detailed breakdown and improvement suggestions' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
           }
@@ -81,7 +114,9 @@ export class FafToolHandler {
           description: 'Sync project.faf (THE JPEG for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
           inputSchema: {
             type: 'object',
-            properties: {},
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
             additionalProperties: false
           }
         },
@@ -94,7 +129,8 @@ export class FafToolHandler {
               model: { type: 'string', description: 'Target AI model: claude|chatgpt|gemini|universal (default: claude)' },
               focus: { type: 'string', description: 'Enhancement focus: claude-optimal|human-context|ai-instructions|completeness' },
               consensus: { type: 'boolean', description: 'Build consensus from multiple AI models' },
-              dryRun: { type: 'boolean', description: 'Preview enhancement without applying changes' }
+              dryRun: { type: 'boolean', description: 'Preview enhancement without applying changes' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
           }
@@ -107,7 +143,8 @@ export class FafToolHandler {
             properties: {
               auto: { type: 'boolean', description: 'Enable automatic synchronization' },
               watch: { type: 'boolean', description: 'Start real-time file watching for changes' },
-              force: { type: 'boolean', description: 'Force overwrite conflicting changes' }
+              force: { type: 'boolean', description: 'Force overwrite conflicting changes' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
           }
@@ -229,6 +266,61 @@ export class FafToolHandler {
             properties: {},
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_readme',
+          description: '📖 Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              apply: { type: 'boolean', description: 'Apply extracted content to project.faf (default: preview only)' },
+              force: { type: 'boolean', description: 'Overwrite existing human_context values (default: only fill empty slots)' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_human_add',
+          description: '🧡 Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              field: {
+                type: 'string',
+                enum: ['who', 'what', 'why', 'where', 'when', 'how'],
+                description: 'The 6 W field to set'
+              },
+              value: { type: 'string', description: 'The value to set for the field' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['field', 'value'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_check',
+          description: '🔍 Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              protect: { type: 'boolean', description: 'Lock good/excellent fields from being overwritten' },
+              unlock: { type: 'boolean', description: 'Remove all field protections' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_context',
+          description: '📂 Set or view active project context - Path is remembered for subsequent faf_ calls 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Set active project path. If omitted, shows current context.' }
+            },
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -263,8 +355,15 @@ export class FafToolHandler {
         return await this.handleFafAbout(args);
       case 'faf_what':
         return await this.handleFafWhat(args);
-      case 'faf_read':
-        return await fileHandlers.faf_read(args);
+      case 'faf_read': {
+        // Handle faf_read specially to set context when reading project.faf files
+        const readResult = await fileHandlers.faf_read(args);
+        // If reading a project.faf file, set the session context
+        if (args?.path && (args.path.includes('project.faf') || args.path.endsWith('.faf'))) {
+          this.getProjectPath(args.path);
+        }
+        return readResult;
+      }
       case 'faf_chat':
         return await this.handleFafChat(args);
       case 'faf_friday':
@@ -275,14 +374,22 @@ export class FafToolHandler {
         return await this.handleFafList(args);
       case 'faf_guide':
         return await this.handleFafGuide(args);
+      case 'faf_readme':
+        return await this.handleFafReadme(args);
+      case 'faf_human_add':
+        return await this.handleFafHumanAdd(args);
+      case 'faf_check':
+        return await this.handleFafCheck(args);
+      case 'faf_context':
+        return await this.handleFafContext(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
   }
   
-  private async handleFafStatus(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
+  private async handleFafStatus(args: any): Promise<CallToolResult> {
     // Native implementation - no CLI needed!
-    const cwd = this.engineAdapter.getWorkingDirectory();
+    const cwd = this.getProjectPath(args?.path);
 
     try {
       const fafResult = await findFafFile(cwd);
@@ -321,8 +428,8 @@ export class FafToolHandler {
       const fs = await import('fs').then(m => m.promises);
       const path = await import('path');
 
-      // Get current working directory from engine adapter (smart detection)
-      const cwd = this.engineAdapter.getWorkingDirectory();
+      // Get current working directory - uses path param or session context
+      const cwd = this.getProjectPath(args?.path);
 
       // Score calculation components
       let score = 0;
@@ -608,7 +715,11 @@ package_manager: ${projectData.package_manager}` : ''}
     };
   }
 
-  private async handleFafSync(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
+  private async handleFafSync(args: any): Promise<CallToolResult> {
+    // Set project context if path provided
+    if (args?.path) {
+      this.getProjectPath(args.path);
+    }
     const result = await this.engineAdapter.callEngine('sync');
 
     if (!result.success) {
@@ -634,6 +745,11 @@ package_manager: ${projectData.package_manager}` : ''}
   }
 
   private async handleFafEnhance(args: any): Promise<CallToolResult> {
+    // Set project context if path provided
+    if (args?.path) {
+      this.getProjectPath(args.path);
+    }
+
     const enhanceArgs: string[] = [];
 
     // Default to Claude optimization if no model specified
@@ -675,6 +791,11 @@ package_manager: ${projectData.package_manager}` : ''}
   }
 
   private async handleFafBiSync(args: any): Promise<CallToolResult> {
+    // Set project context if path provided
+    if (args?.path) {
+      this.getProjectPath(args.path);
+    }
+
     const biSyncArgs: string[] = [];
 
     if (args?.auto) {
@@ -1189,6 +1310,327 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           type: 'text',
           text: `❌ Failed to list directory: ${errorMessage}`
         }],
+        isError: true
+      };
+    }
+  }
+
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // NEW: Human Context Tools (v3.2.0 parity)
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  private async handleFafReadme(args: any): Promise<CallToolResult> {
+    try {
+      const path = await import('path');
+      const cwd = this.getProjectPath(args?.path);
+
+      // Find README.md
+      const readmePath = path.join(cwd, 'README.md');
+      if (!fs.existsSync(readmePath)) {
+        return {
+          content: [{
+            type: 'text',
+            text: `📖 FAF README Extraction:\n\n❌ No README.md found in ${cwd}\n💡 Create a README.md first`
+          }],
+          isError: true
+        };
+      }
+
+      // Find project.faf
+      const fafResult = await findFafFile(cwd);
+      if (!fafResult) {
+        return {
+          content: [{
+            type: 'text',
+            text: `📖 FAF README Extraction:\n\n❌ No project.faf found in ${cwd}\n💡 Run faf_init first`
+          }],
+          isError: true
+        };
+      }
+
+      // Read README content
+      const readmeContent = fs.readFileSync(readmePath, 'utf-8');
+
+      // Extract 6 Ws using simple pattern matching
+      const extracted = this.extractSixWsFromReadme(readmeContent);
+
+      if (!args?.apply) {
+        // Preview mode
+        let output = `📖 FAF README Extraction (Preview)\n\n`;
+        output += `Found in README.md:\n`;
+        for (const [field, value] of Object.entries(extracted)) {
+          if (value) {
+            output += `  ${field.toUpperCase()}: ${value}\n`;
+          }
+        }
+        output += `\n💡 Use apply: true to save to project.faf`;
+        return { content: [{ type: 'text', text: output }] };
+      }
+
+      // Apply mode - update project.faf
+      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
+      const yaml = await import('yaml');
+      const fafData = yaml.parse(fafContent) || {};
+
+      if (!fafData.human_context) {
+        fafData.human_context = {};
+      }
+
+      let appliedCount = 0;
+      for (const [field, value] of Object.entries(extracted)) {
+        if (value) {
+          const existingValue = fafData.human_context[field];
+          if (!existingValue || args?.force) {
+            fafData.human_context[field] = value;
+            appliedCount++;
+          }
+        }
+      }
+
+      fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+
+      return {
+        content: [{
+          type: 'text',
+          text: `📖 FAF README Extraction:\n\n✅ Applied ${appliedCount} field(s) to human_context\n📁 Updated: ${fafResult.filename}`
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `📖 FAF README Extraction:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private extractSixWsFromReadme(content: string): Record<string, string | null> {
+    const result: Record<string, string | null> = {
+      who: null, what: null, why: null, where: null, when: null, how: null
+    };
+
+    // WHAT: First paragraph after title
+    const whatMatch = content.match(/^#\s+[^\n]+\n+(?:\*\*[^*]+\*\*\n+)?([A-Z][^#\n]{30,})/m);
+    if (whatMatch) result.what = whatMatch[1].trim().substring(0, 200);
+
+    // WHO: Look for "team", "company", "by", "for"
+    const whoMatch = content.match(/(?:built by|created by|maintained by|for|team)\s+([^\n.]{10,50})/i);
+    if (whoMatch) result.who = whoMatch[1].trim();
+
+    // WHY: Look for "because", "to", benefits
+    const whyMatch = content.match(/(?:because|to help|enables|allows|makes it)\s+([^\n.]{15,100})/i);
+    if (whyMatch) result.why = whyMatch[1].trim();
+
+    // WHERE: Look for deployment/runtime mentions
+    const whereMatch = content.match(/(?:runs on|deployed to|works with|for)\s+(browser|server|edge|npm|cargo|cloud|local)/i);
+    if (whereMatch) result.where = whereMatch[0].trim();
+
+    // WHEN: Look for version, date
+    const whenMatch = content.match(/(?:version|v)\s*(\d+\.\d+(?:\.\d+)?)/i);
+    if (whenMatch) result.when = `v${whenMatch[1]}`;
+
+    // HOW: Look for install/run commands
+    const howMatch = content.match(/(?:npm install|cargo|pip install|brew install)\s+[^\n]+/i);
+    if (howMatch) result.how = howMatch[0].trim();
+
+    return result;
+  }
+
+  private async handleFafHumanAdd(args: any): Promise<CallToolResult> {
+    try {
+      const { field, value } = args;
+
+      if (!field || !value) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🧡 FAF Human Set:\n\n❌ Both field and value are required\n💡 Example: field="who", value="Development team"`
+          }],
+          isError: true
+        };
+      }
+
+      const validFields = ['who', 'what', 'why', 'where', 'when', 'how'];
+      if (!validFields.includes(field)) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🧡 FAF Human Set:\n\n❌ Invalid field: ${field}\n💡 Valid fields: ${validFields.join(', ')}`
+          }],
+          isError: true
+        };
+      }
+
+      const cwd = this.getProjectPath(args?.path);
+      const fafResult = await findFafFile(cwd);
+
+      if (!fafResult) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🧡 FAF Human Add:\n\n❌ No project.faf found in ${cwd}\n💡 Run faf_init first`
+          }],
+          isError: true
+        };
+      }
+
+      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
+      const yaml = await import('yaml');
+      const fafData = yaml.parse(fafContent) || {};
+
+      if (!fafData.human_context) {
+        fafData.human_context = {};
+      }
+
+      fafData.human_context[field] = value;
+      fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+
+      return {
+        content: [{
+          type: 'text',
+          text: `🧡 FAF Human Set:\n\n✅ Set ${field.toUpperCase()} = "${value}"\n📁 Updated: ${fafResult.filename}`
+        }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `🧡 FAF Human Set:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafCheck(args: any): Promise<CallToolResult> {
+    try {
+      const cwd = this.getProjectPath(args?.path);
+      const fafResult = await findFafFile(cwd);
+
+      if (!fafResult) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🔍 FAF Check:\n\n❌ No project.faf found in ${cwd}\n💡 Run faf_init first`
+          }],
+          isError: true
+        };
+      }
+
+      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
+      const yaml = await import('yaml');
+      const fafData = yaml.parse(fafContent) || {};
+      const humanContext = fafData.human_context || {};
+      const protectedFields: string[] = fafData._protected_fields || [];
+
+      const fields = ['who', 'what', 'why', 'where', 'when', 'how'];
+
+      // Handle --unlock
+      if (args?.unlock) {
+        fafData._protected_fields = [];
+        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+        return {
+          content: [{
+            type: 'text',
+            text: `🔓 FAF Check:\n\n✅ All fields unlocked\n📁 Updated: ${fafResult.filename}`
+          }]
+        };
+      }
+
+      // Assess quality
+      const assessField = (value: string | null): string => {
+        if (!value || value.trim() === '') return 'empty';
+        if (value.length < 10) return 'generic';
+        if (value.length > 20) return 'good';
+        return 'generic';
+      };
+
+      const qualities: Record<string, string> = {};
+      for (const field of fields) {
+        qualities[field] = assessField(humanContext[field]);
+      }
+
+      // Handle --protect
+      if (args?.protect) {
+        const toProtect = fields.filter(f =>
+          qualities[f] === 'good' || qualities[f] === 'excellent'
+        );
+        if (toProtect.length === 0) {
+          return {
+            content: [{
+              type: 'text',
+              text: `🔒 FAF Check:\n\n⚠️ No fields qualify for protection (need good or excellent quality)`
+            }]
+          };
+        }
+        fafData._protected_fields = [...new Set([...protectedFields, ...toProtect])];
+        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+        return {
+          content: [{
+            type: 'text',
+            text: `🔒 FAF Check:\n\n✅ Protected ${toProtect.length} field(s): ${toProtect.join(', ')}\n📁 Updated: ${fafResult.filename}`
+          }]
+        };
+      }
+
+      // Default: show quality report
+      const icons: Record<string, string> = {
+        empty: '⬜', generic: '🟡', good: '🟢', excellent: '💎'
+      };
+
+      let output = `🔍 FAF Human Context Quality\n\n`;
+      for (const field of fields) {
+        const q = qualities[field];
+        const locked = protectedFields.includes(field) ? '🔒' : '  ';
+        const value = humanContext[field] || '(empty)';
+        const displayValue = value.length > 40 ? value.substring(0, 37) + '...' : value;
+        output += `${icons[q]} ${locked} ${field.toUpperCase().padEnd(6)} ${displayValue}\n`;
+      }
+
+      const goodCount = fields.filter(f => qualities[f] === 'good' || qualities[f] === 'excellent').length;
+      const emptyCount = fields.filter(f => qualities[f] === 'empty').length;
+
+      output += `\n📊 Quality: ${Math.round((goodCount / fields.length) * 100)}%\n`;
+      if (protectedFields.length > 0) {
+        output += `🔒 Protected: ${protectedFields.join(', ')}\n`;
+      }
+      if (emptyCount > 0) {
+        output += `\n💡 Use faf_readme or faf_human_add to fill empty slots`;
+      }
+
+      return { content: [{ type: 'text', text: output }] };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `🔍 FAF Check:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafContext(args: any): Promise<CallToolResult> {
+    try {
+      if (args?.path) {
+        // Set the new context
+        const newPath = this.getProjectPath(args.path);
+        const fafResult = await findFafFile(newPath);
+
+        return {
+          content: [{
+            type: 'text',
+            text: `📂 FAF Context Set:\n\n✅ Active project: ${newPath}\n${fafResult ? `✅ project.faf found: ${fafResult.filename}` : '⚠️ No project.faf in this directory'}\n\n💡 Subsequent faf_* calls will use this context`
+          }]
+        };
+      } else {
+        // Show current context
+        const currentPath = this.engineAdapter.getWorkingDirectory();
+        const fafResult = await findFafFile(currentPath);
+
+        return {
+          content: [{
+            type: 'text',
+            text: `📂 FAF Current Context:\n\n📁 Active project: ${currentPath}\n${fafResult ? `✅ project.faf: ${fafResult.filename}` : '⚠️ No project.faf found'}\n\n💡 Use path parameter to change context`
+          }]
+        };
+      }
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `📂 FAF Context:\n\n❌ Error: ${error.message}` }],
         isError: true
       };
     }
