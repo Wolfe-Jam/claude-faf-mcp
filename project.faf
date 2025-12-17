@@ -22,10 +22,12 @@ context_quality:
   ai_confidence: VERY_HIGH
   handoff_ready: true
   missing_context: []
+slot_ignore: [database, connection]
 project:
   name: claude-faf-mcp
   goal: Provide FAF context tools directly in Claude Desktop via MCP
   main_language: TypeScript
+  type: mcp-server
   generated: 2025-09-17T21:40:00.000Z
   mission: Make FAF scorecards visible in Claude conversations
   revolution: No more hidden outputs - show the scores!
