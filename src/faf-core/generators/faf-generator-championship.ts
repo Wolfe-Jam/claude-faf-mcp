@@ -141,7 +141,8 @@ export async function generateFafFromProject(
   }
 
   // START ENHANCED SCORING - Championship grade with FAB-FORMATS!
-  let enhancedScore = 10; // Base score for having a project
+  // HONEST SCORING: 0% is a valid score - no free points for merely existing!
+  let enhancedScore = 0;
 
   // Map all discovered slots (21-slot system)
   const contextSlotsFilled: Record<string, any> = {};
