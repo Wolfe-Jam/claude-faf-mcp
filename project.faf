@@ -73,7 +73,7 @@ preferences:
   documentation: as_needed
 state:
   phase: production
-  version: 2.2.2
+  version: 3.3.7
   focus: visibility_victory
   status: green_flag
   next_milestone: anthropic_submission
