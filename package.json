@@ -23,6 +23,8 @@
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
     "prepare": "npm run build",
+    "sync-version": "node scripts/sync-version.js",
+    "version": "npm run sync-version && git add project.faf",
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.js",
     "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
