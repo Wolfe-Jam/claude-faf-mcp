@@ -18,6 +18,10 @@ function checkFafCli() {
 
     // CLI found - success!
     console.log('✅ faf-cli detected - installation order correct');
+    console.log('');
+    console.log('⭐ Love it? Star us: https://github.com/Wolfe-Jam/claude-faf-mcp');
+    console.log('💬 Questions? https://github.com/Wolfe-Jam/claude-faf-mcp/discussions');
+    console.log('');
     return true;
   } catch (error) {
     // CLI not found - warn user
