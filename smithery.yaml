@@ -1,6 +1,10 @@
 # Smithery configuration for claude-faf-mcp
 # https://smithery.ai/docs/build/project-config/smithery-yaml
 
+name: claude-faf-mcp
+description: "IANA-registered .faf format for persistent AI project context. Zero drift, works everywhere."
+icon: https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-256.png
+
 startCommand:
   type: stdio
   configSchema:
