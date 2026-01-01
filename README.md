@@ -16,6 +16,32 @@
 
 ---
 
+## ❌ Without FAF
+
+```
+You: "Update the auth module"
+AI:  "What framework? What patterns? Where are the files?"
+You: "It's Express with JWT, files in /src/auth..."
+AI:  "What's the error handling approach?"
+You: "We use custom AppError class..."
+AI:  "Database schema?"
+You: [15 minutes later, still explaining]
+```
+
+**Every session. Every project. Every AI tool. Starting over.**
+
+## ✅ With FAF
+
+```
+You: "Update the auth module"
+AI:  [Reads project.faf] "Got it. Express + JWT, AppError pattern,
+      files in /src/auth, PostgreSQL with Prisma. Making the change."
+```
+
+**One file. Persistent context. Every AI knows your project.**
+
+---
+
 ## 🏁 AI-Readiness Scorecard
 
 **The closer you get to 100% the better AI can assist you.**
