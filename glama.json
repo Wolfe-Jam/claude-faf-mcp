@@ -1,0 +1,10 @@
+{
+  "name": "claude-faf-mcp",
+  "description": "IANA-registered .faf format for persistent AI context. 52 MCP tools, bi-sync, AI-readiness scoring.",
+  "author": "Wolfe-Jam",
+  "homepage": "https://faf.one",
+  "repository": "https://github.com/Wolfe-Jam/claude-faf-mcp",
+  "license": "MIT",
+  "categories": ["Developer Tools", "CI/CD & DevOps", "Testing & QA Tools"],
+  "keywords": ["faf", "context", "ai-readiness", "mcp", "claude"]
+}
