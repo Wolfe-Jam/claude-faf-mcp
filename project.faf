@@ -34,7 +34,7 @@ project:
   brand: PODIUM System - 85% Bronze, 95% Silver, 99% Gold, 105% Trophy
   enhanced_date: 2025-09-17T21:40:00.000Z
   enhanced_by: faf-auto
-  version: 3.3.8
+  version: 3.3.9
 ai_instructions:
   priority_order:
     - 1. Read THIS .faf file first
