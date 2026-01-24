@@ -780,7 +780,7 @@ package_manager: ${projectData.package_manager}` : ''}
 
     const output = typeof result.data === 'string'
       ? result.data
-      : result.data?.output || JSON.stringify(result.data, null, 2);
+      : result.data?.message || result.data?.output || JSON.stringify(result.data, null, 2);
 
     return {
       content: [{
