@@ -5,6 +5,29 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.10] - 2025-01-24
+
+### Fixed
+- **faf_enhance MCP tool** - Fixed "undefined" error when tool returned results (#3)
+  - Changed property access to check `.message` before `.output` in EnhanceResult
+
+## [3.3.9] - 2025-01-23
+
+### Changed
+- Removed Discord links from README (no longer active)
+- Added MCPaaS to ecosystem links
+
+## [3.3.8] - 2025-01-20
+
+### Added
+- **Glama MCP Directory** - Added glama.json for marketplace listing
+- **Smithery Marketplace** - Added smithery.yaml with metadata
+
+### Changed
+- README reframed around lifecycle value and Gold Code messaging
+- Added Without/With FAF pain point comparison to README
+- Cleanup: Removed Discord scripts, added .mcpb package
+
 ## [3.3.7] - 2025-12-22
 
 ### Added
