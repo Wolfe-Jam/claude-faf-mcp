@@ -2,7 +2,7 @@
  * Version information - Single source of truth
  * Imports from package.json to avoid hardcoding
  */
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
 
 let cachedVersion: string = '';
@@ -16,17 +16,32 @@ export function getVersion(): string {
     return cachedVersion;
   }
 
-  try {
-    // __dirname in compiled code is dist/src, so we need to go up two levels to reach package.json
-    const packageJsonPath = join(__dirname, '..', '..', 'package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    cachedVersion = packageJson.version;
-    return cachedVersion;
-  } catch (error) {
-    // Fallback if package.json read fails (should never happen in production)
-    console.error('Failed to read version from package.json:', error);
-    return 'unknown';
+  // Try multiple possible locations for package.json
+  // - From dist/src (production): ../../package.json
+  // - From src (tests): ../package.json
+  // - From cwd (fallback): ./package.json
+  const possiblePaths = [
+    join(__dirname, '..', '..', 'package.json'),
+    join(__dirname, '..', 'package.json'),
+    join(process.cwd(), 'package.json'),
+  ];
+
+  for (const packageJsonPath of possiblePaths) {
+    try {
+      if (existsSync(packageJsonPath)) {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        if (packageJson.version) {
+          cachedVersion = packageJson.version;
+          return cachedVersion;
+        }
+      }
+    } catch {
+      // Try next path
+    }
   }
+
+  // Fallback if all paths fail
+  return 'unknown';
 }
 
 /**
