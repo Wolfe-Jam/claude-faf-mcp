@@ -468,7 +468,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
       fs.writeFileSync(testFile, JSON.stringify(jsonContent));
 
       const result = await handler.callTool('faf_read', { path: testFile });
-      expect(JSON.parsegetTextContent(result.content)).toEqual(jsonContent);
+      expect(JSON.parse(getTextContent(result.content))).toEqual(jsonContent);
     });
 
     it('MUST: Handle YAML/FAF files correctly', async () => {
