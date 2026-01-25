@@ -321,6 +321,22 @@ export class FafToolHandler {
             },
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_go',
+          description: '🎯 Guided interview to Gold Code - Claude asks questions till you hit 100%! Returns questions for missing fields, then apply answers to reach Gold Code 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' },
+              answers: {
+                type: 'object',
+                description: 'Answers to apply. Keys are field paths (e.g., "project.goal", "human_context.why"), values are the answers. If provided, applies answers and returns new score.',
+                additionalProperties: { type: 'string' }
+              }
+            },
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -382,6 +398,8 @@ export class FafToolHandler {
         return await this.handleFafCheck(args);
       case 'faf_context':
         return await this.handleFafContext(args);
+      case 'faf_go':
+        return await this.handleFafGo(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -1631,6 +1649,337 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
     } catch (error: any) {
       return {
         content: [{ type: 'text', text: `📂 FAF Context:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * faf_go - Guided interview to Gold Code
+   *
+   * Two-phase operation:
+   * 1. Without answers: Returns questions for missing fields
+   * 2. With answers: Applies answers to .faf file and returns new score
+   */
+  private async handleFafGo(args: any): Promise<CallToolResult> {
+    const yaml = await import('yaml');
+    const cwd = this.getProjectPath(args?.path);
+
+    try {
+      // Find .faf file
+      const fafResult = await findFafFile(cwd);
+
+      if (!fafResult) {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              needsInit: true,
+              context: 'faf_go',
+              message: 'No project.faf found. Run faf_init first to create project DNA.',
+              suggestion: 'Use faf_init to create project.faf, then use faf_go to reach Gold Code.'
+            }, null, 2)
+          }]
+        };
+      }
+
+      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
+      const fafData = yaml.parse(fafContent) || {};
+
+      // Question registry - maps field paths to questions
+      const QUESTION_REGISTRY: Record<string, { question: string; header: string; type: string; required: boolean; options?: Array<{ label: string; value: string; description: string }> }> = {
+        'project.goal': {
+          question: 'What does this project do? (one sentence)',
+          header: 'Goal',
+          type: 'text',
+          required: true
+        },
+        'project.name': {
+          question: 'What is the name of this project?',
+          header: 'Name',
+          type: 'text',
+          required: true
+        },
+        'project.main_language': {
+          question: 'What is the primary programming language?',
+          header: 'Language',
+          type: 'select',
+          required: true,
+          options: [
+            { label: 'TypeScript', value: 'TypeScript', description: 'JavaScript with types' },
+            { label: 'JavaScript', value: 'JavaScript', description: 'Vanilla JS or Node.js' },
+            { label: 'Python', value: 'Python', description: 'Python 3.x' },
+            { label: 'Rust', value: 'Rust', description: 'Systems programming' },
+            { label: 'Go', value: 'Go', description: 'Golang' },
+            { label: 'Other', value: 'Other', description: 'Specify manually' }
+          ]
+        },
+        'human_context.why': {
+          question: 'Why does this project exist? (motivation)',
+          header: 'Why',
+          type: 'text',
+          required: true
+        },
+        'human_context.who': {
+          question: 'Who uses this project? (target audience)',
+          header: 'Who',
+          type: 'text',
+          required: false
+        },
+        'human_context.what': {
+          question: 'What problem does this solve?',
+          header: 'What',
+          type: 'text',
+          required: false
+        },
+        'human_context.where': {
+          question: 'Where does this run? (environment)',
+          header: 'Where',
+          type: 'text',
+          required: false
+        },
+        'human_context.when': {
+          question: 'When was this started or what phase is it in?',
+          header: 'When',
+          type: 'text',
+          required: false
+        },
+        'human_context.how': {
+          question: 'How should AI assist with this project?',
+          header: 'How',
+          type: 'text',
+          required: false
+        },
+        'stack.frontend': {
+          question: 'What frontend framework do you use?',
+          header: 'Frontend',
+          type: 'select',
+          required: false,
+          options: [
+            { label: 'React', value: 'React', description: 'React.js' },
+            { label: 'Vue', value: 'Vue', description: 'Vue.js' },
+            { label: 'Svelte', value: 'Svelte', description: 'Svelte/SvelteKit' },
+            { label: 'Next.js', value: 'Next.js', description: 'React framework' },
+            { label: 'None', value: 'None', description: 'No frontend' },
+            { label: 'Other', value: 'Other', description: 'Specify manually' }
+          ]
+        },
+        'stack.backend': {
+          question: 'What backend framework do you use?',
+          header: 'Backend',
+          type: 'select',
+          required: false,
+          options: [
+            { label: 'Express', value: 'Express', description: 'Node.js Express' },
+            { label: 'Fastify', value: 'Fastify', description: 'Node.js Fastify' },
+            { label: 'Django', value: 'Django', description: 'Python Django' },
+            { label: 'FastAPI', value: 'FastAPI', description: 'Python FastAPI' },
+            { label: 'None', value: 'None', description: 'No backend' },
+            { label: 'Other', value: 'Other', description: 'Specify manually' }
+          ]
+        },
+        'stack.database': {
+          question: 'What database do you use?',
+          header: 'Database',
+          type: 'select',
+          required: false,
+          options: [
+            { label: 'PostgreSQL', value: 'PostgreSQL', description: 'Relational database' },
+            { label: 'MongoDB', value: 'MongoDB', description: 'Document database' },
+            { label: 'SQLite', value: 'SQLite', description: 'File-based database' },
+            { label: 'Supabase', value: 'Supabase', description: 'Postgres + auth' },
+            { label: 'None', value: 'None', description: 'No database' },
+            { label: 'Other', value: 'Other', description: 'Specify manually' }
+          ]
+        },
+        'stack.hosting': {
+          question: 'Where is this hosted/deployed?',
+          header: 'Hosting',
+          type: 'select',
+          required: false,
+          options: [
+            { label: 'Vercel', value: 'Vercel', description: 'Frontend/serverless' },
+            { label: 'AWS', value: 'AWS', description: 'Amazon Web Services' },
+            { label: 'Cloudflare', value: 'Cloudflare', description: 'Workers/Pages' },
+            { label: 'Railway', value: 'Railway', description: 'App hosting' },
+            { label: 'Local only', value: 'Local', description: 'Not deployed' },
+            { label: 'Other', value: 'Other', description: 'Specify manually' }
+          ]
+        }
+      };
+
+      // Priority order for questions
+      const priorityOrder = [
+        'project.goal',
+        'human_context.why',
+        'human_context.who',
+        'human_context.what',
+        'project.name',
+        'project.main_language',
+        'stack.database',
+        'stack.hosting',
+        'stack.frontend',
+        'stack.backend',
+        'human_context.where',
+        'human_context.when',
+        'human_context.how'
+      ];
+
+      // Helper to get nested value
+      const getNestedValue = (obj: any, path: string): any => {
+        const parts = path.split('.');
+        let value = obj;
+        for (const part of parts) {
+          if (value && typeof value === 'object' && part in value) {
+            value = value[part];
+          } else {
+            return undefined;
+          }
+        }
+        return value;
+      };
+
+      // Helper to set nested value
+      const setNestedValue = (obj: any, path: string, value: any): void => {
+        const parts = path.split('.');
+        let current = obj;
+        for (let i = 0; i < parts.length - 1; i++) {
+          const part = parts[i];
+          if (!(part in current)) {
+            current[part] = {};
+          }
+          current = current[part];
+        }
+        current[parts[parts.length - 1]] = value;
+      };
+
+      // Check if value is empty/placeholder
+      const isEmpty = (value: any): boolean => {
+        return value === undefined ||
+          value === null ||
+          value === '' ||
+          value === 'Unknown' ||
+          value === 'TBD' ||
+          value === 'None' ||
+          (typeof value === 'string' && value.toLowerCase().includes('placeholder'));
+      };
+
+      // PHASE 2: Apply answers if provided
+      if (args?.answers && typeof args.answers === 'object') {
+        const answers = args.answers as Record<string, string>;
+        let appliedCount = 0;
+
+        for (const [fieldPath, answer] of Object.entries(answers)) {
+          if (answer && answer.trim()) {
+            setNestedValue(fafData, fieldPath, answer.trim());
+            appliedCount++;
+          }
+        }
+
+        // Write updated file
+        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+
+        // Calculate new score (simple count-based)
+        const totalFields = Object.keys(QUESTION_REGISTRY).length;
+        const filledFields = Object.keys(QUESTION_REGISTRY).filter(field => !isEmpty(getNestedValue(fafData, field))).length;
+        const newScore = Math.round((filledFields / totalFields) * 100);
+
+        const celebration = newScore >= 100 ? '🏆 GOLD CODE ACHIEVED!' :
+          newScore >= 85 ? '🥇 Championship grade!' :
+          newScore >= 70 ? '🥈 Great progress!' : '📈 Keep going!';
+
+        return {
+          content: [{
+            type: 'text',
+            text: `🎯 FAF Go - Answers Applied!\n\n✅ Updated ${appliedCount} field(s) in ${fafResult.filename}\n📊 New Score: ${newScore}%\n${celebration}\n\n${newScore < 100 ? '💡 Run faf_go again to continue to Gold Code!' : '✨ Your AI now has complete context!'}`
+          }]
+        };
+      }
+
+      // PHASE 1: Analyze and return questions
+      const missingFields: string[] = [];
+      for (const fieldPath of Object.keys(QUESTION_REGISTRY)) {
+        const value = getNestedValue(fafData, fieldPath);
+        if (isEmpty(value)) {
+          missingFields.push(fieldPath);
+        }
+      }
+
+      // Calculate current score
+      const totalFields = Object.keys(QUESTION_REGISTRY).length;
+      const filledFields = totalFields - missingFields.length;
+      const currentScore = Math.round((filledFields / totalFields) * 100);
+
+      // Already at 100%?
+      if (currentScore >= 100) {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              complete: true,
+              score: 100,
+              message: '🏆 GOLD CODE ACHIEVED! Your project has 100% AI-Readiness.',
+              context: 'faf_go'
+            }, null, 2)
+          }]
+        };
+      }
+
+      // No missing fields but score < 100? Content quality issue
+      if (missingFields.length === 0) {
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              score: currentScore,
+              message: `Score is ${currentScore}%. All fields filled but content may need enhancement.`,
+              suggestion: 'Use faf_enhance to improve content quality.',
+              context: 'faf_go'
+            }, null, 2)
+          }]
+        };
+      }
+
+      // Sort by priority
+      const prioritizedFields = missingFields.sort((a, b) => {
+        const aIdx = priorityOrder.indexOf(a);
+        const bIdx = priorityOrder.indexOf(b);
+        if (aIdx === -1) return 1;
+        if (bIdx === -1) return -1;
+        return aIdx - bIdx;
+      });
+
+      // Build questions
+      const questions = prioritizedFields.map(field => {
+        const reg = QUESTION_REGISTRY[field];
+        return {
+          field,
+          question: reg.question,
+          header: reg.header,
+          type: reg.type,
+          required: reg.required,
+          options: reg.options
+        };
+      });
+
+      return {
+        content: [{
+          type: 'text',
+          text: JSON.stringify({
+            needsInput: true,
+            context: 'faf_go - guided path to Gold Code',
+            currentScore,
+            targetScore: 100,
+            questionsRemaining: questions.length,
+            questions,
+            instructions: 'Use AskUserQuestion to ask these questions, then call faf_go again with the answers parameter to apply them.'
+          }, null, 2)
+        }]
+      };
+
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `🎯 FAF Go:\n\n❌ Error: ${error.message}` }],
         isError: true
       };
     }
