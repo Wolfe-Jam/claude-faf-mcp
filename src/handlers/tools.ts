@@ -2042,7 +2042,7 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       let currentScore = 0;
 
       // Step 1: Check/Create .faf file
-      let fafResult = await findFafFile(cwd);
+      const fafResult = await findFafFile(cwd);
 
       let fafPath: string;
 
@@ -2257,7 +2257,7 @@ ${fafData.stack_signature || 'Auto-detected stack'}
       const milestones = dna.milestones || [];
 
       // Find key milestones
-      const birth = milestones.find((m: any) => m.type === 'birth');
+      const _birth = milestones.find((m: any) => m.type === 'birth');
       const peak = milestones.find((m: any) => m.type === 'peak');
       const championship = milestones.find((m: any) => m.type === 'championship');
       const elite = milestones.find((m: any) => m.type === 'elite');
