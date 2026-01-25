@@ -44,9 +44,17 @@ describe('Path Traversal Protection', () => {
   });
 
   test('should block absolute paths outside working directory', () => {
-    expect(validatePath('/etc/passwd')).toBe(false);
-    expect(validatePath('/root/.ssh/id_rsa')).toBe(false);
-    expect(validatePath('/sys/kernel')).toBe(false);
+    // Unix-style absolute paths (skip on Windows where these aren't valid absolute paths)
+    if (process.platform !== 'win32') {
+      expect(validatePath('/etc/passwd')).toBe(false);
+      expect(validatePath('/root/.ssh/id_rsa')).toBe(false);
+      expect(validatePath('/sys/kernel')).toBe(false);
+    }
+    // Windows-style absolute paths
+    if (process.platform === 'win32') {
+      expect(validatePath('C:\\Windows\\System32\\config\\SAM')).toBe(false);
+      expect(validatePath('C:\\Users\\Public\\sensitive.txt')).toBe(false);
+    }
   });
 
   test('should allow valid relative paths', () => {
