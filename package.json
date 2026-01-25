@@ -16,6 +16,7 @@
     "dev:stdio": "ts-node src/cli.ts --transport stdio",
     "dev:http": "ts-node src/cli.ts --transport http-sse --port 3001",
     "test": "jest",
+    "test:performance": "jest tests/performance.test.ts",
     "test:mcp": "mcp-inspector stdio ts-node src/cli.ts",
     "lint": "eslint src/**/*.ts",
     "lint:fix": "eslint src/**/*.ts --fix",
