@@ -120,9 +120,9 @@ jobs:
 
       - name: Check build output
         run: |
-          test -f dist/server.js
-          test -f dist/handlers/tools.js
-          test -f dist/utils/visual-style.js
+          test -f dist/src/server.js
+          test -f dist/src/handlers/tools.js
+          test -f dist/src/utils/visual-style.js
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
