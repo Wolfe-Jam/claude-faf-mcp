@@ -73,6 +73,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
 
+// Type helper for MCP content extraction (SDK 1.26+ uses union types)
+type TextContent = { type: 'text'; text: string };
+const getTextContent = (content: unknown[]): string =>
+  (content[0] as TextContent).text;
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // TEST CONFIGURATION
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -283,7 +288,7 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
 
       const result = await handler.callTool('faf_read', { path: testFile });
 
-      expect(result.content[0].text).toBe(content);
+      expect(getTextContent(result.content)).toBe(content);
     });
 
     it('MUST: Handle missing files gracefully', async () => {
@@ -327,7 +332,7 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
 
       try {
         const result = await handler.callTool('faf_score', {});
-        expect(result.content[0].text).toBeDefined();
+        expect(getTextContent(result.content)).toBeDefined();
       } finally {
         process.chdir(originalCwd);
       }
@@ -337,7 +342,7 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
   describe('Core Tools - faf_debug', () => {
     it('MUST: Return environment information', async () => {
       const result = await handler.callTool('faf_debug', {});
-      const text = result.content[0].text;
+      const text = getTextContent(result.content);
 
       expect(text).toContain('Working Directory');
       expect(text).toContain('FAF Engine');
@@ -345,7 +350,7 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
 
     it('MUST NOT: Expose sensitive paths or credentials', async () => {
       const result = await handler.callTool('faf_debug', {});
-      const text = (result.content[0].text as string).toLowerCase();
+      const text = getTextContent(result.content).toLowerCase();
 
       // Should not contain credential-related keywords
       expect(text).not.toContain('password');
@@ -383,7 +388,7 @@ Using TypeScript and Jest
 
       try {
         const result = await handler.callTool('faf_readme', {});
-        const text = result.content[0].text;
+        const text = getTextContent(result.content);
 
         expect(text).toBeDefined();
       } finally {
@@ -405,7 +410,7 @@ Using TypeScript and Jest
           value: 'WJTTC Test Suite'
         });
 
-        expect(result.content[0].text).toBeDefined();
+        expect(getTextContent(result.content)).toBeDefined();
       } finally {
         process.chdir(originalCwd);
       }
@@ -422,7 +427,7 @@ Using TypeScript and Jest
       try {
         const result = await handler.callTool('faf_check', {});
 
-        expect(result.content[0].text).toBeDefined();
+        expect(getTextContent(result.content)).toBeDefined();
       } finally {
         process.chdir(originalCwd);
       }
@@ -454,7 +459,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
       fs.writeFileSync(testFile, 'Plain text content');
 
       const result = await handler.callTool('faf_read', { path: testFile });
-      expect(result.content[0].text).toBe('Plain text content');
+      expect(getTextContent(result.content)).toBe('Plain text content');
     });
 
     it('MUST: Handle JSON files correctly', async () => {
@@ -463,7 +468,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
       fs.writeFileSync(testFile, JSON.stringify(jsonContent));
 
       const result = await handler.callTool('faf_read', { path: testFile });
-      expect(JSON.parse(result.content[0].text as string)).toEqual(jsonContent);
+      expect(JSON.parsegetTextContent(result.content)).toEqual(jsonContent);
     });
 
     it('MUST: Handle YAML/FAF files correctly', async () => {
@@ -472,7 +477,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
       fs.writeFileSync(testFile, fafContent);
 
       const result = await handler.callTool('faf_read', { path: testFile });
-      expect(result.content[0].text).toContain('project');
+      expect(getTextContent(result.content)).toContain('project');
     });
 
     it('SHOULD: Handle large files efficiently', async () => {
@@ -499,7 +504,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
         path: testDir
       });
 
-      expect(result.content[0].text).toBeDefined();
+      expect(getTextContent(result.content)).toBeDefined();
     });
   });
 });
@@ -528,7 +533,7 @@ describe('🏎️ TIER 5: Security Validation', () => {
         const result = await handler.callTool('faf_read', { path: badPath });
 
         // Should either error or return empty, never actual file content
-        const text = result.content[0]?.text || '';
+        const text = getTextContent(result.content) || '';
         expect(text).not.toContain('root:');
         expect(text).not.toContain('BEGIN RSA');
       }
@@ -544,7 +549,7 @@ describe('🏎️ TIER 5: Security Validation', () => {
         fs.symlinkSync('/etc/passwd', symlinkPath);
 
         const result = await handler.callTool('faf_read', { path: symlinkPath });
-        const text = result.content[0]?.text || '';
+        const text = getTextContent(result.content) || '';
 
         // Should not expose system file content
         expect(text).not.toContain('root:x:0:0');
@@ -816,7 +821,7 @@ describe('🏎️ TIER 7: Integration Readiness', () => {
         path: '/nonexistent/path/file.txt'
       });
 
-      const text = (result.content[0]?.text as string) || '';
+      const text = getTextContent(result.content) || '';
       // Should explain what went wrong
       expect(text.toLowerCase()).toMatch(/(error|not found|failed|unable)/);
     });
