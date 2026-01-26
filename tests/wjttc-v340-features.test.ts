@@ -145,9 +145,23 @@ For developers who care about quality.
         expect(fafFormats?.description).toContain('TURBO-CAT');
       });
 
-      it('should have 25 total tools in v3.4.0', async () => {
+      it('should include faf_quick in tool list', async () => {
         const { tools } = await toolHandler.listTools();
-        expect(tools.length).toBe(25);
+        const fafQuick = tools.find(t => t.name === 'faf_quick');
+        expect(fafQuick).toBeDefined();
+        expect(fafQuick?.description).toContain('Lightning-fast');
+      });
+
+      it('should include faf_doctor in tool list', async () => {
+        const { tools } = await toolHandler.listTools();
+        const fafDoctor = tools.find(t => t.name === 'faf_doctor');
+        expect(fafDoctor).toBeDefined();
+        expect(fafDoctor?.description).toContain('Health check');
+      });
+
+      it('should have 27 total tools in v4.0.0', async () => {
+        const { tools } = await toolHandler.listTools();
+        expect(tools.length).toBe(27);
       });
     });
 
@@ -464,6 +478,118 @@ human_context:
         expect(data.totalIntelligenceScore).toBeDefined();
         expect(typeof data.totalIntelligenceScore).toBe('number');
         expect(data.totalIntelligenceScore).toBeGreaterThan(0);
+      });
+    });
+
+    describe('faf_quick - Lightning Fast Creation', () => {
+      let quickTestDir: string;
+
+      beforeEach(() => {
+        quickTestDir = path.join(testDir, `quick-test-${Date.now()}`);
+        fs.mkdirSync(quickTestDir, { recursive: true });
+      });
+
+      it('should show usage when no input provided', async () => {
+        const result = await toolHandler.callTool('faf_quick', { path: quickTestDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('Usage');
+        expect(text).toContain('project-name, description');
+      });
+
+      it('should create .faf from quick input', async () => {
+        const result = await toolHandler.callTool('faf_quick', {
+          path: quickTestDir,
+          input: 'my-app, e-commerce platform, typescript, react, vercel'
+        });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('Created');
+        expect(text).toContain('my-app');
+        expect(fs.existsSync(path.join(quickTestDir, 'project.faf'))).toBe(true);
+      });
+
+      it('should detect project type from framework', async () => {
+        const result = await toolHandler.callTool('faf_quick', {
+          path: quickTestDir,
+          input: 'my-app, web app, typescript, react'
+        });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('react');
+      });
+
+      it('should require minimum 2 parts', async () => {
+        const result = await toolHandler.callTool('faf_quick', {
+          path: quickTestDir,
+          input: 'just-a-name'
+        });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('Need at least');
+        expect(result.isError).toBe(true);
+      });
+
+      it('should not overwrite without force', async () => {
+        // Create first
+        await toolHandler.callTool('faf_quick', {
+          path: quickTestDir,
+          input: 'first-app, first description'
+        });
+
+        // Try to create again
+        const result = await toolHandler.callTool('faf_quick', {
+          path: quickTestDir,
+          input: 'second-app, second description'
+        });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('already exists');
+      });
+    });
+
+    describe('faf_doctor - Health Check', () => {
+      it('should detect missing .faf file', async () => {
+        const emptyDir = path.join(testDir, `doctor-empty-${Date.now()}`);
+        fs.mkdirSync(emptyDir, { recursive: true });
+
+        const result = await toolHandler.callTool('faf_doctor', { path: emptyDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('No .faf file found');
+        expect(text).toContain('❌');
+      });
+
+      it('should detect valid .faf file', async () => {
+        const result = await toolHandler.callTool('faf_doctor', { path: testProjectDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('Health Check');
+      });
+
+      it('should check for CLAUDE.md', async () => {
+        const doctorDir = path.join(testDir, `doctor-test-${Date.now()}`);
+        fs.mkdirSync(doctorDir, { recursive: true });
+        fs.writeFileSync(path.join(doctorDir, 'project.faf'), 'project:\n  name: test\n  goal: testing');
+
+        const result = await toolHandler.callTool('faf_doctor', { path: doctorDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('CLAUDE.md');
+      });
+
+      it('should detect project type', async () => {
+        const result = await toolHandler.callTool('faf_doctor', { path: testProjectDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('Node.js');
+      });
+
+      it('should show version', async () => {
+        const result = await toolHandler.callTool('faf_doctor', { path: testProjectDir });
+        const text = getTextContent(result.content);
+
+        expect(text).toContain('claude-faf-mcp version');
       });
     });
   });

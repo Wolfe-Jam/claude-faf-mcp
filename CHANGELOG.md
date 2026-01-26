@@ -5,7 +5,7 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [3.4.0] - 2026-01-25
+## [4.0.0] - 2026-01-25
 
 ### Added
 - **faf_go** - Guided interview to Gold Code (100% AI-Readiness)
@@ -35,10 +35,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Provides slot fill recommendations
   - Returns JSON or human-readable output
 
+- **faf_quick** - Lightning-fast .faf creation
+  - One-liner format: "name, description, language, framework, hosting"
+  - Auto-detects project type from inputs
+  - Minimum: name and description
+
+- **faf_doctor** - Health check for .faf setup
+  - Diagnoses common issues
+  - Checks .faf validity, CLAUDE.md, project files
+  - Provides fix suggestions
+
 ### Changed
-- Tool count increased from 21 to 25
-- Added internal helpers: `discoverFormatsInternal()`, `calculateSimpleScore()`
-- Added WJTTC v3.4.0 test suite (37 tests across 3 tiers)
+- **Major version bump to match faf-cli v4**
+- Tool count increased from 21 to 27
+- Added internal helpers: `discoverFormatsInternal()`, `calculateSimpleScore()`, `detectProjectTypeFromQuick()`
+- Added WJTTC v4.0.0 test suite (49 tests across 3 tiers)
+- Total test count: 212
 
 ## [3.3.10] - 2025-01-24
 

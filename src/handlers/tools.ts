@@ -372,6 +372,31 @@ export class FafToolHandler {
             },
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_quick',
+          description: '⚡ Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting" 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' },
+              input: { type: 'string', description: 'Quick input: "project-name, description, language, framework, hosting" (minimum: name, description)' },
+              force: { type: 'boolean', description: 'Force overwrite existing .faf file' }
+            },
+            required: ['input'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_doctor',
+          description: '🏥 Health check for your .faf setup - Diagnose and fix common issues 🧡⚡️',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -441,6 +466,10 @@ export class FafToolHandler {
         return await this.handleFafDna(args);
       case 'faf_formats':
         return await this.handleFafFormats(args);
+      case 'faf_quick':
+        return await this.handleFafQuick(args);
+      case 'faf_doctor':
+        return await this.handleFafDoctor(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -2544,5 +2573,350 @@ ${fafData.stack_signature || 'Auto-detected stack'}
     if (fafData.stack_signature) score += 10;
 
     return Math.min(score, maxScore);
+  }
+
+  /**
+   * faf_quick - Lightning-fast .faf creation
+   * One-liner format: "name, description, language, framework, hosting"
+   */
+  private async handleFafQuick(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const path = await import('path');
+    const yaml = await import('yaml');
+    const startTime = Date.now();
+
+    try {
+      const input = args?.input;
+
+      if (!input || typeof input !== 'string') {
+        return {
+          content: [{
+            type: 'text',
+            text: `⚡ FAF Quick
+
+Usage: Provide a comma-separated string:
+  "project-name, description, language, framework, hosting"
+
+Examples:
+  "my-app, e-commerce platform, typescript, react, vercel"
+  "api-service, REST API for mobile app, python, fastapi, aws"
+  "cli-tool, developer productivity tool, go"
+
+Minimum: name and description. Rest is auto-detected!`
+          }]
+        };
+      }
+
+      // Parse the quick input
+      const parts = input.split(',').map((s: string) => s.trim());
+
+      if (parts.length < 2) {
+        return {
+          content: [{
+            type: 'text',
+            text: `⚡ FAF Quick: Need at least: project-name, description
+
+Got: "${input}"
+
+Example: "my-app, e-commerce platform"`
+          }],
+          isError: true
+        };
+      }
+
+      const projectName = parts[0] || 'my-project';
+      const projectGoal = parts[1] || 'Build amazing software';
+      const mainLanguage = parts[2] || 'TypeScript';
+      const framework = parts[3] || 'none';
+      const hosting = parts[4] || 'cloud';
+
+      // Check if .faf exists
+      const fafPath = path.join(cwd, 'project.faf');
+      if (fs.existsSync(fafPath) && !args?.force) {
+        return {
+          content: [{
+            type: 'text',
+            text: `⚡ FAF Quick
+
+⚠️ project.faf already exists at: ${fafPath}
+
+Use force: true to overwrite, or use faf_enhance to modify.`
+          }]
+        };
+      }
+
+      // Detect project type from inputs
+      const projectType = this.detectProjectTypeFromQuick(projectGoal, framework, mainLanguage);
+
+      // Build .faf content
+      const fafData: any = {
+        project: {
+          name: projectName,
+          goal: projectGoal,
+          main_language: mainLanguage
+        },
+        type: projectType,
+        generated: new Date().toISOString(),
+        version: VERSION,
+        initialized_by: 'claude-faf-mcp-quick'
+      };
+
+      if (framework && framework !== 'none') {
+        fafData.stack = { frontend: framework };
+      }
+
+      if (hosting && hosting !== 'cloud') {
+        if (!fafData.stack) fafData.stack = {};
+        fafData.stack.hosting = hosting;
+      }
+
+      // Write the file
+      fs.writeFileSync(fafPath, yaml.stringify(fafData), 'utf-8');
+
+      const elapsed = Date.now() - startTime;
+
+      let output = `⚡ FAF Quick - Created in ${elapsed}ms!\n\n`;
+      output += `📦 Project: ${projectName}\n`;
+      output += `🎯 Purpose: ${projectGoal}\n`;
+      output += `💻 Stack: ${mainLanguage}${framework !== 'none' ? ` + ${framework}` : ''}\n`;
+      output += `📍 Type: ${projectType}\n\n`;
+      output += `✅ Created: ${fafPath}\n\n`;
+      output += `Next steps:\n`;
+      output += `  • faf_score - Check AI-readiness\n`;
+      output += `  • faf_enhance - Improve context\n`;
+      output += `  • faf_go - Guided interview to 100%`;
+
+      return { content: [{ type: 'text', text: output }] };
+
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `⚡ FAF Quick:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * Helper: Detect project type from quick input
+   */
+  private detectProjectTypeFromQuick(goal: string, framework: string, language: string): string {
+    const fw = framework?.toLowerCase() || '';
+    const lang = language?.toLowerCase() || '';
+    const g = goal?.toLowerCase() || '';
+
+    // Framework-based detection
+    if (fw.includes('react') || fw.includes('next')) return 'react';
+    if (fw.includes('vue') || fw.includes('nuxt')) return 'vue';
+    if (fw.includes('svelte') || fw.includes('kit')) return 'svelte';
+    if (fw.includes('angular')) return 'angular';
+    if (fw.includes('fastapi')) return 'python-fastapi';
+    if (fw.includes('django')) return 'python-django';
+    if (fw.includes('flask')) return 'python-flask';
+    if (fw.includes('express')) return 'node-api';
+
+    // Goal-based detection
+    if (g.includes('chrome extension') || g.includes('browser extension')) return 'chrome-extension';
+    if (g.includes('api') || g.includes('backend')) return 'node-api';
+    if (g.includes('cli') || g.includes('command')) return 'cli-tool';
+    if (g.includes('library') || g.includes('package')) return 'library';
+    if (g.includes('mcp') || g.includes('model context')) return 'mcp-server';
+
+    // Language-based fallback
+    if (lang.includes('python')) return 'python';
+    if (lang.includes('go')) return 'golang';
+    if (lang.includes('rust')) return 'rust';
+    if (lang.includes('typescript')) return 'typescript';
+
+    return 'general';
+  }
+
+  /**
+   * faf_doctor - Health check for .faf setup
+   * Diagnose and fix common issues
+   */
+  private async handleFafDoctor(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const path = await import('path');
+    const yaml = await import('yaml');
+
+    try {
+      interface DiagnosticResult {
+        status: 'ok' | 'warning' | 'error';
+        message: string;
+        fix?: string;
+      }
+
+      const results: DiagnosticResult[] = [];
+
+      // Check 1: MCP Version
+      results.push({
+        status: 'ok',
+        message: `claude-faf-mcp version: ${VERSION}`
+      });
+
+      // Check 2: .faf file exists
+      const fafResult = await findFafFile(cwd);
+
+      if (!fafResult) {
+        results.push({
+          status: 'error',
+          message: 'No .faf file found',
+          fix: 'Run: faf_init, faf_quick, or faf_auto to create one'
+        });
+      } else {
+        results.push({
+          status: 'ok',
+          message: `Found .faf at: ${fafResult.path}`
+        });
+
+        // Check 3: .faf file validity
+        try {
+          const content = fs.readFileSync(fafResult.path, 'utf-8');
+          const fafData = yaml.parse(content);
+
+          if (!fafData) {
+            results.push({
+              status: 'error',
+              message: '.faf file is empty',
+              fix: 'Run: faf_init with force option to regenerate'
+            });
+          } else {
+            // Check for required fields
+            const missingFields: string[] = [];
+            if (!fafData.project?.name && !fafData.project) missingFields.push('project.name');
+            if (!fafData.project?.goal) missingFields.push('project.goal');
+
+            if (missingFields.length > 0) {
+              results.push({
+                status: 'warning',
+                message: `Missing important fields: ${missingFields.join(', ')}`,
+                fix: 'Run: faf_enhance or faf_go to add missing info'
+              });
+            } else {
+              results.push({
+                status: 'ok',
+                message: '.faf structure is valid'
+              });
+            }
+
+            // Check 4: Score
+            const score = this.calculateSimpleScore(fafData);
+
+            if (score < 30) {
+              results.push({
+                status: 'error',
+                message: `Score too low: ${score}%`,
+                fix: 'Run: faf_enhance or faf_go to improve context'
+              });
+            } else if (score < 70) {
+              results.push({
+                status: 'warning',
+                message: `Score could be better: ${score}%`,
+                fix: 'Target 70%+ for championship AI context'
+              });
+            } else {
+              results.push({
+                status: 'ok',
+                message: `Great score: ${score}%`
+              });
+            }
+          }
+        } catch {
+          results.push({
+            status: 'error',
+            message: '.faf file is corrupted or invalid YAML',
+            fix: 'Run: faf_init with force option to regenerate'
+          });
+        }
+      }
+
+      // Check 5: CLAUDE.md exists
+      const claudePath = path.join(cwd, 'CLAUDE.md');
+      if (!fs.existsSync(claudePath)) {
+        results.push({
+          status: 'warning',
+          message: 'No CLAUDE.md file',
+          fix: 'Run: faf_auto or faf_bi_sync to create bi-directional sync'
+        });
+      } else {
+        results.push({
+          status: 'ok',
+          message: 'CLAUDE.md found (bi-sync ready)'
+        });
+      }
+
+      // Check 6: Project detection
+      const packageJsonPath = path.join(cwd, 'package.json');
+      const requirementsPath = path.join(cwd, 'requirements.txt');
+      const goModPath = path.join(cwd, 'go.mod');
+      const cargoPath = path.join(cwd, 'Cargo.toml');
+
+      if (fs.existsSync(packageJsonPath)) {
+        results.push({
+          status: 'ok',
+          message: 'Node.js/JavaScript project detected'
+        });
+      } else if (fs.existsSync(requirementsPath)) {
+        results.push({
+          status: 'ok',
+          message: 'Python project detected'
+        });
+      } else if (fs.existsSync(goModPath)) {
+        results.push({
+          status: 'ok',
+          message: 'Go project detected'
+        });
+      } else if (fs.existsSync(cargoPath)) {
+        results.push({
+          status: 'ok',
+          message: 'Rust project detected'
+        });
+      } else {
+        results.push({
+          status: 'warning',
+          message: 'No standard project files detected',
+          fix: 'FAF works best with package.json, requirements.txt, go.mod, or Cargo.toml'
+        });
+      }
+
+      // Build output
+      let output = `🏥 FAF Doctor - Health Check\n`;
+      output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      let hasErrors = false;
+      let hasWarnings = false;
+
+      for (const result of results) {
+        const icon = result.status === 'ok' ? '✅' :
+                     result.status === 'warning' ? '⚠️' : '❌';
+
+        output += `${icon} ${result.message}\n`;
+
+        if (result.fix) {
+          output += `   💡 ${result.fix}\n`;
+        }
+
+        if (result.status === 'error') hasErrors = true;
+        if (result.status === 'warning') hasWarnings = true;
+      }
+
+      output += `\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+      if (!hasErrors && !hasWarnings) {
+        output += `🏆 Perfect health! Your FAF setup is championship-ready!`;
+      } else if (!hasErrors) {
+        output += `🎯 Good health with minor improvements suggested.`;
+      } else {
+        output += `⚠️ Issues detected. Follow the fixes above.`;
+      }
+
+      return { content: [{ type: 'text', text: output }] };
+
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `🏥 FAF Doctor:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
   }
 }
