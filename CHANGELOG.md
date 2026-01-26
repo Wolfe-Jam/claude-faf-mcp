@@ -36,8 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Returns JSON or human-readable output
 
 ### Changed
-- Tool count increased from 22 to 26
+- Tool count increased from 21 to 25
 - Added internal helpers: `discoverFormatsInternal()`, `calculateSimpleScore()`
+- Added WJTTC v3.4.0 test suite (37 tests across 3 tiers)
 
 ## [3.3.10] - 2025-01-24
 
