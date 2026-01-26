@@ -5,6 +5,40 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-01-25
+
+### Added
+- **faf_go** - Guided interview to Gold Code (100% AI-Readiness)
+  - Two-phase operation: returns questions, then applies answers
+  - 13 fields in question registry (project.*, human_context.*, stack.*)
+  - Priority ordering for optimal question flow
+  - Structured JSON output for Claude's AskUserQuestion
+
+- **faf_auto** - ONE COMMAND TO RULE THEM ALL
+  - Zero to Championship AI context instantly
+  - Creates project.faf if missing
+  - Runs TURBO-CAT format discovery
+  - Extracts human context from README
+  - Creates CLAUDE.md for bi-sync
+  - Shows before/after score with timing
+
+- **faf_dna** - DNA Journey Tracking
+  - Shows evolution from birth to current (22% → 85% → 99%)
+  - Creates birth certificate on first run
+  - Displays milestones and growth stats
+  - Motivational messages based on progress
+
+- **faf_formats** - TURBO-CAT Format Discovery
+  - Discovers 24+ known format files in project
+  - Extracts intelligence from package.json
+  - Generates stack signature
+  - Provides slot fill recommendations
+  - Returns JSON or human-readable output
+
+### Changed
+- Tool count increased from 22 to 26
+- Added internal helpers: `discoverFormatsInternal()`, `calculateSimpleScore()`
+
 ## [3.3.10] - 2025-01-24
 
 ### Fixed
