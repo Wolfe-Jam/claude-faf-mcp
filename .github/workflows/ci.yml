@@ -69,9 +69,9 @@ jobs:
           flags: unittests
           name: codecov-umbrella
 
-  # 🎨 Code Quality
+  # 💎 Code Quality
   quality:
-    name: 🎨 Code Quality
+    name: 💎 Code Quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
