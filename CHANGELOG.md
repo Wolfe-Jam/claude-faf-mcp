@@ -5,6 +5,14 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.1.1] - 2026-02-09
+
+### Fixed
+- Improved postinstall UX with clear success message
+- Shows version number, tool count, and quick test command
+- Replaced promotional language with professional, useful output
+- Ensures scripts directory included in published package
+
 ## [4.1.0] - 2026-02-09
 
 ### Changed
