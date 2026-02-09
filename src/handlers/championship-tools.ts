@@ -416,6 +416,33 @@ Working on REAL filesystem: ${targetDir}
           }
         },
 
+        // Human Context (6Ws Builder Integration)
+        {
+          name: 'faf_human_add',
+          description: '🧡 Add human_context to project.faf - Perfect for 6Ws Builder workflow (faf.one/6ws). Merge YAML from web form or set individual fields. Boosts AI-readiness score.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              yaml: {
+                type: 'string',
+                description: 'Complete human_context YAML from faf.one/6ws (copy-paste the entire human_context section)'
+              },
+              field: {
+                type: 'string',
+                description: 'Single field to set (who/what/where/why/when/how)'
+              },
+              value: {
+                type: 'string',
+                description: 'Value for the field'
+              },
+              directory: {
+                type: 'string',
+                description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)'
+              }
+            }
+          }
+        },
+
         // Discovery & Navigation
         {
           name: 'faf_index',
@@ -826,6 +853,10 @@ Working on REAL filesystem: ${targetDir}
           return await this.handleAnalyze(_args);
         case 'faf_verify':
           return await this.handleVerify(_args);
+
+        // Human Context (6Ws Builder integration)
+        case 'faf_human_add':
+          return await this.handleHumanAdd(_args);
 
         // Discovery
         case 'faf_index':
@@ -1717,6 +1748,84 @@ faf_score --save      # Save this scorecard
     } catch (error: any) {
       const duration = Date.now() - startTime;
       return await this.formatResult('⚡ FAF Quick', `Error: ${error.message}`, duration);
+    }
+  }
+
+  /**
+   * 🧡 Handle human_context add/merge
+   * For 6Ws Builder workflow: user fills faf.one/6ws, pastes YAML here
+   */
+  private async handleHumanAdd(args: { yaml?: string; field?: string; value?: string; directory?: string }): Promise<CallToolResult> {
+    const startTime = Date.now();
+
+    try {
+      const dir = args.directory || this.currentProjectDir;
+
+      // Validate input
+      if (!args.yaml && (!args.field || !args.value)) {
+        return await this.formatResult(
+          '🧡 Human Context',
+          `**Usage:**\n\n` +
+          `**From 6Ws Builder (faf.one/6ws):**\n` +
+          `1. Visit https://faf.one/6ws\n` +
+          `2. Fill out the 6 questions\n` +
+          `3. Copy the human_context YAML\n` +
+          `4. Use: \`faf_human_add { yaml: "paste here" }\`\n\n` +
+          `**Single field:**\n` +
+          `\`faf_human_add { field: "who", value: "developers" }\`\n\n` +
+          `**Valid fields:** who, what, where, why, when, how`,
+          Date.now() - startTime,
+          dir
+        );
+      }
+
+      // Prepare engine args
+      const engineArgs: string[] = [dir];
+      if (args.yaml) {
+        engineArgs.push(`--yaml=${args.yaml}`);
+      }
+      if (args.field) {
+        engineArgs.push(`--field=${args.field}`);
+      }
+      if (args.value) {
+        engineArgs.push(`--value=${args.value}`);
+      }
+
+      // Call bundled human command
+      this.fafEngine.setWorkingDirectory(dir);
+      const result = await this.fafEngine.callEngine('human-add', engineArgs);
+      const duration = Date.now() - startTime;
+
+      if (result.success && result.data) {
+        const fieldsUpdated = result.data.fieldsUpdated || [];
+        const fieldsList = fieldsUpdated.join(', ');
+
+        return await this.formatResult(
+          '🧡 Human Context Added',
+          `${result.data.message}\n\n` +
+          `**Updated fields:** ${fieldsList}\n\n` +
+          `**Next steps:**\n` +
+          `1. Run \`faf_score\` to see your new AI-readiness score\n` +
+          `2. Your context is now available to all AI assistants\n\n` +
+          `💡 **Tip:** Complete all 6 Ws (who, what, where, why, when, how) for maximum score boost!`,
+          duration,
+          dir
+        );
+      } else {
+        return await this.formatResult(
+          '🧡 Human Context',
+          result.error || 'Failed to add human context',
+          duration,
+          dir
+        );
+      }
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      return await this.formatResult(
+        '🧡 Human Context',
+        `Error: ${error.message}`,
+        duration
+      );
     }
   }
 

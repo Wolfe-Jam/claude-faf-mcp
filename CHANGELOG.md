@@ -5,6 +5,27 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2026-02-09
+
+### Changed
+- Updated faf-cli dependency from v3.2.6 to v4.3.0
+- Now includes Voice API Edition features (v4.2.0)
+- Now includes Foundation Layer features (v4.0.0)
+
+### Added
+- **faf_sixws** - 6Ws Builder integration
+  - Interactive web form at faf.one/6ws
+  - CLI paste-back workflow
+  - Answer 6 questions to create AI-ready context
+  - Works with Claude, Gemini, Grok, Cursor, Codex, WARP
+- Support for eternal voice memory (xAI Grok integration)
+- IANA-registered format features (application/vnd.faf+yaml)
+
+### Fixed
+- All 212 tests passing
+- WJTTC MCP Certification: Championship Grade
+- Performance optimizations from latest CLI
+
 ## [4.0.0] - 2026-01-25
 
 ### Added

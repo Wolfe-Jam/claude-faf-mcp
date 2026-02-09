@@ -18,6 +18,7 @@ import { migrateFafFile } from '../faf-core/commands/migrate.js';
 import { innitFafFile } from '../faf-core/commands/innit.js';
 import { quickCommand } from '../faf-core/commands/quick.js';
 import { enhanceCommand } from '../faf-core/commands/enhance.js';
+import { humanAddCommand, humanSetCommand } from '../faf-core/commands/human.js';
 
 const execAsync = promisify(exec);
 
@@ -487,6 +488,74 @@ export class FafEngineAdapter {
         return {
           success: false,
           error: isError(error) ? error.message : 'Enhance command failed',
+          duration
+        };
+      }
+    }
+
+    // HUMAN command - use bundled human (add/set human_context)
+    if (command === 'human' || command === 'human-add') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+
+        // Extract YAML from args if provided
+        const yamlArg = args.find(arg => arg.startsWith('--yaml='));
+        const yaml = yamlArg ? yamlArg.substring(7) : undefined;
+
+        // Extract field/value for single field mode
+        const fieldArg = args.find(arg => arg.startsWith('--field='));
+        const valueArg = args.find(arg => arg.startsWith('--value='));
+        const field = fieldArg ? fieldArg.substring(8) : undefined;
+        const value = valueArg ? valueArg.substring(8) : undefined;
+
+        const result = await humanAddCommand(projectPath, { yaml, field, value });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Human command failed',
+          duration
+        };
+      }
+    }
+
+    // HUMAN-SET command - set single field
+    if (command === 'human-set') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const field = pathArgs[1];
+        const value = pathArgs[2];
+
+        if (!field || !value) {
+          return {
+            success: false,
+            error: 'Usage: human-set <field> <value>',
+            duration: Date.now() - startTime
+          };
+        }
+
+        const result = await humanSetCommand(projectPath, field, value);
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'Human-set command failed',
           duration
         };
       }

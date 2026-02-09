@@ -1,8 +1,8 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-10-17/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "IANA-registered .faf format. Persistent project context for ANY AI. 50+ tools.",
-  "version": "3.3.7",
+  "description": "Persistent project context. Auto-detects CLI, discovers FAF projects. 50 MCP tools. #2759",
+  "version": "4.0.0",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
@@ -12,7 +12,7 @@
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "3.3.7",
+      "version": "4.0.0",
       "transport": {
         "type": "stdio"
       }

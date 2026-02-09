@@ -121,9 +121,40 @@ All tools run standalone — zero CLI dependencies, 16.2x faster than process sp
 | `faf_enhance` | Intelligent enhancement |
 | `faf_quick` | Lightning-fast creation (3ms) |
 | `faf_readme` | Extract 6 Ws from README (+25-35% boost) |
+| `faf_sixws` | **NEW:** 6Ws Builder - Interactive web form + CLI integration |
 | `faf_human_add` | Add human context (Claude Code compatible) |
 
 **Performance:** 19ms average execution. Fastest: 1ms.
+
+### ✨ New in v4.3.0: 6Ws Builder
+
+Answer 6 questions to create AI-ready context:
+
+1. **WHO** - Who is this for?
+2. **WHAT** - What does it do?
+3. **WHERE** - Where does it run?
+4. **WHY** - Why does it exist?
+5. **WHEN** - When to use it?
+6. **HOW** - How to get started?
+
+**Complete Workflow in Claude Desktop:**
+
+```
+User → Claude: "Help me add context to my project"
+Claude → User: "Visit faf.one/6ws to fill out the 6 questions"
+User → Fills form → Copies human_context YAML
+User → Claude: [Pastes YAML]
+Claude → Uses faf_human_add tool → Context merged!
+Claude → Runs faf_score → Shows new AI-readiness score ✨
+```
+
+**Two ways to use:**
+- **Web (Recommended):** [faf.one/6ws](https://faf.one/6ws) — Fill form, copy YAML, use `faf_human_add` in Claude
+- **CLI:** `faf 6ws` — Interactive paste-back workflow (terminal)
+
+**Score Boost:** Completing all 6 Ws typically adds +25-35% to your AI-readiness score!
+
+Works with Claude, Gemini, Grok, Cursor, Codex, WARP, any AI assistant.
 
 ---
 
@@ -144,8 +175,9 @@ All tools run standalone — zero CLI dependencies, 16.2x faster than process sp
 
 ## 📦 Ecosystem
 
+- **[faf-cli](https://www.npmjs.com/package/faf-cli)** — CLI tool v4.3.0 (21k+ downloads, 671/671 tests passing)
+- **[faf.one/6ws](https://faf.one/6ws)** — 6Ws Builder (Web + CLI integration)
 - **[MCPaaS](https://mcpaas.live)** — MCP as a Service (The Endpoint for Context)
-- **[faf-cli](https://www.npmjs.com/package/faf-cli)** — CLI tool (18k+ downloads)
 - **[faf-wasm](https://www.npmjs.com/package/faf-wasm)** — WASM SDK (<5ms scoring)
 - **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** — Browser integration
 - **[faf.one](https://faf.one)** — Official website
