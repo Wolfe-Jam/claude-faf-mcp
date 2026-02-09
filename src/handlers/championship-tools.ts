@@ -442,6 +442,27 @@ Working on REAL filesystem: ${targetDir}
             }
           }
         },
+        {
+          name: 'faf_readme',
+          description: '📄 Extract context from README.md - Instant AI-readiness boost! Automatically finds WHO/WHAT/WHERE/WHY/WHEN/HOW from existing README. Optionally merge into project.faf. Typical +25-35% score boost.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              merge: {
+                type: 'boolean',
+                description: 'Auto-merge extracted context into project.faf (default: false, just extract)'
+              },
+              overwrite: {
+                type: 'boolean',
+                description: 'Overwrite existing fields in project.faf (default: false, only fill empty fields)'
+              },
+              directory: {
+                type: 'string',
+                description: 'LOCAL filesystem path to project directory (e.g., /Users/username/projects/myapp)'
+              }
+            }
+          }
+        },
 
         // Discovery & Navigation
         {
@@ -857,6 +878,8 @@ Working on REAL filesystem: ${targetDir}
         // Human Context (6Ws Builder integration)
         case 'faf_human_add':
           return await this.handleHumanAdd(_args);
+        case 'faf_readme':
+          return await this.handleReadme(_args);
 
         // Discovery
         case 'faf_index':
@@ -1823,6 +1846,90 @@ faf_score --save      # Save this scorecard
       const duration = Date.now() - startTime;
       return await this.formatResult(
         '🧡 Human Context',
+        `Error: ${error.message}`,
+        duration
+      );
+    }
+  }
+
+  /**
+   * 📄 Handle README context extraction
+   * Extract 6 Ws from existing README.md and optionally merge into project.faf
+   */
+  private async handleReadme(args: { merge?: boolean; overwrite?: boolean; directory?: string }): Promise<CallToolResult> {
+    const startTime = Date.now();
+
+    try {
+      const dir = args.directory || this.currentProjectDir;
+
+      // Determine which command to call
+      const command = args.merge ? 'readme-merge' : 'readme-extract';
+      const engineArgs: string[] = [dir];
+
+      if (args.overwrite) {
+        engineArgs.push('--overwrite');
+      }
+
+      // Call bundled readme command
+      this.fafEngine.setWorkingDirectory(dir);
+      const result = await this.fafEngine.callEngine(command, engineArgs);
+      const duration = Date.now() - startTime;
+
+      if (result.success && result.data) {
+        const extracted = result.data.extracted;
+        const fieldsExtracted = extracted ? Object.keys(extracted).filter(k => k !== 'confidence' && extracted[k]).length : 0;
+        const confidence = extracted?.confidence?.overall || 0;
+        const confidencePercent = Math.round(confidence * 100);
+
+        // Build extracted fields display
+        let extractedDisplay = '';
+        if (extracted) {
+          const fields = ['who', 'what', 'where', 'why', 'when', 'how'];
+          for (const field of fields) {
+            if (extracted[field]) {
+              extractedDisplay += `\n**${field.toUpperCase()}:** ${extracted[field]}`;
+            }
+          }
+        }
+
+        let message = `${result.data.message}\n\n` +
+          `**README:** ${result.data.readmePath}\n` +
+          `**Confidence:** ${confidencePercent}%\n` +
+          `**Fields found:** ${fieldsExtracted}/6\n` +
+          extractedDisplay;
+
+        if (args.merge) {
+          const fieldsUpdated = result.data.fieldsUpdated || [];
+          message += `\n\n**Merged fields:** ${fieldsUpdated.join(', ')}\n\n` +
+            `**Next steps:**\n` +
+            `1. Run \`faf_score\` to see your new AI-readiness score\n` +
+            `2. Fill any missing fields with \`faf_human_add\` or visit faf.one/6ws\n` +
+            `3. Your context is now available to all AI assistants`;
+        } else {
+          message += `\n\n**Next steps:**\n` +
+            `1. Run \`faf_readme { merge: true }\` to merge into project.faf\n` +
+            `2. Or manually copy the extracted context\n` +
+            `3. Fill any missing fields at faf.one/6ws`;
+        }
+
+        return await this.formatResult(
+          '📄 README Context',
+          message,
+          duration,
+          dir
+        );
+      } else {
+        return await this.formatResult(
+          '📄 README Context',
+          result.error || 'Failed to extract context from README',
+          duration,
+          dir
+        );
+      }
+    } catch (error: any) {
+      const duration = Date.now() - startTime;
+      return await this.formatResult(
+        '📄 README Context',
         `Error: ${error.message}`,
         duration
       );

@@ -156,6 +156,43 @@ Claude → Runs faf_score → Shows new AI-readiness score ✨
 
 Works with Claude, Gemini, Grok, Cursor, Codex, WARP, any AI assistant.
 
+### 📄 Alternative: Auto-Extract from Existing README
+
+Already have a README.md? Skip the form and extract context automatically:
+
+**In Claude Desktop:**
+
+```
+User → Claude: "Extract context from my README"
+Claude → Uses faf_readme tool → Automatically extracts WHO/WHAT/WHERE/WHY/WHEN/HOW
+Claude → Shows extracted context with confidence scores
+User → "Merge it!"
+Claude → Uses faf_readme { merge: true } → Context added to project.faf
+Claude → Runs faf_score → Shows new AI-readiness score ✨
+```
+
+**What faf_readme extracts:**
+- **WHAT**: Project description, taglines, TL;DR sections
+- **WHY**: Problem statements, benefits, motivation
+- **WHO**: Target audience ("for developers", "built for teams")
+- **WHERE**: Platforms (npm, pip, Docker, cloud, browser)
+- **WHEN**: Status badges, version info, test counts
+- **HOW**: Quick Start commands, installation instructions
+
+**Usage:**
+```javascript
+// Just extract (see what's found)
+faf_readme
+
+// Extract and merge into project.faf
+faf_readme { merge: true }
+
+// Overwrite existing fields
+faf_readme { merge: true, overwrite: true }
+```
+
+**Same score boost:** +25-35% typical, instant results, zero manual work!
+
 ---
 
 ## 🎯 The .FAF Position

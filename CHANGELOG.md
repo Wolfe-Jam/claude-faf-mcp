@@ -18,6 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - CLI paste-back workflow
   - Answer 6 questions to create AI-ready context
   - Works with Claude, Gemini, Grok, Cursor, Codex, WARP
+
+- **faf_human_add** - Complete 6Ws Builder workflow
+  - Merge YAML from faf.one/6ws web form
+  - Set individual fields (who/what/where/why/when/how)
+  - Non-interactive bundled command (MK3 engine)
+  - Instant score boost (+25-35% typical)
+
+- **faf_readme** - Auto-extract context from README.md
+  - Intelligent pattern matching for 6 Ws extraction
+  - Confidence scoring for extracted fields
+  - Extract-only mode (preview what's found)
+  - Auto-merge mode (add to project.faf)
+  - Overwrite mode (replace existing fields)
+  - Same score boost as manual entry (+25-35%)
+  - Zero manual work required
+
 - Support for eternal voice memory (xAI Grok integration)
 - IANA-registered format features (application/vnd.faf+yaml)
 

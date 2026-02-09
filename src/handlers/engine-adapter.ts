@@ -19,6 +19,7 @@ import { innitFafFile } from '../faf-core/commands/innit.js';
 import { quickCommand } from '../faf-core/commands/quick.js';
 import { enhanceCommand } from '../faf-core/commands/enhance.js';
 import { humanAddCommand, humanSetCommand } from '../faf-core/commands/human.js';
+import { readmeExtractCommand, readmeMergeCommand } from '../faf-core/commands/readme.js';
 
 const execAsync = promisify(exec);
 
@@ -556,6 +557,57 @@ export class FafEngineAdapter {
         return {
           success: false,
           error: isError(error) ? error.message : 'Human-set command failed',
+          duration
+        };
+      }
+    }
+
+    // README command - extract context from README.md
+    if (command === 'readme' || command === 'readme-extract') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+
+        const result = await readmeExtractCommand(projectPath);
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'README extract command failed',
+          duration
+        };
+      }
+    }
+
+    // README-MERGE command - extract and merge into .faf
+    if (command === 'readme-merge') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+
+        // Check for overwrite flag
+        const overwrite = args.includes('--overwrite');
+
+        const result = await readmeMergeCommand(projectPath, { overwrite });
+        const duration = Date.now() - startTime;
+
+        return {
+          success: result.success,
+          data: result,
+          duration
+        };
+      } catch (error: unknown) {
+        const duration = Date.now() - startTime;
+        return {
+          success: false,
+          error: isError(error) ? error.message : 'README merge command failed',
           duration
         };
       }
