@@ -130,3 +130,10 @@ coverage/
 *.backup
 *.backup-*
 .vercel
+
+# Strategy/planning docs (keep local only - moved to PLANET-FAF)
+COMMUNITY-POST.md
+*-STRATEGY.md
+*-POSITIONING.md
+LAUNCH-*.md
+MARKETPLACE-*.md
