@@ -134,7 +134,7 @@ describe('CLI vs MCP Scoring Parity', () => {
 
       // MCP should produce valid score
       expect(mcpResult.score).toBeGreaterThanOrEqual(0);
-      expect(mcpResult.score).toBeLessThanOrEqual(105); // Allow Big Orange
+      expect(mcpResult.score).toBeLessThanOrEqual(100); // Max Trophy
       expect(mcpResult.total).toBeGreaterThan(0);
     });
 
@@ -152,7 +152,7 @@ describe('CLI vs MCP Scoring Parity', () => {
 
       // MCP should produce valid score
       expect(mcpResult.score).toBeGreaterThanOrEqual(0);
-      expect(mcpResult.score).toBeLessThanOrEqual(105);
+      expect(mcpResult.score).toBeLessThanOrEqual(100);
       expect(mcpResult.total).toBeGreaterThan(0);
     });
   });
@@ -356,7 +356,7 @@ describe('CLI vs MCP Scoring Parity', () => {
 
   describe('Regression Guard', () => {
 
-    test('Score never exceeds 105% (Big Orange max)', async () => {
+    test('Score never exceeds 100% (Trophy max)', async () => {
       const result = await getMcpScore('big-orange-guard', {
         project: { name: 'test', goal: 'test', main_language: 'TypeScript', type: 'cli' },
         human_context: { who: 'dev', what: 'cli', why: 'test', where: 'term', when: 'now', how: 'npm' },
@@ -364,7 +364,7 @@ describe('CLI vs MCP Scoring Parity', () => {
         extra: { bonus: 'data', should: 'not', affect: 'score' }
       });
 
-      expect(result.score).toBeLessThanOrEqual(105);
+      expect(result.score).toBeLessThanOrEqual(100);
     });
 
     test('Score never goes negative', async () => {
@@ -427,7 +427,7 @@ describe('Cross-Validation with Real Projects', () => {
 
       // All real projects should have valid scores
       expect(result.score).toBeGreaterThanOrEqual(0);
-      expect(result.score).toBeLessThanOrEqual(105);
+      expect(result.score).toBeLessThanOrEqual(100);
       expect(result.total).toBeGreaterThan(0);
       expect(result.filled).toBeLessThanOrEqual(result.total);
 

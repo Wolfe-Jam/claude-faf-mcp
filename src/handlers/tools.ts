@@ -576,74 +576,50 @@ export class FafToolHandler {
         details.push('⚠️  No project file found (0/14)');
       }
 
-      // Easter Egg: 105% Big Orange - if both .faf and CLAUDE.md have rich content
-      let easterEggActivated = false;
-      if (hasFaf && hasClaude) {
-        try {
-          const fafContent = await fs.readFile(fafResult!.path, 'utf-8');
-          const claudeContent = await fs.readFile(claudePath, 'utf-8');
-
-          // Check for rich content (more than 500 chars each, has sections)
-          const fafRich = fafContent.length > 500 && fafContent.includes('##');
-          const claudeRich = claudeContent.length > 500 && claudeContent.includes('##');
-
-          if (fafRich && claudeRich && hasReadme) {
-            // Big Orange Easter Egg!
-            easterEggActivated = true;
-          }
-        } catch {
-          // Silent fail for easter egg check
-        }
-      }
-
       // Format the output
       let output = '';
 
-      if (easterEggActivated) {
-        // EASTER EGG: 105% Big Orange!
-        output = `🏎️ FAF SCORE: 105%\n🧡 Big Orange\n🏆 Championship Mode!\n\n`;
+      if (score >= 100) {
+        // Perfect score - Trophy
+        output = `🏎️ FAF SCORE: 100%\n🏆 Trophy\n🏁 Championship Complete!\n\n`;
         if (args?.details) {
           output += `${details.join('\n')}\n\n`;
-          output += `🎉 EASTER EGG ACTIVATED!\n`;
+          output += `🏆 PERFECT SCORE!\n`;
           output += `Both .faf and CLAUDE.md are championship-quality!\n`;
-          output += `You've achieved Big Orange status - beyond perfection!`;
-        }
-      } else if (score >= 99) {
-        // Maximum technical score
-        output = `📊 FAF SCORE: 99%\n⚡ Maximum Technical\n🏁 Claude grants 100%\n\n`;
-        if (args?.details) {
-          output += details.join('\n');
-          output += `\n\n💡 Only Claude can grant the final 1% for perfect collaboration!`;
+          output += `\n💡 Note: 🍊 Big Orange is a BADGE awarded separately for excellence beyond metrics.`;
         }
       } else {
-        // Regular score
-        const percentage = Math.min(score, 99);
+        // Regular score - FAF standard tiers
+        const percentage = Math.min(score, 100);
         let rating = '';
         let emoji = '';
 
-        if (percentage >= 90) {
-          rating = 'Excellent';
-          emoji = '🏆';
-        } else if (percentage >= 80) {
-          rating = 'Very Good';
-          emoji = '⭐';
+        if (percentage >= 99) {
+          rating = 'Gold';
+          emoji = '🥇';
+        } else if (percentage >= 95) {
+          rating = 'Silver';
+          emoji = '🥈';
+        } else if (percentage >= 85) {
+          rating = 'Bronze';
+          emoji = '🥉';
         } else if (percentage >= 70) {
-          rating = 'Good';
-          emoji = '✨';
-        } else if (percentage >= 60) {
-          rating = 'Improving';
-          emoji = '📈';
+          rating = 'Green';
+          emoji = '🟢';
+        } else if (percentage >= 55) {
+          rating = 'Yellow';
+          emoji = '🟡';
         } else {
-          rating = 'Getting Started';
-          emoji = '🚀';
+          rating = 'Red';
+          emoji = '🔴';
         }
 
         // The 3-line killer display
-        output = `📊 FAF SCORE: ${percentage}%\n${emoji} ${rating}\n🏁 AI-Ready: ${percentage >= 70 ? 'Yes' : 'Building'}\n`;
+        output = `📊 FAF SCORE: ${percentage}%\n${emoji} ${rating}\n🏁 AI-Ready: ${percentage >= 85 ? 'Yes' : 'Building'}\n`;
 
         if (args?.details) {
           output += `\n${details.join('\n')}`;
-          if (percentage < 99) {
+          if (percentage < 100) {
             output += `\n\n💡 Tips to improve:\n`;
             if (!hasFaf) output += `- Create .faf file with project context\n`;
             if (!hasClaude) output += `- Add CLAUDE.md for AI instructions\n`;
@@ -731,7 +707,7 @@ ${chromeDetection.corrected ? `# Auto-corrected: "${args?.description}" → "${c
 # The Formula
 human_input: Your project files
 multiplier: FAF Context
-output: 105% Big Orange Performance
+output: Championship Performance
 
 # Quick Context
 working_directory: ${targetDir}

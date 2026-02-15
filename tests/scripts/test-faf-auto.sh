@@ -15,7 +15,7 @@ echo ""
 echo "🏎️ Testing FAF AUTO on tshirt-demo..."
 echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"faf_auto","arguments":{"directory":"/Users/wolfejam/tshirt-demo"}},"id":1}' | \
   node /Users/wolfejam/FAF/claude-faf-mcp/dist/src/cli.js --transport stdio 2>/dev/null | \
-  head -1 | grep -q "105%" && echo "✅ Big Orange achieved!" || echo "❌ Score check failed"
+  head -1 | grep -q "100%" && echo "✅ Trophy achieved!" || echo "❌ Score check failed"
 
 echo ""
 echo "📋 Verifying created files..."
@@ -35,6 +35,6 @@ echo "- Stack detected (React) 🔧"
 echo "- .faf created with data 📄"
 echo "- CLAUDE.md generated 📝"
 echo "- Bi-sync activated ↔️"
-echo "- Score: 🍊 105% Big Orange!"
+echo "- Score: 🏆 100% Trophy!"
 echo ""
 echo "No faffing about - just championship performance! 🏁"

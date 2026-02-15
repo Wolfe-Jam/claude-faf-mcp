@@ -56,7 +56,7 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
     
     test('faf_write - Native file writing', async () => {
       const testFile = path.join(testDir, 'output.md');
-      const content = '# Championship Mode\n105% Big Orange';
+      const content = '# Championship Mode\n100% Trophy';
       
       const handler = new FafToolHandler(new FafEngineAdapter('native'));
       await handler.callTool('faf_write', { 
@@ -127,7 +127,7 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
   });
 
   describe('🏆 Easter Egg Detection', () => {
-    test('105% Big Orange achievement', async () => {
+    test('100% Trophy achievement', async () => {
       // Create championship-quality files
       const fafContent = `## Project Context\n${'='.repeat(100)}\nRich content here`;
       const claudeContent = `## AI Instructions\n${'='.repeat(100)}\nExcellent guidance`;
@@ -140,9 +140,9 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       const result = await handler.callTool('faf_score', { details: true });
       
       const text = getTextContent(result.content) as string;
-      // Check if easter egg triggers
-      if (text.includes('105%')) {
-        expect(text).toContain('Big Orange');
+      // Check if Trophy achievement triggers
+      if (text.includes('100%')) {
+        expect(text).toContain('Trophy');
         expect(text).toContain('Championship');
       }
     });

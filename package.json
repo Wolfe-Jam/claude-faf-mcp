@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "4.1.2",
+  "version": "4.1.3",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "IANA-registered format (application/vnd.faf+yaml) • Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-256.png",

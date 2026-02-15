@@ -61,12 +61,13 @@ export class ChampionshipFormatter {
    * Get achievement level based on score
    */
   static getAchievementLevel(score: number): string {
-    if (score >= 105) return '🍊 BIG ORANGE CHAMPIONSHIP!';
-    if (score >= 99) return '🏆 CHAMPIONSHIP MODE!';
-    if (score >= 90) return '⭐ PODIUM FINISH!';
-    if (score >= 70) return '✅ DOT FAFFED!';
-    if (score >= 50) return '🏎️ ON TRACK!';
-    return '⚡ BUILDING MOMENTUM!';
+    if (score >= 100) return '🏆 TROPHY - CHAMPIONSHIP COMPLETE!';
+    if (score >= 99) return '🥇 GOLD - CHAMPIONSHIP MODE!';
+    if (score >= 95) return '🥈 SILVER - PODIUM FINISH!';
+    if (score >= 85) return '🥉 BRONZE - PRODUCTION READY!';
+    if (score >= 70) return '🟢 GREEN - SOLID FOUNDATION!';
+    if (score >= 55) return '🟡 YELLOW - NEEDS IMPROVEMENT!';
+    return '🔴 RED - MAJOR WORK NEEDED!';
   }
 
   /**

@@ -58,10 +58,10 @@
  * 🤍 ROOKIE (0-40%):    Tiers 1-2 only
  * 🏁 QUALIFIED (41-60%): Tiers 1-4
  * 🥉 BRONZE (61-75%):   Tiers 1-5
- * 🥈 SILVER (76-85%):   Tiers 1-6
- * 🥇 GOLD (86-95%):     Tiers 1-7
- * 🏆 CHAMPIONSHIP (96%+): All tiers + bonus tests
- * 🍊 BIG ORANGE (105%): Perfect score + Easter eggs
+ * 🥈 SILVER (95%):      Tiers 1-6
+ * 🥇 GOLD (99%):        Tiers 1-7
+ * 🏆 TROPHY (100%):     All tiers - Perfect score
+ * 🍊 BIG ORANGE:        BADGE (awarded separately for excellence beyond metrics)
  * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  */
 
