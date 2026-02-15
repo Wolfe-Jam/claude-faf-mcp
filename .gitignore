@@ -137,3 +137,12 @@ COMMUNITY-POST.md
 *-POSITIONING.md
 LAUNCH-*.md
 MARKETPLACE-*.md
+
+# Test artifacts and results (added by repo-maintainer)
+big3-test-results-*/
+.faf++
+BIG_3_*.sh
+*_TEST_*.sh
+
+# Personal notes
+.notes/
