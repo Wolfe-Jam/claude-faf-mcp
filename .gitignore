@@ -110,6 +110,10 @@ coverage/
 .faf-test*
 .claude-faf-test*
 
+# Generated .faf files (from `faf git` etc) — only project.faf is source
+*.faf
+!project.faf
+
 # Internal documents - ALL .md files go to FAF-GOLD/PLANET-FAF
 *.md
 !README.md
