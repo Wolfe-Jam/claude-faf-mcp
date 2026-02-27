@@ -18,6 +18,26 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![project.faf](https://img.shields.io/badge/project.faf-inside-00D4D4)](https://github.com/Wolfe-Jam/faf)
 
+<p align="center">
+<a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-61-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
+</p>
+
+---
+
+## 📋 The 6 Ws — Quick Reference
+
+| Question | Answer |
+|----------|--------|
+| **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
+| **📦 WHAT** is it? | 61-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
+| **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
+| **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
+| **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
+| **🚀 HOW** does it work? | `npx claude-faf-mcp` — one line in your MCP config |
+
+**For AI:** Read the detailed sections below for full context.
+**For humans:** Use this pattern in YOUR README. **[Build yours →](https://faf.one/6ws)**
+
 ---
 
 ## The Problem: Context-Drift
@@ -26,6 +46,8 @@ AI assistants forget. They misunderstand. They drift.
 
 Every new session, every new file, every new developer — AI starts guessing again. Your codebase context leaks away. Yesterday's perfect assistant becomes today's confused intern.
 
+**The cost:** 91% of tokens wasted on rediscovery. $5,460/year per developer. At 50 devs, that's $273k–$507k annually — before counting project failures from compounding context loss. **[Full DAAFT analysis →](https://faf.one/daaft)**
+
 **.FAF fixes this permanently.**
 
 ---
@@ -33,19 +55,11 @@ Every new session, every new file, every new developer — AI starts guessing ag
 ## The Solution: Gold Code
 
 ```
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🏆  FAF AI-READINESS SCORE: 100/100 — GOLD CODE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🏆 FAF AI-READINESS: 100/100 — GOLD CODE
 
-At 100%, AI is optimized. No more guessing.
-Peak AI performance activated.
-
-├─ Project DNA locked in        ├─ Zero context-drift
-├─ Architecture understood      ├─ Eternal bi-sync active
-├─ Domain model captured        ├─ Team alignment permanent
-└─ Every session starts smart   └─ AI works WITH you, not around you
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+├─ Project DNA locked in     ├─ Zero context-drift
+├─ Architecture understood   ├─ Eternal bi-sync active
+└─ Every session starts smart └─ AI works WITH you
 ```
 
 **Gold Code = AI Optimized.** Your project DNA lives in `project.faf`. AI reads it instantly. Context never drifts.
@@ -156,72 +170,24 @@ faf_git { url: "https://github.com/owner/repo" }
 → Generates .faf from any public GitHub repo
 ```
 
-### ✨ New in v4.3.0: 6Ws Builder
+### 6Ws Builder
 
-Answer 6 questions to create AI-ready context:
+Answer 6 questions (WHO/WHAT/WHERE/WHY/WHEN/HOW) to boost AI-readiness by +25-35%. Two ways:
 
-1. **WHO** - Who is this for?
-2. **WHAT** - What does it do?
-3. **WHERE** - Where does it run?
-4. **WHY** - Why does it exist?
-5. **WHEN** - When to use it?
-6. **HOW** - How to get started?
+- **Web:** [faf.one/6ws](https://faf.one/6ws) — Fill form, copy YAML, paste into Claude with `faf_human_add`
+- **CLI:** `faf 6ws` — Interactive terminal workflow
 
-**Complete Workflow in Claude Desktop:**
+### README Auto-Extract
 
-```
-User → Claude: "Help me add context to my project"
-Claude → User: "Visit faf.one/6ws to fill out the 6 questions"
-User → Fills form → Copies human_context YAML
-User → Claude: [Pastes YAML]
-Claude → Uses faf_human_add tool → Context merged!
-Claude → Runs faf_score → Shows new AI-readiness score ✨
-```
+Already have a README? Extract context automatically:
 
-**Two ways to use:**
-- **Web (Recommended):** [faf.one/6ws](https://faf.one/6ws) — Fill form, copy YAML, use `faf_human_add` in Claude
-- **CLI:** `faf 6ws` — Interactive paste-back workflow (terminal)
-
-**Score Boost:** Completing all 6 Ws typically adds +25-35% to your AI-readiness score!
-
-Works with Claude, Gemini, Grok, Cursor, Codex, WARP, any AI assistant.
-
-### 📄 Alternative: Auto-Extract from Existing README
-
-Already have a README.md? Skip the form and extract context automatically:
-
-**In Claude Desktop:**
-
-```
-User → Claude: "Extract context from my README"
-Claude → Uses faf_readme tool → Automatically extracts WHO/WHAT/WHERE/WHY/WHEN/HOW
-Claude → Shows extracted context with confidence scores
-User → "Merge it!"
-Claude → Uses faf_readme { merge: true } → Context added to project.faf
-Claude → Runs faf_score → Shows new AI-readiness score ✨
-```
-
-**What faf_readme extracts:**
-- **WHAT**: Project description, taglines, TL;DR sections
-- **WHY**: Problem statements, benefits, motivation
-- **WHO**: Target audience ("for developers", "built for teams")
-- **WHERE**: Platforms (npm, pip, Docker, cloud, browser)
-- **WHEN**: Status badges, version info, test counts
-- **HOW**: Quick Start commands, installation instructions
-
-**Usage:**
 ```javascript
-// Just extract (see what's found)
-faf_readme
-
-// Extract and merge into project.faf
-faf_readme { merge: true }
-
-// Overwrite existing fields
-faf_readme { merge: true, overwrite: true }
+faf_readme                              // Preview extracted context
+faf_readme { merge: true }              // Merge into project.faf
+faf_readme { merge: true, overwrite: true }  // Overwrite existing fields
 ```
 
-**Same score boost:** +25-35% typical, instant results, zero manual work!
+Same +25-35% score boost, zero manual work.
 
 ---
 
@@ -242,12 +208,21 @@ faf_readme { merge: true, overwrite: true }
 
 ## 📦 Ecosystem
 
-- **[faf-cli](https://www.npmjs.com/package/faf-cli)** — CLI tool v4.3.0 (21k+ downloads, 671/671 tests passing)
+- **[faf-cli](https://www.npmjs.com/package/faf-cli)** — CLI companion (v4.5.0) — terminal, scripts, CI/CD
 - **[faf.one/6ws](https://faf.one/6ws)** — 6Ws Builder (Web + CLI integration)
 - **[MCPaaS](https://mcpaas.live)** — MCP as a Service (The Endpoint for Context)
 - **[faf-wasm](https://www.npmjs.com/package/faf-wasm)** — WASM SDK (<5ms scoring)
 - **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** — Browser integration
 - **[faf.one](https://faf.one)** — Official website
+
+### 🤝 CLI vs MCP
+
+| Tool | Use Case |
+|------|----------|
+| **claude-faf-mcp** (this) | Claude Desktop, Claude Code, any MCP client |
+| **faf-cli** | Terminal, scripts, CI/CD, automation |
+
+Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ---
 
@@ -264,6 +239,6 @@ MIT License — Free and open source
 
 ---
 
-**Zero drift. Eternal sync. AI optimized.** 🏆
+> **.faf is the format. `project.faf` is the file. 100% 🏆 AI Readiness is the result.**
 
 *"It's so logical if it didn't exist, AI would have built it itself" — Claude*
