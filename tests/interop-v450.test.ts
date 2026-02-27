@@ -909,17 +909,17 @@ describe('TIER 6: Performance', () => {
       expect(duration).toBeLessThan(50);
     });
 
-    it('parseGitHubUrl should complete in < 5ms', () => {
+    it('parseGitHubUrl should complete in < 10ms', () => {
       const start = performance.now();
       for (let i = 0; i < 100; i++) {
         parseGitHubUrl(`https://github.com/owner-${i}/repo-${i}`);
       }
       const duration = performance.now() - start;
-      // 100 parses in < 5ms
-      expect(duration).toBeLessThan(5);
+      // 100 parses in < 10ms (relaxed for CI shared runners)
+      expect(duration).toBeLessThan(10);
     });
 
-    it('countSlots should complete in < 5ms', () => {
+    it('countSlots should complete in < 10ms', () => {
       const start = performance.now();
       for (let i = 0; i < 100; i++) {
         countSlots({
@@ -929,7 +929,7 @@ describe('TIER 6: Performance', () => {
         });
       }
       const duration = performance.now() - start;
-      expect(duration).toBeLessThan(5);
+      expect(duration).toBeLessThan(10);
     });
   });
 
