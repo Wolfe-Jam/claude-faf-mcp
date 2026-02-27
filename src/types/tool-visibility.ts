@@ -27,16 +27,17 @@ export interface ToolMetadata {
 }
 
 /**
- * CORE TOOLS (20) - Essential FAF workflow
+ * CORE TOOLS (24) - Essential FAF workflow (v4.5.0: +4 interop tools)
  * Note: This list is for reference. Actual visibility is determined by TOOL_REGISTRY.
  */
 const _CORE_TOOLS = [
-  // Essential Workflow (5)
+  // Essential Workflow (6) — v4.5.0: +faf_git
   'faf',
   'faf_auto',
   'faf_init',
   'faf_innit',
   'faf_status',
+  'faf_git',
 
   // Scoring (4)
   'faf_score',
@@ -49,11 +50,14 @@ const _CORE_TOOLS = [
   'faf_stacks',
   'faf_skills',
 
-  // Sync & Evolution (4)
+  // Sync & Evolution (7) — v4.5.0: +agents/cursor/gemini
   'faf_sync',
   'faf_bi_sync',
   'faf_update',
   'faf_migrate',
+  'faf_agents',
+  'faf_cursor',
+  'faf_gemini',
 
   // AI Enhancement (2)
   'faf_chat',
@@ -66,7 +70,7 @@ const _CORE_TOOLS = [
 ] as const;
 
 /**
- * ADVANCED TOOLS (31) - Power user features
+ * ADVANCED TOOLS (32) - Power user features (v4.5.0: +1 conductor)
  * Note: This list is for reference. Actual visibility is determined by TOOL_REGISTRY.
  */
 const _ADVANCED_TOOLS = [
@@ -74,6 +78,9 @@ const _ADVANCED_TOOLS = [
   'faf_display',
   'faf_show',
   'faf_check',
+
+  // Interop Advanced (1) — v4.5.0
+  'faf_conductor',
 
   // Trust System (5)
   'faf_trust',
@@ -123,10 +130,10 @@ const _ADVANCED_TOOLS = [
  */
 export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
   // ============================================================================
-  // CORE TOOLS (20)
+  // CORE TOOLS (24) — v4.5.0
   // ============================================================================
 
-  // Essential Workflow (5)
+  // Essential Workflow (6)
   faf: {
     name: 'faf',
     visibility: 'core',
@@ -161,6 +168,13 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     category: 'workflow',
     description: 'Check if your project has .faf - Shows AI-readability status',
     priority: 5,
+  },
+  faf_git: {
+    name: 'faf_git',
+    visibility: 'core',
+    category: 'workflow',
+    description: 'Generate .faf from any GitHub repo URL - 1-click context',
+    priority: 6,
   },
 
   // Scoring (4)
@@ -216,7 +230,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     priority: 3,
   },
 
-  // Sync & Evolution (4)
+  // Sync & Evolution (7) — v4.5.0: +agents/cursor/gemini
   faf_sync: {
     name: 'faf_sync',
     visibility: 'core',
@@ -228,7 +242,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     name: 'faf_bi_sync',
     visibility: 'core',
     category: 'sync',
-    description: 'Bi-directional sync between .faf context and CLAUDE.md',
+    description: 'Bi-directional sync between .faf context and CLAUDE.md (v4.5.0: +all formats)',
     priority: 2,
   },
   faf_update: {
@@ -244,6 +258,27 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     category: 'sync',
     description: 'Migrate .faf to latest format version',
     priority: 4,
+  },
+  faf_agents: {
+    name: 'faf_agents',
+    visibility: 'core',
+    category: 'sync',
+    description: 'Import/Export/Sync AGENTS.md (OpenAI/Codex) with .faf',
+    priority: 5,
+  },
+  faf_cursor: {
+    name: 'faf_cursor',
+    visibility: 'core',
+    category: 'sync',
+    description: 'Import/Export/Sync .cursorrules (Cursor IDE) with .faf',
+    priority: 6,
+  },
+  faf_gemini: {
+    name: 'faf_gemini',
+    visibility: 'core',
+    category: 'sync',
+    description: 'Import/Export/Sync GEMINI.md (Google Gemini) with .faf',
+    priority: 7,
   },
 
   // AI Enhancement (2)
@@ -286,7 +321,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
   },
 
   // ============================================================================
-  // ADVANCED TOOLS (31)
+  // ADVANCED TOOLS (32) — v4.5.0
   // ============================================================================
 
   // Display Variants (3)
@@ -339,6 +374,14 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     visibility: 'advanced',
     category: 'trust',
     description: 'Show validated .faf state',
+  },
+
+  // Interop Advanced (1) — v4.5.0
+  faf_conductor: {
+    name: 'faf_conductor',
+    visibility: 'advanced',
+    category: 'sync',
+    description: 'Import/Export conductor/ directory (Google Conductor) with .faf',
   },
 
   // AI Advanced (2)

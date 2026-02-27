@@ -159,9 +159,9 @@ For developers who care about quality.
         expect(fafDoctor?.description).toContain('Health check');
       });
 
-      it('should have 27 total tools in v4.0.0', async () => {
+      it('should have 32 total tools in v4.5.0', async () => {
         const { tools } = await toolHandler.listTools();
-        expect(tools.length).toBe(27);
+        expect(tools.length).toBe(32);
       });
     });
 

@@ -20,6 +20,12 @@ import { quickCommand } from '../faf-core/commands/quick.js';
 import { enhanceCommand } from '../faf-core/commands/enhance.js';
 import { humanAddCommand, humanSetCommand } from '../faf-core/commands/human.js';
 import { readmeExtractCommand, readmeMergeCommand } from '../faf-core/commands/readme.js';
+// v4.5.0 Interop commands
+import { agentsImportCommand, agentsExportCommand, agentsSyncCommand } from '../faf-core/commands/agents.js';
+import { cursorImportCommand, cursorExportCommand, cursorSyncCommand } from '../faf-core/commands/cursor.js';
+import { geminiImportCommand, geminiExportCommand, geminiSyncCommand } from '../faf-core/commands/gemini.js';
+import { conductorImportCommand, conductorExportCommand } from '../faf-core/commands/conductor.js';
+import { gitContextCommand } from '../faf-core/commands/git-context.js';
 
 const execAsync = promisify(exec);
 
@@ -256,12 +262,18 @@ export class FafEngineAdapter {
       }
     }
 
-    // BI-SYNC command - use bundled bi-sync
+    // BI-SYNC command - use bundled bi-sync (v4.5.0: supports agents/cursor/gemini/all flags)
     if (command === 'bi-sync' || command === 'bisync') {
       try {
         const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
         const projectPath = pathArgs[0] || this.workingDirectory;
-        const result = await syncBiDirectional(projectPath, { json: true });
+        const result = await syncBiDirectional(projectPath, {
+          json: true,
+          agents: args.includes('--agents'),
+          cursor: args.includes('--cursor'),
+          gemini: args.includes('--gemini'),
+          all: args.includes('--all'),
+        });
         const duration = Date.now() - startTime;
 
         return {
@@ -610,6 +622,124 @@ export class FafEngineAdapter {
           error: isError(error) ? error.message : 'README merge command failed',
           duration
         };
+      }
+    }
+
+    // ============================================================================
+    // v4.5.0 INTEROP COMMANDS
+    // ============================================================================
+
+    // AGENTS command - import/export/sync AGENTS.md
+    if (command === 'agents') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const actionArg = args.find(arg => arg.startsWith('--action='));
+        const action = actionArg ? actionArg.substring(9) : 'sync';
+        const force = args.includes('--force');
+        const merge = args.includes('--merge');
+
+        let result;
+        if (action === 'import') {
+          result = await agentsImportCommand(projectPath, { merge });
+        } else if (action === 'export') {
+          result = await agentsExportCommand(projectPath, { force });
+        } else {
+          result = await agentsSyncCommand(projectPath);
+        }
+
+        return { success: result.success, data: result, duration: Date.now() - startTime };
+      } catch (error: unknown) {
+        return { success: false, error: isError(error) ? error.message : 'Agents command failed', duration: Date.now() - startTime };
+      }
+    }
+
+    // CURSOR command - import/export/sync .cursorrules
+    if (command === 'cursor') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const actionArg = args.find(arg => arg.startsWith('--action='));
+        const action = actionArg ? actionArg.substring(9) : 'sync';
+        const force = args.includes('--force');
+        const merge = args.includes('--merge');
+
+        let result;
+        if (action === 'import') {
+          result = await cursorImportCommand(projectPath, { merge });
+        } else if (action === 'export') {
+          result = await cursorExportCommand(projectPath, { force });
+        } else {
+          result = await cursorSyncCommand(projectPath);
+        }
+
+        return { success: result.success, data: result, duration: Date.now() - startTime };
+      } catch (error: unknown) {
+        return { success: false, error: isError(error) ? error.message : 'Cursor command failed', duration: Date.now() - startTime };
+      }
+    }
+
+    // GEMINI command - import/export/sync GEMINI.md
+    if (command === 'gemini') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const actionArg = args.find(arg => arg.startsWith('--action='));
+        const action = actionArg ? actionArg.substring(9) : 'sync';
+        const force = args.includes('--force');
+        const merge = args.includes('--merge');
+
+        let result;
+        if (action === 'import') {
+          result = await geminiImportCommand(projectPath, { merge });
+        } else if (action === 'export') {
+          result = await geminiExportCommand(projectPath, { force });
+        } else {
+          result = await geminiSyncCommand(projectPath);
+        }
+
+        return { success: result.success, data: result, duration: Date.now() - startTime };
+      } catch (error: unknown) {
+        return { success: false, error: isError(error) ? error.message : 'Gemini command failed', duration: Date.now() - startTime };
+      }
+    }
+
+    // CONDUCTOR command - import/export conductor/
+    if (command === 'conductor') {
+      try {
+        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
+        const projectPath = pathArgs[0] || this.workingDirectory;
+        const actionArg = args.find(arg => arg.startsWith('--action='));
+        const action = actionArg ? actionArg.substring(9) : 'import';
+        const force = args.includes('--force');
+        const merge = args.includes('--merge');
+
+        let result;
+        if (action === 'export') {
+          result = await conductorExportCommand(projectPath, { force });
+        } else {
+          result = await conductorImportCommand(projectPath, { merge });
+        }
+
+        return { success: result.success, data: result, duration: Date.now() - startTime };
+      } catch (error: unknown) {
+        return { success: false, error: isError(error) ? error.message : 'Conductor command failed', duration: Date.now() - startTime };
+      }
+    }
+
+    // GIT command - generate .faf from GitHub repo
+    if (command === 'git') {
+      try {
+        const url = args[0];
+        const outputPath = args[1]; // optional
+        if (!url) {
+          return { success: false, error: 'URL is required', duration: Date.now() - startTime };
+        }
+
+        const result = await gitContextCommand(url, outputPath);
+        return { success: result.success, data: result, duration: Date.now() - startTime };
+      } catch (error: unknown) {
+        return { success: false, error: isError(error) ? error.message : 'Git command failed', duration: Date.now() - startTime };
       }
     }
 

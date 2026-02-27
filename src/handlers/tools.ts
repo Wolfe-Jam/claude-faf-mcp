@@ -137,13 +137,17 @@ export class FafToolHandler {
         },
         {
           name: 'faf_bi_sync',
-          description: 'Bi-directional sync between project.faf context and claude.md for persistent Claude collaboration',
+          description: 'Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!',
           inputSchema: {
             type: 'object',
             properties: {
               auto: { type: 'boolean', description: 'Enable automatic synchronization' },
               watch: { type: 'boolean', description: 'Start real-time file watching for changes' },
               force: { type: 'boolean', description: 'Force overwrite conflicting changes' },
+              agents: { type: 'boolean', description: 'Also sync to AGENTS.md (OpenAI/Codex format)' },
+              cursor: { type: 'boolean', description: 'Also sync to .cursorrules (Cursor IDE format)' },
+              gemini: { type: 'boolean', description: 'Also sync to GEMINI.md (Google Gemini format)' },
+              all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -397,6 +401,82 @@ export class FafToolHandler {
             },
             additionalProperties: false
           }
+        },
+        // ============================================================================
+        // v4.5.0 INTEROP TOOLS
+        // ============================================================================
+        {
+          name: 'faf_agents',
+          description: 'Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (AGENTS.md -> .faf), export (.faf -> AGENTS.md), sync (bidirectional)' },
+              force: { type: 'boolean', description: 'Force overwrite existing files' },
+              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['action'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_cursor',
+          description: 'Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (.cursorrules -> .faf), export (.faf -> .cursorrules), sync (bidirectional)' },
+              force: { type: 'boolean', description: 'Force overwrite existing files' },
+              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['action'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_gemini',
+          description: 'Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (GEMINI.md -> .faf), export (.faf -> GEMINI.md), sync (bidirectional)' },
+              force: { type: 'boolean', description: 'Force overwrite existing files' },
+              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['action'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_conductor',
+          description: 'Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: { type: 'string', enum: ['import', 'export'], description: 'Action: import (conductor/ -> .faf), export (.faf -> conductor/)' },
+              force: { type: 'boolean', description: 'Force overwrite existing files' },
+              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['action'],
+            additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_git',
+          description: 'Generate project.faf from any GitHub repo URL - 1-click context extraction!',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              url: { type: 'string', description: 'GitHub repository URL (e.g., https://github.com/owner/repo or owner/repo)' },
+              path: { type: 'string', description: 'Output directory for generated project.faf. If omitted, returns content without writing.' }
+            },
+            required: ['url'],
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -470,6 +550,17 @@ export class FafToolHandler {
         return await this.handleFafQuick(args);
       case 'faf_doctor':
         return await this.handleFafDoctor(args);
+      // v4.5.0 Interop tools
+      case 'faf_agents':
+        return await this.handleFafAgents(args);
+      case 'faf_cursor':
+        return await this.handleFafCursor(args);
+      case 'faf_gemini':
+        return await this.handleFafGemini(args);
+      case 'faf_conductor':
+        return await this.handleFafConductor(args);
+      case 'faf_git':
+        return await this.handleFafGit(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -2891,6 +2982,177 @@ Use force: true to overwrite, or use faf_enhance to modify.`
     } catch (error: any) {
       return {
         content: [{ type: 'text', text: `🏥 FAF Doctor:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  // ============================================================================
+  // v4.5.0 INTEROP HANDLERS
+  // ============================================================================
+
+  private async handleFafAgents(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const action = args?.action || 'sync';
+
+    try {
+      const result = await this.engineAdapter.callEngine('agents', [
+        cwd,
+        `--action=${action}`,
+        ...(args?.force ? ['--force'] : []),
+        ...(args?.merge ? ['--merge'] : []),
+      ]);
+
+      if (!result.success) {
+        return {
+          content: [{ type: 'text', text: `AGENTS.md ${action}:\n\n❌ ${result.error}` }],
+          isError: true
+        };
+      }
+
+      const data = result.data;
+      return {
+        content: [{ type: 'text', text: `AGENTS.md ${action}:\n\n✅ ${data?.message || 'Done'}\n⏱️ ${result.duration}ms` }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `AGENTS.md ${action}:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafCursor(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const action = args?.action || 'sync';
+
+    try {
+      const result = await this.engineAdapter.callEngine('cursor', [
+        cwd,
+        `--action=${action}`,
+        ...(args?.force ? ['--force'] : []),
+        ...(args?.merge ? ['--merge'] : []),
+      ]);
+
+      if (!result.success) {
+        return {
+          content: [{ type: 'text', text: `.cursorrules ${action}:\n\n❌ ${result.error}` }],
+          isError: true
+        };
+      }
+
+      const data = result.data;
+      return {
+        content: [{ type: 'text', text: `.cursorrules ${action}:\n\n✅ ${data?.message || 'Done'}\n⏱️ ${result.duration}ms` }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `.cursorrules ${action}:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafGemini(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const action = args?.action || 'sync';
+
+    try {
+      const result = await this.engineAdapter.callEngine('gemini', [
+        cwd,
+        `--action=${action}`,
+        ...(args?.force ? ['--force'] : []),
+        ...(args?.merge ? ['--merge'] : []),
+      ]);
+
+      if (!result.success) {
+        return {
+          content: [{ type: 'text', text: `GEMINI.md ${action}:\n\n❌ ${result.error}` }],
+          isError: true
+        };
+      }
+
+      const data = result.data;
+      return {
+        content: [{ type: 'text', text: `GEMINI.md ${action}:\n\n✅ ${data?.message || 'Done'}\n⏱️ ${result.duration}ms` }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `GEMINI.md ${action}:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafConductor(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const action = args?.action || 'import';
+
+    try {
+      const result = await this.engineAdapter.callEngine('conductor', [
+        cwd,
+        `--action=${action}`,
+        ...(args?.force ? ['--force'] : []),
+        ...(args?.merge ? ['--merge'] : []),
+      ]);
+
+      if (!result.success) {
+        return {
+          content: [{ type: 'text', text: `Conductor ${action}:\n\n❌ ${result.error}` }],
+          isError: true
+        };
+      }
+
+      const data = result.data;
+      return {
+        content: [{ type: 'text', text: `Conductor ${action}:\n\n✅ ${data?.message || 'Done'}\n⏱️ ${result.duration}ms` }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `Conductor ${action}:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  private async handleFafGit(args: any): Promise<CallToolResult> {
+    const url = args?.url;
+    if (!url) {
+      return {
+        content: [{ type: 'text', text: 'faf_git: Missing required parameter "url"' }],
+        isError: true
+      };
+    }
+
+    const outputPath = args?.path ? this.getProjectPath(args.path) : undefined;
+
+    try {
+      const result = await this.engineAdapter.callEngine('git', [
+        url,
+        ...(outputPath ? [outputPath] : []),
+      ]);
+
+      if (!result.success) {
+        return {
+          content: [{ type: 'text', text: `GitHub Context:\n\n❌ ${result.error}` }],
+          isError: true
+        };
+      }
+
+      const data = result.data;
+      let output = `GitHub Context:\n\n✅ ${data?.message || 'Done'}\n⏱️ ${result.duration}ms`;
+
+      // Include generated .faf content if no output path (preview mode)
+      if (!outputPath && data?.data?.fafContent) {
+        output += `\n\n--- Generated project.faf ---\n${data.data.fafContent}`;
+      }
+
+      return {
+        content: [{ type: 'text', text: output }]
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `GitHub Context:\n\n❌ Error: ${error.message}` }],
         isError: true
       };
     }

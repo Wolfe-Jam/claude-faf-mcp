@@ -111,7 +111,7 @@ Setup savings get you started. Lifecycle optimization keeps you ahead.
 
 ---
 
-## 🛠️ 52 MCP Tools
+## 🛠️ 61 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 16.2x faster than process spawning.
 
@@ -126,8 +126,35 @@ All tools run standalone — zero CLI dependencies, 16.2x faster than process sp
 | `faf_readme` | Extract 6 Ws from README (+25-35% boost) |
 | `faf_sixws` | **NEW:** 6Ws Builder - Interactive web form + CLI integration |
 | `faf_human_add` | Add human context (Claude Code compatible) |
+| `faf_agents` | Import/export/sync AGENTS.md (OpenAI Codex) |
+| `faf_cursor` | Import/export/sync .cursorrules (Cursor IDE) |
+| `faf_gemini` | Import/export/sync GEMINI.md (Google Gemini) |
+| `faf_git` | Extract context from any GitHub repo URL |
+| `faf_conductor` | Import/export Conductor directory |
 
 **Performance:** 19ms average execution. Fastest: 1ms.
+
+### ✨ New in v4.5.0: AI Format Interop
+
+Define once in `.faf`, generate all four AI instruction formats:
+
+```
+project.faf → CLAUDE.md    (Anthropic)
+            → AGENTS.md    (OpenAI / Linux Foundation)
+            → .cursorrules (Cursor IDE)
+            → GEMINI.md    (Google Gemini CLI)
+```
+
+**Bi-sync all at once:**
+```
+faf_bi_sync { all: true }
+```
+
+**GitHub context extraction:**
+```
+faf_git { url: "https://github.com/owner/repo" }
+→ Generates .faf from any public GitHub repo
+```
 
 ### ✨ New in v4.3.0: 6Ws Builder
 

@@ -5,6 +5,27 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.0] - 2026-02-27
+
+### Added
+
+- **AI Format Interop** — 5 new MCP tools for cross-platform AI context
+  - `faf_agents`: Import/export/sync AGENTS.md (OpenAI Codex / Linux Foundation)
+  - `faf_cursor`: Import/export/sync .cursorrules (Cursor IDE)
+  - `faf_gemini`: Import/export/sync GEMINI.md (Google Gemini CLI)
+  - `faf_conductor`: Import/export Conductor directory structure
+  - `faf_git`: Extract .faf context from any public GitHub repo URL
+- **Bi-sync `--all` flag** — Sync project.faf to all formats at once (CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md)
+- **7 bundled parsers** — All parser logic runs standalone, zero CLI dependency
+  - agents-parser, cursorrules-parser, gemini-parser, conductor-parser
+  - github-extractor, faf-git-generator, slot-counter
+- **95 new tests** across 7 WJTTC tiers (Parser Units, Import/Export, MCP Integration, Engine Adapter, Security, Performance, Roundtrip)
+- Tool count: 56 → 61 (25 core + 36 advanced)
+
+### Changed
+
+- Upgraded bi-sync engine with `agents`, `cursor`, `gemini`, `all` options
+
 ## [4.1.3] - 2026-02-15
 
 ### Fixed

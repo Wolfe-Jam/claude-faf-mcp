@@ -1,18 +1,26 @@
 /**
  * 🔗 Bi-Sync Engine - Mk3 Bundled Edition
  * Revolutionary project.faf ↔ CLAUDE.md Synchronization
+ * v4.5.0: Added agents/cursor/gemini/all flags for multi-format sync
  */
 
 import { parse as parseYAML } from '../fix-once/yaml';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { findFafFile, fileExists } from '../utils/file-utils';
+import { agentsExportCommand } from './agents.js';
+import { cursorExportCommand } from './cursor.js';
+import { geminiExportCommand } from './gemini.js';
 
 export interface BiSyncOptions {
   auto?: boolean;
   watch?: boolean;
   force?: boolean;
   json?: boolean;
+  agents?: boolean;
+  cursor?: boolean;
+  gemini?: boolean;
+  all?: boolean;
 }
 
 export interface BiSyncResult {
@@ -142,6 +150,48 @@ export async function syncBiDirectional(projectPath?: string, _options: BiSyncOp
       result.direction = 'faf-to-claude';
       result.filesChanged.push('CLAUDE.md');
       result.message = `Files synchronized! Perfect harmony achieved! FAF Score: ${currentScore}`;
+    }
+
+    // v4.5.0: Chain additional format exports if requested
+    const doAgents = _options.agents || _options.all;
+    const doCursor = _options.cursor || _options.all;
+    const doGemini = _options.gemini || _options.all;
+
+    if (doAgents) {
+      try {
+        const agentsResult = await agentsExportCommand(projectDir, { force: true });
+        if (agentsResult.success) {
+          result.filesChanged.push('AGENTS.md');
+        }
+      } catch {
+        // Non-fatal — CLAUDE.md sync already succeeded
+      }
+    }
+
+    if (doCursor) {
+      try {
+        const cursorResult = await cursorExportCommand(projectDir, { force: true });
+        if (cursorResult.success) {
+          result.filesChanged.push('.cursorrules');
+        }
+      } catch {
+        // Non-fatal
+      }
+    }
+
+    if (doGemini) {
+      try {
+        const geminiResult = await geminiExportCommand(projectDir, { force: true });
+        if (geminiResult.success) {
+          result.filesChanged.push('GEMINI.md');
+        }
+      } catch {
+        // Non-fatal
+      }
+    }
+
+    if (result.filesChanged.length > 1) {
+      result.message += ` | Also synced: ${result.filesChanged.filter(f => f !== 'CLAUDE.md').join(', ')}`;
     }
 
     result.duration = Date.now() - startTime;

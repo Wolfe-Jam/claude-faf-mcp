@@ -19,19 +19,19 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 describe('🏎️ Tool Visibility System', () => {
   describe('Tool Registry', () => {
-    it('should have exactly 56 total tools defined (current implementation)', () => {
+    it('should have exactly 61 total tools defined (current implementation)', () => {
       const counts = validateToolCounts();
-      expect(counts.total).toBe(56);
+      expect(counts.total).toBe(61);
     });
 
-    it('should have exactly 21 core tools (current implementation)', () => {
+    it('should have exactly 25 core tools (current implementation)', () => {
       const counts = validateToolCounts();
-      expect(counts.core).toBe(21);
+      expect(counts.core).toBe(25);
     });
 
-    it('should have exactly 35 advanced tools (current implementation)', () => {
+    it('should have exactly 36 advanced tools (current implementation)', () => {
       const counts = validateToolCounts();
-      expect(counts.advanced).toBe(35);
+      expect(counts.advanced).toBe(36);
     });
 
     it('should correctly identify core tools', () => {
@@ -52,7 +52,7 @@ describe('🏎️ Tool Visibility System', () => {
 
     it('should have all core tools in TOOL_REGISTRY', () => {
       const coreTools = getCoreTools();
-      expect(coreTools.length).toBe(21);
+      expect(coreTools.length).toBe(25);
 
       const expectedCore = [
         'faf',
@@ -60,6 +60,7 @@ describe('🏎️ Tool Visibility System', () => {
         'faf_init',
         'faf_innit',
         'faf_status',
+        'faf_git',
         'faf_score',
         'faf_validate',
         'faf_doctor',
@@ -71,6 +72,9 @@ describe('🏎️ Tool Visibility System', () => {
         'faf_bi_sync',
         'faf_update',
         'faf_migrate',
+        'faf_agents',
+        'faf_cursor',
+        'faf_gemini',
         'faf_chat',
         'faf_enhance',
         'faf_index',
@@ -234,8 +238,8 @@ describe('🏎️ Tool Visibility System', () => {
   });
 
   describe('Performance', () => {
-    it('should filter tools quickly (< 10ms for 56 tools)', () => {
-      const mockTools: Tool[] = Array.from({ length: 56 }, (_, i) => ({
+    it('should filter tools quickly (< 10ms for 61 tools)', () => {
+      const mockTools: Tool[] = Array.from({ length: 61 }, (_, i) => ({
         name: `tool_${i}`,
         description: 'Test tool',
         inputSchema: { type: 'object', properties: {} },
@@ -251,11 +255,11 @@ describe('🏎️ Tool Visibility System', () => {
 });
 
 describe('🏁 WJTTC Certification Tests', () => {
-  it('Tier 1: Critical - Tool count integrity (current implementation: 21+35=56)', () => {
+  it('Tier 1: Critical - Tool count integrity (current implementation: 25+36=61)', () => {
     const counts = validateToolCounts();
-    expect(counts.core).toBe(21);
-    expect(counts.advanced).toBe(35);
-    expect(counts.total).toBe(56);
+    expect(counts.core).toBe(25);
+    expect(counts.advanced).toBe(36);
+    expect(counts.total).toBe(61);
   });
 
   it('Tier 1: Critical - No duplicate tools', () => {
