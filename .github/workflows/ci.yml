@@ -149,7 +149,7 @@ jobs:
         run: npm ci
 
       - name: Download build
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: dist
           path: dist/
