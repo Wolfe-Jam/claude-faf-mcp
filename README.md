@@ -1,4 +1,4 @@
- score <div style="display: flex; align-items: center; gap: 12px;">
+<div style="display: flex; align-items: center; gap: 12px;">
   <img src="https://www.faf.one/orange-smiley.svg" alt="FAF" width="40" />
   <div>
     <h1 style="margin: 0; color: #FF8C00;">claude-faf-mcp</h1>
@@ -24,22 +24,6 @@
 
 ---
 
-## 📋 The 6 Ws — Quick Reference
-
-| Question | Answer |
-|----------|--------|
-| **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
-| **📦 WHAT** is it? | 33-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
-| **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
-| **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
-| **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
-| **🚀 HOW** does it work? | `npx claude-faf-mcp` — one line in your MCP config |
-
-**For AI:** Read the detailed sections below for full context.
-**For humans:** Use this pattern in YOUR README. **[Build yours →](https://faf.one/6ws)**
-
----
-
 ## 💡 The 3Ws — Start Here
 
 <img src="assets/nelly.jpg" alt="Nelly Never Forgets" width="200" align="right" />
@@ -55,6 +39,22 @@ Answer 3 questions. That's all your AI needs to start.
 **That's it.** Tell Claude your 3Ws and FAF turns them into project DNA that never drifts.
 
 **[Build yours → faf.one/ideas](https://faf.one/ideas)**
+
+---
+
+## 📋 The 6 Ws — Quick Reference
+
+| Question | Answer |
+|----------|--------|
+| **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
+| **📦 WHAT** is it? | 33-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
+| **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
+| **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
+| **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
+| **🚀 HOW** does it work? | `npx claude-faf-mcp` — one line in your MCP config |
+
+**For AI:** Read the detailed sections below for full context.
+**For humans:** Use this pattern in YOUR README. **[Build yours →](https://faf.one/6ws)**
 
 ---
 
