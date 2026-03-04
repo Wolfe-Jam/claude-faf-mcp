@@ -5,6 +5,22 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.1.0] - 2026-03-04
+
+### Added
+
+- **Tool #33: `faf_tri_sync`** — Sync project.faf to Claude MEMORY.md (Pro feature)
+  - `export`: writes .faf context into MEMORY.md (merges, preserves Claude's own notes)
+  - `status`: shows MEMORY.md state (lines, FAF section, Claude notes)
+  - Pro-gated: 14-day free trial, then $3/mo · $19/yr · $29/yr Global
+  - Same `~/.faf/license.json` gate as faf-cli — one key works everywhere
+  - bi-sync stays free forever; tri-sync adds RAM (MEMORY.md persistence)
+
+### Changed
+
+- Tool count: 32 → 33
+- Version bump: 5.0.0 → 5.1.0
+
 ## [5.0.0] - 2026-03-04
 
 ### Added

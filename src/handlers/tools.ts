@@ -8,6 +8,8 @@ import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile } from '../utils/faf-file-finder.js';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
+import { checkProAccess } from '../licensing/pro-gate';
+import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -653,6 +655,31 @@ export class FafToolHandler {
             required: ['url'],
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_tri_sync',
+          description: 'Sync project.faf to Claude MEMORY.md (Pro feature — 14-day free trial). bi-sync is free forever; tri-sync adds RAM.',
+          annotations: {
+            title: 'Tri-Sync to MEMORY.md',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              action: {
+                type: 'string',
+                enum: ['export', 'status'],
+                description: 'export = sync .faf to MEMORY.md, status = show MEMORY.md state'
+              },
+              path: {
+                type: 'string',
+                description: 'Project path. Sets session context for subsequent calls.'
+              }
+            },
+            additionalProperties: false
+          }
         }
       ] as Tool[]
     };
@@ -737,6 +764,8 @@ export class FafToolHandler {
         return await this.handleFafConductor(args);
       case 'faf_git':
         return await this.handleFafGit(args);
+      case 'faf_tri_sync':
+        return await this.handleFafTriSync(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -3332,5 +3361,103 @@ Use force: true to overwrite, or use faf_enhance to modify.`
         isError: true
       };
     }
+  }
+
+  private async handleFafTriSync(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+
+    // 1. Pro gate check
+    const proStatus = checkProAccess();
+
+    if (!proStatus.allowed) {
+      // Trial expired — show upgrade prompt
+      return {
+        content: [{
+          type: 'text',
+          text: [
+            '🐘 Feed Nelly — She Never Forgets',
+            '',
+            'bi-sync is free — and always will be.',
+            'tri-sync adds RAM: your AI remembers across sessions.',
+            '',
+            '  bi-sync  = ROM (.faf) ↔ CLAUDE.md',
+            '  tri-sync = ROM ↔ CLAUDE.md ↔ RAM (MEMORY.md)',
+            '',
+            'Feed Nelly: a dime a day ($3/mo) · a nickel a day ($19/yr)',
+            '$29/yr Global (CLI + MCP)',
+            '',
+            '→ Friends of FAF: faf.one/pro',
+            '→ Activate: faf pro activate <key>',
+          ].join('\n')
+        }]
+      };
+    }
+
+    // 2. Build contextual message for trial users
+    let proMessage = '';
+    if (proStatus.reason === 'trial' && proStatus.justStarted) {
+      proMessage = '\n\n🐘 Nelly Never Forgets: 14-day free trial started. faf.one/pro when ready.';
+    } else if (proStatus.reason === 'trial') {
+      proMessage = `\n\n🐘 Nelly Never Forgets: ${proStatus.daysLeft} day${proStatus.daysLeft === 1 ? '' : 's'} left in trial. faf.one/pro`;
+    }
+
+    // 3. Find project.faf
+    const fafResult = await findFafFile(cwd);
+    if (!fafResult) {
+      return {
+        content: [{
+          type: 'text',
+          text: `🔄 tri-sync: No project.faf found in ${cwd}\n💡 Run faf_init first.${proMessage}`
+        }]
+      };
+    }
+
+    const action = args?.action || 'export';
+
+    if (action === 'status') {
+      // Show MEMORY.md status
+      const status = await getMemoryStatus(cwd);
+      const statusText = [
+        '🧠 MEMORY.md Status:',
+        '',
+        `  Path: ${status.path}`,
+        `  Exists: ${status.exists ? 'Yes' : 'No'}`,
+        status.exists ? `  Total lines: ${status.totalLines}` : '',
+        status.exists ? `  FAF section: ${status.hasFafSection ? `Yes (${status.fafSectionLines} lines)` : 'No'}` : '',
+        status.exists ? `  Claude notes: ${status.claudeNotesLines} lines` : '',
+        status.totalLines > 200 ? `  ⚠️ Over 200-line ceiling (${status.totalLines} lines)` : '',
+      ].filter(Boolean).join('\n');
+
+      return {
+        content: [{ type: 'text', text: statusText + proMessage }]
+      };
+    }
+
+    // Export: .faf → MEMORY.md
+    const yaml = await import('yaml');
+    const fafRaw = fs.readFileSync(fafResult.path, 'utf-8');
+    const fafContent = yaml.parse(fafRaw) || {};
+    const memoryPath = resolveMemoryPath(cwd);
+    const result = await memoryExport(fafContent, memoryPath);
+
+    if (!result.success) {
+      return {
+        content: [{ type: 'text', text: `🔄 tri-sync export failed.${proMessage}` }],
+        isError: true
+      };
+    }
+
+    const exportText = [
+      '🧠 tri-sync: .faf → MEMORY.md',
+      '',
+      `  Written to: ${result.filePath}`,
+      `  Lines: ${result.linesWritten}`,
+      `  Mode: ${result.merged ? 'Merged (Claude notes preserved)' : 'Fresh write'}`,
+      ...result.warnings.map(w => `  ⚠️ ${w}`),
+    ].join('\n');
+
+    return {
+      content: [{ type: 'text', text: exportText + proMessage }]
+    };
   }
 }

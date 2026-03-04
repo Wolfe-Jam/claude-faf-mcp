@@ -2,8 +2,8 @@
   "manifest_version": "0.3",
   "name": "claude-faf-mcp",
   "display_name": "FAF - Project DNA for AI",
-  "version": "5.0.0",
-  "description": "IANA-registered format (application/vnd.faf+yaml). Persistent project context for ANY AI. 32 MCP tools.",
+  "version": "5.1.0",
+  "description": "IANA-registered format (application/vnd.faf+yaml). Persistent project context for ANY AI. 33 MCP tools.",
   "long_description": "FAF (Foundational AI-context Format) gives your project persistent context that survives sessions, works across AI tools, and eliminates the 're-explain everything' problem.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — your project's DNA file\n- Bi-syncs .faf with CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**33,000+ npm downloads. Merged in Anthropic MCP ecosystem (PR #2759). IANA-registered MIME type.**",
   "author": {
     "name": "Wolfejam",
@@ -74,7 +74,8 @@
     { "name": "faf_cursor", "description": "Sync .cursorrules (Cursor IDE)" },
     { "name": "faf_gemini", "description": "Sync GEMINI.md (Google Gemini)" },
     { "name": "faf_conductor", "description": "Sync Conductor directory" },
-    { "name": "faf_git", "description": "Generate .faf from GitHub repo URL" }
+    { "name": "faf_git", "description": "Generate .faf from GitHub repo URL" },
+    { "name": "faf_tri_sync", "description": "Sync project.faf to Claude MEMORY.md (Pro)" }
   ],
   "tools_generated": true,
   "compatibility": {
