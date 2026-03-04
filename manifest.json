@@ -1,0 +1,87 @@
+{
+  "manifest_version": "0.3",
+  "name": "claude-faf-mcp",
+  "display_name": "FAF - Project DNA for AI",
+  "version": "5.0.0",
+  "description": "IANA-registered format (application/vnd.faf+yaml). Persistent project context for ANY AI. 32 MCP tools.",
+  "long_description": "FAF (Foundational AI-context Format) gives your project persistent context that survives sessions, works across AI tools, and eliminates the 're-explain everything' problem.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — your project's DNA file\n- Bi-syncs .faf with CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**33,000+ npm downloads. Merged in Anthropic MCP ecosystem (PR #2759). IANA-registered MIME type.**",
+  "author": {
+    "name": "Wolfejam",
+    "email": "team@faf.one",
+    "url": "https://wolfejam.dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Wolfe-Jam/claude-faf-mcp.git"
+  },
+  "homepage": "https://faf.one",
+  "documentation": "https://faf.one/about",
+  "support": "https://github.com/Wolfe-Jam/claude-faf-mcp/issues",
+  "icon": "icon.png",
+  "license": "MIT",
+  "privacy_policies": [
+    "https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/PRIVACY.md"
+  ],
+  "keywords": [
+    "faf",
+    "ai-context",
+    "project-dna",
+    "mcp",
+    "claude",
+    "iana",
+    "yaml",
+    "agents-md",
+    "cursorrules",
+    "gemini"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/src/index.js",
+    "mcp_config": {
+      "command": "npx",
+      "args": ["-y", "claude-faf-mcp"]
+    }
+  },
+  "tools": [
+    { "name": "faf_about", "description": "Learn what .faf format is" },
+    { "name": "faf_what", "description": "Quick explanation of .faf format" },
+    { "name": "faf_status", "description": "Check if project has project.faf" },
+    { "name": "faf_score", "description": "Calculate AI-readiness score (0-100%)" },
+    { "name": "faf_init", "description": "Create project.faf for a project" },
+    { "name": "faf_trust", "description": "Validate project.faf integrity" },
+    { "name": "faf_sync", "description": "Sync .faf with CLAUDE.md" },
+    { "name": "faf_enhance", "description": "Enhance .faf with AI optimization" },
+    { "name": "faf_bi_sync", "description": "Bi-directional sync to all AI formats" },
+    { "name": "faf_clear", "description": "Clear caches and reset state" },
+    { "name": "faf_debug", "description": "Debug MCP environment info" },
+    { "name": "faf_read", "description": "Read file content" },
+    { "name": "faf_write", "description": "Write file content" },
+    { "name": "faf_list", "description": "List and discover .faf projects" },
+    { "name": "faf_chat", "description": "Natural language .faf generation" },
+    { "name": "faf_friday", "description": "Fun features and fuzzy matching" },
+    { "name": "faf_guide", "description": "FAF MCP usage guide" },
+    { "name": "faf_readme", "description": "Extract context from README.md" },
+    { "name": "faf_human_add", "description": "Add human context (6Ws)" },
+    { "name": "faf_check", "description": "Quality inspection for .faf fields" },
+    { "name": "faf_context", "description": "Set or view active project context" },
+    { "name": "faf_go", "description": "Guided interview to Gold Code (100%)" },
+    { "name": "faf_auto", "description": "Zero to AI context in one command" },
+    { "name": "faf_dna", "description": "Show project DNA evolution journey" },
+    { "name": "faf_formats", "description": "Discover all formats in your project" },
+    { "name": "faf_quick", "description": "Lightning-fast .faf creation" },
+    { "name": "faf_doctor", "description": "Diagnose and fix .faf issues" },
+    { "name": "faf_agents", "description": "Sync AGENTS.md (OpenAI/Codex)" },
+    { "name": "faf_cursor", "description": "Sync .cursorrules (Cursor IDE)" },
+    { "name": "faf_gemini", "description": "Sync GEMINI.md (Google Gemini)" },
+    { "name": "faf_conductor", "description": "Sync Conductor directory" },
+    { "name": "faf_git", "description": "Generate .faf from GitHub repo URL" }
+  ],
+  "tools_generated": true,
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": ["darwin", "win32", "linux"],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

@@ -40,6 +40,21 @@
 
 ---
 
+## Not a Developer?
+
+No problem. FAF works for anyone using Claude Desktop.
+
+**3 steps:**
+1. Install FAF from Claude Desktop → Settings → Extensions
+2. Tell Claude about your project: "I'm building [describe your idea]"
+3. Claude creates your project DNA — context that never drifts
+
+No terminal. No code. Just describe what you're building.
+
+**Try it:** Tell Claude *"Score my project's AI-readiness and tell me how to improve"* — it works on any project, any language, any framework.
+
+---
+
 ## The Problem: Context-Drift
 
 AI assistants forget. They misunderstand. They drift.
@@ -229,6 +244,12 @@ Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 - **[Full Documentation](https://wolfe-jam.github.io/claude-faf-mcp/)**
 - **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)**
+
+---
+
+## 🔒 Privacy
+
+FAF processes everything locally. No data leaves your machine. No analytics, no telemetry, no tracking, no accounts. [Full privacy policy →](./PRIVACY.md)
 
 ---
 

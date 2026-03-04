@@ -5,6 +5,26 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-03-04
+
+### Added
+
+- **Tool annotations on all 32 tools** — title, readOnlyHint, destructiveHint, openWorldHint per MCP spec
+- **PRIVACY.md** — privacy policy (local-only processing, no telemetry, no tracking)
+- **manifest.json** — Desktop Extensions manifest (manifest_version 0.3)
+- **Non-developer section** in README — 3-step install for Claude Desktop users
+- **Privacy section** in README linking to PRIVACY.md
+
+### Changed
+
+- **Desktop Edition** — ready for Claude Desktop Extensions submission
+- Tool descriptions updated: "THE JPEG for AI" → "project DNA for AI"
+- manifest.json and PRIVACY.md included in npm tarball
+
+### Why Major Version
+
+Tool annotations change the MCP contract surface. All 32 tools now expose structured metadata (title, readOnlyHint, destructiveHint, openWorldHint) that clients can use for UI, permissions, and safety classification.
+
 ## [4.5.1] - 2026-03-04
 
 ### Fixed

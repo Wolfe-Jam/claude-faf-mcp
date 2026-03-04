@@ -46,7 +46,12 @@ export class FafToolHandler {
       tools: [
         {
           name: 'faf_about',
-          description: 'Learn what .faf format is - THE JPEG for AI 🧡⚡️',
+          description: 'Learn what .faf format is - project DNA for AI 🧡⚡️',
+          annotations: {
+            title: 'About FAF',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -55,7 +60,12 @@ export class FafToolHandler {
         },
         {
           name: 'faf_what',
-          description: 'What is .faf format? Quick explanation of THE JPEG for AI 🧡⚡️',
+          description: 'What is .faf format? Quick explanation of project DNA for AI 🧡⚡️',
+          annotations: {
+            title: 'What is FAF',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -64,7 +74,12 @@ export class FafToolHandler {
         },
         {
           name: 'faf_status',
-          description: 'Check if your project has project.faf (THE JPEG for AI) - Shows AI-readability status 🧡⚡️',
+          description: 'Check if your project has project.faf (project DNA for AI) - Shows AI-readability status 🧡⚡️',
+          annotations: {
+            title: 'Project Status',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -75,7 +90,12 @@ export class FafToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate your project\'s AI-readability from project.faf (THE JPEG for AI) - F1-inspired metrics! 🧡⚡️',
+          description: 'Calculate your project\'s AI-readability from project.faf (project DNA for AI) - F1-inspired metrics! 🧡⚡️',
+          annotations: {
+            title: 'AI-Readiness Score',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -87,7 +107,13 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create project.faf (THE JPEG for AI) - Makes your project instantly AI-readable 🧡⚡️. Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
+          description: 'Create project.faf (project DNA for AI) - Makes your project instantly AI-readable 🧡⚡️. Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
+          annotations: {
+            title: 'Initialize .faf',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -102,7 +128,12 @@ export class FafToolHandler {
         },
         {
           name: 'faf_trust',
-          description: 'Validate project.faf integrity - Trust metrics for THE JPEG for AI 🧡⚡️',
+          description: 'Validate project.faf integrity - Trust metrics for project DNA for AI 🧡⚡️',
+          annotations: {
+            title: 'Trust Score',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -111,7 +142,13 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Sync project.faf (THE JPEG for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
+          description: 'Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
+          annotations: {
+            title: 'Sync .faf to CLAUDE.md',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -122,7 +159,13 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Enhance project.faf (THE JPEG for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
+          description: 'Enhance project.faf (project DNA for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
+          annotations: {
+            title: 'Enhance .faf',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -138,6 +181,12 @@ export class FafToolHandler {
         {
           name: 'faf_bi_sync',
           description: 'Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!',
+          annotations: {
+            title: 'Bi-directional Sync',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -156,6 +205,12 @@ export class FafToolHandler {
         {
           name: 'faf_clear',
           description: 'Clear caches, temporary files, and reset FAF state for a fresh start',
+          annotations: {
+            title: 'Clear .faf Data',
+            readOnlyHint: false,
+            destructiveHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -170,6 +225,11 @@ export class FafToolHandler {
         {
           name: 'faf_debug',
           description: 'Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status',
+          annotations: {
+            title: 'Debug Info',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -179,6 +239,11 @@ export class FafToolHandler {
         {
           name: 'faf_read',
           description: 'Read content from any file on the local filesystem',
+          annotations: {
+            title: 'Read .faf File',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -194,6 +259,12 @@ export class FafToolHandler {
         {
           name: 'faf_write',
           description: 'Write content to any file on the local filesystem',
+          annotations: {
+            title: 'Write .faf File',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -213,6 +284,11 @@ export class FafToolHandler {
         {
           name: 'faf_list',
           description: 'List directories and discover projects with project.faf files - Essential for FAF discovery workflow',
+          annotations: {
+            title: 'List .faf Files',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -242,6 +318,11 @@ export class FafToolHandler {
         {
           name: 'faf_chat',
           description: '🗣️ Natural language project.faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️',
+          annotations: {
+            title: 'Chat about FAF',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -251,6 +332,11 @@ export class FafToolHandler {
         {
           name: 'faf_friday',
           description: '🎉 Friday Features - Chrome Extension detection, fuzzy matching & more! 🧡⚡️',
+          annotations: {
+            title: 'Fun FAF Facts',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -265,6 +351,11 @@ export class FafToolHandler {
         {
           name: 'faf_guide',
           description: 'FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns',
+          annotations: {
+            title: 'Usage Guide',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {},
@@ -274,6 +365,12 @@ export class FafToolHandler {
         {
           name: 'faf_readme',
           description: '📖 Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching 🧡⚡️',
+          annotations: {
+            title: 'Extract from README',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -287,6 +384,12 @@ export class FafToolHandler {
         {
           name: 'faf_human_add',
           description: '🧡 Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP 🧡⚡️',
+          annotations: {
+            title: 'Add Human Context',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -305,6 +408,11 @@ export class FafToolHandler {
         {
           name: 'faf_check',
           description: '🔍 Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings 🧡⚡️',
+          annotations: {
+            title: 'Check .faf Health',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -318,6 +426,11 @@ export class FafToolHandler {
         {
           name: 'faf_context',
           description: '📂 Set or view active project context - Path is remembered for subsequent faf_ calls 🧡⚡️',
+          annotations: {
+            title: 'View Context',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -329,6 +442,12 @@ export class FafToolHandler {
         {
           name: 'faf_go',
           description: '🎯 Guided interview to Gold Code - Claude asks questions till you hit 100%! Returns questions for missing fields, then apply answers to reach Gold Code 🧡⚡️',
+          annotations: {
+            title: 'Guided Setup',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -345,6 +464,12 @@ export class FafToolHandler {
         {
           name: 'faf_auto',
           description: '🏎️ ONE COMMAND TO RULE THEM ALL - Zero to Championship AI context instantly! Runs init + sync + formats + bi-sync + score in one go 🧡⚡️',
+          annotations: {
+            title: 'Auto-detect Context',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -357,6 +482,11 @@ export class FafToolHandler {
         {
           name: 'faf_dna',
           description: '🧬 Show your FAF DNA journey - See your evolution from birth to championship (22% → 85% → 99%) 🧡⚡️',
+          annotations: {
+            title: 'View Project DNA',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -368,6 +498,11 @@ export class FafToolHandler {
         {
           name: 'faf_formats',
           description: '😽 TURBO-CAT format discovery - Discovers all formats in your project (154+ validated types!) and fills stack slots 🧡⚡️',
+          annotations: {
+            title: 'List Formats',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -380,6 +515,12 @@ export class FafToolHandler {
         {
           name: 'faf_quick',
           description: '⚡ Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting" 🧡⚡️',
+          annotations: {
+            title: 'Quick Create',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -394,6 +535,11 @@ export class FafToolHandler {
         {
           name: 'faf_doctor',
           description: '🏥 Health check for your .faf setup - Diagnose and fix common issues 🧡⚡️',
+          annotations: {
+            title: 'Diagnose Issues',
+            readOnlyHint: true,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -408,6 +554,12 @@ export class FafToolHandler {
         {
           name: 'faf_agents',
           description: 'Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!',
+          annotations: {
+            title: 'Sync AGENTS.md',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -423,6 +575,12 @@ export class FafToolHandler {
         {
           name: 'faf_cursor',
           description: 'Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!',
+          annotations: {
+            title: 'Sync .cursorrules',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -438,6 +596,12 @@ export class FafToolHandler {
         {
           name: 'faf_gemini',
           description: 'Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!',
+          annotations: {
+            title: 'Sync GEMINI.md',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -453,6 +617,12 @@ export class FafToolHandler {
         {
           name: 'faf_conductor',
           description: 'Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!',
+          annotations: {
+            title: 'Sync Conductor',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -468,6 +638,12 @@ export class FafToolHandler {
         {
           name: 'faf_git',
           description: 'Generate project.faf from any GitHub repo URL - 1-click context extraction!',
+          annotations: {
+            title: 'Extract from GitHub',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
           inputSchema: {
             type: 'object',
             properties: {
@@ -1039,7 +1215,7 @@ package_manager: ${projectData.package_manager}` : ''}
     };
 
     const aboutText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 .faf = THE JPEG for AI
+🤖 .faf = project DNA for AI
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 WHAT IS .FAF?
@@ -1074,7 +1250,7 @@ HOW IT WORKS:
   }
 
   private async handleFafWhat(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    const whatText = `.faf = THE JPEG for AI
+    const whatText = `.faf = project DNA for AI
 
 WHAT: .faf = Foundational AI-context Format
       (The dot means it's a file format, like .jpg or .pdf)
