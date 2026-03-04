@@ -14,8 +14,7 @@ const fs = require('fs');
 
 const message = `
 \x1b[32m✓\x1b[0m claude-faf-mcp@${packageJson.version} installed successfully
-  52 MCP tools ready
-  NEW: faf_human_add, faf_readme
+  32 MCP tools ready
 
 Test in Claude Desktop:
   "Extract context from my README"

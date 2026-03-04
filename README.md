@@ -19,7 +19,7 @@
 [![project.faf](https://img.shields.io/badge/project.faf-inside-00D4D4)](https://github.com/Wolfe-Jam/faf)
 
 <p align="center">
-<a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-61-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
+<a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-32-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -29,7 +29,7 @@
 | Question | Answer |
 |----------|--------|
 | **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
-| **📦 WHAT** is it? | 61-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
+| **📦 WHAT** is it? | 32-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
 | **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
 | **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
 | **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
@@ -125,7 +125,7 @@ Setup savings get you started. Lifecycle optimization keeps you ahead.
 
 ---
 
-## 🛠️ 61 MCP Tools
+## 🛠️ 32 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 16.2x faster than process spawning.
 
