@@ -138,7 +138,6 @@ All tools run standalone — zero CLI dependencies, 16.2x faster than process sp
 | `faf_enhance` | Intelligent enhancement |
 | `faf_quick` | Lightning-fast creation (3ms) |
 | `faf_readme` | Extract 6 Ws from README (+25-35% boost) |
-| `faf_sixws` | **NEW:** 6Ws Builder - Interactive web form + CLI integration |
 | `faf_human_add` | Add human context (Claude Code compatible) |
 | `faf_agents` | Import/export/sync AGENTS.md (OpenAI Codex) |
 | `faf_cursor` | Import/export/sync .cursorrules (Cursor IDE) |

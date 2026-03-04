@@ -5,6 +5,19 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.5.1] - 2026-03-04
+
+### Fixed
+
+- **Tool count accuracy** — README, server.json, and postinstall now reflect 32 active MCP tools
+- **Removed ghost tool** — `faf_sixws` removed from README (not implemented in tools.ts)
+- **Stale handler reference** — project.faf now points to `src/handlers/tools.ts`
+
+### Changed
+
+- **MCP SDK** bumped from `^1.20.1` to `^1.27.1`
+- **Tarball trimmed** — source maps excluded, 0 `.map` files shipped
+
 ## [4.5.0] - 2026-02-27
 
 ### Added
