@@ -1,4 +1,4 @@
-<div style="display: flex; align-items: center; gap: 12px;">
+ score <div style="display: flex; align-items: center; gap: 12px;">
   <img src="https://www.faf.one/orange-smiley.svg" alt="FAF" width="40" />
   <div>
     <h1 style="margin: 0; color: #FF8C00;">claude-faf-mcp</h1>
@@ -19,7 +19,7 @@
 [![project.faf](https://img.shields.io/badge/project.faf-inside-00D4D4)](https://github.com/Wolfe-Jam/faf)
 
 <p align="center">
-<a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-32-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
+<a href="#-the-3ws--start-here">3Ws</a> · <a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-33-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
 </p>
 
 ---
@@ -29,7 +29,7 @@
 | Question | Answer |
 |----------|--------|
 | **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
-| **📦 WHAT** is it? | 32-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
+| **📦 WHAT** is it? | 33-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
 | **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
 | **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
 | **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
@@ -40,16 +40,34 @@
 
 ---
 
+## 💡 The 3Ws — Start Here
+
+<img src="assets/nelly.jpg" alt="Nelly Never Forgets" width="200" align="right" />
+
+Answer 3 questions. That's all your AI needs to start.
+
+| Question | What to answer |
+|----------|---------------|
+| **👥 WHO** is it for? | The people who will use this. Not you — them. |
+| **📦 WHAT** does it do for them? | The value they get. Not features — the outcome. |
+| **🎯 WHY** should it exist? | What's broken today? Why does this need to exist? |
+
+**That's it.** Tell Claude your 3Ws and FAF turns them into project DNA that never drifts.
+
+**[Build yours → faf.one/ideas](https://faf.one/ideas)**
+
+---
+
 ## Not a Developer?
 
 No problem. FAF works for anyone using Claude Desktop.
 
 **3 steps:**
 1. Install FAF from Claude Desktop → Settings → Extensions
-2. Tell Claude about your project: "I'm building [describe your idea]"
+2. Tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 3. Claude creates your project DNA — context that never drifts
 
-No terminal. No code. Just describe what you're building.
+No terminal. No code. Just answer 3 questions.
 
 **Try it:** Tell Claude *"Score my project's AI-readiness and tell me how to improve"* — it works on any project, any language, any framework.
 
@@ -81,7 +99,7 @@ Every new session, every new file, every new developer — AI starts guessing ag
 
 ---
 
-## 🔄 Eternal Bi-Sync
+## 🔄 Eternal Bi-Sync (Free Forever)
 
 The magic: `.faf` ↔ `CLAUDE.md` stay synchronized in milliseconds.
 
@@ -95,6 +113,21 @@ project.faf  ←──── 8ms ────→  CLAUDE.md
 - Zero manual maintenance
 - Works across teams, branches, sessions
 - **Context never goes stale**
+
+### 🐘 Tri-Sync: Add RAM (Pro)
+
+<img src="assets/nelly.jpg" alt="Nelly Never Forgets — Feed Nelly a dime a day" width="200" align="right" />
+
+bi-sync is core. tri-sync adds more — your AI remembers across sessions.
+
+```
+  bi-sync  = ROM (.faf) ↔ CLAUDE.md           ← free forever
+  tri-sync = ROM ↔ CLAUDE.md ↔ RAM (MEMORY.md) ← Pro
+```
+
+**Feed Nelly 🐘 — she never forgets.** A dime a day ($3/mo) · a nickel a day ($19/yr) · $29/yr Global (CLI + MCP). 14-day free trial, no signup.
+
+**[Friends of FAF → faf.one/pro](https://faf.one/pro)**
 
 ---
 
@@ -140,7 +173,7 @@ Setup savings get you started. Lifecycle optimization keeps you ahead.
 
 ---
 
-## 🛠️ 32 MCP Tools
+## 🛠️ 33 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 16.2x faster than process spawning.
 
@@ -149,6 +182,7 @@ All tools run standalone — zero CLI dependencies, 16.2x faster than process sp
 | `faf_init` | Initialize project DNA |
 | `faf_score` | Check AI-readiness (0-100%) |
 | `faf_sync` | Bi-sync .faf ↔ CLAUDE.md |
+| `faf_tri_sync` | Tri-sync .faf → MEMORY.md *(Pro — 14-day free trial)* |
 | `faf_auto` | Auto-detect and populate context |
 | `faf_enhance` | Intelligent enhancement |
 | `faf_quick` | Lightning-fast creation (3ms) |
