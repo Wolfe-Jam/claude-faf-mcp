@@ -12,11 +12,11 @@
 
 ---
 
-## 3 Answers. That's It.
+## The 3Ws — 3 Answers. That's It.
 
-Every great product started with 3 answers:
+Every great product started with 3 answers — **Who, What, Why:**
 
-| | WHO | WHAT | WHY |
+| | WHO is it for? | WHAT does it do? | WHY build it? |
 |---|-----|------|-----|
 | **Uber** | People who need a ride | Tap a button, car arrives | Taxis were broken |
 | **Airbnb** | Travelers who can't afford hotels | Stay in someone's spare room | Millions of empty rooms exist |
@@ -34,15 +34,17 @@ human_context:
 
 30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
 
-**Want to go deeper?** Continue to 6Ws — same fields, same file:
+### The 6Ws — For Optimized AI
+
+3Ws gets you started. For fully optimized AI, complete the set — **Where, When, How:**
 
 ```yaml
-  where: "mobile app, iOS and Android"    # keep going when ready
-  when: "launch in 3 months"              # no pressure
-  how: "GPS matching, real-time pricing"  # full score
+  where: "mobile app, iOS and Android"    # where does it live?
+  when: "launch in 3 months"              # when is it shipping?
+  how: "GPS matching, real-time pricing"  # how does it work?
 ```
 
-3Ws gets you started. 6Ws gets you to 100%. Same YAML. **[More examples → faf.one/ideas](https://faf.one/ideas)**
+3Ws initiates the project with AI. 6Ws optimizes AI to 100%. Same YAML, same file. **[More examples → faf.one/ideas](https://faf.one/ideas)**
 
 ---
 
