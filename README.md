@@ -1,141 +1,76 @@
-<div style="display: flex; align-items: center; gap: 12px;">
-  <img src="https://www.faf.one/orange-smiley.svg" alt="FAF" width="40" />
-  <div>
-    <h1 style="margin: 0; color: #FF8C00;">claude-faf-mcp</h1>
-    <p style="margin: 4px 0 0 0;"><strong>IANA-Registered Format for AI Context</strong> · <code>application/vnd.faf+yaml</code></p>
-  </div>
-</div>
+# claude-faf-mcp
 
-> **.FAF optimizes AI for your codebase.** At 100% (Gold Code), AI stops guessing and starts knowing. Live bi-sync between `.faf` ↔ `CLAUDE.md` means zero context-drift — your project DNA stays aligned with AI, forever.
+**Tell AI what you're building, who it's for, and why it matters. 30 seconds. 🐘 It never forgets.**
 
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
-[![Claude Code](https://img.shields.io/badge/Claude_Code-enabled-00D4D4)](https://github.com/anthropics/claude-code-action)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
-[![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
-[![Website](https://img.shields.io/badge/Website-faf.one-orange)](https://faf.one)
+[![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![project.faf](https://img.shields.io/badge/project.faf-inside-00D4D4)](https://github.com/Wolfe-Jam/faf)
 
-<p align="center">
-<a href="#-the-3ws--start-here">3Ws</a> · <a href="#-quick-start">Quick Start</a> · <a href="https://faf.one">Website</a> · <a href="https://faf.one/daaft">DAAFT Analysis</a> · <a href="https://www.npmjs.com/package/claude-faf-mcp">npm</a> · <a href="#%EF%B8%8F-33-mcp-tools">Tools</a> · <a href="#tier-system-from-blind-to-optimized">Tiers</a> · <a href="https://www.npmjs.com/package/faf-cli">CLI Companion</a> · <a href="./CHANGELOG.md">Changelog</a>
-</p>
+33 MCP tools. IANA-registered format (`application/vnd.faf+yaml`). 391 tests across 6 platforms.
 
 ---
 
-## 💡 The 3Ws — Start Here
+## 3 Answers. That's It.
 
-<img src="assets/nelly.jpg" alt="Nelly Never Forgets" width="200" align="right" />
+Every AI app builder (v0, Bolt, Loveable) generates code from a prompt — then forgets everything next session. You re-explain. AI drifts. Context leaks.
 
-Answer 3 questions. That's all your AI needs to start.
+**.faf captures what AI actually needs — your intent:**
 
-| Question | What to answer |
-|----------|---------------|
-| **👥 WHO** is it for? | The people who will use this. Not you — them. |
-| **📦 WHAT** does it do for them? | The value they get. Not features — the outcome. |
-| **🎯 WHY** should it exist? | What's broken today? Why does this need to exist? |
-
-**That's it.** Tell Claude your 3Ws and FAF turns them into project DNA that never drifts.
-
-**[Build yours → faf.one/ideas](https://faf.one/ideas)**
-
----
-
-## 📋 The 6 Ws — Quick Reference
-
-| Question | Answer |
-|----------|--------|
-| **👥 WHO** is this for? | Claude Desktop & Claude Code users, MCP server operators, any MCP client |
-| **📦 WHAT** is it? | 33-tool MCP server for AI context — IANA-registered format (`application/vnd.faf+yaml`) |
-| **🌍 WHERE** does it work? | Claude Desktop, Claude Code, any MCP-compatible client |
-| **🎯 WHY** do you need it? | 91% token waste eliminated, zero context-drift — saves $5,460/year per developer |
-| **⏰ WHEN** should you use it? | New projects (day one), existing projects (now), exploring repos (instantly) |
-| **🚀 HOW** does it work? | `npx claude-faf-mcp` — one line in your MCP config |
-
-**For AI:** Read the detailed sections below for full context.
-**For humans:** Use this pattern in YOUR README. **[Build yours →](https://faf.one/6ws)**
-
----
-
-## Not a Developer?
-
-No problem. FAF works for anyone using Claude Desktop.
-
-**3 steps:**
-1. Install FAF from Claude Desktop → Settings → Extensions
-2. Tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
-3. Claude creates your project DNA — context that never drifts
-
-No terminal. No code. Just answer 3 questions.
-
-**Try it:** Tell Claude *"Score my project's AI-readiness and tell me how to improve"* — it works on any project, any language, any framework.
-
----
-
-## The Problem: Context-Drift
-
-AI assistants forget. They misunderstand. They drift.
-
-Every new session, every new file, every new developer — AI starts guessing again. Your codebase context leaks away. Yesterday's perfect assistant becomes today's confused intern.
-
-**The cost:** 91% of tokens wasted on rediscovery. $5,460/year per developer. At 50 devs, that's $273k–$507k annually — before counting project failures from compounding context loss. **[Full DAAFT analysis →](https://faf.one/daaft)**
-
-**.FAF fixes this permanently.**
-
----
-
-## The Solution: Gold Code
-
-```
-🏆 FAF AI-READINESS: 100/100 — GOLD CODE
-
-├─ Project DNA locked in     ├─ Zero context-drift
-├─ Architecture understood   ├─ Eternal bi-sync active
-└─ Every session starts smart └─ AI works WITH you
+```yaml
+human_context:
+  who: "app builders who need to guide their AI"
+  what: "context at the root folder"
+  why: "AI writes better code, less time, fewer tokens"
 ```
 
-**Gold Code = AI Optimized.** Your project DNA lives in `project.faf`. AI reads it instantly. Context never drifts.
+That's 30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
+
+**Want to go deeper?** Continue to 6Ws — same fields, same file:
+
+```yaml
+human_context:
+  who: "app builders who need to guide their AI"
+  what: "context at the root folder"
+  why: "AI writes better code, less time, fewer tokens"
+  where: "web browser"           # keep going when ready
+  when: "within a month"         # no pressure
+  how: "downloads"               # full score
+```
+
+3Ws gets you started. 6Ws gets you to 100%. Same YAML. **[Try it → faf.one/ideas](https://faf.one/ideas)**
 
 ---
 
-## 🔄 Eternal Bi-Sync (Free Forever)
+## Quick Start
 
-The magic: `.faf` ↔ `CLAUDE.md` stay synchronized in milliseconds.
+**Copy and paste this to Claude:**
 
-```
-project.faf  ←──── 8ms ────→  CLAUDE.md
-     │                            │
-     └── Single source of truth ──┘
-```
+> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
 
-- Update either file → both stay aligned
-- Zero manual maintenance
-- Works across teams, branches, sessions
-- **Context never goes stale**
-
-### 🐘 Tri-Sync: Add RAM (Pro)
-
-<img src="assets/nelly.jpg" alt="Nelly Never Forgets — Feed Nelly a dime a day" width="200" align="right" />
-
-bi-sync is core. tri-sync adds more — your AI remembers across sessions.
-
-```
-  bi-sync  = ROM (.faf) ↔ CLAUDE.md           ← free forever
-  tri-sync = ROM ↔ CLAUDE.md ↔ RAM (MEMORY.md) ← Pro
-```
-
-**Feed Nelly 🐘 — she never forgets.** A dime a day ($3/mo) · a nickel a day ($19/yr) · $29/yr Global (CLI + MCP). 14-day free trial, no signup.
-
-**[Friends of FAF → faf.one/pro](https://faf.one/pro)**
+Then tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 
 ---
 
-## Tier System: From Blind to Optimized
+## How It Works
 
-| Tier | Score | Status |
-|------|-------|--------|
-| 🏆 **Trophy** | 100% | **AI Optimized** — Gold Code |
+```
+You → 3 answers → project.faf → AI reads it → every session → forever
+
+project.faf  ←── 8ms ──→  CLAUDE.md     (bi-sync, free)
+project.faf  ←── 8ms ──→  MEMORY.md     (tri-sync, Pro 🐘)
+```
+
+The rest is auto-detected: language, framework, package manager, build tools — all from your existing files. The human context is the part only you can give.
+
+---
+
+## Scoring: From Blind to Optimized
+
+| Tier | Score | What it means |
+|------|-------|---------------|
+| 🏆 **Trophy** | 100% | Gold Code — AI is optimized |
 | 🥇 **Gold** | 99%+ | Near-perfect context |
 | 🥈 **Silver** | 95%+ | Excellent |
 | 🥉 **Bronze** | 85%+ | Production ready |
@@ -144,155 +79,128 @@ bi-sync is core. tri-sync adds more — your AI remembers across sessions.
 | 🔴 **Red** | <55% | AI working blind |
 | 🤍 **White** | 0% | No context at all |
 
-**At 55%, AI is guessing half the time.** At 100%, AI is optimized.
+At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler as faf-cli — same score everywhere.
 
 ---
 
-## 💎 Lifecycle Value
+## 33 MCP Tools
 
-Setup savings get you started. Lifecycle optimization keeps you ahead.
+All tools run standalone — zero CLI dependencies, 19ms average execution.
 
-| When | Without FAF | With FAF |
-|------|-------------|----------|
-| **Day 1** | 20 min setup per dev | 0 min — instant context |
-| **Month 1** | AI forgets between sessions | AI remembers everything |
-| **Year 1** | New devs re-explain everything | New devs inherit full context |
-| **Year 3+** | Institutional knowledge lost | Project DNA preserved forever |
-
-**Setup savings: 20 minutes. Lifecycle savings: Infinite.**
-
----
-
-## ⚡ Quick Start
-
-**Copy and paste this to Claude/your AI:**
-
-> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
-
-**One-Click Alternative:** [Desktop Extension (.mcpb)](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest)
-
----
-
-## 🛠️ 33 MCP Tools
-
-All tools run standalone — zero CLI dependencies, 16.2x faster than process spawning.
-
+**Create & Detect**
 | Tool | Purpose |
 |------|---------|
 | `faf_init` | Initialize project DNA |
-| `faf_score` | Check AI-readiness (0-100%) |
-| `faf_sync` | Bi-sync .faf ↔ CLAUDE.md |
-| `faf_tri_sync` | Tri-sync .faf → MEMORY.md *(Pro — 14-day free trial)* |
-| `faf_auto` | Auto-detect and populate context |
-| `faf_enhance` | Intelligent enhancement |
+| `faf_auto` | Auto-detect stack and populate context |
 | `faf_quick` | Lightning-fast creation (3ms) |
-| `faf_readme` | Extract 6 Ws from README (+25-35% boost) |
-| `faf_human_add` | Add human context (Claude Code compatible) |
-| `faf_agents` | Import/export/sync AGENTS.md (OpenAI Codex) |
-| `faf_cursor` | Import/export/sync .cursorrules (Cursor IDE) |
-| `faf_gemini` | Import/export/sync GEMINI.md (Google Gemini) |
+| `faf_readme` | Extract context from README (+25-35% boost) |
+| `faf_formats` | Discover all formats in your project |
 | `faf_git` | Extract context from any GitHub repo URL |
+| `faf_human_add` | Add human context (the 6Ws) |
+
+**Validate & Score**
+| Tool | Purpose |
+|------|---------|
+| `faf_score` | AI-readiness score (0-100%) with breakdown |
+| `faf_check` | Validate .faf structure |
+| `faf_doctor` | Diagnose and fix common issues |
+| `faf_go` | Guided interview to Gold Code |
+
+**Sync & Persist**
+| Tool | Purpose |
+|------|---------|
+| `faf_sync` | Sync .faf → CLAUDE.md |
+| `faf_bi_sync` | Bi-directional .faf ↔ CLAUDE.md |
+| `faf_tri_sync` | Tri-sync to MEMORY.md *(Pro — 14-day free trial)* |
+| `faf_enhance` | Intelligent enhancement |
+
+**Export & Interop**
+| Tool | Purpose |
+|------|---------|
+| `faf_agents` | Import/export AGENTS.md (OpenAI Codex) |
+| `faf_cursor` | Import/export .cursorrules (Cursor IDE) |
+| `faf_gemini` | Import/export GEMINI.md (Google Gemini) |
 | `faf_conductor` | Import/export Conductor directory |
 
-**Performance:** 19ms average execution. Fastest: 1ms.
+**Read & Write**
+| Tool | Purpose |
+|------|---------|
+| `faf_read` | Read any file |
+| `faf_write` | Write any file |
+| `faf_status` | Project status overview |
+| `faf_debug` | Environment inspection |
+| `faf_about` | What is .faf? |
 
-### ✨ New in v4.5.0: AI Format Interop
-
-Define once in `.faf`, generate all four AI instruction formats:
-
-```
-project.faf → CLAUDE.md    (Anthropic)
-            → AGENTS.md    (OpenAI / Linux Foundation)
-            → .cursorrules (Cursor IDE)
-            → GEMINI.md    (Google Gemini CLI)
-```
-
-**Bi-sync all at once:**
-```
-faf_bi_sync { all: true }
-```
-
-**GitHub context extraction:**
-```
-faf_git { url: "https://github.com/owner/repo" }
-→ Generates .faf from any public GitHub repo
-```
-
-### 6Ws Builder
-
-Answer 6 questions (WHO/WHAT/WHERE/WHY/WHEN/HOW) to boost AI-readiness by +25-35%. Two ways:
-
-- **Web:** [faf.one/6ws](https://faf.one/6ws) — Fill form, copy YAML, paste into Claude with `faf_human_add`
-- **CLI:** `faf 6ws` — Interactive terminal workflow
-
-### README Auto-Extract
-
-Already have a README? Extract context automatically:
-
-```javascript
-faf_readme                              // Preview extracted context
-faf_readme { merge: true }              // Merge into project.faf
-faf_readme { merge: true, overwrite: true }  // Overwrite existing fields
-```
-
-Same +25-35% score boost, zero manual work.
+**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)**
 
 ---
 
-## 🎯 The .FAF Position
+## 🐘 Nelly Never Forgets (Pro)
+
+bi-sync keeps `.faf` ↔ `CLAUDE.md` aligned. Free forever.
+
+tri-sync adds MEMORY.md — your AI remembers across sessions. Feed Nelly, she never forgets.
 
 ```
-  Model        Context          Protocol
-  ─────        ───────          ────────
-  Claude    →   .faf        →    MCP
-  Gemini    →   .faf        →    MCP
-  Codex     →   .faf        →    MCP
-  Any LLM   →   .faf        →    MCP
+bi-sync  = .faf ↔ CLAUDE.md              ← free forever
+tri-sync = .faf ↔ CLAUDE.md ↔ MEMORY.md  ← Pro 🐘
 ```
 
-**.FAF is the foundational layer.** Universal context format. IANA-registered (`application/vnd.faf+yaml`). Works with any AI.
+$3/mo · $19/yr · $29/yr Global. 14-day free trial, no signup. **[Friends of FAF → faf.one/pro](https://faf.one/pro)**
 
 ---
 
-## 📦 Ecosystem
+## The .FAF Position
 
-- **[faf-cli](https://www.npmjs.com/package/faf-cli)** — CLI companion (v4.5.0) — terminal, scripts, CI/CD
-- **[faf.one/6ws](https://faf.one/6ws)** — 6Ws Builder (Web + CLI integration)
-- **[MCPaaS](https://mcpaas.live)** — MCP as a Service (The Endpoint for Context)
-- **[faf-wasm](https://www.npmjs.com/package/faf-wasm)** — WASM SDK (<5ms scoring)
-- **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** — Browser integration
-- **[faf.one](https://faf.one)** — Official website
+```
+Model        Context          Protocol
+─────        ───────          ────────
+Claude    →   .faf        →    MCP
+Gemini    →   .faf        →    MCP
+Codex     →   .faf        →    MCP
+Any LLM   →   .faf        →    MCP
+```
 
-### 🤝 CLI vs MCP
+IANA-registered (`application/vnd.faf+yaml`). Works with any AI. Define once, use everywhere.
 
-| Tool | Use Case |
-|------|----------|
-| **claude-faf-mcp** (this) | Claude Desktop, Claude Code, any MCP client |
-| **faf-cli** | Terminal, scripts, CI/CD, automation |
+---
+
+## Ecosystem
+
+| Package | Platform | Registry |
+|---------|----------|----------|
+| **[claude-faf-mcp](https://www.npmjs.com/package/claude-faf-mcp)** (this) | Claude | npm |
+| **[faf-cli](https://www.npmjs.com/package/faf-cli)** | Universal CLI | npm + Homebrew |
+| **[gemini-faf-mcp](https://pypi.org/project/gemini-faf-mcp/)** | Google Gemini | PyPI |
+| **[grok-faf-mcp](https://www.npmjs.com/package/grok-faf-mcp)** | xAI Grok | npm |
+| **[rust-faf-mcp](https://crates.io/crates/rust-faf-mcp)** | Rust | crates.io |
+| **[faf-wasm](https://www.npmjs.com/package/faf-wasm)** | Browser/Edge | npm |
+| **[Chrome Extension](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)** | Browser | Chrome Web Store |
 
 Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ---
 
-## 📚 Documentation
+## Quality
 
-- **[Full Documentation](https://wolfe-jam.github.io/claude-faf-mcp/)**
-- **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)**
+391 tests · 12 suites · 6 platforms (ubuntu/macos/windows × Node 18/20)
 
----
-
-## 🔒 Privacy
-
-FAF processes everything locally. No data leaves your machine. No analytics, no telemetry, no tracking, no accounts. [Full privacy policy →](./PRIVACY.md)
+**[CI Dashboard →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
 
 ---
 
-## 📄 License
+## Privacy
 
-MIT License — Free and open source
+Everything runs locally. No data leaves your machine. No analytics, no telemetry, no tracking, no accounts. **[Privacy policy →](./PRIVACY.md)**
 
 ---
 
-> **.faf is the format. `project.faf` is the file. 100% 🏆 AI Readiness is the result.**
+## License
+
+MIT — Free and open source
+
+---
+
+> **.faf is the format. `project.faf` is the file. 100% is Gold Code.**
 
 *"It's so logical if it didn't exist, AI would have built it itself" — Claude*
