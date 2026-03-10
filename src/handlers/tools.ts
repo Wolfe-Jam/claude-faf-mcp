@@ -10,6 +10,7 @@ import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
 import { checkProAccess } from '../licensing/pro-gate';
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
+import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -809,68 +810,28 @@ export class FafToolHandler {
 
   private async handleFafScore(args: any): Promise<CallToolResult> {
     try {
-      const fs = await import('fs').then(m => m.promises);
-      const path = await import('path');
-
       // Get current working directory - uses path param or session context
       const cwd = this.getProjectPath(args?.path);
 
-      // Score calculation components
-      let score = 0;
-      const details: string[] = [];
-
-      // 1. Check for FAF file (40 points) - v1.2.0: project.faf, *.faf, or .faf
+      // Find FAF file
       const fafResult = await findFafFile(cwd);
-      let hasFaf = false;
-      if (fafResult) {
-        hasFaf = true;
-        score += 40;
-        details.push(`✅ ${fafResult.filename} present (+40)`);
-      } else {
-        details.push('❌ FAF file missing (0/40)');
+      if (!fafResult) {
+        return {
+          content: [{
+            type: 'text',
+            text: `📊 FAF SCORE: 0%\n🤍 White\n🏁 AI-Ready: Building\n\n❌ No project.faf found in ${cwd}\n💡 Run faf_init to create project DNA for accurate scoring!`
+          }]
+        };
       }
 
-      // 2. Check for CLAUDE.md (30 points)
-      const claudePath = path.join(cwd, 'CLAUDE.md');
-      let hasClaude = false;
-      try {
-        await fs.access(claudePath);
-        hasClaude = true;
-        score += 30;
-        details.push('✅ CLAUDE.md present (+30)');
-      } catch {
-        details.push('❌ CLAUDE.md missing (0/30)');
-      }
+      // Use FafCompiler for precise slot-based scoring
+      const compiler = new FafCompiler();
+      const compileResult = await compiler.compile(fafResult.path);
 
-      // 3. Check for README.md (15 points)
-      const readmePath = path.join(cwd, 'README.md');
-      let hasReadme = false;
-      try {
-        await fs.access(readmePath);
-        hasReadme = true;
-        score += 15;
-        details.push('✅ README.md present (+15)');
-      } catch {
-        details.push('⚠️  README.md missing (0/15)');
-      }
-
-      // 4. Check for package.json or other project files (14 points)
-      const projectFiles = ['package.json', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'pom.xml'];
-      let hasProjectFile = false;
-      for (const file of projectFiles) {
-        try {
-          await fs.access(path.join(cwd, file));
-          hasProjectFile = true;
-          score += 14;
-          details.push(`✅ ${file} detected (+14)`);
-          break;
-        } catch {
-          // Continue checking
-        }
-      }
-      if (!hasProjectFile) {
-        details.push('⚠️  No project file found (0/14)');
-      }
+      const score = Math.min(compileResult.score, 100);
+      const filled = compileResult.filled;
+      const total = compileResult.total;
+      const breakdown = compileResult.breakdown;
 
       // Format the output
       let output = '';
@@ -879,30 +840,29 @@ export class FafToolHandler {
         // Perfect score - Trophy
         output = `🏎️ FAF SCORE: 100%\n🏆 Trophy\n🏁 Championship Complete!\n\n`;
         if (args?.details) {
-          output += `${details.join('\n')}\n\n`;
+          output += `✅ ${fafResult.filename} analyzed (${filled}/${total} slots filled)\n\n`;
           output += `🏆 PERFECT SCORE!\n`;
-          output += `Both .faf and CLAUDE.md are championship-quality!\n`;
+          output += `All slots filled - championship AI-readiness achieved!\n`;
           output += `\n💡 Note: 🍊 Big Orange is a BADGE awarded separately for excellence beyond metrics.`;
         }
       } else {
         // Regular score - FAF standard tiers
-        const percentage = Math.min(score, 100);
         let rating = '';
         let emoji = '';
 
-        if (percentage >= 99) {
+        if (score >= 99) {
           rating = 'Gold';
           emoji = '🥇';
-        } else if (percentage >= 95) {
+        } else if (score >= 95) {
           rating = 'Silver';
           emoji = '🥈';
-        } else if (percentage >= 85) {
+        } else if (score >= 85) {
           rating = 'Bronze';
           emoji = '🥉';
-        } else if (percentage >= 70) {
+        } else if (score >= 70) {
           rating = 'Green';
           emoji = '🟢';
-        } else if (percentage >= 55) {
+        } else if (score >= 55) {
           rating = 'Yellow';
           emoji = '🟡';
         } else {
@@ -910,18 +870,34 @@ export class FafToolHandler {
           emoji = '🔴';
         }
 
+        // Next milestone (matches faf-cli score-v3)
+        const milestones = [
+          { target: 55, tier: 'Yellow', emoji: '🟡' },
+          { target: 70, tier: 'Green', emoji: '🟢' },
+          { target: 85, tier: 'Bronze', emoji: '🥉' },
+          { target: 95, tier: 'Silver', emoji: '🥈' },
+          { target: 99, tier: 'Gold', emoji: '🥇' },
+          { target: 100, tier: 'Trophy', emoji: '🏆' },
+        ];
+        const next = milestones.find(m => m.target > score);
+
         // The 3-line killer display
-        output = `📊 FAF SCORE: ${percentage}%\n${emoji} ${rating}\n🏁 AI-Ready: ${percentage >= 85 ? 'Yes' : 'Building'}\n`;
+        output = `📊 FAF SCORE: ${score}%\n${emoji} ${rating}\n🏁 AI-Ready: ${score >= 85 ? 'Yes' : 'Building'}\n`;
+
+        if (next) {
+          output += `\nNext milestone: ${next.target}% ${next.emoji} ${next.tier} (${next.target - score} points to go!)`;
+        }
 
         if (args?.details) {
-          output += `\n${details.join('\n')}`;
-          if (percentage < 100) {
-            output += `\n\n💡 Tips to improve:\n`;
-            if (!hasFaf) output += `- Create .faf file with project context\n`;
-            if (!hasClaude) output += `- Add CLAUDE.md for AI instructions\n`;
-            if (!hasReadme) output += `- Include README.md for documentation\n`;
-            if (!hasProjectFile) output += `- Add project configuration file\n`;
+          // Section breakdown (matches faf-cli --breakdown)
+          output += `\n\n📊 Score Breakdown:`;
+          output += `\n  Project: ${breakdown.project.filled}/${breakdown.project.total} slots (${breakdown.project.percentage}%)`;
+          output += `\n  Stack:   ${breakdown.stack.filled}/${breakdown.stack.total} slots (${breakdown.stack.percentage}%)`;
+          output += `\n  Human:   ${breakdown.human.filled}/${breakdown.human.total} slots (${breakdown.human.percentage}%)`;
+          if (breakdown.discovery.total > 0) {
+            output += `\n  Discovery: ${breakdown.discovery.filled}/${breakdown.discovery.total} slots (${breakdown.discovery.percentage}%)`;
           }
+          output += `\n\nFilled: ${filled}/${total} slots`;
         }
       }
 
@@ -933,11 +909,12 @@ export class FafToolHandler {
       };
 
     } catch (error: any) {
-      // Fallback to displaying a motivational score
+      // Real error — never fake a score (matches faf-cli behavior)
+      const message = error instanceof Error ? error.message : String(error);
       return {
         content: [{
           type: 'text',
-          text: `📊 FAF SCORE: 92%\n⭐ Excellence Building\n🏁 Keep Going!\n\n${args?.details ? 'Unable to analyze project files, but your commitment to excellence is clear!' : ''}`
+          text: `📊 FAF SCORE: Error\n\n❌ Compilation failed: ${message}\n💡 Run faf_init to create a valid project.faf`
         }]
       };
     }

@@ -131,17 +131,21 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       // Create championship-quality files
       const fafContent = `## Project Context\n${'='.repeat(100)}\nRich content here`;
       const claudeContent = `## AI Instructions\n${'='.repeat(100)}\nExcellent guidance`;
-      
+
       fs.writeFileSync(path.join(testDir, '.faf'), fafContent);
       fs.writeFileSync(path.join(testDir, 'CLAUDE.md'), claudeContent);
       fs.writeFileSync(path.join(testDir, 'README.md'), '# Champion');
-      
+
       const handler = new FafToolHandler(new FafEngineAdapter('native'));
       const result = await handler.callTool('faf_score', { details: true });
-      
+
       const text = getTextContent(result.content) as string;
-      // Check if Trophy achievement triggers
-      if (text.includes('100%')) {
+      // Compiler scores based on slot analysis — markdown .faf won't score 100%
+      // Check that score output is valid and uses the tier system
+      expect(text).toContain('FAF SCORE:');
+      expect(text).toMatch(/\d+%/);
+      // If overall score line shows 100%, Trophy must be present
+      if (text.match(/FAF SCORE: 100%/)) {
         expect(text).toContain('Trophy');
         expect(text).toContain('Championship');
       }

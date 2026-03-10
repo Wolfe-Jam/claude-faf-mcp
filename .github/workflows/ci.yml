@@ -149,7 +149,7 @@ jobs:
         run: npm ci
 
       - name: Download build
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v6
         with:
           name: dist
           path: dist/
@@ -198,14 +198,9 @@ jobs:
           mv *.tgz faf-mcp-${{ github.event.release.tag_name }}.tgz
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./faf-mcp-${{ github.event.release.tag_name }}.tgz
-          asset_name: faf-mcp-${{ github.event.release.tag_name }}.tgz
-          asset_content_type: application/gzip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} faf-mcp-${{ github.event.release.tag_name }}.tgz --clobber
 
   # 🏆 Championship Status
   status:
