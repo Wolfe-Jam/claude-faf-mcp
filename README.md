@@ -20,9 +20,9 @@ Every AI app builder (v0, Bolt, Loveable) generates code from a prompt — then 
 
 ```yaml
 human_context:
-  who: "app builders who need to guide their AI"
-  what: "context at the root folder"
-  why: "AI writes better code, less time, fewer tokens"
+  who: "people who need a ride across town"
+  what: "tap a button, car arrives in minutes"
+  why: "taxis are slow, expensive, and hard to find"
 ```
 
 That's 30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
@@ -31,12 +31,12 @@ That's 30 seconds. Claude builds your `project.faf` from this. Every session aft
 
 ```yaml
 human_context:
-  who: "app builders who need to guide their AI"
-  what: "context at the root folder"
-  why: "AI writes better code, less time, fewer tokens"
-  where: "web browser"           # keep going when ready
-  when: "within a month"         # no pressure
-  how: "downloads"               # full score
+  who: "people who need a ride across town"
+  what: "tap a button, car arrives in minutes"
+  why: "taxis are slow, expensive, and hard to find"
+  where: "mobile app, iOS and Android"    # keep going when ready
+  when: "launch in 3 months"              # no pressure
+  how: "GPS matching, real-time pricing"  # full score
 ```
 
 3Ws gets you started. 6Ws gets you to 100%. Same YAML. **[Try it → faf.one/ideas](https://faf.one/ideas)**
