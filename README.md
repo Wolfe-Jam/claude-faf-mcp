@@ -65,7 +65,7 @@ project.faf  ←── 8ms ──→  CLAUDE.md     (bi-sync, free)
 project.faf  ←── 8ms ──→  MEMORY.md     (tri-sync, Pro 🐘)
 ```
 
-The rest is auto-detected: language, framework, package manager, build tools — all from your existing files. The human context is the part only you can give.
+Claude does the rest. Zero-effort, right first time, fast, accurate, done. Language, framework, package manager, build tools — all auto-detected from your existing files. The human context is the part only you can give.
 
 ---
 
