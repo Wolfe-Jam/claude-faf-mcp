@@ -22,7 +22,9 @@ context_quality:
   ai_confidence: VERY_HIGH
   handoff_ready: true
   missing_context: []
-slot_ignore: [database, connection]
+slot_ignore:
+  - database
+  - connection
 project:
   name: claude-faf-mcp
   goal: Provide FAF context tools directly in Claude Desktop via MCP
@@ -119,12 +121,10 @@ ai_scoring_details:
   scoring_method: Honest percentage - no fake minimums
   trust_embedded: PODIUM architecture - Bronze/Silver/Gold/Trophy
 projectName: claude-faf-mcp
-projectGoal: MCP for .faf | Project DNA for true AI context in Claude Desktop ✨
-  - Transform projects with perfect AI understanding • 33+ tools, Championship
-  scoring • 100% TypeScript strict 🧡 Orange Smiley MCP • FREE & Open Source
+projectGoal: MCP for .faf | Project DNA for true AI context in Claude Desktop ✨ - Transform projects with perfect AI understanding • 33+ tools, Championship scoring • 100% TypeScript strict 🧡 Orange Smiley MCP • FREE & Open Source
 generated: 2025-10-03T23:43:42.838Z
 metadata:
-  last_claude_sync: 2025-10-03T23:52:21.494Z
+  last_claude_sync: 2026-03-10T22:12:24.909Z
   bi_sync: active
 skills:
   - faf
