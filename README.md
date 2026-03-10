@@ -8,7 +8,7 @@
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-33 MCP tools. IANA-registered format (`application/vnd.faf+yaml`). 391 tests across 6 platforms.
+33 MCP tools. IANA-registered format (`application/vnd.faf+yaml`). 2,346 test executions per push.
 
 ---
 
