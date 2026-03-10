@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **40-test WJTTC compiler scoring edge case suite** across 5 tiers
-- Test count: 351 → 391 (12 suites, 6 platforms)
+- Test count: 351 → 391 (12 suites, 2,346 executions per push)
+- **README rewrite** — 3Ws/6Ws onboarding (Uber, Airbnb, Slack, Venmo examples), categorized tools, 🐘 Nelly branding
 
 ## [5.1.0] - 2026-03-04 — 🐘🧡 Nelly Edition
 
