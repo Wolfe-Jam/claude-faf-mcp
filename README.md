@@ -14,7 +14,7 @@
 
 ## The 3Ws — 3 Answers. That's It.
 
-Every great product started with 3 answers — **Who, What, Why:**
+Every great product started with 3 answers to the 3Ws — **Who, What, Why:**
 
 | | WHO is it for? | WHAT does it do? | WHY build it? |
 |---|-----|------|-----|
