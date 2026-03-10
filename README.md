@@ -23,7 +23,7 @@ Every great product started with 3 answers:
 | **Slack** | Teams drowning in email | Organized group messaging | Decisions buried in threads |
 | **Venmo** | Friends splitting bills | Send money instantly | Someone always forgets to pay back |
 
-This isn't a framework we invented. It's the pattern behind every product that works. `.faf` just captures it:
+Same pattern. Every product that works starts here. `.faf` captures it:
 
 ```yaml
 human_context:
