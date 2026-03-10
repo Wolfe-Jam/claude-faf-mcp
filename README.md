@@ -14,9 +14,16 @@
 
 ## 3 Answers. That's It.
 
-Every AI app builder (v0, Bolt, Loveable) generates code from a prompt — then forgets everything next session. You re-explain. AI drifts. Context leaks.
+Every great product started with 3 answers:
 
-**.faf captures what AI actually needs — your intent:**
+| | WHO | WHAT | WHY |
+|---|-----|------|-----|
+| **Uber** | People who need a ride | Tap a button, car arrives | Taxis were broken |
+| **Airbnb** | Travelers who can't afford hotels | Stay in someone's spare room | Millions of empty rooms exist |
+| **Slack** | Teams drowning in email | Organized group messaging | Decisions buried in threads |
+| **Venmo** | Friends splitting bills | Send money instantly | Someone always forgets to pay back |
+
+This isn't a framework we invented. It's the pattern behind every product that works. `.faf` just captures it:
 
 ```yaml
 human_context:
@@ -25,21 +32,17 @@ human_context:
   why: "taxis are slow, expensive, and hard to find"
 ```
 
-That's 30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
+30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
 
 **Want to go deeper?** Continue to 6Ws — same fields, same file:
 
 ```yaml
-human_context:
-  who: "people who need a ride across town"
-  what: "tap a button, car arrives in minutes"
-  why: "taxis are slow, expensive, and hard to find"
   where: "mobile app, iOS and Android"    # keep going when ready
   when: "launch in 3 months"              # no pressure
   how: "GPS matching, real-time pricing"  # full score
 ```
 
-3Ws gets you started. 6Ws gets you to 100%. Same YAML. **[Try it → faf.one/ideas](https://faf.one/ideas)**
+3Ws gets you started. 6Ws gets you to 100%. Same YAML. **[More examples → faf.one/ideas](https://faf.one/ideas)**
 
 ---
 
