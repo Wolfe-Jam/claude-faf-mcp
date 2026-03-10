@@ -5,6 +5,21 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.2.0] - 2026-03-10 — Enhanced Scoring
+
+### Changed
+
+- **FafCompiler scoring engine** — `faf_score` now powered by the same FafCompiler that drives faf-cli
+  - Type-aware precision: CLI (9 slots), fullstack (21 slots), web-app, API — each scored correctly
+  - Section breakdown with project/stack/human percentages and next milestone
+  - Real error diagnostics replace generic messages
+- CI hardened: deprecated actions fixed, dependabot replaced by automated audit
+
+### Added
+
+- **40-test WJTTC compiler scoring edge case suite** across 5 tiers
+- Test count: 351 → 391 (12 suites, 6 platforms)
+
 ## [5.1.0] - 2026-03-04 — 🐘🧡 Nelly Edition
 
 ### Added

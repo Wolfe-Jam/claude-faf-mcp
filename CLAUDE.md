@@ -53,9 +53,9 @@ Any LLM  →   IANA Format →    Open Protocol
 
 ### 📊 Context Quality Status
 - **Overall Assessment:** Good
-- **Test Coverage:** 351/351 passing (11 test suites, 6 platforms)
+- **Test Coverage:** 391/391 passing (12 test suites, 6 platforms)
 - **CI Matrix:** ubuntu/macos/windows × Node 18.x/20.x — all green
-- **Last Updated:** 2026-03-04
+- **Last Updated:** 2026-03-10
 
 ---
 
