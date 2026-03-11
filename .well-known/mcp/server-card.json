@@ -1,0 +1,46 @@
+{
+  "serverInfo": {
+    "name": "claude-faf-mcp",
+    "version": "5.2.0"
+  },
+  "authentication": {
+    "required": false
+  },
+  "tools": [
+    { "name": "faf_about", "description": "Learn what .faf format is", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_what", "description": "Quick explanation of .faf format", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_status", "description": "Check if project has project.faf", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_score", "description": "Calculate AI-readiness score (0-100%)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_init", "description": "Create project.faf for a project", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_trust", "description": "Validate project.faf integrity", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_sync", "description": "Sync .faf with CLAUDE.md", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_enhance", "description": "Enhance .faf with AI optimization", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_bi_sync", "description": "Bi-directional sync to CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_clear", "description": "Clear caches and reset state", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_debug", "description": "Debug MCP environment info", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_read", "description": "Read file content", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } }, "required": ["path"] } },
+    { "name": "faf_write", "description": "Write file content", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" }, "content": { "type": "string" } }, "required": ["path", "content"] } },
+    { "name": "faf_list", "description": "List and discover .faf projects", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_chat", "description": "Natural language .faf generation via 6W questions", "inputSchema": { "type": "object", "properties": { "message": { "type": "string" } }, "required": ["message"] } },
+    { "name": "faf_friday", "description": "Fun features and fuzzy matching", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_guide", "description": "FAF MCP usage guide", "inputSchema": { "type": "object", "properties": {} } },
+    { "name": "faf_readme", "description": "Extract context from README.md", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_human_add", "description": "Add human context (6Ws)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" }, "field": { "type": "string" }, "value": { "type": "string" } }, "required": ["field", "value"] } },
+    { "name": "faf_check", "description": "Quality inspection for .faf fields", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_context", "description": "Set or view active project context", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_go", "description": "Guided interview to Gold Code (100%)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_auto", "description": "Zero to AI context in one command", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_dna", "description": "Show project DNA evolution journey", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_formats", "description": "Discover all formats in your project", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_quick", "description": "Lightning-fast .faf creation", "inputSchema": { "type": "object", "properties": { "input": { "type": "string" } }, "required": ["input"] } },
+    { "name": "faf_doctor", "description": "Diagnose and fix .faf issues", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_agents", "description": "Sync AGENTS.md (OpenAI/Codex)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_cursor", "description": "Sync .cursorrules (Cursor IDE)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_gemini", "description": "Sync GEMINI.md (Google Gemini)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_conductor", "description": "Sync Conductor directory", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } },
+    { "name": "faf_git", "description": "Generate .faf from GitHub repo URL", "inputSchema": { "type": "object", "properties": { "url": { "type": "string" } }, "required": ["url"] } },
+    { "name": "faf_tri_sync", "description": "Sync project.faf to Claude MEMORY.md (Pro)", "inputSchema": { "type": "object", "properties": { "path": { "type": "string" } } } }
+  ],
+  "resources": [],
+  "prompts": []
+}

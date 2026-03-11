@@ -61,6 +61,11 @@ export class ClaudeFafMcpServer {
     this.setupHandlers();
   }
   
+  /** Expose the raw MCP Server instance (used by Smithery sandbox scanning) */
+  getServer(): Server {
+    return this.server;
+  }
+
   private setupHandlers(): void {
     // Resource handlers
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
