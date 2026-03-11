@@ -162,7 +162,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Enhance project.faf (project DNA for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️',
+          description: 'Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift 🧡⚡️',
           annotations: {
             title: 'Enhance .faf',
             readOnlyHint: false,
@@ -1226,17 +1226,16 @@ package_manager: ${projectData.package_manager}` : ''}
 
 WHAT IS .FAF?
 • .faf = Foundational AI-context Format
-• Like JPEG for images, .faf for AI context
+• One file captures your project DNA for any AI
 • The dot (.) means it's a file format!
 
-🧡 Trust: Context verified
+🧡 Trust: IANA-registered format (application/vnd.faf+yaml)
 ⚡️ Speed: Generated in <29ms
-SPEEDY AI you can TRUST!
 
 Version ${packageInfo.version}
 
-Just like JPEG makes images universal,
-.faf makes projects AI-readable.
+Your project's DNA — persistent context
+that works across Claude, Gemini, Grok, Cursor, and any AI tool.
 
 HOW IT WORKS:
 1. Drop a file or paste the path
@@ -1245,7 +1244,7 @@ HOW IT WORKS:
 4. You're done⚡
 
 🩵 You just made Claude Happy
-🧡⚡️ SPEEDY AI you can TRUST!`;
+🧡⚡️ Persistent context. Zero drift.`;
 
     return {
       content: [{
@@ -1261,15 +1260,15 @@ HOW IT WORKS:
 WHAT: .faf = Foundational AI-context Format
       (The dot means it's a file format, like .jpg or .pdf)
 
-WHY:  Just like JPEG makes images viewable everywhere,
-      .faf makes projects understandable by AI.
+WHY:  Persistent project context that works across
+      Claude, Gemini, Grok, Cursor, and any AI tool.
 
 HOW:  Run 'faf' on any project to create one.
       Run 'faf_score' to check AI-readiness (target: 99%).
 
 REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
 
-🧡⚡️ SPEEDY AI you can TRUST!`;
+Persistent project context with AI-memory 🐘`;
 
     return {
       content: [{

@@ -176,7 +176,7 @@ Working on REAL filesystem: ${targetDir}
         // Core Tools - Priority 1
         {
           name: 'faf',
-          description: '🏆 .faf - Creates THE JPEG for AI! SPEEDY AI you can TRUST! 🧡⚡️',
+          description: '🏆 .faf - Persistent project context for any AI. IANA-registered format. 🧡⚡️',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1027,7 +1027,7 @@ Working on REAL filesystem: ${targetDir}
           `💡 **Examples:**\n` +
           `\`faf_auto ~/Documents/my-app\`\n` +
           `\`faf_auto /Users/yourname/cool-project\`\n\n` +
-          `🧡⚡️ SPEEDY AI you can TRUST!`
+          `🧡⚡️ Persistent context. Zero drift.`
         );
       }
 
