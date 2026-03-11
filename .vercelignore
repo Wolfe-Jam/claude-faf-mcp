@@ -1,0 +1,5 @@
+requirements.txt
+setup.py
+*.py
+servers/
+tests/python/
