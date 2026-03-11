@@ -17,7 +17,7 @@
   "homepage": "https://faf.one",
   "documentation": "https://faf.one/about",
   "support": "https://github.com/Wolfe-Jam/claude-faf-mcp/issues",
-  "icon": "icon.png",
+  "icon": "faf-logo.png",
   "license": "MIT",
   "privacy_policies": [
     "https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/PRIVACY.md"
