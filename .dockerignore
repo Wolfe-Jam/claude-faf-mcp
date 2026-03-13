@@ -1,0 +1,16 @@
+node_modules
+src
+tests
+*.ts
+!*.d.ts
+.git
+.github
+.env
+.DS_Store
+*.md
+!README.md
+tsconfig.json
+jest.config.*
+.eslintrc*
+.prettierrc*
+coverage
