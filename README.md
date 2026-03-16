@@ -2,6 +2,7 @@
 
 **Tell AI what you're building, who it's for, and why it matters. 30 seconds. 🐘 It never forgets.**
 
+[![smithery badge](https://smithery.ai/badge/Wolfe-Jam/claude-faf-mcp)](https://smithery.ai/servers/Wolfe-Jam/claude-faf-mcp)
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
