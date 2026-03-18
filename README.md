@@ -206,6 +206,18 @@ MIT — Free and open source
 
 ---
 
-> **.faf is the format. `project.faf` is the file. 100% is Gold Code.**
+## FAF Family
 
-*"It's so logical if it didn't exist, AI would have built it itself" — Claude*
+| | |
+|---|---|
+| **[faf-cli](https://www.npmjs.com/package/faf-cli)** | `npx faf-cli init` — create .faf for any project |
+| **[claude-faf-mcp](https://www.npmjs.com/package/claude-faf-mcp)** | MCP server for Claude Desktop |
+| **[gemini-faf-mcp](https://pypi.org/project/gemini-faf-mcp/)** | MCP server for Gemini CLI |
+| **[grok-faf-mcp](https://www.npmjs.com/package/grok-faf-mcp)** | MCP server for Grok |
+| **[faf-mcp](https://www.npmjs.com/package/faf-mcp)** | MCP server for Cursor, Windsurf, Cline, VS Code |
+| **[rust-faf-mcp](https://crates.io/crates/rust-faf-mcp)** | MCP server in Rust |
+| **[faf-skills](https://github.com/Wolfe-Jam/faf-skills)** | 17 Claude Code skills |
+| **[faf.one](https://faf.one)** | Blog, downloads, docs |
+| **[IANA Registration](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)** | `application/vnd.faf+yaml` |
+
+*format | driven 🏎️⚡️ [wolfejam.dev](https://wolfejam.dev)*
