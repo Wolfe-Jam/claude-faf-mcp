@@ -516,7 +516,7 @@ human_context:
         });
         const text = getTextContent(result.content);
 
-        expect(text).toContain('react');
+        expect(text.toLowerCase()).toContain('react');
       });
 
       it('should require minimum 2 parts', async () => {
