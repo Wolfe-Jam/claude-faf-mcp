@@ -127,10 +127,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1",
+    "@upstash/redis": "^1.37.0",
     "cors": "^2.8.5",
     "esbuild": "^0.27.3",
     "express": "^4.21.0",
     "faf-cli": ">=3.2.2",
+    "faf-scoring-kernel": "^2.0.3",
     "yaml": "^2.4.1"
   },
   "devDependencies": {

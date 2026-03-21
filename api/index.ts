@@ -4,11 +4,31 @@ import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSche
 import { FafResourceHandler } from '../src/handlers/resources.js';
 import { FafToolHandler } from '../src/handlers/tools.js';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter.js';
+import { Redis } from '@upstash/redis';
 import express from 'express';
 import cors from 'cors';
 
 // Hardcode version for Vercel serverless compatibility (import assert crashes)
 const VERSION = '5.2.0';
+
+// Persistent analytics via Upstash Redis (fire-and-forget, never blocks MCP)
+const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    })
+  : null;
+
+function trackEvent(key: string, detail?: string) {
+  if (!redis) return;
+  const pipeline = redis.pipeline();
+  pipeline.incr(`claude:stats:${key}`);
+  pipeline.incr(`claude:stats:${key}:${new Date().toISOString().slice(0, 10)}`);
+  if (detail) {
+    pipeline.hincrby(`claude:stats:${key}:detail`, detail, 1);
+  }
+  pipeline.exec().catch(() => {});
+}
 
 // Full MCP server for Vercel deployment
 const app = express();
@@ -60,10 +80,46 @@ mcpServer.setRequestHandler(ListToolsRequestSchema, async () => {
 });
 
 mcpServer.setRequestHandler(CallToolRequestSchema, async (request) => {
-  return toolHandler.callTool(
+  const start = Date.now();
+  const result = await toolHandler.callTool(
     request.params.name,
     request.params.arguments ?? {}
   );
+  console.log(JSON.stringify({
+    event: 'tool_call',
+    tool: request.params.name,
+    duration_ms: Date.now() - start,
+    ts: new Date().toISOString()
+  }));
+  trackEvent('tool_calls', request.params.name);
+  return result;
+});
+
+// Stats endpoint - persistent all-time analytics
+app.get('/stats', async (req, res) => {
+  if (!redis) {
+    res.json({ error: 'Analytics not configured', hint: 'Set UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN' });
+    return;
+  }
+  const [pageViews, sseConnections, toolCalls, toolDetail, uaDetail] = await Promise.all([
+    redis.get<number>('claude:stats:page_views') ?? 0,
+    redis.get<number>('claude:stats:sse_connections') ?? 0,
+    redis.get<number>('claude:stats:tool_calls') ?? 0,
+    redis.hgetall<Record<string, number>>('claude:stats:tool_calls:detail') ?? {},
+    redis.hgetall<Record<string, number>>('claude:stats:sse_connections:detail') ?? {},
+  ]);
+  res.json({
+    server: 'claude-faf-mcp',
+    version: VERSION,
+    allTime: {
+      page_views: pageViews ?? 0,
+      sse_connections: sseConnections ?? 0,
+      tool_calls: toolCalls ?? 0,
+    },
+    tools: toolDetail ?? {},
+    clients: uaDetail ?? {},
+    since: 'all-time (persistent)',
+  });
 });
 
 // Health endpoint
@@ -106,6 +162,7 @@ app.get('/info', async (req, res) => {
 
 // Root endpoint - HTML landing page
 app.get('/', (req, res) => {
+  trackEvent('page_views');
   res.send(`
 <!DOCTYPE html>
 <html>
@@ -297,11 +354,24 @@ app.get('/.well-known/mcp/server-card.json', async (req, res) => {
 
 // SSE endpoint - Full MCP with per-request transport
 app.get('/sse', async (req, res) => {
+  const start = Date.now();
+  const ua = req.headers['user-agent'] || 'unknown';
+  console.log(JSON.stringify({
+    event: 'sse_connect',
+    ua,
+    ts: new Date().toISOString()
+  }));
+  trackEvent('sse_connections', ua);
+
   const transport = new SSEServerTransport('/sse', res);
   await mcpServer.connect(transport);
 
   req.on('close', () => {
-    // Connection closed
+    console.log(JSON.stringify({
+      event: 'sse_disconnect',
+      duration_ms: Date.now() - start,
+      ts: new Date().toISOString()
+    }));
   });
 });
 
