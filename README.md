@@ -48,6 +48,10 @@ human_context:
 
 ---
 
+## Hosted deployment
+
+A hosted deployment is available on [Fronteir AI](https://fronteir.ai/mcp/wolfe-jam-claude-faf-mcp).
+
 ## Quick Start
 
 **Copy and paste this to Claude:**
