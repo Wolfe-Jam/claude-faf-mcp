@@ -4,9 +4,14 @@
   "name": "claude-faf-mcp",
   "description": "Persistent project context for AI. 33 tools for creating, scoring, and syncing project DNA via IANA-registered .faf format. 391 tests across 6 platforms.",
   "author": "Wolfe-Jam",
-  "homepage": "https://faf.one",
+  "homepage": "https://claude-faf-mcp.vercel.app",
   "repository": "https://github.com/Wolfe-Jam/claude-faf-mcp",
   "license": "MIT",
   "categories": ["Developer Tools", "CI/CD & DevOps", "Testing & QA Tools"],
-  "keywords": ["faf", "context", "ai-readiness", "mcp", "claude", "project-context", "iana"]
+  "keywords": ["faf", "context", "ai-readiness", "mcp", "claude", "project-context", "iana"],
+  "relatedServers": [
+    "grok-faf-mcp",
+    "rust-faf-mcp",
+    "gemini-faf-mcp"
+  ]
 }
