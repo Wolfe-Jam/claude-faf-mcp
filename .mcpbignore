@@ -1,0 +1,80 @@
+# MCPB Bundle Ignore
+# Only include: manifest.json, dist/, node_modules/, faf-logo.png, README.md, LICENSE, PRIVACY.md
+
+# Source code (compiled version in dist/)
+src/
+*.ts
+!*.d.ts
+
+# Test files
+test/
+tests/
+*.test.js
+*.spec.js
+
+# Old bundles and archives
+*.mcpb
+*.tgz
+
+# Development files
+.vscode/
+.idea/
+.git/
+.github/
+.notes/
+.smithery/
+.vercel/
+.well-known/
+docs/
+scripts/
+api/
+assets/icons/
+assets/nelly.jpg
+assets/Project-faf-pckg-json-README.png
+
+# Config files
+.eslintrc*
+.prettierrc*
+tsconfig.json
+jest.config.js
+webpack.*.js
+.dockerignore
+.npmignore
+.vercelignore
+.gitignore
+
+# Tokens and secrets
+.mcpregistry_*
+.env
+.env.*
+
+# Backup files
+*.backup-*
+.faf
+.faf++
+.fafignore
+.taf
+
+# Documentation (README and PRIVACY stay)
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+CLAUDE.md
+BRAND-STORY.md
+DESKTOP_MCP_TEST_INTEGRATION.sh
+CHECK-REGISTRY-LIVE.sh
+comprehensive-test.js
+dashboard.html
+DISPLAY-WORKAROUND.ts
+*.sh
+*.html
+
+# Internal docs
+ANTHROPIC_*.md
+*_SUBMISSION*.md
+*_OUTREACH*.md
+*_AUDIT*.md
+CHAMPIONSHIP*.md
+PROTECT-*.md
+*-SECRET.md
+*-PRIVATE.md

@@ -1,0 +1,914 @@
+{
+  "payload": {
+    "type": "hosted",
+    "stateful": false,
+    "hasAuthAdapter": false,
+    "serverCard": {
+      "serverInfo": {
+        "name": "claude-faf-mcp",
+        "version": "5.2.0"
+      },
+      "tools": [
+        {
+          "name": "faf_about",
+          "description": "Learn what .faf format is - project DNA for AI 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "About FAF",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_what",
+          "description": "What is .faf format? Quick explanation of project DNA for AI 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "What is FAF",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_status",
+          "description": "Check if your project has project.faf (project DNA for AI) - Shows AI-readability status 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Project Status",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_score",
+          "description": "Calculate your project's AI-readability from project.faf (project DNA for AI) - F1-inspired metrics! 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "details": {
+                "type": "boolean",
+                "description": "Include detailed breakdown and improvement suggestions"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "AI-Readiness Score",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_init",
+          "description": "Create project.faf (project DNA for AI) - Makes your project instantly AI-readable 🧡⚡️. Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path or name. Smart resolution: \"my-app\" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too. Omit to use current directory."
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Overwrite existing project.faf if it exists"
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Initialize .faf",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_trust",
+          "description": "Validate project.faf integrity - Trust metrics for project DNA for AI 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Trust Score",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_sync",
+          "description": "Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Sync .faf to CLAUDE.md",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_enhance",
+          "description": "Enhance project.faf (project DNA for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "model": {
+                "type": "string",
+                "description": "Target AI model: claude|chatgpt|gemini|universal (default: claude)"
+              },
+              "focus": {
+                "type": "string",
+                "description": "Enhancement focus: claude-optimal|human-context|ai-instructions|completeness"
+              },
+              "consensus": {
+                "type": "boolean",
+                "description": "Build consensus from multiple AI models"
+              },
+              "dryRun": {
+                "type": "boolean",
+                "description": "Preview enhancement without applying changes"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Enhance .faf",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_bi_sync",
+          "description": "Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "auto": {
+                "type": "boolean",
+                "description": "Enable automatic synchronization"
+              },
+              "watch": {
+                "type": "boolean",
+                "description": "Start real-time file watching for changes"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite conflicting changes"
+              },
+              "agents": {
+                "type": "boolean",
+                "description": "Also sync to AGENTS.md (OpenAI/Codex format)"
+              },
+              "cursor": {
+                "type": "boolean",
+                "description": "Also sync to .cursorrules (Cursor IDE format)"
+              },
+              "gemini": {
+                "type": "boolean",
+                "description": "Also sync to GEMINI.md (Google Gemini format)"
+              },
+              "all": {
+                "type": "boolean",
+                "description": "Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Bi-directional Sync",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_clear",
+          "description": "Clear caches, temporary files, and reset FAF state for a fresh start",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "cache": {
+                "type": "boolean",
+                "description": "Clear trust cache only"
+              },
+              "todos": {
+                "type": "boolean",
+                "description": "Clear todo lists only"
+              },
+              "backups": {
+                "type": "boolean",
+                "description": "Clear backup files only"
+              },
+              "all": {
+                "type": "boolean",
+                "description": "Clear everything (default)"
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Clear .faf Data",
+            "readOnlyHint": false,
+            "destructiveHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_debug",
+          "description": "Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Debug Info",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_read",
+          "description": "Read content from any file on the local filesystem",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Absolute or relative file path to read"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Read .faf File",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_write",
+          "description": "Write content to any file on the local filesystem",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Absolute or relative file path to write"
+              },
+              "content": {
+                "type": "string",
+                "description": "Content to write to the file"
+              }
+            },
+            "required": [
+              "path",
+              "content"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Write .faf File",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_list",
+          "description": "List directories and discover projects with project.faf files - Essential for FAF discovery workflow",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Directory path to list (e.g., ~/Projects, /Users/username/Projects)"
+              },
+              "filter": {
+                "type": "string",
+                "enum": [
+                  "faf",
+                  "dirs",
+                  "all"
+                ],
+                "description": "Filter: \"faf\" (only dirs with project.faf), \"dirs\" (all directories), \"all\" (dirs and files). Default: \"dirs\""
+              },
+              "depth": {
+                "type": "number",
+                "enum": [
+                  1,
+                  2
+                ],
+                "description": "Directory depth to scan: 1 (immediate children) or 2 (one level deeper). Default: 1"
+              },
+              "showHidden": {
+                "type": "boolean",
+                "description": "Show hidden files/directories (starting with .). Default: false"
+              }
+            },
+            "required": [
+              "path"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "List .faf Files",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_chat",
+          "description": "🗣️ Natural language project.faf generation - Ask 6W questions (Who/What/Why/Where/When/How) to build complete human context 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Chat about FAF",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_friday",
+          "description": "🎉 Friday Features - Chrome Extension detection, fuzzy matching & more! 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "test": {
+                "type": "string",
+                "description": "Test fuzzy matching with typos like \"raect\" or \"chr ext\""
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Fun FAF Facts",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_guide",
+          "description": "FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns",
+          "inputSchema": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Usage Guide",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_readme",
+          "description": "📖 Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "apply": {
+                "type": "boolean",
+                "description": "Apply extracted content to project.faf (default: preview only)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Overwrite existing human_context values (default: only fill empty slots)"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Extract from README",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_human_add",
+          "description": "🧡 Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "field": {
+                "type": "string",
+                "enum": [
+                  "who",
+                  "what",
+                  "why",
+                  "where",
+                  "when",
+                  "how"
+                ],
+                "description": "The 6 W field to set"
+              },
+              "value": {
+                "type": "string",
+                "description": "The value to set for the field"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "required": [
+              "field",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Add Human Context",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_check",
+          "description": "🔍 Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "protect": {
+                "type": "boolean",
+                "description": "Lock good/excellent fields from being overwritten"
+              },
+              "unlock": {
+                "type": "boolean",
+                "description": "Remove all field protections"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Check .faf Health",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_context",
+          "description": "📂 Set or view active project context - Path is remembered for subsequent faf_ calls 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Set active project path. If omitted, shows current context."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "View Context",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_go",
+          "description": "🎯 Guided interview to Gold Code - Claude asks questions till you hit 100%! Returns questions for missing fields, then apply answers to reach Gold Code 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              },
+              "answers": {
+                "type": "object",
+                "description": "Answers to apply. Keys are field paths (e.g., \"project.goal\", \"human_context.why\"), values are the answers. If provided, applies answers and returns new score.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Guided Setup",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_auto",
+          "description": "🏎️ ONE COMMAND TO RULE THEM ALL - Zero to Championship AI context instantly! Runs init + sync + formats + bi-sync + score in one go 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing files"
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Auto-detect Context",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_dna",
+          "description": "🧬 Show your FAF DNA journey - See your evolution from birth to championship (22% → 85% → 99%) 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "View Project DNA",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_formats",
+          "description": "😽 TURBO-CAT format discovery - Discovers all formats in your project (154+ validated types!) and fills stack slots 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              },
+              "json": {
+                "type": "boolean",
+                "description": "Return results as JSON"
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "List Formats",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_quick",
+          "description": "⚡ Lightning-fast .faf creation - One-liner format: \"name, description, language, framework, hosting\" 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              },
+              "input": {
+                "type": "string",
+                "description": "Quick input: \"project-name, description, language, framework, hosting\" (minimum: name, description)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing .faf file"
+              }
+            },
+            "required": [
+              "input"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Quick Create",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_doctor",
+          "description": "🏥 Health check for your .faf setup - Diagnose and fix common issues 🧡⚡️",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Diagnose Issues",
+            "readOnlyHint": true,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_agents",
+          "description": "Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "import",
+                  "export",
+                  "sync"
+                ],
+                "description": "Action: import (AGENTS.md -> .faf), export (.faf -> AGENTS.md), sync (bidirectional)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing files"
+              },
+              "merge": {
+                "type": "boolean",
+                "description": "Merge imported data with existing .faf instead of replacing"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Sync AGENTS.md",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_cursor",
+          "description": "Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "import",
+                  "export",
+                  "sync"
+                ],
+                "description": "Action: import (.cursorrules -> .faf), export (.faf -> .cursorrules), sync (bidirectional)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing files"
+              },
+              "merge": {
+                "type": "boolean",
+                "description": "Merge imported data with existing .faf instead of replacing"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Sync .cursorrules",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_gemini",
+          "description": "Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "import",
+                  "export",
+                  "sync"
+                ],
+                "description": "Action: import (GEMINI.md -> .faf), export (.faf -> GEMINI.md), sync (bidirectional)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing files"
+              },
+              "merge": {
+                "type": "boolean",
+                "description": "Merge imported data with existing .faf instead of replacing"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Sync GEMINI.md",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_conductor",
+          "description": "Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "import",
+                  "export"
+                ],
+                "description": "Action: import (conductor/ -> .faf), export (.faf -> conductor/)"
+              },
+              "force": {
+                "type": "boolean",
+                "description": "Force overwrite existing files"
+              },
+              "merge": {
+                "type": "boolean",
+                "description": "Merge imported data with existing .faf instead of replacing"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "required": [
+              "action"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Sync Conductor",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_git",
+          "description": "Generate project.faf from any GitHub repo URL - 1-click context extraction!",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string",
+                "description": "GitHub repository URL (e.g., https://github.com/owner/repo or owner/repo)"
+              },
+              "path": {
+                "type": "string",
+                "description": "Output directory for generated project.faf. If omitted, returns content without writing."
+              }
+            },
+            "required": [
+              "url"
+            ],
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Extract from GitHub",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        },
+        {
+          "name": "faf_tri_sync",
+          "description": "Sync project.faf to Claude MEMORY.md (Pro feature — 14-day free trial). bi-sync is free forever; tri-sync adds RAM.",
+          "inputSchema": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": [
+                  "export",
+                  "status"
+                ],
+                "description": "export = sync .faf to MEMORY.md, status = show MEMORY.md state"
+              },
+              "path": {
+                "type": "string",
+                "description": "Project path. Sets session context for subsequent calls."
+              }
+            },
+            "additionalProperties": false
+          },
+          "annotations": {
+            "title": "Tri-Sync to MEMORY.md",
+            "readOnlyHint": false,
+            "destructiveHint": false,
+            "openWorldHint": false
+          }
+        }
+      ],
+      "resources": [
+        {
+          "name": "Current FAF Context",
+          "uri": "claude-faf://context",
+          "description": "Current project FAF context and metadata",
+          "mimeType": "application/json"
+        },
+        {
+          "name": "FAF Status Summary",
+          "uri": "claude-faf://status",
+          "description": "Project health and AI readiness status",
+          "mimeType": "text/plain"
+        },
+        {
+          "name": "FAF Working Directory",
+          "uri": "file:///Users/wolfejam/FAF/claude-faf-mcp",
+          "description": "File system access for FAF operations",
+          "mimeType": "text/directory"
+        }
+      ],
+      "prompts": []
+    },
+    "source": {
+      "commit": "d76a29f78aeaa89725da3df666dced24d9aebea6",
+      "branch": "main"
+    }
+  },
+  "artifacts": {
+    "module": "module.js",
+    "sourcemap": "module.js.map"
+  },
+  "name": "claude-faf-mcp"
+}

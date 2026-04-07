@@ -200,6 +200,10 @@ Everything runs locally. No data leaves your machine. No analytics, no telemetry
 
 ---
 
+If `claude-faf-mcp` has been useful, consider starring the repo — it helps others find it.
+
+---
+
 ## License
 
 MIT — Free and open source
@@ -221,3 +225,15 @@ MIT — Free and open source
 | **[IANA Registration](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)** | `application/vnd.faf+yaml` |
 
 *format | driven 🏎️⚡️ [wolfejam.dev](https://wolfejam.dev)*
+
+---
+
+### Get the CLI
+
+> **faf-cli** — The original AI-Context CLI. A must-have for every builder.
+
+```bash
+npx faf-cli auto
+```
+
+**Anthropic MCP [#2759](https://github.com/modelcontextprotocol/servers/pull/2759)** · **IANA Registered:** `application/vnd.faf+yaml` · [faf.one](https://faf.one) · [npm](https://www.npmjs.com/package/faf-cli)

@@ -2,9 +2,9 @@
   "manifest_version": "0.3",
   "name": "claude-faf-mcp",
   "display_name": "FAF - Project DNA for AI",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "description": "IANA-registered format (application/vnd.faf+yaml). Persistent project context for ANY AI. 33 MCP tools.",
-  "long_description": "FAF (Foundational AI-context Format) gives your project persistent context that survives sessions, works across AI tools, and eliminates the 're-explain everything' problem.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — your project's DNA file\n- Bi-syncs .faf with CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**33,000+ npm downloads. Merged in Anthropic MCP ecosystem (PR #2759). IANA-registered MIME type.**",
+  "long_description": "FAF (Foundational AI-context Format) gives your project persistent context that survives sessions, works across AI tools, and eliminates the 're-explain everything' problem.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — your project's DNA file\n- Bi-syncs .faf with CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**Example prompts:**\n- \"Set up project context for this codebase\" → creates project.faf, scores AI-readiness\n- \"What's my AI-readiness score?\" → calculates 0-100% with tier (Bronze/Silver/Gold/Trophy)\n- \"Sync my .faf with CLAUDE.md\" → bi-directional sync in 8ms\n- \"Generate a .faf from this GitHub repo: https://github.com/user/repo\" → instant context from any public repo\n- \"Improve my score to Gold\" → guided interview, adds missing context, re-scores\n\n**36,000+ downloads across npm, PyPI, crates.io. Merged in Anthropic MCP ecosystem (PR #2759). IANA-registered MIME type (application/vnd.faf+yaml).**",
   "author": {
     "name": "Wolfejam",
     "email": "team@faf.one",
