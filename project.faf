@@ -1,138 +1,40 @@
-ai_scoring_system: 2025-09-17
-ai_score: 100%
-ai_confidence: VERY_HIGH
-ai_value: Universal_MCP_server_for_Claude_Desktop
-ai_tldr:
-  project: claude-faf-mcp
-  stack: Node.js/TypeScript
-  quality_bar: CHAMPIONSHIP_STANDARDS
-  current_focus: MCP visibility and PODIUM system
-  your_role: Build and enhance MCP tools
-instant_context:
-  what_building: Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
-  tech_stack: Node.js/TypeScript
-  main_language: TypeScript
-  deployment: npm/Claude Desktop
-  key_files:
-    - src/server.ts
-    - src/handlers/tools.ts
-    - package.json
-context_quality:
-  slots_filled: 21/21 (100%)
-  ai_confidence: VERY_HIGH
-  handoff_ready: true
-  missing_context: []
-slot_ignore:
-  - database
-  - connection
+faf_version: "3.0"
 project:
   name: claude-faf-mcp
-  goal: Provide FAF context tools directly in Claude Desktop via MCP
+  goal: Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
   main_language: TypeScript
-  type: mcp-server
-  generated: 2025-09-17T21:40:00.000Z
-  mission: Make FAF scorecards visible in Claude conversations
-  revolution: No more hidden outputs - show the scores!
-  brand: PODIUM System - 85% Bronze, 95% Silver, 99% Gold, 105% Trophy
-  enhanced_date: 2025-09-17T21:40:00.000Z
-  enhanced_by: faf-auto
-  version: 5.2.0
-ai_instructions:
-  priority_order:
-    - 1. Read THIS .faf file first
-    - 2. Check CLAUDE.md for session context
-    - 3. Review src/handlers/tools.ts for core logic
-  working_style:
-    code_first: true
-    explanations: minimal
-    quality_bar: championship
-    testing: required
-  warnings:
-    - Always display outputs in conversation
-    - Never hide scorecards in collapsed sections
-    - Test coverage required for new features
+  type: mcp
+  framework: mcp-sdk-ts
 stack:
-  frontend: None
-  css_framework: None
-  ui_library: None
-  state_management: None
-  backend: Node.js
+  frontend: slotignored
+  css_framework: slotignored
+  ui_library: slotignored
+  state_management: slotignored
+  backend: MCP SDK (TS)
+  api_type: MCP (stdio/SSE)
   runtime: Node.js
-  database: None
-  build: TypeScript
-  package_manager: npm
-  api_type: MCP
-  hosting: Claude Desktop
-  cicd: Jest
-  testing: jest/vitest
-preferences:
-  quality_bar: championship
-  commit_style: conventional_emoji
-  response_style: concise_code_first
-  explanation_level: minimal
-  communication: direct
-  testing: required
-  documentation: as_needed
-state:
-  phase: production
-  version: 3.3.7
-  focus: visibility_victory
-  status: green_flag
-  next_milestone: anthropic_submission
-  blockers: null
-tags:
-  auto_generated:
-    - claude-faf-mcp
-    - mcp
-    - typescript
-  smart_defaults:
-    - .faf
-    - ai-ready
-    - 2025
-    - software
-    - open-source
-  user_defined:
-    - podium
-    - visibility
-    - championship
+  database: slotignored
+  connection: slotignored
+  hosting: npm/Claude Desktop
+  build: esbuild
+  cicd: GitHub Actions
+  monorepo_tool: slotignored
+  package_manager: slotignored
+  workspaces: slotignored
+  admin: slotignored
+  cache: slotignored
+  search: slotignored
+  storage: slotignored
 human_context:
-  who: Claude Desktop users
-  what: MCP server providing FAF tools
-  why: Make AI context visible and useful
-  where: Claude Desktop
-  when: Real-time
-  how: MCP protocol
-  additional_context:
-    what:
-      - PODIUM scoring system
-      - Visibility improvements
-    why:
-      - Show scorecards in conversation
-      - No more hidden outputs
-  context_score: 100
-  total_prd_score: 100
-  success_rate: 96%
-ai_scoring_details:
-  system_date: 2025-09-17
-  slot_based_percentage: 100
-  ai_score: 100
-  total_slots: 21
-  filled_slots: 21
-  scoring_method: Honest percentage - no fake minimums
-  trust_embedded: PODIUM architecture - Bronze/Silver/Gold/Trophy
-projectName: claude-faf-mcp
-projectGoal: MCP for .faf | Project DNA for true AI context in Claude Desktop ✨ - Transform projects with perfect AI understanding • 33+ tools, Championship scoring • 100% TypeScript strict 🧡 Orange Smiley MCP • FREE & Open Source
-generated: 2025-10-03T23:43:42.838Z
-metadata:
-  last_claude_sync: 2026-03-10T22:12:24.909Z
-  bi_sync: active
-skills:
-  - faf
-  - mcp-builder
-  - skill-creator
-  - wjttc-tester
-meta:
-  last_updated: 2025-11-06T13:20:32.288Z
-  updated_by: faf-update-command
-  last_enhanced: 2025-11-06T13:20:32.323Z
-  enhanced_by: faf-enhance-auto
+  who: Claude Desktop users who want persistent AI project context
+  what: MCP server — 33 FAF tools for project DNA, scoring, and context sync
+  why: Zero project re-explaining across AI sessions — define once, remember forever
+  where: npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
+  when: v5.3.0, April 2026
+  how: npm install -g claude-faf-mcp
+monorepo:
+  packages_count: slotignored
+  build_orchestrator: slotignored
+  versioning_strategy: slotignored
+  shared_configs: slotignored
+  remote_cache: slotignored

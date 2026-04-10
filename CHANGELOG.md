@@ -5,6 +5,20 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.0] - 2026-04-10 — Analytics + Security
+
+### Added
+
+- **Persistent all-time analytics** via Upstash Redis — download and usage stats tracked across sessions
+- **Smithery sandbox support** — `server-card.json` for Smithery.ai marketplace listing
+- **Glama ecosystem linking** — `glama.json` updated with related servers for cross-discovery
+
+### Fixed
+
+- Security: resolve `path-to-regexp` and `yaml` vulnerabilities (npm audit)
+- Security: fix `flatted` prototype pollution vulnerability (GHSA-rf6f-7fwh-wjgh)
+- CI: case-insensitive assertion fix for React detection in `faf_quick` tests
+
 ## [5.2.0] - 2026-03-10 — Enhanced Scoring
 
 ### Changed
