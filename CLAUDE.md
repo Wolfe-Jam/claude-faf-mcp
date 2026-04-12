@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | IANA-registered format (application/vnd.faf+yaml) • Persistent project context • MCP server for Claude Desktop • MIT License -->
+<!-- faf: claude-faf-mcp | TypeScript | Universal FAF MCP Server for Claude Desktop - AI Context Intelligence -->
 
 # 🏎️ CLAUDE.md - claude-faf-mcp Persistent Context & Intelligence
 **.faf format | project.faf**
