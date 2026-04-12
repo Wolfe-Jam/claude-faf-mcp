@@ -5,6 +5,15 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.3.1] - 2026-04-12 — tri-sync Free for Claude Desktop Users
+
+### Changed
+
+- **tri-sync is now free for all Claude Desktop users** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Nelly never forgets — and now she's free for all builders 🐘
+- Removed Pro gate from `faf_tri_sync` — no trial, no friction, no paywall
+- Pro feature, free for developers. Teams & Enterprise: [faf.one/pro](https://faf.one/pro) (plans)
+- **FAF defines. MD instructs. AI codes.** — core messaging added to README
+
 ## [5.3.0] - 2026-04-10 — Analytics + Security
 
 ### Added

@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "Persistent project context. 33 tools. AI format interop. IANA-registered. #2759",
-  "version": "5.3.0",
+  "version": "5.3.1",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
@@ -18,7 +18,7 @@
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "5.3.0",
+      "version": "5.3.1",
       "transport": {
         "type": "stdio"
       }
