@@ -8,7 +8,6 @@ import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile } from '../utils/faf-file-finder.js';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
-import { checkProAccess } from '../licensing/pro-gate';
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
 import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 
@@ -659,7 +658,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_tri_sync',
-          description: 'Sync project.faf to Claude MEMORY.md (Pro feature — 14-day free trial). bi-sync is free forever; tri-sync adds RAM.',
+          description: 'Sync project.faf ↔ CLAUDE.md ↔ MEMORY.md — Nelly never forgets. Pro feature, free for developers. Your AI remembers your project across every session.',
           annotations: {
             title: 'Tri-Sync to MEMORY.md',
             readOnlyHint: false,
@@ -3342,48 +3341,13 @@ Use force: true to overwrite, or use faf_enhance to modify.`
   private async handleFafTriSync(args: any): Promise<CallToolResult> {
     const cwd = this.getProjectPath(args?.path);
 
-    // 1. Pro gate check
-    const proStatus = checkProAccess();
-
-    if (!proStatus.allowed) {
-      // Trial expired — show upgrade prompt
-      return {
-        content: [{
-          type: 'text',
-          text: [
-            '🐘 Feed Nelly — She Never Forgets',
-            '',
-            'bi-sync is free — and always will be.',
-            'tri-sync adds RAM: your AI remembers across sessions.',
-            '',
-            '  bi-sync  = ROM (.faf) ↔ CLAUDE.md',
-            '  tri-sync = ROM ↔ CLAUDE.md ↔ RAM (MEMORY.md)',
-            '',
-            'Feed Nelly: a dime a day ($3/mo) · a nickel a day ($19/yr)',
-            '$29/yr Global (CLI + MCP)',
-            '',
-            '→ Friends of FAF: faf.one/pro',
-            '→ Activate: faf pro activate <key>',
-          ].join('\n')
-        }]
-      };
-    }
-
-    // 2. Build contextual message for trial users
-    let proMessage = '';
-    if (proStatus.reason === 'trial' && proStatus.justStarted) {
-      proMessage = '\n\n🐘 Nelly Never Forgets: 14-day free trial started. faf.one/pro when ready.';
-    } else if (proStatus.reason === 'trial') {
-      proMessage = `\n\n🐘 Nelly Never Forgets: ${proStatus.daysLeft} day${proStatus.daysLeft === 1 ? '' : 's'} left in trial. faf.one/pro`;
-    }
-
-    // 3. Find project.faf
+    // Find project.faf
     const fafResult = await findFafFile(cwd);
     if (!fafResult) {
       return {
         content: [{
           type: 'text',
-          text: `🔄 tri-sync: No project.faf found in ${cwd}\n💡 Run faf_init first.${proMessage}`
+          text: `🔄 tri-sync: No project.faf found in ${cwd}\n💡 Run faf_init first.`
         }]
       };
     }
@@ -3391,7 +3355,6 @@ Use force: true to overwrite, or use faf_enhance to modify.`
     const action = args?.action || 'export';
 
     if (action === 'status') {
-      // Show MEMORY.md status
       const status = await getMemoryStatus(cwd);
       const statusText = [
         '🧠 MEMORY.md Status:',
@@ -3405,7 +3368,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
       ].filter(Boolean).join('\n');
 
       return {
-        content: [{ type: 'text', text: statusText + proMessage }]
+        content: [{ type: 'text', text: statusText }]
       };
     }
 
@@ -3418,7 +3381,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
 
     if (!result.success) {
       return {
-        content: [{ type: 'text', text: `🔄 tri-sync export failed.${proMessage}` }],
+        content: [{ type: 'text', text: `🔄 tri-sync export failed.` }],
         isError: true
       };
     }
@@ -3433,7 +3396,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
     ].join('\n');
 
     return {
-      content: [{ type: 'text', text: exportText + proMessage }]
+      content: [{ type: 'text', text: exportText }]
     };
   }
 }

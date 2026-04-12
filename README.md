@@ -116,7 +116,7 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 |------|---------|
 | `faf_sync` | Sync .faf → CLAUDE.md |
 | `faf_bi_sync` | Bi-directional .faf ↔ CLAUDE.md |
-| `faf_tri_sync` | Tri-sync to MEMORY.md *(Pro — 14-day free trial)* |
+| `faf_tri_sync` | Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers 🐘 |
 | `faf_enhance` | Intelligent enhancement |
 
 **Export & Interop**
@@ -140,18 +140,18 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 
 ---
 
-## 🐘 Nelly Never Forgets (Pro)
+## 🐘 Nelly Never Forgets
 
-bi-sync keeps `.faf` ↔ `CLAUDE.md` aligned. Free forever.
+bi-sync keeps `.faf` ↔ `CLAUDE.md` aligned.
 
-tri-sync adds MEMORY.md — your AI remembers across sessions. Feed Nelly, she never forgets.
+tri-sync adds MEMORY.md — your AI remembers your project across every session.
 
 ```
-bi-sync  = .faf ↔ CLAUDE.md              ← free forever
-tri-sync = .faf ↔ CLAUDE.md ↔ MEMORY.md  ← Pro 🐘
+bi-sync  = .faf ↔ CLAUDE.md              ← always in sync
+tri-sync = .faf ↔ CLAUDE.md ↔ MEMORY.md  ← Nelly never forgets 🐘
 ```
 
-$3/mo · $19/yr · $29/yr Global. 14-day free trial, no signup. **[Friends of FAF → faf.one/pro](https://faf.one/pro)**
+Pro feature, free for developers. Teams & Enterprise: **[faf.one/pro](https://faf.one/pro)** (plans)
 
 ---
 
