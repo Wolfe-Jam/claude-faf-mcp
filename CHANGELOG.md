@@ -5,6 +5,33 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.4.0] - 2026-04-13 — The Conductor Edition
+
+### Added
+
+- **`/faf` MCP Prompt** — type `/faf` in Claude Desktop and it drives your project to 100% automatically. Check → Score → Improve → Sync → Lock 🏆
+  - Relentlessly seeks 100%. Does not stop until the score is Trophy.
+  - Syncs `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` on completion.
+  - Optional `path` argument for non-current-directory projects.
+  - "Claude is now optimized for [project name]. FAF defines. MD instructs. AI codes."
+- **Prompts capability** added to MCP server — `prompts/list` and `prompts/get` now registered
+
+### Changed
+
+- Removed `faf_what` — redundant with `faf_about` (32 tools, zero redundancy)
+- Tool count: 33 → 32 MCP tools
+
+---
+
+## [5.3.2] - 2026-04-12 — 32 Tools, Zero Redundancy
+
+### Changed
+
+- Removed `faf_what` — redundant with `faf_about` (which covers the same ground with more depth)
+- Tool count: 33 → 32 MCP tools
+
+---
+
 ## [5.3.1] - 2026-04-12 — tri-sync Free for Claude Desktop Users
 
 ### Changed

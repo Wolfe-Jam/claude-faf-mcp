@@ -12,7 +12,9 @@
 
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
-33 MCP tools. IANA-registered format (`application/vnd.faf+yaml`). 2,346 test executions per push.
+> ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+32 MCP tools. 1 prompt. IANA-registered format (`application/vnd.faf+yaml`). 2,346 test executions per push.
 
 ---
 
@@ -58,7 +60,9 @@ human_context:
 
 > Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
 
-Then tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
+Then type `/faf` — Claude checks your project, scores it, drives it to 100%, and syncs. Done.
+
+Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 
 ---
 
@@ -92,7 +96,7 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## 33 MCP Tools
+## 32 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 

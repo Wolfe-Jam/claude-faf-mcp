@@ -61,20 +61,6 @@ export class FafToolHandler {
           }
         },
         {
-          name: 'faf_what',
-          description: 'What is .faf format? Quick explanation of project DNA for AI 🧡⚡️',
-          annotations: {
-            title: 'What is FAF',
-            readOnlyHint: true,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {},
-            additionalProperties: false
-          }
-        },
-        {
           name: 'faf_status',
           description: 'Check if your project has project.faf (project DNA for AI) - Shows AI-readability status 🧡⚡️',
           annotations: {
@@ -712,8 +698,6 @@ export class FafToolHandler {
         return await this.handleFafDebug(args);
       case 'faf_about':
         return await this.handleFafAbout(args);
-      case 'faf_what':
-        return await this.handleFafWhat(args);
       case 'faf_read': {
         // Handle faf_read specially to set context when reading project.faf files
         const readResult = await fileHandlers.faf_read(args);
@@ -1253,29 +1237,6 @@ HOW IT WORKS:
     };
   }
 
-  private async handleFafWhat(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    const whatText = `.faf = project DNA for AI
-
-WHAT: .faf = Foundational AI-context Format
-      (The dot means it's a file format, like .jpg or .pdf)
-
-WHY:  Persistent project context that works across
-      Claude, Gemini, Grok, Cursor, and any AI tool.
-
-HOW:  Run 'faf' on any project to create one.
-      Run 'faf_score' to check AI-readiness (target: 99%).
-
-REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
-
-Persistent project context with AI-memory 🐘`;
-
-    return {
-      content: [{
-        type: 'text',
-        text: whatText
-      }]
-    };
-  }
 
   private async handleFafDebug(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     try {

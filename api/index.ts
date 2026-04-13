@@ -169,9 +169,9 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <title>claude-faf-mcp | Persistent Project Context</title>
-  <meta name="description" content="33 MCP tools. Persistent project context. IANA-registered .faf format for Claude Desktop.">
+  <meta name="description" content="32 MCP tools. Persistent project context. IANA-registered .faf format for Claude Desktop.">
   <meta property="og:title" content="claude-faf-mcp | Persistent Project Context">
-  <meta property="og:description" content="33 MCP tools. Zero config. Persistent AI context for Claude Desktop.">
+  <meta property="og:description" content="32 MCP tools. Zero config. Persistent AI context for Claude Desktop.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#x1F9E1;</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
@@ -293,7 +293,7 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="logo">\u{1F9E1}</div>
     <h1>claude-faf-mcp</h1>
-    <div class="tagline">33 MCP tools &middot; Persistent project context &middot; IANA-registered format</div>
+    <div class="tagline">32 MCP tools &middot; Persistent project context &middot; IANA-registered format</div>
 
     <div class="stats">
       <div><div class="stat-value">33</div><div class="stat-label">MCP Tools</div></div>

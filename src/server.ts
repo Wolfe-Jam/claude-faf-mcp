@@ -1,9 +1,10 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { CallToolRequestSchema, ListResourcesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema, ListPromptsRequestSchema, GetPromptRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { FafResourceHandler } from './handlers/resources';
 import { FafToolHandler } from './handlers/tools';
+import { FafPromptHandler } from './handlers/prompts';
 import { FafEngineAdapter } from './handlers/engine-adapter';
 import express from 'express';
 import cors from 'cors';
@@ -23,6 +24,7 @@ export class ClaudeFafMcpServer {
   private server: Server;
   private resourceHandler: FafResourceHandler;
   private toolHandler: FafToolHandler;
+  private promptHandler: FafPromptHandler;
   private config: ClaudeFafMcpServerConfig;
   private httpServer?: any;
 
@@ -48,6 +50,9 @@ export class ClaudeFafMcpServer {
           tools: {
             listChanged: true,
           },
+          prompts: {
+            listChanged: false,
+          },
         },
       }
     );
@@ -57,6 +62,7 @@ export class ClaudeFafMcpServer {
 
     this.resourceHandler = new FafResourceHandler(engineAdapter);
     this.toolHandler = new FafToolHandler(engineAdapter);
+    this.promptHandler = new FafPromptHandler();
 
     this.setupHandlers();
   }
@@ -74,6 +80,18 @@ export class ClaudeFafMcpServer {
 
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       return this.resourceHandler.readResource(request.params.uri);
+    });
+
+    // Prompt handlers
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => {
+      return this.promptHandler.listPrompts();
+    });
+
+    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+      return this.promptHandler.getPrompt(
+        request.params.name,
+        request.params.arguments as Record<string, string> | undefined
+      );
     });
 
     // Tool handlers
@@ -124,7 +142,7 @@ export class ClaudeFafMcpServer {
         version: VERSION,
         transport: 'http-sse',
         timestamp: new Date().toISOString(),
-        championship: '33+ tools, zero shell execution'
+        championship: '32 tools, zero shell execution'
       });
     });
 
@@ -205,7 +223,7 @@ export class ClaudeFafMcpServer {
       transport: this.config.transport,
       port: this.config.port,
       host: this.config.host,
-      championship: 'v3.0.0 - 33+ native tools'
+      championship: 'v5.4.0 - 32 tools + faf prompt'
     };
   }
 }
