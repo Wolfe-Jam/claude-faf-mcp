@@ -485,7 +485,7 @@ human_context:
       let quickTestDir: string;
 
       beforeEach(() => {
-        quickTestDir = path.join(testDir, `quick-test-${Date.now()}`);
+        quickTestDir = path.join(testDir, `quick-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
         fs.mkdirSync(quickTestDir, { recursive: true });
       });
 
