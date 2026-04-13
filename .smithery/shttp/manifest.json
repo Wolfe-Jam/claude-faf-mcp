@@ -6,7 +6,7 @@
     "serverCard": {
       "serverInfo": {
         "name": "claude-faf-mcp",
-        "version": "5.2.0"
+        "version": "5.3.1"
       },
       "tools": [
         {
@@ -139,7 +139,7 @@
         },
         {
           "name": "faf_enhance",
-          "description": "Enhance project.faf (project DNA for AI) with AI optimization - SPEEDY AI you can TRUST! 🧡⚡️",
+          "description": "Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift 🧡⚡️",
           "inputSchema": {
             "type": "object",
             "properties": {
@@ -852,7 +852,7 @@
         },
         {
           "name": "faf_tri_sync",
-          "description": "Sync project.faf to Claude MEMORY.md (Pro feature — 14-day free trial). bi-sync is free forever; tri-sync adds RAM.",
+          "description": "Sync project.faf ↔ CLAUDE.md ↔ MEMORY.md — Nelly never forgets. Pro feature, free for developers. Your AI remembers your project across every session.",
           "inputSchema": {
             "type": "object",
             "properties": {
@@ -902,7 +902,7 @@
       "prompts": []
     },
     "source": {
-      "commit": "d76a29f78aeaa89725da3df666dced24d9aebea6",
+      "commit": "3b8595189e43452e7854c27bf936acb55576af9c",
       "branch": "main"
     }
   },
