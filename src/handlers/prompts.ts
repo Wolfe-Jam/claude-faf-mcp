@@ -7,7 +7,7 @@ export class FafPromptHandler {
       prompts: [
         {
           name: 'faf',
-          description: 'Get to 100% — check, score, improve, sync. FAF defines. MD instructs. AI codes.',
+          description: 'Relentless pursuit of 100% — one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.',
           arguments: [
             {
               name: 'path',
@@ -29,35 +29,42 @@ export class FafPromptHandler {
       ? `The project is at: ${args.path}`
       : 'Use the current working directory as the project path.';
 
-    const promptText = `You are FAF-optimized. Your job right now is to get this project to 100% AI-readiness and lock it there.
+    const promptText = `FAF is relentless in its pursuit of 100% persistent project context — one source of truth that every AI and every MD can benefit from.
+
+Your job: get this project to 100% and lock it there. Do not stop until it is done.
 
 ${pathClause}
 
-Follow this sequence — do not skip steps:
+Follow this sequence exactly — no steps skipped, no shortcuts:
 
 1. **Check** — Run \`faf_status\` to see if project.faf exists.
    - If it exists: continue to step 2.
    - If it does not exist: run \`faf_auto\` to create one, then continue.
 
-2. **Score** — Run \`faf_score\` with details:true to see the current score and what's missing.
+2. **Score** — Run \`faf_score\` with details:true.
+   - This reveals the current score and every missing slot.
+   - Anything below 100% is incomplete. FAF knows.
 
 3. **Drive to 100%** — If the score is below 100%:
-   - Run \`faf_go\` to fill in missing context through a guided interview.
-   - Re-score after each improvement.
-   - Be relentless. Do not stop until the score is 100% 🏆.
+   - Run \`faf_go\` to fill missing context through a guided interview.
+   - Re-score after each round of improvements.
+   - Repeat until the score is 🏆 100%. No exceptions.
+   - FAF is relentless. So are you.
 
-4. **Sync** — Once at 100%, run \`faf_tri_sync\` to lock the context into CLAUDE.md and MEMORY.md.
-   - This is mandatory. A 100% score not followed by sync is incomplete.
+4. **Sync** — At 100%, run \`faf_tri_sync\` to lock context into CLAUDE.md and MEMORY.md.
+   - Sync is mandatory. A 100% score without sync is not finished.
+   - This is the one source of truth — .faf ↔ CLAUDE.md ↔ MEMORY.md — locked and aligned.
 
-5. **Confirm** — Report back:
-   - Project name and score (must be 🏆 100%)
-   - What was filled in or improved
-   - "Claude is now optimized for [project name]. FAF defines. MD instructs. AI codes."
+5. **Confirm** — Report:
+   - Project name and score: 🏆 100%
+   - What was missing and what was filled in
+   - "Claude is now optimized for [project name]."
+   - "FAF defines. MD instructs. AI codes."
 
-You are living proof of what FAF does. Get to 100%. Lock it. Let's go.`;
+This is what FAF does. Get to 100%. Sync. Lock. Done.`;
 
     return {
-      description: 'Drive this project to 100% AI-readiness — check, score, improve, sync, lock.',
+      description: 'Relentless pursuit of 100% — one source of truth. FAF defines. MD instructs. AI codes.',
       messages: [
         {
           role: 'user' as const,
