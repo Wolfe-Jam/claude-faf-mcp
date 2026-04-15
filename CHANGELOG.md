@@ -5,6 +5,30 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.0] - 2026-04-15 — The Extension Edition
+
+### Added
+
+- **Desktop Extension (.mcpb)** — one-click install for Claude Desktop. No JSON config, no terminal. Drag and click.
+- **`pack:mcpb` build script** — repeatable .mcpb packaging with production deps only (6.2MB bundle)
+- **`destructiveHint` annotations** on all 32 tools — Anthropic Connectors Directory compliant
+- **`examples/test-project/`** — sample project for Anthropic review and user onboarding
+- **WJTTC v5.5.0 report** — 67/67 tests, 100% pass rate across all three tiers
+
+### Changed
+
+- **manifest.json** — synced to v5.5.0, fixed icon path to 512px PNG
+- **SECURITY.md** — updated supported versions (5.x, 4.x) and date
+
+### Removed
+
+- 27 tracked junk files (test debris, Python artifacts, old WJTTC reports, victory-lap.txt)
+- `servers/` submodule (28MB Anthropic monorepo copy)
+- `vercel.json`, `server.json`, `setup.py`, `requirements.txt` (leftovers)
+- Backup files (`*.backup`)
+
+---
+
 ## [5.4.0] - 2026-04-13 — The Conductor Edition
 
 ### Added

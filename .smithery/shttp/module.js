@@ -59194,20 +59194,6 @@ var FafToolHandler = class {
           }
         },
         {
-          name: "faf_what",
-          description: "What is .faf format? Quick explanation of project DNA for AI \u{1F9E1}\u26A1\uFE0F",
-          annotations: {
-            title: "What is FAF",
-            readOnlyHint: true,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: "object",
-            properties: {},
-            additionalProperties: false
-          }
-        },
-        {
           name: "faf_status",
           description: "Check if your project has project.faf (project DNA for AI) - Shows AI-readability status \u{1F9E1}\u26A1\uFE0F",
           annotations: {
@@ -59842,8 +59828,6 @@ var FafToolHandler = class {
         return await this.handleFafDebug(args);
       case "faf_about":
         return await this.handleFafAbout(args);
-      case "faf_what":
-        return await this.handleFafWhat(args);
       case "faf_read": {
         const readResult = await fileHandlers.faf_read(args);
         if (args?.path && (args.path.includes("project.faf") || args.path.endsWith(".faf"))) {
@@ -60353,28 +60337,6 @@ HOW IT WORKS:
       content: [{
         type: "text",
         text: aboutText
-      }]
-    };
-  }
-  async handleFafWhat(_args) {
-    const whatText = `.faf = project DNA for AI
-
-WHAT: .faf = Foundational AI-context Format
-      (The dot means it's a file format, like .jpg or .pdf)
-
-WHY:  Persistent project context that works across
-      Claude, Gemini, Grok, Cursor, and any AI tool.
-
-HOW:  Run 'faf' on any project to create one.
-      Run 'faf_score' to check AI-readiness (target: 99%).
-
-REMEMBER: Always use ".faf" with the dot - it's a FORMAT!
-
-Persistent project context with AI-memory \u{1F418}`;
-    return {
-      content: [{
-        type: "text",
-        text: whatText
       }]
     };
   }
@@ -62343,6 +62305,78 @@ ${data.data.fafContent}`;
     ].join("\n");
     return {
       content: [{ type: "text", text: exportText }]
+    };
+  }
+};
+
+// src/handlers/prompts.ts
+var FafPromptHandler = class {
+  listPrompts() {
+    return {
+      prompts: [
+        {
+          name: "faf",
+          description: "Relentless pursuit of 100% \u2014 one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.",
+          arguments: [
+            {
+              name: "path",
+              description: "Project directory path (optional \u2014 uses current directory if not provided)",
+              required: false
+            }
+          ]
+        }
+      ]
+    };
+  }
+  getPrompt(name, args) {
+    if (name !== "faf") {
+      throw new Error(`Unknown prompt: ${name}`);
+    }
+    const pathClause = args?.path ? `The project is at: ${args.path}` : "Use the current working directory as the project path.";
+    const promptText = `FAF is relentless in its pursuit of 100% persistent project context \u2014 one source of truth that every AI and every MD can benefit from.
+
+Your job: get this project to 100% and lock it there. Do not stop until it is done.
+
+${pathClause}
+
+Follow this sequence exactly \u2014 no steps skipped, no shortcuts:
+
+1. **Check** \u2014 Run \`faf_status\` to see if project.faf exists.
+   - If it exists: continue to step 2.
+   - If it does not exist: run \`faf_auto\` to create one, then continue.
+
+2. **Score** \u2014 Run \`faf_score\` with details:true.
+   - This reveals the current score and every missing slot.
+   - Anything below 100% is incomplete. FAF knows.
+
+3. **Drive to 100%** \u2014 If the score is below 100%:
+   - Run \`faf_go\` to fill missing context through a guided interview.
+   - Re-score after each round of improvements.
+   - Repeat until the score is \u{1F3C6} 100%. No exceptions.
+   - FAF is relentless. So are you.
+
+4. **Sync** \u2014 At 100%, run \`faf_tri_sync\` to lock context into CLAUDE.md and MEMORY.md.
+   - Sync is mandatory. A 100% score without sync is not finished.
+   - This is the one source of truth \u2014 .faf \u2194 CLAUDE.md \u2194 MEMORY.md \u2014 locked and aligned.
+
+5. **Confirm** \u2014 Report:
+   - Project name and score: \u{1F3C6} 100%
+   - What was missing and what was filled in
+   - "Claude is now optimized for [project name]."
+   - "FAF defines. MD instructs. AI codes."
+
+This is what FAF does. Get to 100%. Sync. Lock. Done.`;
+    return {
+      description: "Relentless pursuit of 100% \u2014 one source of truth. FAF defines. MD instructs. AI codes.",
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: promptText
+          }
+        }
+      ]
     };
   }
 };
@@ -68609,6 +68643,7 @@ var ClaudeFafMcpServer = class {
   server;
   resourceHandler;
   toolHandler;
+  promptHandler;
   config;
   httpServer;
   constructor(config2) {
@@ -68631,6 +68666,9 @@ var ClaudeFafMcpServer = class {
           },
           tools: {
             listChanged: true
+          },
+          prompts: {
+            listChanged: false
           }
         }
       }
@@ -68638,6 +68676,7 @@ var ClaudeFafMcpServer = class {
     const engineAdapter = new FafEngineAdapter(config2.fafEnginePath);
     this.resourceHandler = new FafResourceHandler(engineAdapter);
     this.toolHandler = new FafToolHandler(engineAdapter);
+    this.promptHandler = new FafPromptHandler();
     this.setupHandlers();
   }
   /** Expose the raw MCP Server instance (used by Smithery sandbox scanning) */
@@ -68650,6 +68689,15 @@ var ClaudeFafMcpServer = class {
     });
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
       return this.resourceHandler.readResource(request.params.uri);
+    });
+    this.server.setRequestHandler(ListPromptsRequestSchema, async () => {
+      return this.promptHandler.listPrompts();
+    });
+    this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
+      return this.promptHandler.getPrompt(
+        request.params.name,
+        request.params.arguments
+      );
     });
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
       return this.toolHandler.listTools();
@@ -68690,7 +68738,7 @@ var ClaudeFafMcpServer = class {
         version: VERSION,
         transport: "http-sse",
         timestamp: (/* @__PURE__ */ new Date()).toISOString(),
-        championship: "33+ tools, zero shell execution"
+        championship: "32 tools, zero shell execution"
       });
     });
     app.get("/info", (_req, res) => {
@@ -68766,7 +68814,7 @@ var ClaudeFafMcpServer = class {
       transport: this.config.transport,
       port: this.config.port,
       host: this.config.host,
-      championship: "v3.0.0 - 33+ native tools"
+      championship: "v5.4.0 - 32 tools + faf prompt"
     };
   }
 };

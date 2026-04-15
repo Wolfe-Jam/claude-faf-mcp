@@ -1,0 +1,24 @@
+project: test-project
+type: general
+context: I⚡🍊
+generated: 2026-04-15T12:31:12.308Z
+version: 5.4.0
+human_input: Your project files
+multiplier: FAF Context
+output: Championship Performance
+working_directory: /Users/wolfejam/FAF/claude-faf-mcp/examples/test-project
+initialized_by: claude-faf-mcp
+vitamin_context: true
+faffless: true
+stack:
+  mainLanguage: TypeScript
+  frontend: Next.js
+  testing: Vitest
+stack_signature: typescript-next.js
+human_context:
+  who: at Acme Corp — 12 developers shipping internal too
+  what: Internal analytics dashboard for Acme Corp. Built with Next.js 16, React
+    19, and Claude AI.
+  how: |-
+    npm install
+    npm run dev

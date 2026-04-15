@@ -52,6 +52,7 @@ export class FafToolHandler {
           annotations: {
             title: 'About FAF',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -66,6 +67,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Project Status',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -82,6 +84,7 @@ export class FafToolHandler {
           annotations: {
             title: 'AI-Readiness Score',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -120,6 +123,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Trust Score',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -216,6 +220,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Debug Info',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -230,6 +235,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Read .faf File',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -275,6 +281,7 @@ export class FafToolHandler {
           annotations: {
             title: 'List .faf Files',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -309,6 +316,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Chat about FAF',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -323,6 +331,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Fun FAF Facts',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -342,6 +351,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Usage Guide',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -399,6 +409,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Check .faf Health',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -417,6 +428,7 @@ export class FafToolHandler {
           annotations: {
             title: 'View Context',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -473,6 +485,7 @@ export class FafToolHandler {
           annotations: {
             title: 'View Project DNA',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -489,6 +502,7 @@ export class FafToolHandler {
           annotations: {
             title: 'List Formats',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -526,6 +540,7 @@ export class FafToolHandler {
           annotations: {
             title: 'Diagnose Issues',
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {

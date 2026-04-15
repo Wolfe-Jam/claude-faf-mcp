@@ -15,12 +15,12 @@ FAF processes everything locally on your machine. No data leaves your computer.
 
 ## What FAF Does NOT Do
 
-- **No external network requests** — all processing is local
+- **No external network requests** — all processing is local, with one exception: `faf_git` fetches public repository metadata from the GitHub API (`api.github.com`) when you explicitly ask it to generate context from a GitHub URL. No data is sent; it only reads public repo information.
 - **No analytics or telemetry** — we don't track usage
 - **No data collection** — nothing is sent anywhere
 - **No user accounts** — no authentication, no sign-up
 - **No cookies or local storage** — beyond the files you ask it to create
-- **No third-party services** — zero external dependencies at runtime
+- **No third-party services** — zero external dependencies at runtime (except GitHub API for `faf_git`, user-initiated only)
 
 ## File Access
 
@@ -46,4 +46,4 @@ Questions about privacy: team@faf.one
 
 ---
 
-*Last updated: 2026-03-04*
+*Last updated: 2026-04-15*

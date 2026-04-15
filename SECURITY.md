@@ -6,8 +6,9 @@ We release patches for security vulnerabilities in the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.x.x   | :white_check_mark: |
-| < 2.0   | :x:                |
+| 5.x.x   | :white_check_mark: |
+| 4.x.x   | :white_check_mark: |
+| < 4.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -145,6 +146,6 @@ If you report a vulnerability, we will list you here (with your permission).
 
 ---
 
-**Last updated**: November 2025
+**Last updated**: April 2026
 
 Thank you for helping keep claude-faf-mcp and its users safe.

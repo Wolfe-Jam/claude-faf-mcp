@@ -1,0 +1,21 @@
+{
+  "name": "acme-dashboard",
+  "version": "1.0.0",
+  "description": "Internal analytics dashboard for Acme Corp",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "next": "^16.0.0",
+    "react": "^19.0.0",
+    "@anthropic-ai/sdk": "^1.0.0",
+    "drizzle-orm": "^0.40.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.0",
+    "vitest": "^4.0.0"
+  }
+}

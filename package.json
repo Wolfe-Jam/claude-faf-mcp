@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "5.4.0",
+  "version": "5.5.0",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "IANA-registered format (application/vnd.faf+yaml) • Persistent project context • MCP server for Claude Desktop • MIT License",
   "icon": "./assets/icons/faf-icon-256.png",
@@ -28,7 +28,8 @@
     "version": "npm run sync-version && git add project.faf",
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.js",
-    "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts"
+    "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts",
+    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/@esbuild node_modules/esbuild node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging"
   },
   "keywords": [
     "claude",

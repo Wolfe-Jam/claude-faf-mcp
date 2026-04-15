@@ -6,7 +6,7 @@
     "serverCard": {
       "serverInfo": {
         "name": "claude-faf-mcp",
-        "version": "5.3.1"
+        "version": "5.4.0"
       },
       "tools": [
         {
@@ -19,20 +19,6 @@
           },
           "annotations": {
             "title": "About FAF",
-            "readOnlyHint": true,
-            "openWorldHint": false
-          }
-        },
-        {
-          "name": "faf_what",
-          "description": "What is .faf format? Quick explanation of project DNA for AI 🧡⚡️",
-          "inputSchema": {
-            "type": "object",
-            "properties": {},
-            "additionalProperties": false
-          },
-          "annotations": {
-            "title": "What is FAF",
             "readOnlyHint": true,
             "openWorldHint": false
           }
@@ -899,10 +885,22 @@
           "mimeType": "text/directory"
         }
       ],
-      "prompts": []
+      "prompts": [
+        {
+          "name": "faf",
+          "description": "Relentless pursuit of 100% — one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.",
+          "arguments": [
+            {
+              "name": "path",
+              "description": "Project directory path (optional — uses current directory if not provided)",
+              "required": false
+            }
+          ]
+        }
+      ]
     },
     "source": {
-      "commit": "3b8595189e43452e7854c27bf936acb55576af9c",
+      "commit": "21a75e99a4b9f46f1fdf38e0aa50fc84eb603dbe",
       "branch": "main"
     }
   },

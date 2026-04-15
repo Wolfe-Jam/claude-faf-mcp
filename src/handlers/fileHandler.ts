@@ -3,7 +3,12 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import * as os from 'os';
 import { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+
+function expandTilde(p: string): string {
+  return p.startsWith('~') ? path.join(os.homedir(), p.slice(1)) : p;
+}
 
 /**
  * Security validator for file paths
@@ -94,9 +99,10 @@ export const fafWriteTool: Tool = {
  */
 export async function handleFafRead(args: any): Promise<CallToolResult> {
   const startTime = Date.now();
-  
+
   try {
-    const { path: filePath } = args;
+    const { path: rawPath } = args;
+    const filePath = expandTilde(rawPath);
     
     // Validate path
     const pathValidation = PathValidator.validate(filePath);
@@ -162,9 +168,10 @@ export async function handleFafRead(args: any): Promise<CallToolResult> {
  */
 export async function handleFafWrite(args: any): Promise<CallToolResult> {
   const startTime = Date.now();
-  
+
   try {
-    const { path: filePath, content } = args;
+    const { path: rawPath, content } = args;
+    const filePath = expandTilde(rawPath);
     
     // Validate path
     const pathValidation = PathValidator.validate(filePath);
