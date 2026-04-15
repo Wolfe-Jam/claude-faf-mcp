@@ -1,0 +1,27 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.Wolfe-Jam/claude-faf-mcp",
+  "description": "Persistent project context. 32 tools. AI format interop. IANA-registered. #2759",
+  "version": "5.5.0",
+  "repository": {
+    "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
+    "source": "github"
+  },
+  "websiteUrl": "https://faf.one",
+  "remotes": [
+    {
+      "type": "sse",
+      "url": "https://claude-faf-mcp.vercel.app/sse"
+    }
+  ],
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "claude-faf-mcp",
+      "version": "5.5.0",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
