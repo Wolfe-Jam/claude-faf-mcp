@@ -47,6 +47,23 @@ export class FafToolHandler {
     return {
       tools: [
         {
+          name: 'faf',
+          description: 'Type "faf" to start. Scores your project, drives it to 100%, syncs everything. The one command that does it all.',
+          annotations: {
+            title: 'FAF',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path (optional — uses current directory if not provided)' }
+            },
+            additionalProperties: false
+          }
+        },
+        {
           name: 'faf_about',
           description: 'Learn what .faf format is - project DNA for AI 🧡⚡️',
           annotations: {
@@ -693,6 +710,46 @@ export class FafToolHandler {
     }
     
     switch (name) {
+      case 'faf': {
+        const projectPath = this.getProjectPath(args?.path);
+        const fs = await import('fs');
+        const pathModule = await import('path');
+        const hasFaf = fs.existsSync(pathModule.join(projectPath, 'project.faf'));
+        const hasPkg = fs.existsSync(pathModule.join(projectPath, 'package.json'));
+
+        // Try to get project name from package.json or project.faf
+        let projectName = projectPath.split('/').pop() || 'unknown';
+        try {
+          if (hasPkg) {
+            const pkg = JSON.parse(fs.readFileSync(pathModule.join(projectPath, 'package.json'), 'utf8'));
+            if (pkg.name) projectName = pkg.name;
+          }
+        } catch {}
+
+        const projectInfo = hasFaf
+          ? `Found project.faf in: ${projectPath} (${projectName})`
+          : hasPkg
+            ? `Found project at: ${projectPath} (${projectName}) — no project.faf yet`
+            : `Working directory: ${projectPath}`;
+
+        return {
+          content: [{
+            type: 'text',
+            text: `${projectInfo}
+
+Confirm this is your project and I'll score it, drive it to 100%, and sync everything.
+
+If this isn't the right project, tell me the path or project name.
+
+Once confirmed, the sequence is:
+1. Check if project.faf exists (create with faf_auto if not)
+2. Score with faf_score (details:true)
+3. Drive to 100% with faf_go if below
+4. Sync with faf_tri_sync at 100%
+5. Done — "FAF defines. MD instructs. AI codes."`
+          }]
+        };
+      }
       case 'faf_status':
         return await this.handleFafStatus(args);
       case 'faf_score':

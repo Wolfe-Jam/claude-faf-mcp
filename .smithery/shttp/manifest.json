@@ -6,7 +6,7 @@
     "serverCard": {
       "serverInfo": {
         "name": "claude-faf-mcp",
-        "version": "5.4.0"
+        "version": "5.5.0"
       },
       "tools": [
         {
@@ -20,6 +20,7 @@
           "annotations": {
             "title": "About FAF",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -39,6 +40,7 @@
           "annotations": {
             "title": "Project Status",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -62,6 +64,7 @@
           "annotations": {
             "title": "AI-Readiness Score",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -100,6 +103,7 @@
           "annotations": {
             "title": "Trust Score",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -250,6 +254,7 @@
           "annotations": {
             "title": "Debug Info",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -272,6 +277,7 @@
           "annotations": {
             "title": "Read .faf File",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -343,6 +349,7 @@
           "annotations": {
             "title": "List .faf Files",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -357,6 +364,7 @@
           "annotations": {
             "title": "Chat about FAF",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -376,6 +384,7 @@
           "annotations": {
             "title": "Fun FAF Facts",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -390,6 +399,7 @@
           "annotations": {
             "title": "Usage Guide",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -485,6 +495,7 @@
           "annotations": {
             "title": "Check .faf Health",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -504,6 +515,7 @@
           "annotations": {
             "title": "View Context",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -574,6 +586,7 @@
           "annotations": {
             "title": "View Project DNA",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -597,6 +610,7 @@
           "annotations": {
             "title": "List Formats",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -647,6 +661,7 @@
           "annotations": {
             "title": "Diagnose Issues",
             "readOnlyHint": true,
+            "destructiveHint": false,
             "openWorldHint": false
           }
         },
@@ -900,7 +915,7 @@
       ]
     },
     "source": {
-      "commit": "21a75e99a4b9f46f1fdf38e0aa50fc84eb603dbe",
+      "commit": "d6dc4e0f9f327400d8872d3d39f77f448981f18b",
       "branch": "main"
     }
   },

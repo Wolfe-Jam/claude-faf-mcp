@@ -6,7 +6,7 @@ export class FafPromptHandler {
     return {
       prompts: [
         {
-          name: 'faf',
+          name: '/faf',
           description: 'Relentless pursuit of 100% — one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.',
           arguments: [
             {
@@ -21,7 +21,7 @@ export class FafPromptHandler {
   }
 
   getPrompt(name: string, args?: Record<string, string>) {
-    if (name !== 'faf') {
+    if (name !== '/faf') {
       throw new Error(`Unknown prompt: ${name}`);
     }
 

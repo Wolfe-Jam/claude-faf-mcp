@@ -43572,7 +43572,7 @@ var require_view = __commonJS({
     var dirname9 = path34.dirname;
     var basename4 = path34.basename;
     var extname2 = path34.extname;
-    var join22 = path34.join;
+    var join23 = path34.join;
     var resolve5 = path34.resolve;
     module.exports = View;
     function View(name, options) {
@@ -43620,12 +43620,12 @@ var require_view = __commonJS({
     };
     View.prototype.resolve = function resolve6(dir, file) {
       var ext = this.ext;
-      var path35 = join22(dir, file);
+      var path35 = join23(dir, file);
       var stat3 = tryStat(path35);
       if (stat3 && stat3.isFile()) {
         return path35;
       }
-      path35 = join22(dir, basename4(file, ext), "index" + ext);
+      path35 = join23(dir, basename4(file, ext), "index" + ext);
       stat3 = tryStat(path35);
       if (stat3 && stat3.isFile()) {
         return path35;
@@ -44682,7 +44682,7 @@ var require_send = __commonJS({
     var Stream = __require("stream");
     var util = __require("util");
     var extname2 = path34.extname;
-    var join22 = path34.join;
+    var join23 = path34.join;
     var normalize2 = path34.normalize;
     var resolve5 = path34.resolve;
     var sep = path34.sep;
@@ -44901,7 +44901,7 @@ var require_send = __commonJS({
           return res;
         }
         parts = path35.split(sep);
-        path35 = normalize2(join22(root, path35));
+        path35 = normalize2(join23(root, path35));
       } else {
         if (UP_PATH_REGEXP.test(path35)) {
           debug('malicious path "%s"', path35);
@@ -45036,7 +45036,7 @@ var require_send = __commonJS({
           if (err) return self.onStatError(err);
           return self.error(404);
         }
-        var p = join22(path35, self._index[i]);
+        var p = join23(path35, self._index[i]);
         debug('stat "%s"', p);
         fs36.stat(p, function(err2, stat3) {
           if (err2) return next(err2);
@@ -55741,6 +55741,10 @@ var FafResourceHandler = class {
 // src/handlers/fileHandler.ts
 import * as fs from "fs/promises";
 import * as path from "path";
+import * as os from "os";
+function expandTilde(p) {
+  return p.startsWith("~") ? path.join(os.homedir(), p.slice(1)) : p;
+}
 var PathValidator = class {
   static FORBIDDEN_PATHS = ["/etc", "/sys", "/proc", "/private/etc"];
   static MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -55776,7 +55780,8 @@ var PathValidator = class {
 async function handleFafRead(args) {
   const startTime = Date.now();
   try {
-    const { path: filePath } = args;
+    const { path: rawPath } = args;
+    const filePath = expandTilde(rawPath);
     const pathValidation = PathValidator.validate(filePath);
     if (!pathValidation.valid) {
       return {
@@ -55830,7 +55835,8 @@ async function handleFafRead(args) {
 async function handleFafWrite(args) {
   const startTime = Date.now();
   try {
-    const { path: filePath, content } = args;
+    const { path: rawPath, content } = args;
+    const filePath = expandTilde(rawPath);
     const pathValidation = PathValidator.validate(filePath);
     if (!pathValidation.valid) {
       return {
@@ -55889,7 +55895,7 @@ var fileHandlers = {
 
 // src/handlers/tools.ts
 import * as fs6 from "fs";
-import * as os2 from "os";
+import * as os3 from "os";
 import * as pathModule from "path";
 
 // src/utils/fuzzy-detector.ts
@@ -56116,16 +56122,16 @@ async function findFafFile(directory) {
 
 // src/version.ts
 import { readFileSync, existsSync } from "fs";
-import { join as join2 } from "path";
+import { join as join3 } from "path";
 var cachedVersion = "";
 function getVersion() {
   if (cachedVersion) {
     return cachedVersion;
   }
   const possiblePaths = [
-    join2(__dirname, "..", "..", "package.json"),
-    join2(__dirname, "..", "package.json"),
-    join2(process.cwd(), "package.json")
+    join3(__dirname, "..", "..", "package.json"),
+    join3(__dirname, "..", "package.json"),
+    join3(process.cwd(), "package.json")
   ];
   for (const packageJsonPath of possiblePaths) {
     try {
@@ -56145,7 +56151,7 @@ var VERSION = getVersion();
 
 // src/utils/path-resolver.ts
 import * as path3 from "path";
-import * as os from "os";
+import * as os2 from "os";
 import * as fs3 from "fs";
 function slugify(name) {
   return name.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -56180,7 +56186,7 @@ function inferFromContext(context) {
   return null;
 }
 function getHomeDirectory() {
-  return os.homedir();
+  return os2.homedir();
 }
 function getProjectsDirectory() {
   const home = getHomeDirectory();
@@ -59166,7 +59172,7 @@ var FafToolHandler = class {
    */
   getProjectPath(explicitPath) {
     if (explicitPath) {
-      const expandedPath = explicitPath.startsWith("~") ? pathModule.join(os2.homedir(), explicitPath.slice(1)) : explicitPath;
+      const expandedPath = explicitPath.startsWith("~") ? pathModule.join(os3.homedir(), explicitPath.slice(1)) : explicitPath;
       const resolvedPath = pathModule.resolve(expandedPath);
       const projectDir = fs6.existsSync(resolvedPath) && fs6.statSync(resolvedPath).isFile() ? pathModule.dirname(resolvedPath) : resolvedPath;
       if (fs6.existsSync(projectDir)) {
@@ -59185,6 +59191,7 @@ var FafToolHandler = class {
           annotations: {
             title: "About FAF",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59199,6 +59206,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Project Status",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59215,6 +59223,7 @@ var FafToolHandler = class {
           annotations: {
             title: "AI-Readiness Score",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59253,6 +59262,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Trust Score",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59349,6 +59359,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Debug Info",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59363,6 +59374,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Read .faf File",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59408,6 +59420,7 @@ var FafToolHandler = class {
           annotations: {
             title: "List .faf Files",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59442,6 +59455,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Chat about FAF",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59456,6 +59470,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Fun FAF Facts",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59475,6 +59490,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Usage Guide",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59532,6 +59548,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Check .faf Health",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59550,6 +59567,7 @@ var FafToolHandler = class {
           annotations: {
             title: "View Context",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59606,6 +59624,7 @@ var FafToolHandler = class {
           annotations: {
             title: "View Project DNA",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59622,6 +59641,7 @@ var FafToolHandler = class {
           annotations: {
             title: "List Formats",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -59659,6 +59679,7 @@ var FafToolHandler = class {
           annotations: {
             title: "Diagnose Issues",
             readOnlyHint: true,
+            destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
@@ -60579,7 +60600,7 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       const filter = args?.filter || "dirs";
       const depth = args?.depth || 1;
       const showHidden = args?.showHidden || false;
-      const expandedPath = targetPath.startsWith("~") ? path34.join(os2.homedir(), targetPath.slice(1)) : targetPath;
+      const expandedPath = targetPath.startsWith("~") ? path34.join(os3.homedir(), targetPath.slice(1)) : targetPath;
       const resolvedPath = path34.resolve(expandedPath);
       if (!fs36.existsSync(resolvedPath)) {
         return {
@@ -62396,10 +62417,10 @@ function isError(value) {
 import { execSync } from "child_process";
 import * as fs7 from "fs";
 import * as path7 from "path";
-import * as os3 from "os";
+import * as os4 from "os";
 function getCommonCliPaths() {
-  const homeDir = os3.homedir();
-  const platform2 = os3.platform();
+  const homeDir = os4.homedir();
+  const platform2 = os4.platform();
   const paths = [];
   if (platform2 === "darwin") {
     paths.push("/opt/homebrew/bin/faf");
@@ -63193,7 +63214,7 @@ async function scoreFafFile(file, options = {}) {
 // src/faf-core/commands/init.ts
 import { promises as fs14 } from "fs";
 import * as path14 from "path";
-import * as os4 from "os";
+import * as os5 from "os";
 
 // src/faf-core/generators/faf-generator-championship.ts
 import { promises as fs13 } from "fs";
@@ -64395,7 +64416,7 @@ async function initFafFile(projectPath, options = {}) {
   const startTime = Date.now();
   try {
     const projectRoot = projectPath || process.cwd();
-    const homeDir = os4.homedir();
+    const homeDir = os5.homedir();
     if (!projectPath && (projectRoot === homeDir || projectRoot === "/")) {
       return {
         success: false,
@@ -64445,12 +64466,12 @@ async function initFafFile(projectPath, options = {}) {
 }
 
 // src/faf-core/commands/auto.ts
-import * as os5 from "os";
+import * as os6 from "os";
 async function autoCommand(directory, options = {}) {
   const startTime = Date.now();
   try {
     const targetDir = directory || process.cwd();
-    const homeDir = os5.homedir();
+    const homeDir = os6.homedir();
     if (!directory && (targetDir === homeDir || targetDir === "/")) {
       return {
         success: false,
