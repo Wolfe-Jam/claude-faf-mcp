@@ -56,11 +56,36 @@ human_context:
 
 ## Quick Start
 
-**Copy and paste this to Claude:**
+### One-click install — Claude Desktop
+
+[**⬇ Download `claude-faf-mcp-5.5.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.0.mcpb)
+
+Double-click the downloaded file. Claude Desktop installs it automatically. **No terminal. No JSON config. 32 tools live in 10 seconds.**
+
+### Or — copy-paste to Claude
 
 > Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
 
-Then type `/faf` — Claude checks your project, scores it, drives it to 100%, and syncs. Done.
+### Or — manual npm install
+
+```bash
+npm install -g claude-faf-mcp
+```
+
+Add to `claude_desktop_config.json`:
+```json
+{
+  "mcpServers": {
+    "faf": { "command": "npx", "args": ["-y", "claude-faf-mcp"] }
+  }
+}
+```
+
+Restart Claude Desktop.
+
+### Then
+
+Type `/faf` — Claude checks your project, scores it, drives it to 100%, and syncs. Done.
 
 Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 
