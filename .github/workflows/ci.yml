@@ -42,6 +42,7 @@ jobs:
     name: 🧪 Test Suite
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false  # Let all platforms run — don't cancel 5 jobs because 1 tripped
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         node: [18.x, 20.x]

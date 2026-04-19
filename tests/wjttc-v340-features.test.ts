@@ -159,9 +159,11 @@ For developers who care about quality.
         expect(fafDoctor?.description).toContain('Health check');
       });
 
-      it('should have 32 total tools in v5.3.2', async () => {
+      it('should have at least 32 total tools', async () => {
         const { tools } = await toolHandler.listTools();
-        expect(tools.length).toBe(32);
+        // Lower bound only — don't block releases every time a new tool is added.
+        // Catches regressions where tools go missing, without forcing a test edit per new tool.
+        expect(tools.length).toBeGreaterThanOrEqual(32);
       });
     });
 
