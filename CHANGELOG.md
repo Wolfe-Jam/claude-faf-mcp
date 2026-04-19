@@ -5,6 +5,17 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.1] - 2026-04-19
+
+### Docs
+
+- **README hero now promotes one-click `.mcpb` install** — the Extension Edition's headline feature is finally in the README visitors land on. Download-and-double-click is the primary path; npm/copy-paste kept as alternatives.
+- **v5.5.0 release asset** — `.mcpb` bundle uploaded to GitHub release for direct download via `releases/latest/download/`.
+
+Docs-only release; code unchanged from v5.5.0.
+
+---
+
 ## [5.5.0] - 2026-04-15 — The Extension Edition
 
 ### Added

@@ -58,7 +58,7 @@ human_context:
 
 ### One-click install — Claude Desktop
 
-[**⬇ Download `claude-faf-mcp-5.5.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.0.mcpb)
+[**⬇ Download `claude-faf-mcp-5.5.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.1.mcpb)
 
 Double-click the downloaded file. Claude Desktop installs it automatically. **No terminal. No JSON config. 32 tools live in 10 seconds.**
 

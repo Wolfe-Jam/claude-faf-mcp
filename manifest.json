@@ -2,7 +2,7 @@
   "manifest_version": "0.3",
   "name": "claude-faf-mcp",
   "display_name": "FAF - Persistent Project Context for AI",
-  "version": "5.5.0",
+  "version": "5.5.1",
   "description": "Persistent project context that survives sessions, works across AI tools, and eliminates re-explaining. IANA-registered format. 32 MCP tools. Desktop Extension.",
   "long_description": "Persistent project context for AI. Tell Claude what you're building, who it's for, and why it matters. 30 seconds. It never forgets.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — persistent context that survives every session\n- Bi-syncs with CLAUDE.md, AGENTS.md, .cursorrules, GEMINI.md\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**Example prompts:**\n- \"Set up project context for this codebase\" → creates project.faf, scores AI-readiness\n- \"What's my AI-readiness score?\" → calculates 0-100% with tier (Bronze/Silver/Gold/Trophy)\n- \"Sync my .faf with CLAUDE.md\" → bi-directional sync in 8ms\n- \"Generate a .faf from this GitHub repo: https://github.com/user/repo\" → instant context from any public repo\n- \"Improve my score to Gold\" → guided interview, adds missing context, re-scores\n\n**IANA-registered format (application/vnd.faf+yaml). Merged in Anthropic MCP ecosystem (PR #2759). 36,000+ downloads.**",
   "author": {
