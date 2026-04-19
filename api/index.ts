@@ -330,6 +330,12 @@ app.get('/', (req, res) => {
       </div>
     </div>
 
+    <div style="display:flex;justify-content:center;margin:1.5rem 0;">
+      <iframe src="https://ghbtns.com/github-btn.html?user=Wolfe-Jam&repo=claude-faf-mcp&type=star&count=true&size=large"
+              frameborder="0" scrolling="0" width="170" height="30"
+              title="Star Wolfe-Jam/claude-faf-mcp on GitHub"></iframe>
+    </div>
+
     <div class="bottom-bar">
       <div class="links">v\${VERSION} &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a></div>
       <div class="iana">IANA-registered: application/vnd.faf+yaml</div>
