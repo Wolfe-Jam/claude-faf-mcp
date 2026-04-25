@@ -3,13 +3,13 @@
 # 🏎️ CLAUDE.md - claude-faf-mcp Persistent Context & Intelligence
 **.faf format | project.faf**
 
-## PROJECT STATE: ACTIVE 🚀
+## PROJECT STATE: ACTIVE
 **Current Position:** Provide FAF context tools directly in Claude Desktop via MCP
 **Tyre Compound:** ULTRASOFT C5 (Maximum Performance)
 
 ---
 
-## 🎨 CORE CONTEXT
+## CORE CONTEXT
 
 ### Project Identity
 - **Name:** claude-faf-mcp
@@ -53,7 +53,7 @@ Any LLM  →   IANA Format →    Open Protocol
 - **What Building:** Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
 - **Main Language:** TypeScript
 
-### 📊 Context Quality Status
+### Context Quality Status
 - **Overall Assessment:** Good
 - **Test Coverage:** 391/391 passing (12 test suites, 6 platforms)
 - **CI Matrix:** ubuntu/macos/windows × Node 18.x/20.x — all green
@@ -61,7 +61,7 @@ Any LLM  →   IANA Format →    Open Protocol
 
 ---
 
-## 🚨 CODE CHANGE PROTOCOL - MANDATORY 🚨
+## CODE CHANGE PROTOCOL - MANDATORY
 
 **CRITICAL RULE: DO NOT WRITE CODE UNLESS EXPLICITLY AUTHORIZED**
 
@@ -90,7 +90,7 @@ Before making ANY code changes:
 
 ---
 
-## 🚨 NPM PUBLISH PROTOCOL - MANDATORY 🚨
+## NPM PUBLISH PROTOCOL - MANDATORY
 
 **CRITICAL RULE: `npm publish` IS FORBIDDEN WITHOUT APPROVAL**
 
@@ -116,7 +116,7 @@ Before ANY npm publish of claude-faf-mcp (or any FAF package):
 
 ---
 
-**STATUS: BI-SYNC ACTIVE 🔗 - Synchronized with .faf context!**
+**STATUS: BI-SYNC ACTIVE - Synchronized with .faf context!**
 
 *Last Sync: 2026-03-04T07:28:12.365Z*
 *Sync Engine: F1-Inspired Software Engineering*

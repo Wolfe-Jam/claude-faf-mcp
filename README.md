@@ -108,14 +108,14 @@ Claude does the rest. Zero-effort, right first time, fast, accurate, done. Langu
 
 | Tier | Score | What it means |
 |------|-------|---------------|
-| 🏆 **Trophy** | 100% | Gold Code — AI is optimized |
-| 🥇 **Gold** | 99%+ | Near-perfect context |
-| 🥈 **Silver** | 95%+ | Excellent |
-| 🥉 **Bronze** | 85%+ | Production ready |
-| 🟢 **Green** | 70%+ | Solid foundation |
-| 🟡 **Yellow** | 55%+ | AI flipping coins |
-| 🔴 **Red** | <55% | AI working blind |
-| 🤍 **White** | 0% | No context at all |
+| 🏆 **TROPHY** | 100% | Gold Code — AI is optimized |
+| ★ **GOLD** | 99%+ | Near-perfect context |
+| ◆ **SILVER** | 95%+ | Excellent |
+| ◇ **BRONZE** | 85%+ | Production ready |
+| ● **GREEN** | 70%+ | Solid foundation |
+| ● **YELLOW** | 55%+ | AI flipping coins |
+| ○ **RED** | <55% | AI working blind |
+| ♡ **WHITE** | 0% | No context at all |
 
 At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler as faf-cli — same score everywhere.
 
