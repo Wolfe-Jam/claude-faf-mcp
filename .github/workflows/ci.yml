@@ -131,11 +131,14 @@ jobs:
           name: dist
           path: dist/
 
-  # ⚡ Performance
+  # ⚡ Performance — observability, not a gate.
+  # Hard absolute-time perf assertions on shared CI runners are inherently
+  # flaky; red here was poisoning the signal (see jest.config.js + 5dbf388).
   performance:
     name: ⚡ Performance Check
     runs-on: ubuntu-latest
     needs: build
+    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v6
