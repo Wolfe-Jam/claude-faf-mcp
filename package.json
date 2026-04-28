@@ -5,7 +5,7 @@
   "description": "Persistent Project Context for Claude. IANA-registered .faf format, 32 MCP tools + 1 prompt, 391 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
-  "displayName": ".faf 🧡⚡️",
+  "displayName": ".faf 🐘",
   "main": "dist/src/index.js",
   "bin": {
     "claude-faf-mcp": "dist/src/index.js"
