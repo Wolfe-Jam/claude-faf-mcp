@@ -2,7 +2,7 @@
   "name": "claude-faf-mcp",
   "version": "5.5.1",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "IANA-registered format (application/vnd.faf+yaml) • Persistent project context • MCP server for Claude Desktop • MIT License",
+  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 32 MCP tools + 1 prompt, 391 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
   "displayName": ".faf 🧡⚡️",

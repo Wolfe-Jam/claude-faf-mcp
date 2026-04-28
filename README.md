@@ -1,6 +1,6 @@
 # claude-faf-mcp
 
-**Tell AI what you're building, who it's for, and why it matters. 30 seconds. 🐘 It never forgets.**
+**Persistent Project Context for Claude. 30 seconds. 🐘 It never forgets.**
 
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
