@@ -41,6 +41,8 @@ jobs:
   test:
     name: 🧪 Test Suite
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write  # Required for faf-taf-git auto-commit to taf-receipts branch
     strategy:
       fail-fast: false  # Let all platforms run — don't cancel 5 jobs because 1 tripped
       matrix:
@@ -60,7 +62,10 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test -- --coverage
+        shell: bash
+        run: |
+          set -o pipefail
+          npm test -- --coverage 2>&1 | tee /tmp/test-output.txt
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest' && matrix.node == '20.x'
@@ -69,6 +74,15 @@ jobs:
           files: ./coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
+
+      - name: Generate TAF Receipt
+        if: matrix.os == 'ubuntu-latest' && matrix.node == '20.x' && github.event_name == 'push'
+        uses: Wolfe-Jam/faf-taf-git@v2.1.1
+        with:
+          test-output-file: /tmp/test-output.txt
+          auto-commit: 'true'
+          commit-message: 'chore(taf): update .taf receipt [skip ci]'
+          target-branch: taf-receipts
 
   # 💎 Code Quality
   quality:
