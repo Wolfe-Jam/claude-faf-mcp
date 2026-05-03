@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Internal
 - CI Performance Check job is now non-gating — perf tests report but don't block main CI. Restores red-means-real signal integrity.
+- **Perf-check fake-fail eliminated** — `test:performance` now overrides `testPathIgnorePatterns` so Jest actually picks up `tests/performance.test.ts`. Workflow had been silently exit-1'ing on "No tests found" for months, painting a fake red X on every commit. Real perf gate restored: 10/10 perf tests pass in 14s ("Championship Performance Achieved").
 - Removed `npm publish` from CI workflow (#50). /pubpro is the single source of truth for shipping; CI validates only.
 - Removed `publish-mcp.yml` auto-publisher. Same doctrine: CI validates, pubpro publishes — never both.
 - Weekly npm audit auto-fix kept current.
