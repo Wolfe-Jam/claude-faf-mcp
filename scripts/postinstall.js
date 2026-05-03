@@ -3,8 +3,9 @@
 /**
  * Post-install message: Confirm successful installation
  *
- * Shows clear success message with version, tool count,
- * new features, and quick test command.
+ * Shows clear success message with version, tool count, quick test
+ * command, and a quiet star CTA. If you found this useful, a star
+ * compounds — helps other devs find FAF.
  *
  * Writes directly to /dev/tty to bypass npm output suppression.
  */
@@ -18,6 +19,9 @@ const message = `
 
 Test in Claude Desktop:
   "Extract context from my README"
+
+\x1b[33m⭐\x1b[0m If this helps, a star compounds:
+  https://github.com/Wolfe-Jam/claude-faf-mcp
 `;
 
 try {

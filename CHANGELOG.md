@@ -5,6 +5,33 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.5.2] - 2026-05-03
+
+### Added
+- **Postinstall star CTA** — runs once on `npm install -g claude-faf-mcp` after the success confirmation. Quiet, no throws, no spam.
+
+### Changed
+- **displayName standardized** to `.faf 🐘` — pairs the constant elephant family mark with each surface's modifier in MCP client lists (matches grok-faf-mcp's `.faf 🐘⚡️ for Grok` pattern).
+- **Package description aligned** to "Persistent project context for AI" — the canonical positioning across the FAF family. npm and MCP Registry catalogs both pick this up.
+- **Branding pass** — README scoring table now uses geometric tier symbols (★ ◆ ◇ ● ○ ♡) matching `faf-cli/src/core/tiers.ts`. 🏆 is the only emoji marker; decorative emojis stripped from CLI surfaces.
+- **manifest.json description** sharpened to "Persistent project context that survives sessions, works across AI tools, and eliminates re-explaining" — strengthens the user-facing pitch in Claude Desktop's Extensions catalog.
+
+### Fixed
+- **vercel.json restored** — fixes the "No Output Directory" deploy error that surfaced after a prior cleanup pass. claude-faf-mcp.vercel.app builds cleanly again.
+- **MCP Registry hygiene** — server.json metadata pass for cleaner Registry listing.
+
+### Internal
+- CI Performance Check job is now non-gating — perf tests report but don't block main CI. Restores red-means-real signal integrity.
+- Removed `npm publish` from CI workflow (#50). /pubpro is the single source of truth for shipping; CI validates only.
+- Removed `publish-mcp.yml` auto-publisher. Same doctrine: CI validates, pubpro publishes — never both.
+- Weekly npm audit auto-fix kept current.
+
+### Notes
+- Docs + branding + CI hygiene patch — no MCP protocol changes, no breaking changes for tool users. Safe upgrade for all consumers.
+- First release after the FAF Foundation alignment sweep (`.faf 🐘` family mark, "Persistent project context" tagline, three-reader tree).
+
+---
+
 ## [5.5.1] - 2026-04-19
 
 ### Docs
