@@ -1,3 +1,6 @@
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
+<!-- faf: doc=contributing | canonical=project.faf | family=FAF -->
+
 # Contributing to claude-faf-mcp
 
 Thank you for your interest in contributing to claude-faf-mcp. This document provides guidelines for contributing to the project.

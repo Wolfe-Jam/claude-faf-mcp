@@ -1,4 +1,5 @@
-<!-- faf: claude-faf-mcp | TypeScript | Universal FAF MCP Server for Claude Desktop - AI Context Intelligence -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
+<!-- faf: claim=project.faf | score=100 | family=FAF | siblings=README.md,CHANGELOG.md,manifest.json -->
 
 # 🏎️ CLAUDE.md - claude-faf-mcp Persistent Context & Intelligence
 **.faf format | project.faf**

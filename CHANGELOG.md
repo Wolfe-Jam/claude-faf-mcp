@@ -1,3 +1,6 @@
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
+<!-- faf: doc=changelog | latest=v5.5.2 | canonical=project.faf | family=FAF -->
+
 # Changelog
 
 All notable changes to claude-faf-mcp will be documented in this file.

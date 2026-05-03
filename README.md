@@ -1,3 +1,6 @@
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
+<!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
+
 # claude-faf-mcp
 
 **Persistent Project Context for Claude. 30 seconds. 🐘 It never forgets.**
