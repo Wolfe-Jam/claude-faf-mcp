@@ -77,7 +77,7 @@ jobs:
 
       - name: Generate TAF Receipt
         if: matrix.os == 'ubuntu-latest' && matrix.node == '20.x' && github.event_name == 'push'
-        uses: Wolfe-Jam/faf-taf-git@v2.1.1
+        uses: Wolfe-Jam/faf-taf-git@v2.1.2
         with:
           test-output-file: /tmp/test-output.txt
           auto-commit: 'true'
