@@ -1,7 +1,7 @@
 format_version: 1.0.0
 project: claude-faf-mcp
 created: 2025-10-28T00:38:12.472Z
-last_updated: 2026-05-06T16:45:58.288Z
+last_updated: 2026-05-07T03:01:22.946Z
 faf_associated: true
 faf_location: .faf
 faf_score: 100
@@ -28,6 +28,13 @@ test_history:
       failed: 0
     trigger: github-actions
   - timestamp: 2026-05-06T16:45:58.288Z
+    result: PASSED
+    tests:
+      total: 381
+      passed: 381
+      failed: 0
+    trigger: github-actions
+  - timestamp: 2026-05-07T03:01:22.945Z
     result: PASSED
     tests:
       total: 381
