@@ -331,8 +331,8 @@ app.get('/', (req, res) => {
     </div>
 
     <div style="display:flex;justify-content:center;margin:1.5rem 0;">
-      <iframe src="https://ghbtns.com/github-btn.html?user=Wolfe-Jam&repo=claude-faf-mcp&type=star&count=true&size=large"
-              frameborder="0" scrolling="0" width="170" height="30"
+      <iframe src="https://ghbtns.com/github-btn.html?user=Wolfe-Jam&repo=claude-faf-mcp&type=star"
+              frameborder="0" scrolling="0" width="80" height="20"
               title="Star Wolfe-Jam/claude-faf-mcp on GitHub"></iframe>
     </div>
 
