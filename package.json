@@ -2,7 +2,7 @@
   "name": "claude-faf-mcp",
   "version": "5.5.2",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
-  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 32 MCP tools + 1 prompt, 391 tests.",
+  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 33 MCP tools, 391 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
   "displayName": ".faf 🐘",

@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 33 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
 # claude-faf-mcp
@@ -18,7 +18,7 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-32 MCP tools. 1 prompt. IANA-registered format (`application/vnd.faf+yaml`). 2,346 test executions per push.
+33 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,346 test executions per push.
 
 ---
 
@@ -60,29 +60,48 @@ human_context:
 
 ## Quick Start
 
-### One-click install — Claude Desktop
+### Web — best of all scenarios
+
+```bash
+claude mcp add --transport http claude-faf-mcp https://claude-faf-mcp.vercel.app/sse
+```
+
+URL-based. Zero install. Always current. Works in Claude Code today.
+
+### faf-cli — universal (any AI)
+
+```bash
+npx faf-cli auto
+```
+
+Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm →](https://www.npmjs.com/package/faf-cli)**
+
+### Claude Desktop — click, copy, paste, install
+
+**Click** — one-click `.mcpb`
 
 [**⬇ Download `claude-faf-mcp-5.5.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.2.mcpb)
 
-Double-click the downloaded file. Claude Desktop installs it automatically. **No terminal. No JSON config. 32 tools live in 10 seconds.**
+Double-click. **No terminal. No JSON config. 33 tools live in 10 seconds.**
 
-### Or — copy-paste to Claude
+**Copy** — paste-prompt to Claude
 
 > Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
 
-### Or — manual npm install
+**Paste** — `claude_desktop_config.json`
 
-```bash
-npm install -g claude-faf-mcp
-```
-
-Add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
     "faf": { "command": "npx", "args": ["-y", "claude-faf-mcp"] }
   }
 }
+```
+
+**Install** — manual npm
+
+```bash
+npm install -g claude-faf-mcp
 ```
 
 Restart Claude Desktop.
@@ -125,7 +144,7 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## 32 MCP Tools
+## 33 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
@@ -259,7 +278,8 @@ MIT — Free and open source
 | **[rust-faf-mcp](https://crates.io/crates/rust-faf-mcp)** | MCP server in Rust |
 | **[faf-skills](https://github.com/Wolfe-Jam/faf-skills)** | 17 Claude Code skills |
 | **[faf.one](https://faf.one)** | Blog, downloads, docs |
-| **[IANA Registration](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)** | `application/vnd.faf+yaml` |
+| **[IANA: vnd.faf+yaml](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)** | Context format (2025-10-30) |
+| **[IANA: vnd.fafm+yaml](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)** | Memory format (2026-05-13) |
 
 *format | driven 🏎️⚡️ [wolfejam.dev](https://wolfejam.dev)*
 
@@ -273,4 +293,4 @@ MIT — Free and open source
 npx faf-cli auto
 ```
 
-**Anthropic MCP [#2759](https://github.com/modelcontextprotocol/servers/pull/2759)** · **IANA Registered:** `application/vnd.faf+yaml` · [faf.one](https://faf.one) · [npm](https://www.npmjs.com/package/faf-cli)
+**Anthropic MCP [#2759](https://github.com/modelcontextprotocol/servers/pull/2759)** · **2 IANA registrations:** `vnd.faf+yaml` (Context) · `vnd.fafm+yaml` (Memory) · [faf.one](https://faf.one) · [npm](https://www.npmjs.com/package/faf-cli)

@@ -9,7 +9,7 @@ import express from 'express';
 import cors from 'cors';
 
 // Hardcode version for Vercel serverless compatibility (import assert crashes)
-const VERSION = '5.2.0';
+const VERSION = '5.5.2';
 
 // Persistent analytics via Upstash Redis (fire-and-forget, never blocks MCP)
 const redis = process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
@@ -143,7 +143,7 @@ app.get('/info', async (req, res) => {
   res.json({
     name: 'claude-faf-mcp',
     version: VERSION,
-    description: 'Persistent project context for Claude — IANA-registered format (application/vnd.faf+yaml)',
+    description: 'Persistent project context for Claude — IANA-registered formats (application/vnd.faf+yaml · application/vnd.fafm+yaml)',
     transport: 'http-sse',
     platform: 'vercel',
     capabilities: {
@@ -169,9 +169,9 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <title>claude-faf-mcp | Persistent Project Context</title>
-  <meta name="description" content="32 MCP tools. Persistent project context. IANA-registered .faf format for Claude Desktop.">
+  <meta name="description" content="33 MCP tools. Persistent project context. IANA-registered .faf format for Claude Desktop.">
   <meta property="og:title" content="claude-faf-mcp | Persistent Project Context">
-  <meta property="og:description" content="32 MCP tools. Zero config. Persistent AI context for Claude Desktop.">
+  <meta property="og:description" content="33 MCP tools. Zero config. Persistent AI context for Claude Desktop.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#x1F9E1;</text></svg>">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap');
@@ -206,7 +206,7 @@ app.get('/', (req, res) => {
       text-align: center;
     }
     .logo {
-      font-size: 100px;
+      font-size: 56px;
       margin-bottom: 12px;
       filter: drop-shadow(0 0 30px rgba(255, 140, 0, 0.3));
       animation: pulse 2s ease-in-out infinite;
@@ -293,7 +293,7 @@ app.get('/', (req, res) => {
   <div class="container">
     <div class="logo">\u{1F9E1}</div>
     <h1>claude-faf-mcp</h1>
-    <div class="tagline">32 MCP tools &middot; Persistent project context &middot; IANA-registered format</div>
+    <div class="tagline">33 MCP tools &middot; Persistent project context &middot; IANA-registered format</div>
 
     <div class="stats">
       <div><div class="stat-value">33</div><div class="stat-label">MCP Tools</div></div>
@@ -337,8 +337,8 @@ app.get('/', (req, res) => {
     </div>
 
     <div class="bottom-bar">
-      <div class="links">v\${VERSION} &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a></div>
-      <div class="iana">IANA-registered: application/vnd.faf+yaml</div>
+      <div class="links">v${VERSION} &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a></div>
+      <div class="iana">IANA-registered: application/vnd.faf+yaml &middot; application/vnd.fafm+yaml</div>
     </div>
   </div>
 </body>
