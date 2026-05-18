@@ -337,7 +337,7 @@ app.get('/', (req, res) => {
     </div>
 
     <div class="bottom-bar">
-      <div class="links">v${VERSION} &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a></div>
+      <div class="links">v${VERSION} &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a> &bull; <a href="https://faf-voice.vercel.app/agent">Chat to FAFA live &rarr;</a></div>
       <div class="iana">IANA-registered: application/vnd.faf+yaml &middot; application/vnd.fafm+yaml</div>
     </div>
   </div>
