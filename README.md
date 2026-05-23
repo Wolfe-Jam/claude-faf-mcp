@@ -6,7 +6,7 @@
 [![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-00D4D4)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-00D4D4)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
 [![DOI: Context paper](https://img.shields.io/badge/DOI-Context%20paper-FF6B35)](https://doi.org/10.5281/zenodo.18251362)[![DOI: Memory paper](https://img.shields.io/badge/DOI-Memory%20paper-FF6B35)](https://doi.org/10.5281/zenodo.20348942)
 
-
+**Home:** [faf.one](https://faf.one)
 **Persistent Project Context for Claude. 30 seconds. 🐘 It never forgets.**
 
 [![FAF](https://mcpaas.live/badge/Wolfe-Jam/claude-faf-mcp.svg)](https://builder.faf.one)
