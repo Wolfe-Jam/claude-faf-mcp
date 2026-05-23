@@ -115,6 +115,9 @@ coverage/
 *.faf
 !project.faf
 
+# Generated view from faf-cli renderer — not source
+project.html
+
 # Internal documents - ALL .md files go to FAF-GOLD/PLANET-FAF
 *.md
 !README.md

@@ -132,7 +132,7 @@
     "cors": "^2.8.5",
     "esbuild": "^0.27.3",
     "express": "^4.21.0",
-    "faf-cli": ">=3.2.2",
+    "faf-cli": "^6.7.1",
     "faf-scoring-kernel": "^2.0.3",
     "yaml": "^2.4.1"
   },

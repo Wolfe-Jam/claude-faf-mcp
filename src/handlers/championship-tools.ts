@@ -20,6 +20,16 @@ import { VERSION } from '../version.js';
 import { getVisibilityConfig } from '../config/visibility.js';
 import { filterTools } from './tool-registry.js';
 import { autoDetectPath } from '../utils/auto-path-detection.js';
+// Single source: faf-cli's real scorer + project.html renderer. handleDisplay
+// MUST use these — never reimplement scoring or HTML (kills divergence).
+import {
+  findFafFile as cliFindFafFile,
+  readFaf as cliReadFaf,
+  readFafRaw as cliReadFafRaw,
+  scoreFafYaml as cliScoreFafYaml,
+  getNextTier as cliGetNextTier,
+  generateProjectHtml,
+} from 'faf-cli';
 
 // 🏆 FAF Score uses the 3-3-1 system: 3 lines, 3 words, 1 emoji!
 // 💥 Format-Finder (FF) integration for GAME-CHANGING stack detection!
@@ -84,16 +94,8 @@ Working on REAL filesystem: ${targetDir}
    * v1.2.0: Uses findFafFile() for project.faf support
    */
   private async calculateQuickScore(directory: string = this.currentProjectDir): Promise<number> {
-    let score = 0;
-    try {
-      if (await hasFafFile(directory)) score += 40;
-      if (await this.fileExists(path.join(directory, 'CLAUDE.md'))) score += 30;
-      if (await this.fileExists(path.join(directory, 'README.md'))) score += 15;
-      if (await this.fileExists(path.join(directory, 'package.json'))) score += 14;
-    } catch {
-      // Silent fail for footer calculation
-    }
-    return score;
+    // Single-sourced: faf-cli's real scorer (no fake file-presence score).
+    return this.getFafScore(directory).score;
   }
 
   /**
@@ -186,7 +188,7 @@ Working on REAL filesystem: ${targetDir}
         },
         {
           name: 'faf_display',
-          description: '🖼️ FAF Display - Generate HTML file showing your ACTUAL score with colors!',
+          description: '🖼️ Render project.faf → project.html (faf-cli\'s real scorer + renderer — the same context your AI reads)',
           inputSchema: {
             type: 'object',
             properties: {
@@ -1106,117 +1108,33 @@ Claude Desktop needs a target directory:
 
 
   private async handleDisplay(args: ToolTypes.FafDisplayArgs): Promise<CallToolResult> {
-    // Generate HTML display of FAF score (v1.2.0: supports project.faf)
+    // Single-sourced render of project.faf → HTML. Same pipeline as
+    // faf-cli's `faf show` / `faf export --html`: the real scorer + the
+    // canonical project.html renderer. No reimplementation, no fake
+    // file-presence score, no divergent template.
     const targetDir = args?.directory || process.cwd();
-    const outputPath = args?.output || path.join(targetDir, 'faf-score-display.html');
 
-    // Calculate score using v1.2.0 file finder
-    let score = 0;
-    const fafResult = await findFafFile(targetDir);
-    if (fafResult) score += 40;
-    const hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
-    if (hasClaude) score += 30;
-    const hasReadme = await this.fileExists(path.join(targetDir, 'README.md'));
-    if (hasReadme) score += 15;
-    const hasPackage = await this.fileExists(path.join(targetDir, 'package.json'));
-    if (hasPackage) score += 14;
-
-    // Generate 3-3-1 display
-    const barWidth = 24;
-    const filled = Math.round((score / 100) * barWidth);
-    const empty = barWidth - filled;
-    const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
-
-    let status = '';
-    let emoji = '';
-    if (score >= 99) {
-      status = 'Trophy!';
-      emoji = '🏆';
-    } else if (score >= 90) {
-      status = 'Excellent!';
-      emoji = '🧡';
-    } else if (score >= 70) {
-      status = 'Very Good';
-      emoji = '⭐';
-    } else if (score >= 60) {
-      status = 'Good Progress';
-      emoji = '📈';
-    } else {
-      status = 'Building Up';
-      emoji = '🚀';
+    const fafPath = cliFindFafFile(targetDir);
+    if (!fafPath) {
+      return await this.formatResult(
+        '🖼️ FAF Display',
+        `No .faf found in ${targetDir}\n\n` +
+        `Run faf_init to create one, then faf_display to render it.`
+      );
     }
 
-    // Create HTML with ACTUAL output display
-    const html = `<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>FAF Score - ${path.basename(targetDir)}</title>
-  <style>
-    body {
-      background: #000;
-      color: #fff;
-      font-family: 'Courier New', 'Monaco', 'Menlo', monospace;
-      font-size: 14px;
-      padding: 40px;
-      line-height: 1.4;
-    }
-    pre {
-      background: #111;
-      padding: 30px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      font-family: inherit;
-      white-space: pre;
-      word-spacing: normal;
-      letter-spacing: normal;
-    }
-    .cyan { color: #00ffff; font-weight: bold; }
-    .orange { color: #ff6b35; }
-    .green { color: #00bf63; }
-    h1 { color: #ff6b35; }
-    .footer {
-      border-top: 1px solid #666;
-      border-bottom: 1px solid #666;
-      padding: 10px 0;
-      margin: 20px 0;
-      font-family: inherit;
-    }
-  </style>
-</head>
-<body>
-  <h1>FAF Score Display - ACTUAL Output!</h1>
-  <p>Generated: ${new Date().toISOString()}</p>
-  <pre>📊 FAF Score (${path.basename(targetDir)}) 🏎️ 1ms
+    const data = cliReadFaf(fafPath);
+    const result = cliScoreFafYaml(cliReadFafRaw(fafPath));
+    const html = generateProjectHtml(data, result, fafPath);
 
-🧡 <span class="cyan">Score: ${score}/100</span>
-${progressBar} ${score}%
-${emoji} <span class="cyan">Status: ${status}</span>
-
-Breakdown:
-• FAF:          ${fafResult ? `☑️ ${fafResult.filename}` : '❌'} ${fafResult ? '40pts' : 'Missing'}
-• CLAUDE.md:    ${hasClaude ? '☑️' : '❌'} ${hasClaude ? '30pts' : 'Missing'}
-• README.md:    ${hasReadme ? '☑️' : '❌'} ${hasReadme ? '15pts' : 'Missing'}
-• package.json: ${hasPackage ? '☑️' : '❌'} ${hasPackage ? '14pts' : 'Missing'}
-
-<div class="footer">━━━━━━━━━━━━━━━━━━━━━
-AI-Readiness: ${score}% ${emoji}
-━━━━━━━━━━━━━━━━━━━━━</div></pre>
-
-  <p style="color:#666; margin-top:40px;">
-    This HTML shows EXACTLY what FAF outputs - no Claude interpretation!<br>
-    The score, colors, and footer are all REAL and VISIBLE.
-  </p>
-</body>
-</html>`;
-
-    // Write the HTML file
+    const outputPath = args?.output || path.join(targetDir, 'project.html');
     await fs.writeFile(outputPath, html);
 
     return await this.formatResult(
       '🖼️ FAF Display Generated',
-      `HTML file created: ${outputPath}\n\n` +
-      `Open in browser to see your ACTUAL score with colors!\n` +
+      `Rendered project.faf → ${outputPath}\n\n` +
+      `Single-sourced from faf-cli — the real scorer and renderer, ` +
+      `the same truth your AI reads.\n` +
       `file://${outputPath}`
     );
   }
@@ -1227,84 +1145,40 @@ AI-Readiness: ${score}% ${emoji}
     const directory = args.directory || process.cwd();
 
     if (command === 'score') {
-      // Get the clean score data
       const targetDir = directory;
+      const s = this.getFafScore(targetDir);
 
-      // Calculate score (using same logic as handleScore)
-      let score = 0;
-      let hasFaf = false;
-      let hasClaude = false;
-      let hasReadme = false;
-      let hasPackage = false;
+      if (!s.found) {
+        return DisplayProtocol.createResponse(
+          `# FAF Score Card\n\n` +
+          `No \`.faf\` found in \`${targetDir}\`.\n\n` +
+          `Run \`faf_init\` to create one — then \`faf_show\` renders the real score.`,
+          { tool: 'faf_show', command }
+        );
+      }
 
-      // Check files (v1.2.0: supports project.faf)
-      const fafResult = await findFafFile(targetDir);
-      hasFaf = fafResult !== null;
-      if (hasFaf) score += 40;
-      hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
-      if (hasClaude) score += 30;
-      hasReadme = await this.fileExists(path.join(targetDir, 'README.md'));
-      if (hasReadme) score += 15;
-      hasPackage = await this.fileExists(path.join(targetDir, 'package.json'));
-      if (hasPackage) score += 14;
+      const barWidth = 24;
+      const filled = Math.round((s.score / 100) * barWidth);
+      const progressBar = '█'.repeat(filled) + '░'.repeat(barWidth - filled);
 
-      // Build CLEAN markdown - no wrappers!
-      const progressBar = '█'.repeat(Math.floor(score * 24 / 100)) + '░'.repeat(24 - Math.floor(score * 24 / 100));
-
-      // Mk3 Canonical Tier System
-      const { medal: statusEmoji, status: statusText } = this.getScoreMedal(score);
-
-      // Build clean output - just markdown, no wrappers!
       const output = `# FAF Score Card
 
-## **Project Score: ${score}/100** ${statusEmoji}
+## **${s.score}/100** ${s.tierDisplay}
 
-${progressBar} ${score}%
+${progressBar} ${s.score}%
 
-### ${statusEmoji} **Status: ${statusText}**
-
----
-
-## 📊 Performance Breakdown
-
-| Component | Status | Points | Performance |
-|-----------|--------|--------|-------------|
-| **.faf** | ${hasFaf ? '✅ **ACTIVE**' : '❌ **MISSING**'} | ${hasFaf ? '40' : '0'}pts | ${hasFaf ? 'Core config synchronized' : 'Create with faf_init'} |
-| **CLAUDE.md** | ${hasClaude ? '✅ **SYNCED**' : '❌ **MISSING**'} | ${hasClaude ? '30' : '0'}pts | ${hasClaude ? 'AI documentation live' : 'Generate with faf_sync'} |
-| **README.md** | ${hasReadme ? '✅ **READY**' : '❌ **MISSING**'} | ${hasReadme ? '15' : '0'}pts | ${hasReadme ? 'Project docs complete' : 'Add for extra points'} |
-| **package.json** | ${hasPackage ? '✅ **FOUND**' : '❌ **MISSING**'} | ${hasPackage ? '14' : '0'}pts | ${hasPackage ? 'Dependencies tracked' : 'Add for full score'} |
+${s.populated}/${s.total} slots populated${s.nextTier ? ` · next: ${s.nextTier}` : ' · top tier'}
 
 ---
 
-## Context Status
+> Scored by faf-cli's real scorer — the same context your AI reads.
+> For slot-by-slot detail run \`faf score\` (faf-cli).
 
-### **Strengths** 💚
-${hasFaf && hasClaude ? '- Bi-directional sync active\n' : ''}${hasClaude ? '- AI-Ready Documentation: Full CLAUDE.md integration\n' : ''}${hasFaf ? '- Core Systems: FAF foundation in place\n' : ''}${hasReadme ? '- Documentation: README.md providing clarity\n' : ''}${hasPackage ? '- Dependencies: package.json tracking enabled' : ''}
+**AI-Readiness: ${s.score}%**`;
 
----
-
-## ⚡ Quick Commands
-
-\`\`\`bash
-faf_bi_sync           # Keep files synchronized
-faf_enhance           # AI-powered improvements
-faf_score --save      # Save this scorecard
-\`\`\`
-
----
-
-> "Context is everything. FAF delivers it."
-
----
-
-**AI-Readiness: ${score}%** ${score >= 99 ? '🏆' : ''}`;
-
-      // 🍫 CHOCOLATE ORANGE - UNWRAPPED AND READY!
-      // Use DisplayProtocol for consistent global rendering
       return DisplayProtocol.createResponse(output, {
         tool: 'faf_show',
-        command: command,
-        timestamp: new Date().toISOString()
+        command,
       });
     }
 
@@ -1319,266 +1193,65 @@ faf_score --save      # Save this scorecard
     const targetDir = args?.directory || process.cwd();
     const saveCard = args?.save === true;
     const format = args?.format || 'markdown';
-    const showFull = args?.full === true;
 
-    // ⚡ TRY THE FAF ENGINE FIRST!
-    let score = 0;
-    let hasFaf = false;
-    let hasClaude = false;
-    let hasReadme = false;
-    let hasPackage = false;
-
-    try {
-      this.fafEngine.setWorkingDirectory(targetDir);
-      const result = await this.fafEngine.callEngine('score', ['--json']);
-
-      if (result.success && result.data) {
-        // Extract score from engine response
-        if (typeof result.data.score === 'number') {
-          score = result.data.score;
-          // Engine should tell us what files contributed
-          hasFaf = result.data.files?.faf || false;
-          hasClaude = result.data.files?.claude || false;
-          hasReadme = result.data.files?.readme || false;
-          hasPackage = result.data.files?.package || false;
-        } else {
-          // Parse text output for score
-          const outputText = result.data.output || '';
-          const scoreMatch = outputText.match(/(\d+)%/);
-          if (scoreMatch) {
-            score = parseInt(scoreMatch[1]);
-          }
-        }
-      }
-    } catch (engineError) {
-      console.warn('FAF Engine score failed, using native:', engineError);
-    }
-
-    // If engine failed or gave no score, calculate natively (v1.2.0: supports project.faf)
-    if (score === 0) {
-      const fafResult = await findFafFile(targetDir);
-      hasFaf = fafResult !== null;
-      if (hasFaf) score += 40;
-
-      hasClaude = await this.fileExists(path.join(targetDir, 'CLAUDE.md'));
-      if (hasClaude) score += 30;
-
-      hasReadme = await this.fileExists(path.join(targetDir, 'README.md'));
-      if (hasReadme) score += 15;
-
-      hasPackage = await this.fileExists(path.join(targetDir, 'package.json'));
-      if (hasPackage) score += 14;
-    }
-
-    // Generate scorecard based on format
-    let result = '';
-
-    if (format === 'json') {
-      // JSON format
-      result = JSON.stringify({
-        project: path.basename(targetDir),
-        score: score,
-        percentage: score,
-        status: this.getScoreMedal(score).status,
-        components: {
-          faf: { exists: hasFaf, points: hasFaf ? 40 : 0 },
-          claude: { exists: hasClaude, points: hasClaude ? 30 : 0 },
-          readme: { exists: hasReadme, points: hasReadme ? 15 : 0 },
-          package: { exists: hasPackage, points: hasPackage ? 14 : 0 }
-        },
-        ai_readiness: score,
-        timestamp: new Date().toISOString(),
-        version: VERSION
-      }, null, 2);
-    } else if (format === 'html') {
-      // HTML format (delegate to display handler)
+    // HTML delegates to the single-sourced renderer (faf-cli's project.html).
+    if (format === 'html') {
       return await this.handleDisplay({ directory: targetDir, output: path.join(targetDir, 'SCORE-CARD.html') });
-    } else if (format === 'ascii') {
-      // Simple ASCII format
-      const barWidth = 24;
-      const filled = Math.round((score / 100) * barWidth);
-      const empty = barWidth - filled;
-      const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
-
-      result = `FAF Score: ${score}/100\n`;
-      result += `${progressBar} ${score}%\n`;
-      result += `[.faf: ${hasFaf ? '✓' : 'x'}] [CLAUDE.md: ${hasClaude ? '✓' : 'x'}] [README: ${hasReadme ? '✓' : 'x'}] [package.json: ${hasPackage ? '✓' : 'x'}]`;
-    } else if (showFull) {
-      // Podium Edition: Full Championship Scorecard with detailed metrics
-      const _projectName = path.basename(targetDir);
-
-      // Calculate section scores based on files present
-      const coreIntelligence = Math.round((
-        (hasFaf ? 25 : 0) +
-        (hasFaf && hasClaude ? 25 : 0) +  // Architecture Map (requires both)
-        (hasFaf ? 25 : 0) +  // Domain Model
-        (hasFaf ? 25 : 0)    // Version Tracking
-      ));
-
-      const contextDelivery = Math.round((
-        25 +  // MCP Protocol (always active)
-        25 +  // 50 Native Tools (always active)
-        25 +  // IANA Format (always active)
-        (hasFaf && hasClaude ? 25 : hasFaf ? 15 : hasClaude ? 10 : 0)  // Universal Context
-      ));
-
-      const _performance = 100;  // Static for MCP server itself
-      const _standalone = 100;   // Static for MCP server itself
-
-      // Determine status tier
-      // Mk3 Canonical Tier System
-      const { medal: tierEmoji, status: statusTier } = this.getScoreMedal(score);
-
-      result = ``;
-      result += `# FAF AI-Readiness Score: ${score}/100 ${tierEmoji}\n\n`;
-      result += `**The closer you get to 100% the better AI can assist you.**\n\n`;
-      result += `At 55% you are building your project with half a blueprint and basically flipping a coin with AI. .FAF defines, and AI becomes optimized for Context with the project.faf file.\n\n`;
-      result += `\`\`\`\n`;
-      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      result += `${tierEmoji}  FAF AI-READINESS SCORE: ${score}/100 — ${statusTier}\n`;
-      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-      // Core Intelligence section
-      result += `📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY\n`;
-      const bar100 = '[██████] 100%';
-      const _barCore = `[${('█'.repeat(Math.round(coreIntelligence / 100 * 6)) + '░'.repeat(6 - Math.round(coreIntelligence / 100 * 6)))}] ${coreIntelligence}%`;
-      const barContext = `[${('█'.repeat(Math.round(contextDelivery / 100 * 6)) + '░'.repeat(6 - Math.round(contextDelivery / 100 * 6)))}] ${contextDelivery}%`;
-
-      result += `├─ Project DNA            ${hasFaf ? bar100 : '[░░░░░░]   0%'}  ├─ MCP Protocol      ${bar100}\n`;
-      result += `├─ Architecture Map       ${hasFaf && hasClaude ? bar100 : '[░░░░░░]   0%'}  ├─ 50 Native Tools   ${bar100}\n`;
-      result += `├─ Domain Model          ${hasFaf ? bar100 : '[░░░░░░]   0%'}  ├─ IANA Format       ${bar100}\n`;
-      result += `└─ Version Tracking      ${hasFaf ? bar100 : '[░░░░░░]   0%'}  └─ Universal Context ${barContext}\n\n`;
-
-      // Performance section
-      result += `🚀 PERFORMANCE                          ⚡ STANDALONE OPERATION\n`;
-      result += `├─ 16.2x CLI Speedup     ${bar100}  ├─ Zero Dependencies ${bar100}\n`;
-      result += `├─ 19ms Avg Execution    ${bar100}  ├─ Bundled Engine    ${bar100}\n`;
-      result += `├─ 50/50 Tools Active    ${bar100}  ├─ Direct Function   ${bar100}\n`;
-      result += `└─ Zero Memory Leaks     ${bar100}  └─ 14 Bundled Cmds   ${bar100}\n\n`;
-
-      result += `${tierEmoji} project.faf score: ${statusTier}\n`;
-      result += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      result += `\`\`\`\n\n`;
-
-      // Next steps
-      result += `## ⚡ Next Steps\n\n`;
-      if (!hasFaf) {
-        result += `🚀 **Initialize FAF**: Run \`faf_init\` to create project.faf (+40 points)\n\n`;
-      }
-      if (!hasClaude) {
-        result += `📝 **Generate CLAUDE.md**: Run \`faf_sync\` to create AI documentation (+30 points)\n\n`;
-      }
-      if (hasFaf && hasClaude) {
-        result += `🎯 **You're at 100%!** Run \`faf_bi_sync\` to keep files synchronized.\n\n`;
-      }
-
-      result += `---\n\n`;
-      result += `*Generated by FAF v${VERSION}*\n\n`;
-      result += `*"It's so logical if it didn't exist, AI would have built it itself" — Claude*`;
-
-    } else {
-      // Default: Beautiful Markdown Championship Scorecard
-      const barWidth = 24;
-      const filled = Math.round((score / 100) * barWidth);
-      const empty = barWidth - filled;
-      const progressBar = '█'.repeat(filled) + '░'.repeat(empty);
-
-      // Determine status and emoji
-      let statusEmoji = '';
-      let statusText = '';
-
-      // Mk3 Canonical Tier System
-      const { medal, status } = this.getScoreMedal(score);
-      statusEmoji = medal;
-      statusText = status;
-
-      // Build the scorecard
-      result = `# FAF Score Card\n\n`;
-      result += `## **Project Score: ${score}/100** ${statusEmoji}\n\n`;
-      result += `${progressBar} ${score}%\n\n`;
-      result += `### ${statusEmoji} **Status: ${statusText}**\n\n`;
-      result += `---\n\n`;
-
-      // Performance Breakdown Table
-      result += `## 📊 Performance Breakdown\n\n`;
-      result += `| Component | Status | Points | Performance |\n`;
-      result += `|-----------|--------|--------|-------------|\n`;
-      result += `| **.faf** | ${hasFaf ? '✅ **ACTIVE**' : '⚠️ **MISSING**'} | ${hasFaf ? '40' : '0'}pts | ${hasFaf ? 'Core config synchronized' : '*Create with `faf_init`*'} |\n`;
-      result += `| **CLAUDE.md** | ${hasClaude ? '✅ **SYNCED**' : '⚠️ **MISSING**'} | ${hasClaude ? '30' : '0'}pts | ${hasClaude ? 'AI documentation live' : '*Generate with `faf_sync`*'} |\n`;
-      result += `| **README.md** | ${hasReadme ? '✅ **READY**' : '⚠️ **MISSING**'} | ${hasReadme ? '15' : '0'}pts | ${hasReadme ? 'Project docs complete' : '*Add for extra points*'} |\n`;
-      result += `| **package.json** | ${hasPackage ? '✅ **FOUND**' : '⚠️ **MISSING**'} | ${hasPackage ? '14' : '0'}pts | ${hasPackage ? 'Dependencies tracked' : '*Add for full score*'} |\n`;
-      result += `\n---\n\n`;
-
-      // Context Status Section
-      result += `## Context Status\n\n`;
-
-      // Strengths
-      const strengths = [];
-      if (hasFaf && hasClaude) strengths.push('Bi-directional sync active');
-      if (hasClaude) strengths.push('AI-Ready Documentation: Full CLAUDE.md integration');
-      if (hasFaf) strengths.push('Core Systems: FAF foundation in place');
-      if (hasReadme) strengths.push('Documentation: README.md providing clarity');
-      if (hasPackage) strengths.push('Dependencies: package.json tracking enabled');
-
-      if (strengths.length > 0) {
-        result += `### **Strengths** 💚\n`;
-        strengths.forEach(s => result += `- ${s}\n`);
-        result += `\n`;
-      }
-
-      // Improvements needed
-      const improvements = [];
-      if (!hasFaf) improvements.push('Initialize with `faf_init` for +40 points');
-      if (!hasClaude) improvements.push('Create CLAUDE.md with `faf_sync` for +30 points');
-      if (!hasReadme) improvements.push('Add README.md for +15 points → better documentation');
-      if (!hasPackage) improvements.push('Add package.json for +14 points → ${score + 14}% score');
-
-      if (improvements.length > 0) {
-        result += `### **Improvements Needed** 🔧\n`;
-        improvements.forEach(i => result += `- ${i}\n`);
-        result += `\n`;
-      }
-
-      // Quick Commands
-      result += `---\n\n`;
-      result += `## ⚡ Quick Commands\n\n`;
-      result += `\`\`\`bash\n`;
-      if (!hasFaf) result += `faf_init              # Initialize FAF (+40 pts)\n`;
-      if (!hasClaude) result += `faf_sync              # Generate CLAUDE.md (+30 pts)\n`;
-      if (hasFaf && hasClaude) result += `faf_bi_sync           # Keep files synchronized\n`;
-      result += `faf_enhance           # AI-powered improvements\n`;
-      result += `faf_score --save      # Save this scorecard\n`;
-      result += `\`\`\`\n\n`;
-
-      // FAF Quote
-      const quotes = [
-        '"Context is everything. FAF delivers it."',
-        '"Stop FAFfing about - get to 100%!"',
-        '"The best time to FAF was yesterday. The second best time is now."',
-        '"AI without context is just guessing."',
-        '"One file. Complete understanding."'
-      ];
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      result += `---\n\n`;
-      result += `> ${randomQuote}\n\n`;
-
-      // Footer
-      result += `---\n\n`;
-      result += `*Generated by FAF v${VERSION}* ⚡\n`;
-      result += `*${new Date().toISOString()}*`;
-
-      // NOTE: AI-Readiness footer is added by formatResult() - don't duplicate!
     }
 
-    // Save scorecard if requested
-    if (saveCard) {
+    const sc = this.getFafScore(targetDir);
+    if (!sc.found) {
+      return await this.formatResult(
+        '🏎️ FAF Score',
+        `No \`.faf\` found in \`${targetDir}\`.\n\nRun \`faf_init\` to create one.`,
+        undefined,
+        targetDir,
+      );
+    }
+
+    const barWidth = 24;
+    const filled = Math.round((sc.score / 100) * barWidth);
+    const progressBar = '█'.repeat(filled) + '░'.repeat(barWidth - filled);
+
+    let result = '';
+    if (format === 'json') {
+      result = JSON.stringify(
+        {
+          project: path.basename(targetDir),
+          score: sc.score,
+          tier: sc.tierName,
+          slots: { populated: sc.populated, total: sc.total },
+          next_tier: sc.nextTier,
+          source: 'faf-cli',
+          version: VERSION,
+        },
+        null,
+        2,
+      );
+    } else if (format === 'ascii') {
+      result =
+        `FAF Score: ${sc.score}/100  ${sc.tierDisplay}\n` +
+        `${progressBar} ${sc.score}%\n` +
+        `${sc.populated}/${sc.total} slots${sc.nextTier ? `  next: ${sc.nextTier}` : '  top tier'}`;
+    } else {
+      // markdown (default). `full` adds nothing fabricated — the real
+      // score IS the full truth; the old championship theater is dead.
+      result =
+        `# FAF Score Card\n\n` +
+        `## **${sc.score}/100** ${sc.tierDisplay}\n\n` +
+        `${progressBar} ${sc.score}%\n\n` +
+        `**${sc.populated}/${sc.total} slots populated**${sc.nextTier ? ` · next: ${sc.nextTier}` : ' · top tier'}\n\n` +
+        `---\n\n` +
+        `> Scored by faf-cli's real scorer — the same context your AI reads.\n` +
+        `> Slot-by-slot detail: \`faf score\` (faf-cli).`;
+    }
+
+    if (saveCard && format !== 'json') {
       const scoreCardPath = path.join(targetDir, 'SCORE-CARD.md');
-      await fs.writeFile(scoreCardPath, result.replace(/\\n/g, '\n'));
+      await fs.writeFile(scoreCardPath, result);
       result += `\n\n✅ **Score card saved to:** \`${scoreCardPath}\``;
     }
 
-    // ✅ FIXED - Route through formatResult for metadata!
-    // formatResult will add the universal AI-Readiness footer
     return await this.formatResult('🏎️ FAF Score', result, undefined, targetDir);
   }
 
@@ -2330,105 +2003,68 @@ Simple, fast, championship-grade.`;
   // Developer Tool Handlers
   private async handleStatus(args: ToolTypes.FafStatusArgs): Promise<CallToolResult> {
     const targetDir = args?.directory || process.cwd();
+    const s = this.getFafScore(targetDir);
 
-    // Calculate score
-    const score = await this.calculateScore(targetDir);
-
-    // Get medal from Championship Medal System (matching CLI)
-    const { medal } = this.getScoreMedal(score);
-
-    // Get next target info
-    const tierInfo = this.getTierInfo(score);
-
-    // Build status output
-    let output = `🏎️ FAF Status\n━━━━━━━━━━━━\n`;
-    output += `Score: ${score}% ${medal} ${tierInfo.current}\n`;
-
-    if (tierInfo.next && tierInfo.nextTarget && tierInfo.nextMedal) {
-      const pointsToGo = tierInfo.nextTarget - score;
-      output += `Next: ${tierInfo.nextTarget}% ${tierInfo.nextMedal} ${tierInfo.next} (${pointsToGo}% to go!)`;
+    if (!s.found) {
+      return await this.formatResult(
+        '📊 FAF Status',
+        `No \`.faf\` in \`${targetDir}\`. Run \`faf_init\` to create one.`,
+        undefined,
+        targetDir,
+      );
     }
+
+    let output = `🏎️ FAF Status\n━━━━━━━━━━━━\n`;
+    output += `Score: ${s.score}% ${s.tierDisplay}\n`;
+    output += `Slots: ${s.populated}/${s.total} populated\n`;
+    output += s.nextTier ? `Next: ${s.nextTier}` : `Top tier — nothing above.`;
 
     return await this.formatResult('📊 FAF Status', output, undefined, targetDir);
   }
 
   /**
-   * Get championship medal emoji and status based on score
-   * Matches CLI medal system exactly
+   * Single source of truth for score + tier: faf-cli's real scorer and
+   * canonical tier ladder (~/FAF/cli/src/core/tiers.ts). NEVER reimplement
+   * scoring or the tier symbols here — the old file-presence pseudo-score
+   * (40/30/15/14) and the banned medal/colored-circle ladder are dead.
    */
-  private getScoreMedal(score: number): { medal: string; status: string } {
-    if (score >= 100) return { medal: '🏆', status: 'Trophy - Championship' };
-    if (score >= 99) return { medal: '🥇', status: 'Gold' };
-    if (score >= 95) return { medal: '🥈', status: 'Silver' };
-    if (score >= 85) return { medal: '🥉', status: 'Bronze' };
-    if (score >= 70) return { medal: '🟢', status: 'Green - Solid foundation' };
-    if (score >= 55) return { medal: '🟡', status: 'Yellow - Needs improvement' };
-    if (score > 0) return { medal: '🔴', status: 'Red - AI working blind' };
-    return { medal: '🤍', status: 'White - Empty' };
-  }
-
-  /**
-   * Get tier progression info
-   * Shows current tier and next target
-   */
-  private getTierInfo(score: number): {
-    current: string;
-    next?: string;
-    nextTarget?: number;
-    nextMedal?: string;
+  private getFafScore(dir: string): {
+    found: boolean;
+    score: number;
+    tierName: string;
+    tierGlyph: string;
+    tierDisplay: string;
+    nextTier: string | null;
+    populated: number;
+    total: number;
   } {
-    if (score >= 100) {
-      return { current: 'Trophy - Championship' };
-    } else if (score >= 99) {
+    // eslint-disable-next-line no-control-regex
+    const strip = (s: string): string => s.replace(/\u001b\[[0-9;]*m/g, "").trim();
+    const fafPath = cliFindFafFile(dir);
+    if (!fafPath) {
       return {
-        current: 'Gold',
-        next: 'Trophy - Championship',
-        nextTarget: 100,
-        nextMedal: '🏆'
-      };
-    } else if (score >= 95) {
-      return {
-        current: 'Silver',
-        next: 'Gold',
-        nextTarget: 99,
-        nextMedal: '🥇'
-      };
-    } else if (score >= 85) {
-      return {
-        current: 'Bronze',
-        next: 'Silver',
-        nextTarget: 95,
-        nextMedal: '🥈'
-      };
-    } else if (score >= 70) {
-      return {
-        current: 'Green - Solid foundation',
-        next: 'Bronze',
-        nextTarget: 85,
-        nextMedal: '🥉'
-      };
-    } else if (score >= 55) {
-      return {
-        current: 'Yellow - Needs improvement',
-        next: 'Green - Solid foundation',
-        nextTarget: 70,
-        nextMedal: '🟢'
-      };
-    } else if (score > 0) {
-      return {
-        current: 'Red - AI working blind',
-        next: 'Yellow - Needs improvement',
-        nextTarget: 55,
-        nextMedal: '🟡'
-      };
-    } else {
-      return {
-        current: 'White - Empty',
-        next: 'Red - AI working blind',
-        nextTarget: 1,
-        nextMedal: '🔴'
+        found: false,
+        score: 0,
+        tierName: 'White',
+        tierGlyph: '♡',
+        tierDisplay: '♡ no .faf',
+        nextTier: null,
+        populated: 0,
+        total: 0,
       };
     }
+    const r = cliScoreFafYaml(cliReadFafRaw(fafPath));
+    const next = cliGetNextTier(r.score);
+    return {
+      found: true,
+      score: r.score,
+      tierName: r.tier.name,
+      tierGlyph: strip(r.tier.indicator).split(' ')[0] || '',
+      tierDisplay: strip(r.tier.indicator),
+      nextTier: next ? `${strip(next.indicator)} (${next.threshold}%)` : null,
+      populated: r.populated,
+      total: r.total,
+    };
   }
 
   private async handleCheck(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
@@ -2879,8 +2515,8 @@ Performance: <50ms per operation
               const hasFaf = await hasFafFile(fullPath);
 
               if (hasPackage || hasFaf) {
-                // Calculate score
-                const score = await this.calculateScore(fullPath);
+                // Real faf-cli score (0 when the project has no .faf — honest)
+                const score = this.getFafScore(fullPath).score;
                 projects.push({
                   name: dir.name,
                   path: fullPath,
@@ -2976,20 +2612,5 @@ Performance: <50ms per operation
       projectCount: wolfjamProjects.length,
       timestamp: new Date().toISOString()
     });
-  }
-
-  /**
-   * Calculate current AI-Readiness score quietly
-   */
-  private async calculateScore(dir?: string): Promise<number> {
-    const targetDir = dir || process.cwd();
-    let score = 0;
-
-    if (await hasFafFile(targetDir)) score += 40;
-    if (await this.fileExists(path.join(targetDir, 'CLAUDE.md'))) score += 30;
-    if (await this.fileExists(path.join(targetDir, 'README.md'))) score += 15;
-    if (await this.fileExists(path.join(targetDir, 'package.json'))) score += 14;
-
-    return score;
   }
 }

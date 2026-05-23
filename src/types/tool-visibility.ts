@@ -329,7 +329,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     name: 'faf_display',
     visibility: 'advanced',
     category: 'display',
-    description: 'Display .faf content in various formats',
+    description: 'Render project.faf to a self-contained project.html (single-sourced from faf-cli)',
   },
   faf_show: {
     name: 'faf_show',
