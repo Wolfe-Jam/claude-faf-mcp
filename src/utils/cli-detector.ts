@@ -141,9 +141,27 @@ function getCliVersion(cliPath: string): string | undefined {
 }
 
 /**
- * Detect faf CLI location with multiple fallback strategies
+ * Detect faf CLI location with multiple fallback strategies.
+ *
+ * Memoized: detection is deterministic per process (the CLI path/version
+ * don't change mid-run), so the underlying execSync probes run ONCE and
+ * the result is reused. This eliminates redundant child-process spawns
+ * across many FafEngineAdapter instantiations — and the intermittent
+ * Windows "worker failed to exit gracefully" Jest teardown leak that
+ * the per-instance re-probing caused.
+ *
+ * @param forceRefresh re-probe and refresh the cache (used by tests).
  */
-export function detectFafCli(): CliDetectionResult {
+let _detectionCache: CliDetectionResult | null = null;
+export function detectFafCli(forceRefresh = false): CliDetectionResult {
+  if (_detectionCache && !forceRefresh) {
+    return _detectionCache;
+  }
+  _detectionCache = detectFafCliInternal();
+  return _detectionCache;
+}
+
+function detectFafCliInternal(): CliDetectionResult {
   // 1. Check environment variable override
   if (process.env.FAF_CLI_PATH) {
     const envPath = process.env.FAF_CLI_PATH;
