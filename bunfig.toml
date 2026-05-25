@@ -1,0 +1,4 @@
+[test]
+# Single-process runner — suites share one process. Tests must clean up
+# their own state (cwd, env, fs). root scopes discovery to ./tests.
+root = "./tests"

@@ -4,9 +4,9 @@
  * Championship-grade organization
  */
 
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
 import { TOOL_REGISTRY, getToolMetadata } from '../types/tool-visibility.js';
-import { FafMcpTool } from '../types/mcp-tools.js';
+import type { FafMcpTool } from '../types/mcp-tools.js';
 
 /**
  * Check if a tool should be visible based on configuration

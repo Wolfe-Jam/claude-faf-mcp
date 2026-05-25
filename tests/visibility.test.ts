@@ -3,7 +3,7 @@
  * Championship-grade testing for core vs advanced tool filtering
  */
 
-import { describe, it, expect, afterEach } from '@jest/globals';
+import { describe, it, expect, afterEach } from 'bun:test';
 import {
   TOOL_REGISTRY,
   getCoreTools,

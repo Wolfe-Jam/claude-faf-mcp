@@ -4,8 +4,8 @@
  * Championship-grade type safety
  */
 
-import { Tool } from '@modelcontextprotocol/sdk/types.js';
-import { ToolVisibility, ToolCategory } from './tool-visibility.js';
+import type { Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { ToolVisibility, ToolCategory } from './tool-visibility.js';
 
 /**
  * Extended MCP tool with FAF visibility metadata

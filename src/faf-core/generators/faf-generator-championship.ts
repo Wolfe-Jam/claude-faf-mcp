@@ -11,10 +11,10 @@ import {
   findRequirementsTxt,
   findTsConfig,
   analyzeTsConfig,
-  TypeScriptContext,
+  type TypeScriptContext,
 } from "../utils/file-utils";
 import { generateFafContent } from "../utils/yaml-generator";
-import { FabFormatsProcessor, FabFormatsAnalysis } from "../engines/fab-formats-processor";
+import { FabFormatsProcessor, type FabFormatsAnalysis } from "../engines/fab-formats-processor";
 import { relentlessExtractor } from "../engines/relentless-context-extractor";
 
 export interface GenerateOptions {
