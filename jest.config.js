@@ -30,4 +30,9 @@ module.exports = {
       },
     },
   },
+  // Tests pass cleanly, but benign exec/server handles can linger past the
+  // worker's exit check on CI runners (Windows/macOS), force-exiting a worker
+  // non-zero. Not a test failure — Jest's documented finish for lingering
+  // resources. Pairs with the memoized CLI detection (fewer handles).
+  forceExit: true,
 };
