@@ -10,29 +10,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.6.0] - 2026-05-25
 
-Truthful, single-sourced scoring. claude-faf-mcp no longer computes its
-own score — every score surface reads faf-cli's real scorer, the same
-number your AI and `faf score` see.
+🏆 **FAF-binary scoring lands in Claude Desktop.**
 
-### Fixed
+The real FAF engine — faf-cli's WASM scoring kernel — now powers every
+score in claude-faf-mcp. What you see is the exact, deterministic score
+your AI and `faf score` read. One engine, one number, across the whole
+FAF family.
 
-- **faf_display** — rendered a fabricated file-presence pseudo-score
-  (40/30/15/14, max 99), a non-deterministic timestamp, off-canon
-  colors and a divergent template. Now single-sources faf-cli's
-  `generateProjectHtml` — byte-identical to `faf show` / `faf export
-  --html`. Default output `project.html` (gitignored — a view, not
-  source).
-- **faf_show / faf_score / faf_status** + the footer quick-score — same
-  fake file-presence score, plus the banned medal / colored-circle tier
-  ladder (🥇🥈🥉🟢🟡🔴🤍). All routed through one `getFafScore()` helper
-  backed by faf-cli's scorer + canonical tier ladder. Deterministic
-  output (no timestamps, no rotating quotes). Removed the fabricated
-  `full` scorecard and its unmeasured performance claims.
+### What's new
 
-### Changed
+- **Real-engine scoring, everywhere** — `faf_score`, `faf_show`,
+  `faf_status` and the footer all run on faf-cli's binary scorer.
+  Deterministic: identical every time.
+- **`faf_display` renders the genuine `project.html`** — straight from
+  faf-cli's renderer, byte-identical to `faf show`. The exact view your
+  whole team sees.
+- **Canonical tiers, live in Claude Desktop** — the official
+  🏆 ★ ◆ ◇ ● ○ ♡ ladder.
 
-- **faf-cli ^6.7.1** — consumes faf-cli's typed public API (the real
-  scorer + the project.html renderer) as the single source of truth.
+### Under the hood
+
+- **faf-cli ^6.7.1** — built on faf-cli's typed public API: the real
+  scorer + the project.html renderer, as the single source of truth.
 
 ## [5.5.2] - 2026-05-03
 
