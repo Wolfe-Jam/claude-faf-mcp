@@ -8,7 +8,7 @@
  * This score MUST always be shown in the footer - never hide it!
  */
 
-import { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
+import type { CallToolResult, Tool } from '@modelcontextprotocol/sdk/types.js';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 // ✅ FIXED: Removed unused imports (formatScore, format3Lines, formatBigOrange, ChampionshipFormatter, AchievementStatus, wrapWithInstruction)

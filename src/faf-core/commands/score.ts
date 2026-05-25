@@ -3,7 +3,7 @@
  * No console output, returns structured data
  */
 
-import { FafCompiler, CompilationResult } from '../compiler/faf-compiler.js';
+import { FafCompiler, type CompilationResult } from '../compiler/faf-compiler.js';
 import { findFafFile } from '../utils/file-utils.js';
 
 export interface ScoreOptions {

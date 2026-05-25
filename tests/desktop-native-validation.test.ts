@@ -5,7 +5,7 @@
  * Testing Desktop MCP WITHOUT CLI dependency
  */
 
-import { describe, test, expect, beforeAll, afterAll } from '@jest/globals';
+import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
 import { ClaudeFafMcpServer } from '../src/server';
 import { FafToolHandler } from '../src/handlers/tools';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';

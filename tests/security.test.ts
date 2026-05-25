@@ -3,7 +3,7 @@
  * Championship-level security validation
  */
 
-import { describe, test, expect } from '@jest/globals';
+import { describe, test, expect } from 'bun:test';
 import * as path from 'path';
 
 // Mock file operations for testing

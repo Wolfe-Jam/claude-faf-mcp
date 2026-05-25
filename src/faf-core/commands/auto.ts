@@ -6,8 +6,8 @@
 
 import * as os from 'os';
 import { findFafFile } from '../utils/file-utils.js';
-import { initFafFile, InitResult } from './init.js';
-import { scoreFafFile, ScoreResult } from './score.js';
+import { initFafFile, type InitResult } from './init.js';
+import { scoreFafFile, type ScoreResult } from './score.js';
 
 export interface AutoOptions {
   force?: boolean;

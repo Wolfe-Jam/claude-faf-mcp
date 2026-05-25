@@ -6,7 +6,7 @@
  *          Engine Adapter → Security → Performance → Roundtrip
  */
 
-import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import * as os from 'os';
 import * as path from 'path';
 import { promises as fs } from 'fs';

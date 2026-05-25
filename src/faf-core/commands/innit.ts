@@ -3,9 +3,9 @@
  * "Innit bruv" - Initialize with style
  */
 
-import { initFafFile, InitOptions, InitResult } from './init';
+import { initFafFile, type InitOptions, type InitResult } from './init';
 
-export { InitOptions, InitResult };
+export type { InitOptions, InitResult };
 
 export async function innitFafFile(projectPath?: string, options: InitOptions = {}): Promise<InitResult> {
   // Just delegate to init - same functionality, British flavor

@@ -4,7 +4,7 @@
  * Championship-Grade Quality Assurance
  */
 
-import { describe, test, expect, beforeAll, afterAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { parse as parseYAML } from 'yaml';
