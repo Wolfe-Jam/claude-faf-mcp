@@ -421,7 +421,7 @@ describe('Tier 5: Roundtrip — faf_score MCP tool end-to-end', () => {
     const result = await handler.callTool('faf_score', { path: toolTestDir });
     const text = getTextContent(result.content);
     expect(text).toContain('FAF SCORE:');
-    expect(text).toMatch(/FAF SCORE: \d+%/);
+    expect(text).toMatch(/FAF SCORE: \d+\/100/);
   });
 
   test('faf_score with details shows breakdown', async () => {
@@ -433,12 +433,11 @@ describe('Tier 5: Roundtrip — faf_score MCP tool end-to-end', () => {
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
     const result = await handler.callTool('faf_score', { path: toolTestDir, details: true });
     const text = getTextContent(result.content);
-    expect(text).toContain('Score Breakdown:');
-    expect(text).toContain('Project:');
-    expect(text).toContain('Stack:');
-    expect(text).toContain('Human:');
-    expect(text).toContain('Filled:');
-    expect(text).toMatch(/\d+\/\d+ slots/);
+    expect(text).toContain('--- Slot breakdown ---');
+    expect(text).toMatch(/Populated \(\d+\):/);
+    expect(text).toMatch(/Empty \(\d+\):/);
+    expect(text).toMatch(/Ignored \(\d+\):/);
+    expect(text).toMatch(/\d+\/\d+ slots populated/);
   });
 
   test('faf_score shows next milestone for non-perfect scores', async () => {
@@ -448,18 +447,17 @@ describe('Tier 5: Roundtrip — faf_score MCP tool end-to-end', () => {
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
     const result = await handler.callTool('faf_score', { path: toolTestDir });
     const text = getTextContent(result.content);
-    expect(text).toContain('Next milestone:');
-    expect(text).toMatch(/\d+ points to go/);
+    expect(text).toMatch(/next: .+ \(\d+%\)/);
   });
 
-  test('faf_score with no .faf returns 0% White', async () => {
+  test('faf_score with no .faf returns 0/100 honestly', async () => {
     const emptyDir = path.join(tmpDir, 'mcp-empty-dir');
     fs.mkdirSync(emptyDir, { recursive: true });
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
     const result = await handler.callTool('faf_score', { path: emptyDir });
     const text = getTextContent(result.content);
-    expect(text).toContain('FAF SCORE: 0%');
-    expect(text).toContain('White');
+    expect(text).toContain('FAF SCORE: 0/100 (0%)');
+    expect(text).toContain('no .faf');
     expect(text).not.toContain('92%');  // Must never show fake score
   });
 
@@ -475,16 +473,29 @@ describe('Tier 5: Roundtrip — faf_score MCP tool end-to-end', () => {
 
   test('faf_score 100% shows Trophy', async () => {
     // CLI type: 9 slots, project.main_language (not stack.main_language)
+    // To hit a TRUE 100% under faf-cli's scoreFafYaml, every applicable slot
+    // must be populated OR explicitly slotignored. The legacy FafCompiler-
+    // based pseudo-score returned 100% for any .faf with project basics; the
+    // truthful scorer is stricter (correctly so).
     fs.writeFileSync(path.join(toolTestDir, 'project.faf'), yaml.stringify({
-      project: { name: 'champion', goal: 'win', main_language: 'TypeScript', type: 'cli' },
+      faf_version: '3.0',
+      project: { name: 'champion', goal: 'win', main_language: 'TypeScript', type: 'cli', framework: 'native' },
+      stack: {
+        frontend: 'slotignored', css_framework: 'slotignored', ui_library: 'slotignored',
+        state_management: 'slotignored', backend: 'Node.js', api_type: 'cli', runtime: 'Node.js',
+        database: 'slotignored', connection: 'slotignored', hosting: 'local', build: 'tsc',
+        cicd: 'GitHub Actions', monorepo_tool: 'slotignored', package_manager: 'npm',
+        workspaces: 'slotignored', admin: 'slotignored', cache: 'slotignored',
+        search: 'slotignored', storage: 'slotignored',
+      },
       human_context: { who: 'a', what: 'b', why: 'c', where: 'd', when: 'e', how: 'f' }
     }));
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
     const result = await handler.callTool('faf_score', { path: toolTestDir });
     const text = getTextContent(result.content);
-    expect(text).toContain('FAF SCORE: 100%');
-    expect(text).toContain('Trophy');
-    expect(text).toContain('Championship');
+    expect(text).toContain('FAF SCORE: 100/100 (100%)');
+    expect(text).toContain('TROPHY');
+    expect(text).toContain('top tier');
   });
 
   test('faf_score tier labels are correct', async () => {
@@ -496,8 +507,8 @@ describe('Tier 5: Roundtrip — faf_score MCP tool end-to-end', () => {
     const result = await handler.callTool('faf_score', { path: toolTestDir });
     const text = getTextContent(result.content);
     // Score should be low with just a name
-    expect(text).toMatch(/Red|Yellow|Green|Bronze|Silver|Gold/);
-    expect(text).toContain('AI-Ready:');
+    expect(text).toMatch(/RED|YELLOW|GREEN|BRONZE|SILVER|GOLD|TROPHY/);
+    expect(text).toContain('Scored by faf-cli');
   });
 
   test('faf_score error shows real message (not fake score)', async () => {

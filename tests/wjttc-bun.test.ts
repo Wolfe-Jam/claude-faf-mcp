@@ -293,29 +293,27 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
     // INTENT (per the task brief): assert MCP `faf_score` text-score equals
     // faf-cli's `scoreFafYaml(...).score` on the same YAML.
     //
-    // OBSERVED v5.6.0 (logged + asserted, not hidden): the active
-    // FafToolHandler (src/handlers/tools.ts, the one server.ts L64 actually
-    // wires up via `new FafToolHandler(engineAdapter)`) uses the OLD
-    // file-presence pseudo-score in handleFafScore. The truthful
-    // single-sourced scorer that imports `scoreFafYaml` lives in
-    // ChampionshipToolHandler (championship-tools.ts L25-30 + handleScore at
-    // L~135) — present in the repo (2616 lines, real implementation) but
-    // NOT wired into the MCP server. So MCP `faf_score` and `scoreFafYaml`
-    // are mathematically DIFFERENT functions today; demanding strict
-    // equality would be a guaranteed (and misleading) red.
+    // HISTORY: v5.6.0 observation logged here was — the active FafToolHandler
+    // (src/handlers/tools.ts, wired by server.ts L64) used a FafCompiler-based
+    // pseudo-score path + banned medal/colored-circle tier ladder
+    // (🥇🥈🥉🟢🟡🔴🤍), while ChampionshipToolHandler (championship-tools.ts,
+    // present but not wired) already had the truthful `scoreFafYaml` import.
+    // Same shape as faf-mcp pilot PR #47 (Case A).
     //
-    // Same shape as sibling faf-mcp pilot PR #47 (Case A: Championship
-    // exists-but-unwired). Different from sibling grok-faf-mcp PR #57
-    // (Case B: Championship doesn't exist at all in that repo). Remediation
-    // cost for claude is the same as faf-mcp: wire-up swap in server.ts.
+    // ✅ RESOLVED v5.6.1 (this PR): `FafToolHandler.handleFafScore` (the wired
+    // one) now calls faf-cli's `scoreFafYaml` directly — same single-source
+    // path the championship handler was already on, same path faf-mcp 2.1.1
+    // shipped via PR #48. The banned emoji ladder is gone; output now uses
+    // canonical Unicode tier glyphs. Parity now holds for valid `.faf` inputs;
+    // invalid/unreadable paths return `0/100 (0%)` honestly (not a fake score).
     //
-    // What we assert instead — and what's still high-signal:
+    // What we assert (all three remain high-signal):
     //   a) faf-cli's `scoreFafYaml` is reachable, deterministic, and produces
     //      a sane score on the fixture (>0 <100, repeatable).
     //   b) MCP `faf_score` returns a parseable percentage and is consistent
     //      across two calls on identical state (no flap, no nondeterminism).
-    //   c) Both are well-formed numbers in [0,100]. We do NOT assert equality.
-    //      The divergence is the test's finding — see report.
+    //   c) TRUE PARITY — MCP `faf_score` numeric == faf-cli
+    //      `scoreFafYaml(yaml).score` on the same fixture. The shield closes.
     describe('2. score determinism (single-source via faf-cli)', () => {
       test('faf-cli scoreFafYaml is deterministic on the fixture (>0, <100)', () => {
         const raw = fs.readFileSync(path.join(tmpDir, 'project.faf'), 'utf-8');
@@ -356,6 +354,28 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
         expect(n1).toBe(n2); // repeatability
         expect(n1).toBeGreaterThanOrEqual(0);
         expect(n1).toBeLessThanOrEqual(100);
+      });
+
+      test('TRUE PARITY: MCP faf_score == faf-cli scoreFafYaml on the same YAML', async () => {
+        // The loop-closing receipt. v5.6.1 wires `handleFafScore` through
+        // faf-cli's real scorer — so the number MCP emits MUST equal the
+        // number `scoreFafYaml` returns. Single source of truth, no drift.
+        const raw = fs.readFileSync(path.join(tmpDir, 'project.faf'), 'utf-8');
+        const parityScore = fafCli.scoreFafYaml(raw).score;
+
+        const res = await client.callTool({
+          name: 'faf_score',
+          arguments: { path: tmpDir },
+        });
+        expect(res.isError).toBeFalsy();
+        const text = ((res.content as Array<{ text?: string }>)[0]?.text ?? '') as string;
+
+        const SCORE_RE = /(?:FAF SCORE:\s*|\b)(\d{1,3})\s*(?:%|\/\s*100)/;
+        const m = text.match(SCORE_RE);
+        expect(m).not.toBeNull();
+        const mcpScore = parseInt(m![1], 10);
+
+        expect(mcpScore).toBe(parityScore);
       });
     });
 

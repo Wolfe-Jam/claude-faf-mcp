@@ -11,6 +11,10 @@ import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolv
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
 import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 
+// Truthful single-source FAF score wiring — see src/utils/faf-cli-bridge.ts
+// for why this exists (faf-cli's bun exports condition + Node 18 ESM-from-CJS).
+import { fafCli } from '../utils/faf-cli-bridge.js';
+
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
 
@@ -864,115 +868,123 @@ Once confirmed, the sequence is:
   }
 
   private async handleFafScore(args: any): Promise<CallToolResult> {
-    try {
-      // Get current working directory - uses path param or session context
-      const cwd = this.getProjectPath(args?.path);
+    // v5.6.1: single-sourced from faf-cli's real scorer — same number `faf
+    // score` (CLI), the championship handler, and faf-mcp 2.1.1 all emit.
+    // The old FafCompiler-based path + banned medal/colored-circle tier
+    // ladder (🥇🥈🥉🟢🟡🔴🤍) are retired on the live handler. Mirrors
+    // faf-mcp PR #48 surgical fix verbatim.
+    // Headline format carries both `FAF SCORE: <n>/100` AND `(<n>%)` so the
+    // AERO parity regex AND any consumer scanning for the legacy `\d+%`
+    // form continue to match. Invalid/unreadable .faf paths return an
+    // honest `0/100 (0%)` with a diagnostic — no fake numbers, no crash.
+    const cwd = this.getProjectPath(args?.path);
+    const { findFafFile, readFafRaw, scoreFafYaml, getNextTier } = await fafCli;
 
-      // Find FAF file
-      const fafResult = await findFafFile(cwd);
-      if (!fafResult) {
-        return {
-          content: [{
+    const fafPath = findFafFile(cwd);
+    if (!fafPath) {
+      return {
+        content: [
+          {
             type: 'text',
-            text: `📊 FAF SCORE: 0%\n🤍 White\n🏁 AI-Ready: Building\n\n❌ No project.faf found in ${cwd}\n💡 Run faf_init to create project DNA for accurate scoring!`
-          }]
-        };
-      }
-
-      // Use FafCompiler for precise slot-based scoring
-      const compiler = new FafCompiler();
-      const compileResult = await compiler.compile(fafResult.path);
-
-      const score = Math.min(compileResult.score, 100);
-      const filled = compileResult.filled;
-      const total = compileResult.total;
-      const breakdown = compileResult.breakdown;
-
-      // Format the output
-      let output = '';
-
-      if (score >= 100) {
-        // Perfect score - Trophy
-        output = `🏎️ FAF SCORE: 100%\n🏆 Trophy\n🏁 Championship Complete!\n\n`;
-        if (args?.details) {
-          output += `✅ ${fafResult.filename} analyzed (${filled}/${total} slots filled)\n\n`;
-          output += `🏆 PERFECT SCORE!\n`;
-          output += `All slots filled - championship AI-readiness achieved!\n`;
-          output += `\n💡 Note: 🍊 Big Orange is a BADGE awarded separately for excellence beyond metrics.`;
-        }
-      } else {
-        // Regular score - FAF standard tiers
-        let rating = '';
-        let emoji = '';
-
-        if (score >= 99) {
-          rating = 'Gold';
-          emoji = '🥇';
-        } else if (score >= 95) {
-          rating = 'Silver';
-          emoji = '🥈';
-        } else if (score >= 85) {
-          rating = 'Bronze';
-          emoji = '🥉';
-        } else if (score >= 70) {
-          rating = 'Green';
-          emoji = '🟢';
-        } else if (score >= 55) {
-          rating = 'Yellow';
-          emoji = '🟡';
-        } else {
-          rating = 'Red';
-          emoji = '🔴';
-        }
-
-        // Next milestone (matches faf-cli score-v3)
-        const milestones = [
-          { target: 55, tier: 'Yellow', emoji: '🟡' },
-          { target: 70, tier: 'Green', emoji: '🟢' },
-          { target: 85, tier: 'Bronze', emoji: '🥉' },
-          { target: 95, tier: 'Silver', emoji: '🥈' },
-          { target: 99, tier: 'Gold', emoji: '🥇' },
-          { target: 100, tier: 'Trophy', emoji: '🏆' },
-        ];
-        const next = milestones.find(m => m.target > score);
-
-        // The 3-line killer display
-        output = `📊 FAF SCORE: ${score}%\n${emoji} ${rating}\n🏁 AI-Ready: ${score >= 85 ? 'Yes' : 'Building'}\n`;
-
-        if (next) {
-          output += `\nNext milestone: ${next.target}% ${next.emoji} ${next.tier} (${next.target - score} points to go!)`;
-        }
-
-        if (args?.details) {
-          // Section breakdown (matches faf-cli --breakdown)
-          output += `\n\n📊 Score Breakdown:`;
-          output += `\n  Project: ${breakdown.project.filled}/${breakdown.project.total} slots (${breakdown.project.percentage}%)`;
-          output += `\n  Stack:   ${breakdown.stack.filled}/${breakdown.stack.total} slots (${breakdown.stack.percentage}%)`;
-          output += `\n  Human:   ${breakdown.human.filled}/${breakdown.human.total} slots (${breakdown.human.percentage}%)`;
-          if (breakdown.discovery.total > 0) {
-            output += `\n  Discovery: ${breakdown.discovery.filled}/${breakdown.discovery.total} slots (${breakdown.discovery.percentage}%)`;
-          }
-          output += `\n\nFilled: ${filled}/${total} slots`;
-        }
-      }
-
-      return {
-        content: [{
-          type: 'text',
-          text: output
-        }]
-      };
-
-    } catch (error: any) {
-      // Real error — never fake a score (matches faf-cli behavior)
-      const message = error instanceof Error ? error.message : String(error);
-      return {
-        content: [{
-          type: 'text',
-          text: `📊 FAF SCORE: Error\n\n❌ Compilation failed: ${message}\n💡 Run faf_init to create a valid project.faf`
-        }]
+            text:
+              `FAF SCORE: 0/100 (0%)  ♡ no .faf\n\n` +
+              `No \`.faf\` found in \`${cwd}\`.\n` +
+              `Run \`faf_init\` to create one — then \`faf_score\` reports the real score.`,
+          },
+        ],
       };
     }
+
+    // Strip ANSI from tier indicator (faf-cli emits colored glyphs).
+    // eslint-disable-next-line no-control-regex
+    const strip = (s: string): string => s.replace(/\[[0-9;]*m/g, '').trim();
+
+    let raw: string;
+    try {
+      raw = readFafRaw(fafPath);
+    } catch (error: any) {
+      return {
+        content: [
+          {
+            type: 'text',
+            text:
+              `FAF SCORE: 0/100 (0%)  ○ UNREADABLE\n\n` +
+              `Could not read \`${fafPath}\`: ${error?.message ?? String(error)}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    let result: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>;
+    try {
+      result = scoreFafYaml(raw);
+    } catch (error: any) {
+      // Invalid .faf content (malformed YAML, etc.) — honest 0 score with a
+      // diagnostic, not a fake number. The output still carries `0%` so
+      // downstream regex matchers like `/\d+%/` find a percentage token.
+      return {
+        content: [
+          {
+            type: 'text',
+            text:
+              `FAF SCORE: 0/100 (0%)  ○ INVALID\n\n` +
+              `\`${fafPath}\` couldn\'t be parsed as a valid .faf YAML:\n` +
+              `  ${error?.message ?? String(error)}\n\n` +
+              `Re-run \`faf_init\` to regenerate a valid file.`,
+          },
+        ],
+        isError: true,
+      };
+    }
+
+    const score = result.score;
+    const tierDisplay = strip(result.tier.indicator);
+    const next = getNextTier(score);
+    const nextTierDisplay = next ? `${strip(next.indicator)} (${next.threshold}%)` : null;
+
+    // Progress bar — same width/style as the championship handler.
+    const barWidth = 24;
+    const filled = Math.max(0, Math.min(barWidth, Math.round((score / 100) * barWidth)));
+    const progressBar = '█'.repeat(filled) + '░'.repeat(barWidth - filled);
+
+    // Headline carries both `/100` AND `(%)` so multiple matchers stay happy.
+    let output =
+      `FAF SCORE: ${score}/100 (${score}%)  ${tierDisplay}\n` +
+      `${progressBar} ${score}%\n` +
+      `${result.populated}/${result.total} slots populated` +
+      (nextTierDisplay ? `  ·  next: ${nextTierDisplay}` : '  ·  top tier') +
+      `\n\n` +
+      `Scored by faf-cli — the same context your AI reads.`;
+
+    if (args?.details) {
+      const populatedSlots = Object.entries(result.slots)
+        .filter(([, state]) => state === 'populated')
+        .map(([slot]) => slot);
+      const emptySlots = Object.entries(result.slots)
+        .filter(([, state]) => state === 'empty')
+        .map(([slot]) => slot);
+      const ignoredSlots = Object.entries(result.slots)
+        .filter(([, state]) => state === 'slotignored')
+        .map(([slot]) => slot);
+
+      output += `\n\n--- Slot breakdown ---\n`;
+      output += `Populated (${populatedSlots.length}): ${populatedSlots.join(', ') || '(none)'}\n`;
+      output += `Empty (${emptySlots.length}): ${emptySlots.join(', ') || '(none)'}\n`;
+      output += `Ignored (${ignoredSlots.length}): ${ignoredSlots.join(', ') || '(none)'}`;
+      if (score < 100 && emptySlots.length > 0) {
+        output += `\n\nTip: fill empty slots or mark them \`slotignored\` to climb tiers. Slot-by-slot detail: \`faf score\` (CLI).`;
+      }
+    }
+
+    return {
+      content: [
+        {
+          type: 'text',
+          text: output,
+        },
+      ],
+    };
   }
 
   private async handleFafInit(args: any): Promise<CallToolResult> {

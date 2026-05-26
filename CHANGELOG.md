@@ -8,6 +8,33 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [5.6.1] - 2026-05-26
+
+Loop closed on truthful, single-sourced scoring. The active MCP handler
+now reads faf-cli's real scorer directly — same path the championship
+layer was already on, same number `faf score` (CLI) and faf-mcp 2.1.1 emit.
+
+### Fixed
+
+- **`faf_score`** — now calls faf-cli's `scoreFafYaml` (the IANA-spec
+  scorer) directly, replacing the FafCompiler-based path. Output
+  reformatted to the canonical tier card with `FAF SCORE: <n>/100 (<n>%)`,
+  progress bar, populated/total slot count, and the next-tier hint. The
+  banned medal / colored-circle tier ladder (🥇🥈🥉🟢🟡🔴🤍) is gone from
+  this surface — only canonical Unicode tier glyphs (★ ◆ ◇ ● ○ ♡) remain.
+- **Invalid `.faf` handling** — `0/100 (0%) ○ INVALID` for parse failures,
+  `○ UNREADABLE` for fs errors, `♡ no .faf` for absence. Honest zero with
+  a diagnostic, never a fake score, never a crash.
+
+### Tests
+
+- **WJTTC AERO Phase 2** — score-parity assertion tightened to TRUE
+  parity: MCP `faf_score` numeric == faf-cli `scoreFafYaml(...).score`
+  on the same YAML. Determinism + repeatability tests retained as
+  high-signal companions; FINDING comment retensed from v5.6.0
+  observation → v5.6.1 resolved.
+
 ## [5.6.0] - 2026-05-25
 
 🏆 **FAF-binary scoring lands in Claude Desktop.**
