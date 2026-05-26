@@ -1,0 +1,68 @@
+name: 📡 MCP Registry Publish
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:  # manual trigger for backfills / retries
+
+jobs:
+  publish:
+    name: Publish to MCP Registry
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mcp-publisher
+        run: |
+          set -e
+          VERSION="${MCP_PUBLISHER_VERSION:-latest}"
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/${VERSION}/download/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
+          tar -xzf mcp-publisher.tar.gz
+          chmod +x ./mcp-publisher
+          ./mcp-publisher --version
+
+      - name: Login via GitHub OIDC
+        run: ./mcp-publisher login github-oidc
+
+      - name: Verify server.json version matches release tag
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          MANIFEST_VERSION=$(jq -r '.version' server.json)
+          if [ "$TAG" != "$MANIFEST_VERSION" ]; then
+            echo "::error::server.json version ($MANIFEST_VERSION) does not match release tag ($TAG). Bump server.json before tagging."
+            exit 1
+          fi
+          echo "✓ server.json v$MANIFEST_VERSION matches release tag v$TAG"
+
+      - name: Publish to MCP Registry (with retry on 5xx / timeout)
+        run: |
+          set +e
+          MAX_ATTEMPTS=5
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            echo "::group::Publish attempt $attempt/$MAX_ATTEMPTS"
+            OUTPUT=$(./mcp-publisher publish server.json 2>&1)
+            EXIT_CODE=$?
+            echo "$OUTPUT"
+            echo "::endgroup::"
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "✓ Published to MCP Registry"
+              exit 0
+            fi
+            # Detect transient errors (5xx, gateway timeouts, network)
+            if echo "$OUTPUT" | grep -qE '50[0-9] Gateway|504|timeout|network|temporarily'; then
+              SLEEP=$((attempt * attempt * 10))  # 10s, 40s, 90s, 160s, 250s — gives MCP Registry time to recover
+              echo "Transient failure (attempt $attempt). Sleeping ${SLEEP}s then retrying..."
+              sleep $SLEEP
+              # Refresh OIDC token in case it aged out during the wait
+              ./mcp-publisher login github-oidc
+              continue
+            fi
+            echo "::error::Non-transient publish failure on attempt $attempt — aborting."
+            exit $EXIT_CODE
+          done
+          echo "::error::Publish failed after $MAX_ATTEMPTS attempts"
+          exit 1
