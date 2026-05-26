@@ -1,15 +1,15 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 33 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp
+# claude-faf-mcp v5.6
 
-[![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-00D4D4)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-00D4D4)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
+[![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
 [![DOI: Context paper](https://img.shields.io/badge/DOI-Context%20paper-FF6B35)](https://doi.org/10.5281/zenodo.18251362)[![DOI: Memory paper](https://img.shields.io/badge/DOI-Memory%20paper-FF6B35)](https://doi.org/10.5281/zenodo.20348942)
 
 **Home:** [faf.one/mcp](https://faf.one/mcp)
 **Live demo:** [claude-faf-mcp.vercel.app](https://claude-faf-mcp.vercel.app)
 
-**Persistent Project Context for Claude. 30 seconds. 🐘 It never forgets.**
+**Persistent Project Context for Claude. 30 seconds. 🐘 Nelly Never Forgets.**
 
 [![FAF](https://mcpaas.live/badge/Wolfe-Jam/claude-faf-mcp.svg)](https://builder.faf.one)
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
@@ -17,13 +17,15 @@
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Chat to FAFA live](https://img.shields.io/badge/Chat_to_FAFA_live-00D4D4?style=flat&labelColor=000)](https://faf-voice.vercel.app/agent)
+[![Chat to FAFA live](https://img.shields.io/badge/Chat_to_FAFA_live-008B8B?style=flat&labelColor=000)](https://faf-voice.vercel.app/agent)
 
 **FAF defines. MD instructs. AI codes.**
 
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+> 🏆 **v5.6.1 — FAF-binary scoring has landed.** `faf_score` now reads faf-cli's real scorer directly. Same number your AI and `faf score` (CLI) see. Truthful, IANA-spec, deterministic.
 
 33 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,346 test executions per push.
 
