@@ -70,14 +70,6 @@ human_context:
 
 ## Quick Start
 
-### Web — best of all scenarios
-
-```bash
-claude mcp add --transport http claude-faf-mcp https://claude-faf-mcp.vercel.app/sse
-```
-
-URL-based. Zero install. Always current. Works in Claude Code today.
-
 ### faf-cli — universal (any AI)
 
 ```bash
@@ -96,14 +88,14 @@ Double-click. **No terminal. No JSON config. 33 tools live in 10 seconds.**
 
 **Copy** — paste-prompt to Claude
 
-> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "npx", "args": ["-y", "claude-faf-mcp"]}}}` and restart Claude Desktop.
+> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "bunx", "args": ["claude-faf-mcp"]}}}` and restart Claude Desktop.
 
 **Paste** — `claude_desktop_config.json`
 
 ```json
 {
   "mcpServers": {
-    "faf": { "command": "npx", "args": ["-y", "claude-faf-mcp"] }
+    "faf": { "command": "bunx", "args": ["claude-faf-mcp"] }
   }
 }
 ```
