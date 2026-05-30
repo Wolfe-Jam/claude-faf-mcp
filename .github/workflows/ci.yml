@@ -80,22 +80,9 @@ jobs:
           flags: unittests
           name: codecov-umbrella
 
-      - name: Convert bun output to Jest format for TAF
-        if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
-        shell: bash
-        run: |
-          passed=$(grep -oE '^[[:space:]]*[0-9]+ pass' /tmp/test-output.txt | grep -oE '[0-9]+' | head -1 || echo 0)
-          failed=$(grep -oE '^[[:space:]]*[0-9]+ fail' /tmp/test-output.txt | grep -oE '[0-9]+' | head -1 || echo 0)
-          total=$((passed + failed))
-          if [ "$failed" -gt 0 ]; then
-            echo "Tests: $failed failed, $passed passed, $total total" >> /tmp/test-output.txt
-          else
-            echo "Tests: $passed passed, $total total" >> /tmp/test-output.txt
-          fi
-
       - name: Generate TAF Receipt
         if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
-        uses: Wolfe-Jam/faf-taf-git@v2.1.2
+        uses: Wolfe-Jam/faf-taf-git@v2.2.0
         with:
           test-output-file: /tmp/test-output.txt
           auto-commit: 'true'
