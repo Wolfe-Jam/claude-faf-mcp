@@ -1,0 +1,26 @@
+name = "faf-claude"
+compatibility_date = "2024-12-30"
+
+# claude-faf-mcp web surface — Cloudflare canonical (claude.faf.one)
+#
+# Pure-static deployment via Workers Assets. The docs/ directory
+# contains index.html — the live landing page.
+#
+# Surfaces (CF canonical; Vercel deprecated):
+#   1. claude.faf.one                    — THIS Worker (CF-edge canonical landing page)
+#   2. mcpaas.live/claude/mcp/v1         — MCP endpoint (Cloudflare, served_by mcpaas-cf)
+#   3. wolfe-jam.github.io/claude-faf-mcp/ — GitHub Pages mirror (serves same docs/)
+#   4. faf.one/claude                    — discovery page (SvelteKit route — TODO, 404 today)
+#
+# Per `ask-before-going-live-website-deploys.md` doctrine, this config is
+# staged + committed autonomously; the actual `wrangler deploy` requires
+# explicit GO from wolfejam.
+#
+# Mirrors grok-faf-mcp/wrangler.toml — same pattern, different product.
+
+routes = [
+  { pattern = "claude.faf.one", custom_domain = true }
+]
+
+[assets]
+directory = "./docs"
