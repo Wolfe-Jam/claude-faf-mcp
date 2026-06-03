@@ -24,3 +24,4 @@ routes = [
 
 [assets]
 directory = "./docs"
+binding = "ASSETS"
