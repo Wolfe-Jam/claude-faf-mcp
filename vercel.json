@@ -1,6 +1,7 @@
 {
-  "buildCommand": "",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api/index" }
+  "redirects": [
+    { "source": "/sse", "destination": "https://mcpaas.live/claude/mcp/v1", "permanent": true },
+    { "source": "/sse/(.*)", "destination": "https://mcpaas.live/claude/mcp/v1", "permanent": true },
+    { "source": "/(.*)", "destination": "https://faf.one/", "permanent": true }
   ]
 }
