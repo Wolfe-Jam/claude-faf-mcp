@@ -155,3 +155,18 @@ BIG_3_*.sh
 
 # Personal notes
 .notes/
+
+# Build artifacts (regenerated; attach .mcpb to GitHub Releases, don't commit)
+*.mcpb
+.smithery/
+*.js.map
+*.tgz
+
+# Root dev scripts / dashboards (kept local, not part of the published repo)
+CHECK-REGISTRY-LIVE.sh
+DESKTOP_MCP_TEST_INTEGRATION.sh
+TESTING_CENTER_DASHBOARD.html
+TEST_CENTER.sh
+comprehensive-test.js
+dashboard.html
+npm-preflight.sh
