@@ -11,7 +11,7 @@ Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
 
 - **Language:** TypeScript
 - **Backend:** MCP SDK (TS)
-- **Api Type:** MCP (stdio/SSE)
+- **Api Type:** MCP (stdio + Streamable HTTP)
 - **Runtime:** Node.js
 - **Hosting:** npm/Claude Desktop
 - **Build:** esbuild
