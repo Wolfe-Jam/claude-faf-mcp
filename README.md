@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 33 tools -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 32 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
 # claude-faf-mcp v5.6

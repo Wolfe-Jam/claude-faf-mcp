@@ -20,7 +20,7 @@ Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
 ## Context
 
 - **Who:** Claude Desktop users who want persistent AI project context
-- **What:** MCP server — 33 FAF tools for project DNA, scoring, and context sync
+- **What:** MCP server — 32 FAF tools for project DNA, scoring, and context sync
 - **Why:** Zero project re-explaining across AI sessions — define once, remember forever
 - **Where:** npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
 - **When:** v5.3.0, April 2026
@@ -28,4 +28,4 @@ Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-09T12:28:15.790Z*
+*STATUS: BI-SYNC ACTIVE — 2026-06-09T12:34:49.136Z*

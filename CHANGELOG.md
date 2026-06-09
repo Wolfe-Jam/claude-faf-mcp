@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 33 tools -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
 <!-- faf: doc=changelog | latest=v5.6.3 | canonical=project.faf | family=FAF -->
 
 # Changelog
@@ -11,9 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.6.3] - 2026-06-09
 
-Registry remote canonicalisation — kill the stale SSE/Vercel remote on the
-original FAF MCP. The MCP Registry entry now advertises the live Cloudflare
-edge directly instead of a deprecated redirect.
+Registry canonicalisation + branch consolidation — kill the stale SSE/Vercel
+remote AND fold in stranded work so `main` is coherent (no published version
+silently missing merged-but-unshipped commits).
 
 ### Fixed
 
@@ -21,8 +21,19 @@ edge directly instead of a deprecated redirect.
   `streamable-http → https://mcpaas.live/claude/mcp/v1`. The Vercel/SSE URL only
   308-redirected to the edge; strict SSE health-checks could choke on the
   redirect-to-streamable-http. Now points at the canonical edge directly (same
-  fix grok-faf-mcp carried in 1.5.1). No package/runtime change — registry
-  metadata only.
+  fix grok-faf-mcp carried in 1.5.1).
+
+### Changed
+
+- **`faf_chat` retired** (was a stranded branch) — un-advertised from `tools/list`;
+  the host (Claude Desktop / Claude Code) *is* the chat, and the old body shelled
+  `faf chat` which faf-cli no longer ships. Kept as a deprecation **stub** (still
+  callable → clear "retired" notice, never "unknown tool"). **Tool count 33 → 32.**
+  Mirrors grok-faf-mcp's fleet retire.
+- **CI: `faf-taf-git` → v2.2.0** (was a stranded branch) — dropped the bun→jest
+  shim in `.github/workflows/ci.yml`.
+
+No breaking changes; `faf_chat` callers get a graceful deprecation notice.
 
 ## [5.6.2] - 2026-06-08
 
