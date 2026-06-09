@@ -32,7 +32,7 @@
       ]
     }
   ],
-  "version": "5.6.2",
+  "version": "5.6.3",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
@@ -40,15 +40,15 @@
   "websiteUrl": "https://faf.one",
   "remotes": [
     {
-      "type": "sse",
-      "url": "https://claude-faf-mcp.vercel.app/sse"
+      "type": "streamable-http",
+      "url": "https://mcpaas.live/claude/mcp/v1"
     }
   ],
   "packages": [
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "5.6.2",
+      "version": "5.6.3",
       "transport": {
         "type": "stdio"
       }

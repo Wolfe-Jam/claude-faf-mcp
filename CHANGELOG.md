@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
-<!-- faf: doc=changelog | latest=v5.6.2 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.6.3 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,21 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [5.6.3] - 2026-06-09
+
+Registry remote canonicalisation — kill the stale SSE/Vercel remote on the
+original FAF MCP. The MCP Registry entry now advertises the live Cloudflare
+edge directly instead of a deprecated redirect.
+
+### Fixed
+
+- **`server.json` `remotes`** — `sse → claude-faf-mcp.vercel.app/sse` →
+  `streamable-http → https://mcpaas.live/claude/mcp/v1`. The Vercel/SSE URL only
+  308-redirected to the edge; strict SSE health-checks could choke on the
+  redirect-to-streamable-http. Now points at the canonical edge directly (same
+  fix grok-faf-mcp carried in 1.5.1). No package/runtime change — registry
+  metadata only.
 
 ## [5.6.2] - 2026-06-08
 
