@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 32 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp v5.6
+# claude-faf-mcp v5.7 — The Canonical Edition
 
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
 [![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
@@ -26,9 +26,9 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-> 🏆 **v5.6.1 — FAF-binary scoring has landed.** `faf_score` now reads faf-cli's real scorer directly. Same number your AI and `faf score` (CLI) see. Truthful, IANA-spec, deterministic.
+> 🏆 **v5.7.0 — The Canonical Edition.** The original FAF MCP, made canonical: the registry remote now hits the live Cloudflare edge directly (no Vercel/SSE redirect), the redundant `faf_chat` shim is retired (the host is your chat) — consolidated into 32 must-have tools.
 
-33 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,346 test executions per push.
+32 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,538 test executions per push.
 
 ---
 
@@ -84,7 +84,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 [**⬇ Download `claude-faf-mcp-5.5.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.2.mcpb)
 
-Double-click. **No terminal. No JSON config. 33 tools live in 10 seconds.**
+Double-click. **No terminal. No JSON config. 32 tools live in 10 seconds.**
 
 **Copy** — paste-prompt to Claude
 
@@ -146,7 +146,7 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## 33 MCP Tools
+## 32 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
@@ -246,7 +246,7 @@ Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ## Quality
 
-391 tests · 12 suites · 6 platforms (ubuntu/macos/windows × Node 18/20)
+423 tests · 13 suites · 6 platforms (ubuntu/macos/windows × Node 18/20)
 
 **[CI Dashboard →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
 
