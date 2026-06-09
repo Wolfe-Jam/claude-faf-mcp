@@ -240,12 +240,12 @@
   </style>
 </head>
 <body>
-  <a class="version-badge" href="https://github.com/Wolfe-Jam/claude-faf-mcp" target="_blank" rel="noopener" style="position:fixed;top:14px;left:14px;z-index:9999;text-decoration:none;" title="claude-faf-mcp on GitHub">v5.6.2</a>
+  <a id="versionBadge" class="version-badge" href="https://github.com/Wolfe-Jam/claude-faf-mcp" target="_blank" rel="noopener" style="position:fixed;top:14px;left:14px;z-index:9999;text-decoration:none;" title="claude-faf-mcp on GitHub">v5.6.2</a>
   <div class="accent-line"></div>
   <div class="container">
     <div class="logo">🍊</div>
     <h1>claude-faf-mcp</h1>
-    <div class="tagline">🤖 Claude Desktop MCP <span class="version-badge" onclick="showAbout()">v5.5.2</span></div>
+    <div class="tagline">🤖 <span class="version-badge" onclick="showAbout()">The Canonical Edition</span></div>
     <div class="registry-line">Official <a href="https://github.com/modelcontextprotocol/servers/pull/2759">Anthropic MCP Registry</a> · IANA-registered <code>application/vnd.faf+yaml</code></div>
 
     <div class="stats">
@@ -299,7 +299,7 @@
     </div>
 
     <div class="bottom-bar">
-      <div class="links"><span class="version-badge" onclick="showAbout()" style="font-size:0.75rem;padding:3px 10px;">v5.5.2</span> &bull; <a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a> &bull; <a href="https://mcpaas.live">mcpaas.live</a></div>
+      <div class="links"><a href="https://github.com/Wolfe-Jam/claude-faf-mcp">GitHub</a> &bull; <a href="https://npmjs.com/package/claude-faf-mcp">npm</a> &bull; <a href="https://faf.one">faf.one</a> &bull; <a href="https://mcpaas.live">mcpaas.live</a></div>
       <div class="big-orange">Part of the FAF MCP family 🍊</div>
       <div style="margin-top:0.5rem;font-size:0.75rem;"><a href="https://mcpaas.live/privacy" style="color:#666;text-decoration:none;">Privacy</a> · <a href="https://mcpaas.live/terms" style="color:#666;text-decoration:none;">Terms</a> · <a href="mailto:team@faf.one" style="color:#666;text-decoration:none;">team@faf.one</a></div>
       <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid rgba(255,255,255,0.1);font-size:0.8rem;color:#fff;">Part of the <a href="https://faf.one" style="color:#ff6600;text-decoration:none;">FAF.one Family</a> · <a href="https://mcpaas.live" style="color:#888;text-decoration:none;">MCPaaS</a> · <a href="https://radiofaf.com" style="color:#888;text-decoration:none;">RadioFAF</a> · <a href="https://fafdev.tools" style="color:#888;text-decoration:none;">fafdev.tools</a></div>
@@ -307,7 +307,7 @@
   </div>
   <div class="about-overlay" id="aboutOverlay" onclick="if(event.target===this)hideAbout()">
     <div class="about-box">
-      <div class="about-version">v5.5.2</div>
+      <div class="about-version">The Canonical Edition</div>
       <div class="about-title">Persistent Project Context</div>
       <div class="about-subtitle">Mk4 Championship Scoring · 32 Tools</div>
       <div class="about-items">
@@ -361,6 +361,13 @@
       document.getElementById('aboutOverlay').classList.remove('visible');
     }
     window.addEventListener('load', function() { setTimeout(function() { showAbout(true); }, 500); });
+
+    // Single source of truth for the version: read npm live so the badge can never drift.
+    // The hardcoded text above is just a fallback if the fetch fails (offline / npm down).
+    fetch('https://registry.npmjs.org/claude-faf-mcp/latest')
+      .then(function(r) { return r.json(); })
+      .then(function(d) { if (d && d.version) document.getElementById('versionBadge').textContent = 'v' + d.version; })
+      .catch(function() { /* keep the fallback text */ });
   </script>
 </body>
 </html>
