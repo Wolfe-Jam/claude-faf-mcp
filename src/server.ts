@@ -6,6 +6,7 @@ import { FafToolHandler } from './handlers/tools';
 import { FafPromptHandler } from './handlers/prompts';
 import { FafEngineAdapter } from './handlers/engine-adapter';
 import { isError } from './utils/type-guards.js';
+import { sanitizeToolResult } from './utils/sanitize-output.js';
 import { VERSION } from './version';
 
 export interface ClaudeFafMcpServerConfig {
@@ -117,7 +118,7 @@ export class ClaudeFafMcpServer {
           console.error(`Tool ${request.params.name} executed in ${duration}ms`);
         }
         
-        return result;
+        return sanitizeToolResult(result);
       } catch (error: unknown) {
         const errorMessage = isError(error) ? error.message : 'Unknown error';
         console.error(`Tool execution failed:`, errorMessage);
