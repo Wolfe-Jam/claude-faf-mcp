@@ -115,6 +115,32 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Structured AI-readiness score, single-sourced from faf-cli.',
+            properties: {
+              score: { type: 'number', description: 'AI-readiness score, 0-100' },
+              tier: { type: 'string', description: 'Tier name for this score (e.g. Bronze, Trophy)' },
+              populated: { type: 'number', description: 'Active slots that are filled' },
+              empty: { type: 'number', description: 'Active slots still empty' },
+              ignored: { type: 'number', description: 'Slots marked slotignored (inactive for this app_type)' },
+              active: { type: 'number', description: 'Slots active for this app_type' },
+              total: { type: 'number', description: 'Total slots' },
+              nextTier: {
+                type: ['object', 'null'],
+                description: 'Next tier above the current score, or null at top tier',
+                properties: {
+                  name: { type: 'string' },
+                  threshold: { type: 'number' }
+                }
+              },
+              inherited: { type: 'boolean', description: 'True if the score is attested from a source repo (app_type: about)' },
+              hasFaf: { type: 'boolean', description: 'Whether a readable, valid project.faf was scored' },
+              path: { type: 'string', description: 'Path that was scored' }
+            },
+            required: ['score', 'tier', 'hasFaf'],
+            additionalProperties: true
           }
         },
         {
@@ -880,6 +906,11 @@ Once confirmed, the sequence is:
               `Run \`faf_init\` to create one — then \`faf_score\` reports the real score.`,
           },
         ],
+        structuredContent: {
+          score: 0, tier: 'No .faf', hasFaf: false,
+          populated: 0, empty: 0, ignored: 0, active: 0, total: 0,
+          nextTier: null, inherited: false, path: cwd,
+        },
       };
     }
 
@@ -900,6 +931,11 @@ Once confirmed, the sequence is:
               `Could not read \`${fafPath}\`: ${error?.message ?? String(error)}`,
           },
         ],
+        structuredContent: {
+          score: 0, tier: 'Unreadable', hasFaf: false,
+          populated: 0, empty: 0, ignored: 0, active: 0, total: 0,
+          nextTier: null, inherited: false, path: fafPath,
+        },
         isError: true,
       };
     }
@@ -922,6 +958,11 @@ Once confirmed, the sequence is:
               `Re-run \`faf_init\` to regenerate a valid file.`,
           },
         ],
+        structuredContent: {
+          score: 0, tier: 'Invalid', hasFaf: false,
+          populated: 0, empty: 0, ignored: 0, active: 0, total: 0,
+          nextTier: null, inherited: false, path: fafPath,
+        },
         isError: true,
       };
     }
@@ -965,6 +1006,7 @@ Once confirmed, the sequence is:
       }
     }
 
+    const slotEntries = Object.entries(result.slots);
     return {
       content: [
         {
@@ -972,6 +1014,24 @@ Once confirmed, the sequence is:
           text: output,
         },
       ],
+      structuredContent: {
+        score,
+        tier: result.tier.name,
+        populated: result.populated,
+        empty: result.empty,
+        ignored: result.ignored,
+        active: result.active,
+        total: result.total,
+        nextTier: next ? { name: next.name, threshold: next.threshold } : null,
+        inherited: result.inherited ?? false,
+        hasFaf: true,
+        path: fafPath,
+        slots: {
+          populated: slotEntries.filter(([, s]) => s === 'populated').map(([k]) => k),
+          empty: slotEntries.filter(([, s]) => s === 'empty').map(([k]) => k),
+          ignored: slotEntries.filter(([, s]) => s === 'slotignored').map(([k]) => k),
+        },
+      },
     };
   }
 
