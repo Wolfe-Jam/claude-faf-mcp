@@ -11,7 +11,7 @@ stack:
   ui_library: slotignored
   state_management: slotignored
   backend: MCP SDK (TS)
-  api_type: MCP (stdio/SSE)
+  api_type: MCP (stdio + Streamable HTTP)
   runtime: Node.js
   database: slotignored
   connection: slotignored
@@ -30,7 +30,7 @@ human_context:
   what: MCP server — 32 FAF tools for project DNA, scoring, and context sync
   why: Zero project re-explaining across AI sessions — define once, remember forever
   where: npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
-  when: v5.3.0, April 2026
+  when: v5.7.0 (The Canonical Edition), June 2026
   how: npm install -g claude-faf-mcp
 monorepo:
   packages_count: slotignored

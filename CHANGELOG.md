@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
-<!-- faf: doc=changelog | latest=v5.6.3 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.7.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -9,11 +9,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [5.6.3] - 2026-06-09
+## [5.7.0] - 2026-06-09 — The Canonical Edition
 
-Registry canonicalisation + branch consolidation — kill the stale SSE/Vercel
-remote AND fold in stranded work so `main` is coherent (no published version
-silently missing merged-but-unshipped commits).
+The original FAF MCP, made canonical: the registry remote now hits the live
+Cloudflare edge directly (no Vercel/SSE redirect), the redundant `faf_chat` shim
+is retired (the host is your chat) — consolidated into 32 must-have tools.
 
 ### Fixed
 

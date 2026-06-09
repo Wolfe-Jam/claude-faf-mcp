@@ -1,18 +1,15 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema, ListPromptsRequestSchema, GetPromptRequestSchema } from '@modelcontextprotocol/sdk/types.js';
 import { FafResourceHandler } from './handlers/resources';
 import { FafToolHandler } from './handlers/tools';
 import { FafPromptHandler } from './handlers/prompts';
 import { FafEngineAdapter } from './handlers/engine-adapter';
-import express from 'express';
-import cors from 'cors';
 import { isError } from './utils/type-guards.js';
 import { VERSION } from './version';
 
 export interface ClaudeFafMcpServerConfig {
-  transport: 'stdio' | 'http-sse';
+  transport: 'stdio';
   port?: number;
   fafEnginePath: string;
   debug?: boolean;
@@ -26,7 +23,6 @@ export class ClaudeFafMcpServer {
   private toolHandler: FafToolHandler;
   private promptHandler: FafPromptHandler;
   private config: ClaudeFafMcpServerConfig;
-  private httpServer?: any;
 
   constructor(config: ClaudeFafMcpServerConfig) {
     this.config = {
@@ -130,99 +126,16 @@ export class ClaudeFafMcpServer {
     });
   }
 
-  private createHttpApp(): express.Application {
-    const app = express();
-    
-    // Enable CORS if requested
-    if (this.config.cors) {
-      app.use(cors({
-        origin: true,
-        credentials: true,
-        methods: ['GET', 'POST', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
-      }));
-    }
-
-    // Health check endpoint
-    app.get('/health', (_req, res) => {
-      res.json({
-        status: 'healthy',
-        server: 'claude-faf-mcp',
-        version: VERSION,
-        transport: 'http-sse',
-        timestamp: new Date().toISOString(),
-        championship: '32 tools, zero shell execution'
-      });
-    });
-
-    // Server info endpoint
-    app.get('/info', (_req, res) => {
-      res.json({
-        name: 'claude-faf-mcp',
-        version: VERSION,
-        description: 'Universal FAF MCP Server for Claude - AI Context Intelligence & Project Enhancement',
-        transport: 'http-sse',
-        capabilities: {
-          resources: { listChanged: true },
-          tools: { listChanged: true }
-        },
-        tools: [
-          'faf_status', 'faf_score', 'faf_init', 'faf_trust',
-          'faf_sync', 'faf_enhance', 'faf_bi_sync', 'faf_clear', 'faf_debug'
-        ]
-      });
-    });
-
-    return app;
-  }
-
   async start(): Promise<void> {
-    if (this.config.transport === 'stdio') {
-      const transport = new StdioServerTransport();
-      await this.server.connect(transport);
-      if (this.config.debug) {
-        console.error('Claude FAF MCP Server started with stdio transport');
-      }
-    } else if (this.config.transport === 'http-sse') {
-      const app = this.createHttpApp();
-      
-      // Create SSE transport
-      const transport = new SSEServerTransport('/sse', app as any);
-      await this.server.connect(transport);
-      
-      // Start HTTP server (ensure port and host are defined)
-      const port = this.config.port ?? 3001;
-      const host = this.config.host ?? '0.0.0.0';
-      this.httpServer = app.listen(port, host, () => {
-        if (this.config.debug) {
-          console.error(`Claude FAF MCP Server started with HTTP/SSE transport on ${host}:${port}`);
-          console.error(`SSE endpoint: http://${host}:${port}/sse`);
-          console.error(`Health check: http://${host}:${port}/health`);
-        }
-      });
-
-      // Handle server errors
-      this.httpServer.on('error', (error: unknown) => {
-        const errorMessage = isError(error) ? error.message : 'Unknown HTTP server error';
-        console.error('HTTP server error:', errorMessage);
-        throw error;
-      });
-    } else {
-      throw new Error(`Unsupported transport: ${this.config.transport as string}`);
+    const transport = new StdioServerTransport();
+    await this.server.connect(transport);
+    if (this.config.debug) {
+      console.error('Claude FAF MCP Server started with stdio transport');
     }
   }
 
   async stop(): Promise<void> {
-    if (this.httpServer) {
-      return new Promise((resolve) => {
-        this.httpServer.close(() => {
-          if (this.config.debug) {
-            console.error('Claude FAF MCP Server HTTP/SSE transport stopped');
-          }
-          resolve();
-        });
-      });
-    }
+    // stdio transport requires no teardown beyond process exit.
   }
 
   getServerInfo() {
