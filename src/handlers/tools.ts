@@ -97,6 +97,18 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Whether the project has a project.faf and where it lives.',
+            properties: {
+              hasFaf: { type: 'boolean', description: 'Whether a project.faf (or .faf) was found' },
+              filename: { type: ['string', 'null'], description: 'The .faf filename, if found' },
+              path: { type: ['string', 'null'], description: 'Absolute path to the .faf file, if found' },
+              directory: { type: 'string', description: 'Directory that was checked' }
+            },
+            required: ['hasFaf', 'directory'],
+            additionalProperties: true
           }
         },
         {
@@ -857,7 +869,8 @@ Once confirmed, the sequence is:
           content: [{
             type: 'text',
             text: `🤖 Claude FAF Project Status:\n\n❌ No FAF file found in ${cwd}\n💡 Run faf_init to create project.faf`
-          }]
+          }],
+          structuredContent: { hasFaf: false, filename: null, path: null, directory: cwd }
         };
       }
 
@@ -868,7 +881,8 @@ Once confirmed, the sequence is:
         content: [{
           type: 'text',
           text: `🤖 Claude FAF Project Status:\n\n✅ ${fafResult.filename} found in ${cwd}\n\nContent preview:\n${lines.join('\n')}`
-        }]
+        }],
+        structuredContent: { hasFaf: true, filename: fafResult.filename, path: fafResult.path, directory: cwd }
       };
     } catch (error: any) {
       return {
@@ -876,6 +890,7 @@ Once confirmed, the sequence is:
           type: 'text',
           text: `🤖 Claude FAF Project Status:\n\n❌ Error: ${error.message}`
         }],
+        structuredContent: { hasFaf: false, filename: null, path: null, directory: cwd },
         isError: true
       };
     }
