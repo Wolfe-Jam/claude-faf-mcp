@@ -8,7 +8,7 @@
 [![DOI: Context paper](https://img.shields.io/badge/DOI-Context%20paper-FF6B35)](https://doi.org/10.5281/zenodo.18251362)[![DOI: Memory paper](https://img.shields.io/badge/DOI-Memory%20paper-FF6B35)](https://doi.org/10.5281/zenodo.20348942)
 
 **Home:** [faf.one/mcp](https://faf.one/mcp)
-**Live demo:** [claude-faf-mcp.vercel.app](https://claude-faf-mcp.vercel.app)
+**Live demo:** [claude.faf.one](https://claude.faf.one)
 
 **Persistent Project Context for Claude. 30 seconds. 🐘 Nelly Never Forgets.**
 
