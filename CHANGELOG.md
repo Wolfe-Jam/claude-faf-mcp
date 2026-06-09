@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
-<!-- faf: doc=changelog | latest=v5.6.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.6.2 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,22 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [5.6.2] - 2026-06-08
+
+MCP capability completeness — the stdio server now answers every capability it
+advertises. Strict clients (Claude Desktop, Cursor) and Glama's Inspector probe
+each advertised capability; a `-32601` flags the server even when tools work.
+
+### Fixed
+
+- **`resources/templates/list` now returns `{ resourceTemplates: [] }`** instead
+  of `-32601`. Registered `ListResourceTemplatesRequestSchema` (`src/server.ts`).
+- **Dropped unbacked `subscribe: true`** from the advertised `resources`
+  capability (no subscribe handler exists) → `resources: { listChanged: true }`.
+  `/info` payload aligned. `prompts` was already backed — unchanged.
+
+No tool changes. Repo hygiene (prior): removed 41MB of committed build artifacts.
 
 ## [5.6.1] - 2026-05-26
 
