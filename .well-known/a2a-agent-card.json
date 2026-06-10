@@ -1,0 +1,295 @@
+{
+  "protocolVersion": "1.0",
+  "name": "claude-faf-mcp",
+  "description": "Persistent project context for Claude — define once, never re-explain. The FAF Context MCP for Claude Desktop and Claude Code.",
+  "url": "https://mcpaas.live/claude/a2a",
+  "version": "5.7.1",
+  "provider": {
+    "organization": "WolfeJAM",
+    "url": "https://faf.one"
+  },
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "faf",
+      "name": "faf",
+      "description": "Type faf to start — scores, drives to 100%, syncs everything",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_about",
+      "name": "faf_about",
+      "description": "Learn what .faf format is",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_status",
+      "name": "faf_status",
+      "description": "Check if project has project.faf",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_score",
+      "name": "faf_score",
+      "description": "Calculate AI-readiness score (0-100%)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_init",
+      "name": "faf_init",
+      "description": "Create project.faf for a project",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_trust",
+      "name": "faf_trust",
+      "description": "Validate project.faf integrity",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_sync",
+      "name": "faf_sync",
+      "description": "Sync .faf with CLAUDE.md",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_enhance",
+      "name": "faf_enhance",
+      "description": "Enhance .faf with AI optimization",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_bi_sync",
+      "name": "faf_bi_sync",
+      "description": "Bi-directional sync to all AI formats",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_clear",
+      "name": "faf_clear",
+      "description": "Clear caches and reset state",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_debug",
+      "name": "faf_debug",
+      "description": "Debug MCP environment info",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_read",
+      "name": "faf_read",
+      "description": "Read file content",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_write",
+      "name": "faf_write",
+      "description": "Write file content",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_list",
+      "name": "faf_list",
+      "description": "List and discover .faf projects",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_friday",
+      "name": "faf_friday",
+      "description": "Fun features and fuzzy matching",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_guide",
+      "name": "faf_guide",
+      "description": "FAF MCP usage guide",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_readme",
+      "name": "faf_readme",
+      "description": "Extract context from README.md",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_human_add",
+      "name": "faf_human_add",
+      "description": "Add human context (6Ws)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_check",
+      "name": "faf_check",
+      "description": "Quality inspection for .faf fields",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_context",
+      "name": "faf_context",
+      "description": "Set or view active project context",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_go",
+      "name": "faf_go",
+      "description": "Guided interview to Gold Code (100%)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_auto",
+      "name": "faf_auto",
+      "description": "Zero to AI context in one command",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_dna",
+      "name": "faf_dna",
+      "description": "Show project DNA evolution journey",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_formats",
+      "name": "faf_formats",
+      "description": "Discover all formats in your project",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_quick",
+      "name": "faf_quick",
+      "description": "Lightning-fast .faf creation",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_doctor",
+      "name": "faf_doctor",
+      "description": "Diagnose and fix .faf issues",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_agents",
+      "name": "faf_agents",
+      "description": "Sync AGENTS.md (OpenAI/Codex)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_cursor",
+      "name": "faf_cursor",
+      "description": "Sync .cursorrules (Cursor IDE)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_gemini",
+      "name": "faf_gemini",
+      "description": "Sync GEMINI.md (Google Gemini)",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_conductor",
+      "name": "faf_conductor",
+      "description": "Sync Conductor directory",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_git",
+      "name": "faf_git",
+      "description": "Generate .faf from GitHub repo URL",
+      "tags": [
+        "faf"
+      ]
+    },
+    {
+      "id": "faf_tri_sync",
+      "name": "faf_tri_sync",
+      "description": "Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers",
+      "tags": [
+        "faf"
+      ]
+    }
+  ],
+  "extensions": [
+    {
+      "uri": "https://one.faf/context",
+      "description": "FAF context provenance — the durable context block (one context, every door).",
+      "required": false,
+      "params": {
+        "faf": "./project.faf",
+        "mediaType": "application/vnd.faf+yaml",
+        "deterministic": true,
+        "generated": "2026-06-10T05:17:34Z"
+      }
+    }
+  ]
+}
