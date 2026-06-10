@@ -82,7 +82,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.5.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.5.2.mcpb)
+[**⬇ Download `claude-faf-mcp-5.7.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.7.0.mcpb)
 
 Double-click. **No terminal. No JSON config. 32 tools live in 10 seconds.**
 

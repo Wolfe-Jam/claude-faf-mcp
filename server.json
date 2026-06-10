@@ -52,6 +52,15 @@
       "transport": {
         "type": "stdio"
       }
+    },
+    {
+      "registryType": "mcpb",
+      "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.7.0/claude-faf-mcp-5.7.0.mcpb",
+      "version": "5.7.0",
+      "fileSha256": "b3d36176c44a6ec65ff03cd71a0306188edec325b7bf1e9c250c0e4376a7f6df",
+      "transport": {
+        "type": "stdio"
+      }
     }
   ]
 }
