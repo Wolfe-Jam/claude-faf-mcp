@@ -128,7 +128,7 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafAuto = tools.find(t => t.name === 'faf_auto');
         expect(fafAuto).toBeDefined();
-        expect(fafAuto?.description).toContain('ONE COMMAND');
+        expect(fafAuto?.description).toContain('pipeline');
       });
 
       it('should include faf_dna in tool list', async () => {
@@ -142,7 +142,7 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafFormats = tools.find(t => t.name === 'faf_formats');
         expect(fafFormats).toBeDefined();
-        expect(fafFormats?.description).toContain('TURBO-CAT');
+        expect(fafFormats?.description).toContain('formats');
       });
 
       it('should include faf_quick in tool list', async () => {
