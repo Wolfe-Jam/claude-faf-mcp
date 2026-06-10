@@ -1,6 +1,4 @@
-import { describe, test, expect } from 'bun:test';
-import * as fs from 'fs';
-import * as YAML from 'yaml';
+import { test, expect } from 'bun:test';
 import { fafaToA2ACard, A2A_PROTOCOL_VERSION } from '../src/fafa/a2a-card';
 
 const FAFA = {
@@ -52,48 +50,10 @@ test('default I/O modes present + valid JSON-serializable', () => {
   expect(() => JSON.stringify(c)).not.toThrow();
 });
 
-// ── Test A: the SHIPPED artifact (.well-known/a2a-agent-card.json) — conformance + parity ──
-describe('A2A AgentCard artifact: A2A v1.0 conformance + parity', () => {
-  const card = JSON.parse(fs.readFileSync('.well-known/a2a-agent-card.json', 'utf8'));
-  const fafa = YAML.parse(fs.readFileSync('agent.fafa', 'utf8'));
-
-  test('A2A v1.0 required top-level fields', () => {
-    expect(card.protocolVersion).toBe('1.0');
-    expect(typeof card.name).toBe('string');
-    expect(card.url).toMatch(/^https:\/\//);
-    expect(typeof card.capabilities.streaming).toBe('boolean');
-    expect(typeof card.capabilities.pushNotifications).toBe('boolean');
-    expect(typeof card.capabilities.extendedAgentCard).toBe('boolean');
-  });
-
-  test('every skill has required id + name; ids unique', () => {
-    expect(Array.isArray(card.skills)).toBe(true);
-    expect(card.skills.length).toBeGreaterThan(0);
-    for (const s of card.skills) {
-      expect(typeof s.id).toBe('string');
-      expect(typeof s.name).toBe('string');
-    }
-    const ids = card.skills.map((s: any) => s.id);
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
-  test('PARITY: card skills === agent.fafa capabilities (no drift from its source)', () => {
-    const cardIds = card.skills.map((s: any) => s.id).sort();
-    const fafaIds = fafa.capabilities.map((c: any) => c.name).sort();
-    expect(cardIds).toEqual(fafaIds);
-  });
-
-  test('FAF context extension is one.faf/context — NEVER io.faf', () => {
-    const ext = (card.extensions || []).find((e: any) => /one\.faf\/context/.test(e.uri));
-    expect(ext).toBeDefined();
-    expect(JSON.stringify(card)).not.toContain('io.faf');
-    expect(ext.params.faf).toBeTruthy();
-    expect(ext.params.mediaType).toBe('application/vnd.faf+yaml');
-  });
-
-  test('provider + IO modes present; round-trips through JSON unchanged', () => {
-    expect(card.provider.organization).toBeTruthy();
-    expect(card.defaultInputModes).toContain('application/json');
-    expect(JSON.parse(JSON.stringify(card))).toEqual(card);
-  });
+// Note: no shipped .well-known A2A card. The local agent is A2A-MAPPABLE (this
+// mapper) but not A2A-SERVED — a card is only emitted where a real A2A endpoint
+// exists, with that endpoint's real url + tools. Identity (.fafa) ≠ hosting.
+test('mapper requires a real url to be supplied (no fabricated default)', () => {
+  const c = fafaToA2ACard(FAFA, { url: URL });
+  expect(c.url).toBe(URL); // url comes from the caller (a real endpoint), never baked in
 });
