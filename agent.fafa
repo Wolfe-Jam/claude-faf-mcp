@@ -1,0 +1,238 @@
+# claude-faf-mcp — FAF Agent Card (.fafa)
+# Generated from package.json + manifest.json + server.json. Capabilities = the live MCP tools.
+# Provenance is the canonical FAF context block (one context, every door).
+
+version: "0.1"
+agent:
+  name: claude-faf-mcp
+  id: did:web:faf.one:claude-faf-mcp
+  vendor: WolfeJAM
+  version: 5.7.1
+  description: Persistent project context for Claude — define once, never
+    re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
+  homepage: https://faf.one
+  license: MIT
+capabilities:
+  - name: faf
+    type: tool
+    description: Type faf to start — scores, drives to 100%, syncs everything
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_about
+    type: tool
+    description: Learn what .faf format is
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_status
+    type: tool
+    description: Check if project has project.faf
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_score
+    type: tool
+    description: Calculate AI-readiness score (0-100%)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+    apophatic: true
+  - name: faf_init
+    type: tool
+    description: Create project.faf for a project
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_trust
+    type: tool
+    description: Validate project.faf integrity
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+    apophatic: true
+  - name: faf_sync
+    type: tool
+    description: Sync .faf with CLAUDE.md
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_enhance
+    type: tool
+    description: Enhance .faf with AI optimization
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_bi_sync
+    type: tool
+    description: Bi-directional sync to all AI formats
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_clear
+    type: tool
+    description: Clear caches and reset state
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_debug
+    type: tool
+    description: Debug MCP environment info
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_read
+    type: tool
+    description: Read file content
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_write
+    type: tool
+    description: Write file content
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_list
+    type: tool
+    description: List and discover .faf projects
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_friday
+    type: tool
+    description: Fun features and fuzzy matching
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_guide
+    type: tool
+    description: FAF MCP usage guide
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_readme
+    type: tool
+    description: Extract context from README.md
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_human_add
+    type: tool
+    description: Add human context (6Ws)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_check
+    type: tool
+    description: Quality inspection for .faf fields
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+    apophatic: true
+  - name: faf_context
+    type: tool
+    description: Set or view active project context
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_go
+    type: tool
+    description: Guided interview to Gold Code (100%)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_auto
+    type: tool
+    description: Zero to AI context in one command
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_dna
+    type: tool
+    description: Show project DNA evolution journey
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_formats
+    type: tool
+    description: Discover all formats in your project
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_quick
+    type: tool
+    description: Lightning-fast .faf creation
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_doctor
+    type: tool
+    description: Diagnose and fix .faf issues
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+    apophatic: true
+  - name: faf_agents
+    type: tool
+    description: Sync AGENTS.md (OpenAI/Codex)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_cursor
+    type: tool
+    description: Sync .cursorrules (Cursor IDE)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_gemini
+    type: tool
+    description: Sync GEMINI.md (Google Gemini)
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_conductor
+    type: tool
+    description: Sync Conductor directory
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_git
+    type: tool
+    description: Generate .faf from GitHub repo URL
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_tri_sync
+    type: tool
+    description: Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+endpoints:
+  - protocol: mcp
+    version: 2025-06-18
+    transport: stdio
+    location: claude-faf-mcp
+  - protocol: mcp
+    version: 2025-06-18
+    transport: http
+    location: https://mcpaas.live/claude/mcp/v1
+provenance:
+  faf: ./project.faf
+  mediaType: application/vnd.faf+yaml
+  deterministic: true
+  generated: 2026-06-10T05:17:34Z
+metadata:
+  repository: https://github.com/Wolfe-Jam/claude-faf-mcp
+  privacy: Runs locally. No telemetry, no analytics, no data leaves the machine.
+  tool_tiers:
+    status: planned
+    model: Essentials (~17 core) + Extended specialist kit
+    note: Capabilities declared flat for now; tier-based surfacing is a planned
+      dimension (per the tool-surface curation design), not yet finalized — no
+      fabricated split.
+  trinity:
+    context: ./project.faf (live)
+    memory: soul.fafm (planned)
+    agent: this card
