@@ -26,12 +26,12 @@ stack:
   search: slotignored
   storage: slotignored
 human_context:
-  who: Claude Desktop and Claude Code users who want persistent project context
-  what: MCP server — 32 FAF tools for project DNA, scoring, and context sync
-  why: Zero project re-explaining across AI sessions — define once, remember forever
-  where: npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
-  when: v5.7.0 (The Canonical Edition), June 2026
-  how: One-click .mcpb or npm install -g claude-faf-mcp
+  who: Claude Desktop + Code devs
+  what: Persistent project-context MCP server
+  why: Define once, never re-explain
+  where: npm, Claude, MCP registry
+  when: Every coding session
+  how: One-click .mcpb install
 monorepo:
   packages_count: slotignored
   build_orchestrator: slotignored

@@ -19,13 +19,13 @@ Persistent project context for Claude — define once, never re-explain
 
 ## Context
 
-- **Who:** Claude Desktop and Claude Code users who want persistent project context
-- **What:** MCP server — 32 FAF tools for project DNA, scoring, and context sync
-- **Why:** Zero project re-explaining across AI sessions — define once, remember forever
-- **Where:** npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
-- **When:** v5.7.0 (The Canonical Edition), June 2026
-- **How:** One-click .mcpb or npm install -g claude-faf-mcp
+- **Who:** Claude Desktop + Code devs
+- **What:** Persistent project-context MCP server
+- **Why:** Define once, never re-explain
+- **Where:** npm, Claude, MCP registry
+- **When:** Every coding session
+- **How:** One-click .mcpb install
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-10T00:47:24.782Z*
+*STATUS: BI-SYNC ACTIVE — 2026-06-10T00:49:28.747Z*
