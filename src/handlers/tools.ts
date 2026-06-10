@@ -14,6 +14,7 @@ import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 // Truthful single-source FAF score wiring — see src/utils/faf-cli-bridge.ts
 // for why this exists (faf-cli's bun exports condition + Node 18 ESM-from-CJS).
 import { fafCli } from '../utils/faf-cli-bridge.js';
+import { Soul } from '../fafm/faf-memory.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -728,6 +729,80 @@ export class FafToolHandler {
             },
             additionalProperties: false
           }
+        },
+        {
+          name: 'faf_etch',
+          description: 'Etch a memory — remember this across sessions (a decision, gotcha, or win). Writes to the project soul (.fafm).',
+          annotations: { title: 'Etch Memory', readOnlyHint: false, destructiveHint: false, openWorldHint: false },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              text: { type: 'string', description: 'The memory to remember — capture the why (decision/gotcha/win)' },
+              id: { type: 'string', description: 'Stable id — re-etching the same id updates in place (dedup)' },
+              type: { type: 'string', enum: ['project', 'reference', 'user', 'feedback'], description: 'Memory category' },
+              priority: { type: 'string', enum: ['ephemeral', 'standard', 'high', 'critical'], description: 'Recall ranks by priority then recency' },
+              tags: { type: 'array', items: { type: 'string' }, description: 'Tags (e.g. decision, gotcha, win) for filtering + recall coupling' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            required: ['text'],
+            additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'The etched fact + soul state.',
+            properties: {
+              etched: {
+                type: 'object',
+                properties: {
+                  text: { type: 'string' }, id: { type: ['string', 'null'] }, type: { type: ['string', 'null'] },
+                  priority: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } }, timestamp: { type: 'string' }
+                }
+              },
+              soul: { type: 'string', description: 'Path to soul.fafm' },
+              total: { type: 'number', description: 'Total memories in the soul' },
+              namepoint: { type: 'string' }
+            },
+            required: ['etched', 'soul'],
+            additionalProperties: true
+          }
+        },
+        {
+          name: 'faf_recall',
+          description: 'Recall memories from the project soul (.fafm), ranked by priority then recency.',
+          annotations: { title: 'Recall Memory', readOnlyHint: true, destructiveHint: false, openWorldHint: false },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: { type: 'string', description: 'Case-insensitive substring match on memory text (optional)' },
+              tags: { type: 'array', items: { type: 'string' }, description: 'Filter by tag intersection' },
+              type: { type: 'string', description: 'Filter by memory type' },
+              minPriority: { type: 'string', enum: ['ephemeral', 'standard', 'high', 'critical'], description: 'Priority floor (default ephemeral)' },
+              limit: { type: 'number', description: 'Max memories to return' },
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
+            additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Ranked memories from the soul.',
+            properties: {
+              memories: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    text: { type: 'string' }, id: { type: ['string', 'null'] }, type: { type: ['string', 'null'] },
+                    priority: { type: 'string' }, tags: { type: 'array', items: { type: 'string' } }, timestamp: { type: ['string', 'null'] }
+                  }
+                }
+              },
+              total: { type: 'number', description: 'Number returned' },
+              soulTotal: { type: 'number', description: 'Total memories in the soul' },
+              soul: { type: 'string' }
+            },
+            required: ['memories', 'total'],
+            additionalProperties: true
+          }
         }
       ] as Tool[]
     };
@@ -852,6 +927,10 @@ Once confirmed, the sequence is:
         return await this.handleFafGit(args);
       case 'faf_tri_sync':
         return await this.handleFafTriSync(args);
+      case 'faf_etch':
+        return await this.handleFafEtch(args);
+      case 'faf_recall':
+        return await this.handleFafRecall(args);
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -893,6 +972,57 @@ Once confirmed, the sequence is:
         structuredContent: { hasFaf: false, filename: null, path: null, directory: cwd },
         isError: true
       };
+    }
+  }
+
+  // ── FAFm Memory layer ── etch/recall over the project soul (.fafm). Quiet + typed.
+  private async handleFafEtch(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const soulPath = pathModule.join(cwd, 'soul.fafm');
+    const namepoint = `@claude-code:${pathModule.basename(cwd)}`;
+    try {
+      const soul = Soul.open(soulPath, namepoint);
+      const fact = soul.etch({ text: args.text, id: args?.id, type: args?.type, priority: args?.priority, tags: args?.tags });
+      soul.save(soulPath);
+      const tagStr = fact.tags.length ? ', ' + fact.tags.join('/') : '';
+      return {
+        content: [{ type: 'text', text:
+          `Etched to soul.fafm: "${fact.text}"${fact.id ? ` [${fact.id}]` : ''} (${fact.priority}${tagStr})\n` +
+          `${soul.facts.length} ${soul.facts.length === 1 ? 'memory' : 'memories'} in the soul.` }],
+        structuredContent: {
+          etched: { text: fact.text, id: fact.id ?? null, type: fact.type ?? null, priority: fact.priority, tags: fact.tags, timestamp: fact.timestamp },
+          soul: soulPath, total: soul.facts.length, namepoint: soul.namepoint
+        }
+      };
+    } catch (error: any) {
+      return { content: [{ type: 'text', text: `faf_etch failed: ${error?.message ?? String(error)}` }], isError: true };
+    }
+  }
+
+  private async handleFafRecall(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    const soulPath = pathModule.join(cwd, 'soul.fafm');
+    if (!fs.existsSync(soulPath)) {
+      return {
+        content: [{ type: 'text', text: `No soul.fafm in ${cwd}. Use faf_etch to remember the first thing.` }],
+        structuredContent: { memories: [], total: 0, soulTotal: 0, soul: soulPath }
+      };
+    }
+    try {
+      const soul = Soul.load(soulPath);
+      const hits = soul.recall({ query: args?.query, tags: args?.tags, type: args?.type, minPriority: args?.minPriority, limit: args?.limit });
+      const lines = hits.map((f) => `- [${f.priority}] ${f.text}${f.tags.length ? ` (${f.tags.join('/')})` : ''}${f.id ? ` {${f.id}}` : ''}`);
+      return {
+        content: [{ type: 'text', text: hits.length
+          ? `${hits.length} ${hits.length === 1 ? 'memory' : 'memories'} recalled:\n${lines.join('\n')}`
+          : `No memories matched (${soul.facts.length} in the soul).` }],
+        structuredContent: {
+          memories: hits.map((f) => ({ text: f.text, id: f.id ?? null, type: f.type ?? null, priority: f.priority, tags: f.tags, timestamp: f.timestamp ?? null })),
+          total: hits.length, soulTotal: soul.facts.length, soul: soulPath
+        }
+      };
+    } catch (error: any) {
+      return { content: [{ type: 'text', text: `faf_recall failed: ${error?.message ?? String(error)}` }], isError: true };
     }
   }
 
