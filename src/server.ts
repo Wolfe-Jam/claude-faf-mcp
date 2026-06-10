@@ -146,7 +146,7 @@ export class ClaudeFafMcpServer {
       transport: this.config.transport,
       port: this.config.port,
       host: this.config.host,
-      championship: 'v5.4.0 - 32 tools + faf prompt'
+      championship: `v${VERSION} - 32 tools + faf prompt`
     };
   }
 }

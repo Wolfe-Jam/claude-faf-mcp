@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "5.7.0",
+  "version": "5.7.1",
   "mcpName": "io.github.Wolfe-Jam/claude-faf-mcp",
   "description": "Persistent Project Context for Claude. IANA-registered .faf format, 32 MCP tools, 423 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
@@ -130,7 +130,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@upstash/redis": "^1.37.0",
     "esbuild": "^0.27.3",
-    "faf-cli": "^6.7.1",
+    "faf-cli": "^6.8.0",
     "faf-scoring-kernel": "^2.0.3",
     "yaml": "^2.4.1"
   },

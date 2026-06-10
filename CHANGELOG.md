@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
-<!-- faf: doc=changelog | latest=v5.7.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.7.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -7,6 +7,24 @@ All notable changes to claude-faf-mcp will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+
+## [5.7.1] - 2026-06-10 — The Canonical Edition
+
+Typed structured output and one-click registry install — the reliability layer made machine-readable.
+
+### Added
+
+- **MCP `structuredContent` + `outputSchema`** on `faf_score` and `faf_status` — typed structured results (score, tier, populated/empty/ignored/total, next tier; status, filename, path) returned alongside the human-readable text on every path. Spec 2025-06-18; text retained for backward compatibility.
+- **`mcpb` registry package** in `server.json` — one-click Claude Desktop install from the MCP registry, pointing at the released `.mcpb` with its SHA-256.
+
+### Fixed
+
+- **README one-click link** pointed at `claude-faf-mcp-5.5.2.mcpb` (404 on the current release) → now the live bundle.
+
+### Changed
+
+- **No stale version references** — faf-cli bumped to `^6.8.0` (latest); `project.faf` `faf_version` corrected to `2.5.0` (matches the latest tooling / base tier, not the enterprise 33-slot marker); `docs/index.html` version badge and a hardcoded server-info version string now track the package version.
 
 
 ## [5.7.0] - 2026-06-09 — The Canonical Edition
