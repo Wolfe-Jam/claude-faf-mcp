@@ -1,0 +1,54 @@
+name: Publish to MCP Registry
+
+# Keeps the MCP Registry (and downstream directories like Glama) in lock-step
+# with the repo: every published GitHub Release pushes the current server.json
+# to registry.modelcontextprotocol.io. No human, no hand-cranked mcp-publisher,
+# no drift (this is why claude sat at a stale v2.6.1 while the repo was at 5.7.x).
+#
+# Auth = GitHub OIDC. NO stored secret — the registry trusts the workflow's
+# identity to authorise the io.github.Wolfe-Jam/* namespace (repo owner matches).
+
+on:
+  release:
+    types: [published]      # each release = a new server.json version → publish it
+  workflow_dispatch: {}      # manual re-publish if ever needed
+
+permissions:
+  contents: read
+  id-token: write            # REQUIRED for `mcp-publisher login github-oidc`
+
+concurrency:
+  group: mcp-registry-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mcp-publisher
+        run: |
+          set -euo pipefail
+          TAG=$(curl -fsSL https://api.github.com/repos/modelcontextprotocol/registry/releases/latest \
+                  | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | cut -d'"' -f4)
+          VER=${TAG#v}
+          echo "mcp-publisher ${TAG}"
+          # If this asset name ever 404s, check the registry release page for the exact name.
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${TAG}/mcp-publisher_${VER}_linux_amd64.tar.gz" \
+            | tar -xz mcp-publisher
+          chmod +x mcp-publisher
+
+      - name: Validate server.json
+        run: ./mcp-publisher validate
+
+      - name: Authenticate (GitHub OIDC — no stored secret)
+        run: ./mcp-publisher login github-oidc
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish
+
+      - name: Confirm
+        run: |
+          echo "Published $(grep -o '\"version\"[^,]*' server.json | head -1) to the MCP Registry."
+          echo "Glama and other directories will re-sync from the registry on their next crawl."
