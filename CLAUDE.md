@@ -1,11 +1,11 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp | Universal FAF MCP Server for Claude Desktop - AI Context Intelligence -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp | Persistent project context for Claude — define once, never re-explain -->
 <!-- faf: claim=project.faf | family=FAF -->
 
 # CLAUDE.md — claude-faf-mcp
 
 ## What This Is
 
-Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
+Persistent project context for Claude — define once, never re-explain
 
 ## Stack
 
@@ -14,18 +14,18 @@ Universal FAF MCP Server for Claude Desktop - AI Context Intelligence
 - **Api Type:** MCP (stdio + Streamable HTTP)
 - **Runtime:** Node.js
 - **Hosting:** npm/Claude Desktop
-- **Build:** esbuild
+- **Build:** tsc
 - **Cicd:** GitHub Actions
 
 ## Context
 
-- **Who:** Claude Desktop users who want persistent AI project context
+- **Who:** Claude Desktop and Claude Code users who want persistent project context
 - **What:** MCP server — 32 FAF tools for project DNA, scoring, and context sync
 - **Why:** Zero project re-explaining across AI sessions — define once, remember forever
 - **Where:** npm, Claude Desktop, MCP Registry (io.github.Wolfe-Jam/claude-faf-mcp)
 - **When:** v5.7.0 (The Canonical Edition), June 2026
-- **How:** npm install -g claude-faf-mcp
+- **How:** One-click .mcpb or npm install -g claude-faf-mcp
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-09T12:52:07.994Z*
+*STATUS: BI-SYNC ACTIVE — 2026-06-10T00:47:24.782Z*
