@@ -32,10 +32,9 @@ jobs:
           set -euo pipefail
           TAG=$(curl -fsSL https://api.github.com/repos/modelcontextprotocol/registry/releases/latest \
                   | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | cut -d'"' -f4)
-          VER=${TAG#v}
           echo "mcp-publisher ${TAG}"
-          # If this asset name ever 404s, check the registry release page for the exact name.
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${TAG}/mcp-publisher_${VER}_linux_amd64.tar.gz" \
+          # Asset name carries NO version: mcp-publisher_<os>_<arch>.tar.gz
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/${TAG}/mcp-publisher_linux_amd64.tar.gz" \
             | tar -xz mcp-publisher
           chmod +x mcp-publisher
 
