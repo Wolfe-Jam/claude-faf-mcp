@@ -806,14 +806,14 @@ describe('🏎️ TIER 7: Integration Readiness', () => {
       });
     });
 
-    it('SHOULD: Include emoji indicators for discoverability', async () => {
+    it('SHOULD: Tool descriptions are clean — no decorative emoji (Trophy-only doctrine)', async () => {
       const result = await handler.listTools();
       const toolsWithEmoji = result.tools.filter((t: any) =>
         /[\u{1F300}-\u{1F9FF}]/u.test(t.description)
       );
 
-      // Most tools should have emoji for Claude Desktop visibility
-      expect(toolsWithEmoji.length / result.tools.length).toBeGreaterThan(0.5);
+      // Descriptions stay clean/precise — no decorative emoji (guards against regression).
+      expect(toolsWithEmoji.length).toBe(0);
     });
   });
 

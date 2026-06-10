@@ -70,7 +70,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_about',
-          description: 'Learn what .faf format is - project DNA for AI 🧡⚡️',
+          description: 'Learn what .faf format is - project DNA for AI',
           annotations: {
             title: 'About FAF',
             readOnlyHint: true,
@@ -85,7 +85,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_status',
-          description: 'Check if your project has project.faf (project DNA for AI) - Shows AI-readability status 🧡⚡️',
+          description: 'Check if your project has project.faf (project DNA for AI) - Shows AI-readability status',
           annotations: {
             title: 'Project Status',
             readOnlyHint: true,
@@ -114,7 +114,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate your project\'s AI-readability from project.faf (project DNA for AI) - F1-inspired metrics! 🧡⚡️',
+          description: 'Calculate your project\'s AI-readability from project.faf (project DNA for AI) - F1-inspired metrics!',
           annotations: {
             title: 'AI-Readiness Score',
             readOnlyHint: true,
@@ -158,7 +158,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create project.faf (project DNA for AI) - Makes your project instantly AI-readable 🧡⚡️. Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
+          description: 'Create project.faf (project DNA for AI) - Makes your project instantly AI-readable . Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
           annotations: {
             title: 'Initialize .faf',
             readOnlyHint: false,
@@ -179,7 +179,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_trust',
-          description: 'Validate project.faf integrity - Trust metrics for project DNA for AI 🧡⚡️',
+          description: 'Validate project.faf integrity - Trust metrics for project DNA for AI',
           annotations: {
             title: 'Trust Score',
             readOnlyHint: true,
@@ -194,7 +194,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context 🧡⚡️',
+          description: 'Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context',
           annotations: {
             title: 'Sync .faf to CLAUDE.md',
             readOnlyHint: false,
@@ -211,7 +211,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift 🧡⚡️',
+          description: 'Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift',
           annotations: {
             title: 'Enhance .faf',
             readOnlyHint: false,
@@ -375,7 +375,7 @@ export class FafToolHandler {
         // stub (below). Fleet sweep — mirrors grok-faf-mcp's retire.
         {
           name: 'faf_friday',
-          description: '🎉 Friday Features - Chrome Extension detection, fuzzy matching & more! 🧡⚡️',
+          description: 'Detect the FAF Chrome extension and run fuzzy-matching helpers.',
           annotations: {
             title: 'Fun FAF Facts',
             readOnlyHint: true,
@@ -410,7 +410,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_readme',
-          description: '📖 Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching 🧡⚡️',
+          description: 'Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching',
           annotations: {
             title: 'Extract from README',
             readOnlyHint: false,
@@ -429,7 +429,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_human_add',
-          description: '🧡 Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP 🧡⚡️',
+          description: 'Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP',
           annotations: {
             title: 'Add Human Context',
             readOnlyHint: false,
@@ -453,7 +453,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_check',
-          description: '🔍 Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings 🧡⚡️',
+          description: 'Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings',
           annotations: {
             title: 'Check .faf Health',
             readOnlyHint: true,
@@ -472,7 +472,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_context',
-          description: '📂 Set or view active project context - Path is remembered for subsequent faf_ calls 🧡⚡️',
+          description: 'Set or view active project context - Path is remembered for subsequent faf_ calls',
           annotations: {
             title: 'View Context',
             readOnlyHint: true,
@@ -489,7 +489,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_go',
-          description: '🎯 Guided interview to Gold Code - Claude asks questions till you hit 100%! Returns questions for missing fields, then apply answers to reach Gold Code 🧡⚡️',
+          description: 'Guided interview to Gold Code (100%): returns questions for missing fields, then applies your answers.',
           annotations: {
             title: 'Guided Setup',
             readOnlyHint: false,
@@ -511,7 +511,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_auto',
-          description: '🏎️ ONE COMMAND TO RULE THEM ALL - Zero to Championship AI context instantly! Runs init + sync + formats + bi-sync + score in one go 🧡⚡️',
+          description: 'Run the full FAF pipeline in one step: init + sync + formats + bi-sync + score.',
           annotations: {
             title: 'Auto-detect Context',
             readOnlyHint: false,
@@ -529,7 +529,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_dna',
-          description: '🧬 Show your FAF DNA journey - See your evolution from birth to championship (22% → 85% → 99%) 🧡⚡️',
+          description: 'Show the project FAF DNA — score history and progression over time.',
           annotations: {
             title: 'View Project DNA',
             readOnlyHint: true,
@@ -546,7 +546,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_formats',
-          description: '😽 TURBO-CAT format discovery - Discovers all formats in your project (154+ validated types!) and fills stack slots 🧡⚡️',
+          description: 'Discover all formats in the project (154+ validated types) and fill stack slots.',
           annotations: {
             title: 'List Formats',
             readOnlyHint: true,
@@ -564,7 +564,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_quick',
-          description: '⚡ Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting" 🧡⚡️',
+          description: 'Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting"',
           annotations: {
             title: 'Quick Create',
             readOnlyHint: false,
@@ -584,7 +584,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_doctor',
-          description: '🏥 Health check for your .faf setup - Diagnose and fix common issues 🧡⚡️',
+          description: 'Health check for your .faf setup - Diagnose and fix common issues',
           annotations: {
             title: 'Diagnose Issues',
             readOnlyHint: true,
@@ -707,7 +707,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_tri_sync',
-          description: 'Sync project.faf ↔ CLAUDE.md ↔ MEMORY.md — Nelly never forgets. Pro feature, free for developers. Your AI remembers your project across every session.',
+          description: 'Tri-directionally sync project.faf ↔ CLAUDE.md ↔ MEMORY.md so context persists across sessions.',
           annotations: {
             title: 'Tri-Sync to MEMORY.md',
             readOnlyHint: false,
