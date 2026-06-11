@@ -17,6 +17,7 @@ import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
+import { buildReceipt, renderReceipt } from '../trust/receipt.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -230,6 +231,20 @@ export class FafToolHandler {
                   projection: { type: 'string' }
                 },
                 required: ['spec', 'parityHash', 'sourceSha256', 'projection']
+              },
+              receipt: {
+                type: 'object',
+                description: 'The ✪ trust receipt — render-identical, self-verifying score+parity artifact.',
+                properties: {
+                  spec: { type: 'string' },
+                  seal: { type: 'string', description: 'Quiet-ladder glyph for this score (✪ at Trophy)' },
+                  subject: { type: 'string' },
+                  score: { type: 'number' },
+                  tier: { type: 'string' },
+                  tests: { type: ['object', 'null'], description: 'Optional test attestation' },
+                  issued: { type: ['string', 'null'] }
+                },
+                required: ['spec', 'seal', 'subject', 'score']
               }
             },
             required: ['valid', 'hasFaf'],
@@ -1568,13 +1583,16 @@ package_manager: ${projectData.package_manager}` : ''}
       { producedBy: `claude-faf-mcp@${VERSION}` },
     );
 
+    const receipt = buildReceipt({
+      subject: `claude-faf-mcp@${VERSION}`,
+      score: result.score,
+      tier: result.tier.name,
+      parity,
+    });
+
     const text =
-      `FAF Trust: VALID\n` +
-      `score: ${result.score}/100 (${result.tier.name})\n` +
-      `source sha256: ${parity.sourceSha256}\n` +
-      `parity (${parity.spec}): ${parity.parityHash}\n\n` +
-      `Deterministic: any conformant engine reproduces this hash from the same file. ` +
-      `Verify with sha256(projection) === parityHash.`;
+      `${renderReceipt(receipt)}\n\n` +
+      `Deterministic: any conformant engine reproduces this hash from the same file.`;
 
     return {
       content: [{ type: 'text', text }],
@@ -1586,6 +1604,7 @@ package_manager: ${projectData.package_manager}` : ''}
         path: fafPath,
         sourceSha256: parity.sourceSha256,
         parity,
+        receipt,
       }
     };
   }
