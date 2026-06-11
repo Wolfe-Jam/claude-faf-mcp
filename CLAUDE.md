@@ -1,6 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp | Persistent project context for Claude — define once, never re-explain -->
-<!-- faf: claim=project.faf | family=FAF -->
-
+<!-- faf:start -->
 # CLAUDE.md — claude-faf-mcp
 
 ## What This Is
@@ -28,4 +26,5 @@ Persistent project context for Claude — define once, never re-explain
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-10T01:27:09.822Z*
+*STATUS: BI-SYNC ACTIVE — 2026-06-11T18:47:36.657Z*
+<!-- faf:end -->

@@ -45,18 +45,18 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
       expect(fs.existsSync(path.join(dir, 'CLAUDE.md'))).toBe(false);
     });
 
-    test('no CLAUDE.md → creates it with the faf block', async () => {
+    test('no CLAUDE.md → creates it with the faf block + heartbeat line', async () => {
       fs.writeFileSync(path.join(dir, 'project.faf'), FAF_CONTENT);
       const r = await sessionRefresh(dir);
       expect(r.action).toBe('created');
-      expect(r.message).toContain('faf:');
+      expect(r.message).toMatch(/^faf: CLAUDE\.md created/);
       const md = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf-8');
       expect(md).toContain(FAF_START);
       expect(md).toContain(FAF_END);
       expect(md).toContain('hook-test');
     });
 
-    test('fresh CLAUDE.md (markers + newer than .faf) → SILENT no-op, no write', async () => {
+    test('fresh CLAUDE.md (markers + newer than .faf) → no WRITE, heartbeat still beats', async () => {
       fs.writeFileSync(path.join(dir, 'project.faf'), FAF_CONTENT);
       await sessionRefresh(dir); // create
       const mdPath = path.join(dir, 'CLAUDE.md');
@@ -65,9 +65,18 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
 
       const r = await sessionRefresh(dir);
       expect(r.action).toBe('fresh');
-      expect(r.message).toBe(''); // silent when nothing changed
-      expect(fs.statSync(mdPath).mtimeMs).toBe(before); // no mtime churn
-      expect(fs.readFileSync(mdPath, 'utf-8')).toBe(contentBefore);
+      // The relay: one line, the baton. Seal + score when the kernel is present.
+      expect(r.message).toMatch(/^faf: context (?:[♡○●◇◆★✪] \d+% — )?fresh$/);
+      expect(fs.statSync(mdPath).mtimeMs).toBe(before); // still no mtime churn
+      expect(fs.readFileSync(mdPath, 'utf-8')).toBe(contentBefore); // still no write
+    });
+
+    test('heartbeat carries the quiet-ladder seal + score (kernel present)', async () => {
+      fs.writeFileSync(path.join(dir, 'project.faf'), FAF_CONTENT);
+      await sessionRefresh(dir);
+      const r = await sessionRefresh(dir);
+      // In this repo faf-cli IS installed → the seal must actually appear.
+      expect(r.message).toMatch(/[♡○●◇◆★✪] \d+%/);
     });
 
     test('stale CLAUDE.md (older than .faf) → refreshes the block, preserves user content', async () => {
