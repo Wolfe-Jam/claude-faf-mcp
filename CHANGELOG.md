@@ -9,6 +9,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+**Interop now enhances your files.** The same solid, structured `.faf` data is prefixed to the top of your context files for rapid AI consumption upfront — and your Markdown stays in the instruction lane.
+
+### Changed
+
+- **Non-destructive interop.** `faf_agents`, `faf_gemini`, `faf_cursor`, and `faf_sync` now inject a structured `.faf` block at the top of AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md and preserve everything you've written below. Re-runs update the block in place (idempotent); existing faf-generated files upgrade cleanly in one pass.
+
 ## [5.7.1] - 2026-06-10 — The Canonical Edition
 
 Typed structured output and one-click registry install — the reliability layer made machine-readable.
