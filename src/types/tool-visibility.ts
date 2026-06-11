@@ -162,6 +162,13 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     description: 'Fast AF initialization - Minimal setup, maximum speed',
     priority: 4,
   },
+  faf_setup: {
+    name: 'faf_setup',
+    visibility: 'core',
+    category: 'workflow',
+    description: 'Install the native SessionStart hook - fresh context every Claude Code session',
+    priority: 5,
+  },
   faf_status: {
     name: 'faf_status',
     visibility: 'core',

@@ -18,6 +18,7 @@ import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
+import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -249,6 +250,38 @@ export class FafToolHandler {
             },
             required: ['valid', 'hasFaf'],
             additionalProperties: true
+          }
+        },
+        {
+          name: 'faf_setup',
+          description: 'Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook.',
+          annotations: {
+            title: 'Native Session Hook Setup',
+            readOnlyHint: false,
+            destructiveHint: false,
+            openWorldHint: false
+          },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path. Defaults to the current project context.' },
+              confirm: { type: 'boolean', description: 'Actually write the hook into .claude/settings.json. Without it, faf_setup only previews.' },
+              remove: { type: 'boolean', description: 'Remove the faf SessionStart hook (and only it) from .claude/settings.json.' }
+            },
+            additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Setup result: what happened (or would happen) to .claude/settings.json.',
+            properties: {
+              action: { type: 'string', enum: ['preview', 'installed', 'already-installed', 'removed', 'not-installed', 'error'], description: 'What faf_setup did' },
+              settingsPath: { type: 'string', description: 'The settings file involved' },
+              hookCommand: { type: 'string', description: 'The command the SessionStart hook runs' },
+              settings: { type: 'object', description: 'The full settings object as written (or as it would be written in preview)', additionalProperties: true },
+              message: { type: 'string', description: 'Human-readable summary' }
+            },
+            required: ['action', 'settingsPath', 'message'],
+            additionalProperties: false
           }
         },
         {
@@ -1078,6 +1111,8 @@ Once confirmed, the sequence is:
         return await this.handleFafInit(args);
       case 'faf_trust':
         return await this.handleFafTrust(args);
+      case 'faf_setup':
+        return await this.handleFafSetup(args);
       case 'faf_sync':
         return await this.handleFafSync(args);
       case 'faf_enhance':
@@ -1606,6 +1641,39 @@ package_manager: ${projectData.package_manager}` : ''}
         parity,
         receipt,
       }
+    };
+  }
+
+  /**
+   * Trust Edition Pillar 5 — faf_setup: the explicit native-hook installer.
+   * Preview by default; writes .claude/settings.json only on confirm: true.
+   * Non-destructive merge — "enhance, never replace" applied to settings.
+   */
+  private async handleFafSetup(args: any): Promise<CallToolResult> {
+    const projectDir = this.getProjectPath(args?.path);
+    const result = await setupSessionHook(projectDir, {
+      confirm: args?.confirm === true,
+      remove: args?.remove === true,
+    });
+
+    const lines: string[] = [`faf_setup — ${result.action}`, '', result.message];
+    if (result.settings && (result.action === 'preview' || result.action === 'installed')) {
+      lines.push('', `${result.settingsPath}:`, '```json', JSON.stringify(result.settings, null, 2), '```');
+    }
+    if (result.action === 'preview') {
+      lines.push('', `Hook command: ${HOOK_COMMAND}`, 'Nothing has been written. Confirm to install: faf_setup { confirm: true }');
+    }
+
+    return {
+      content: [{ type: 'text', text: lines.join('\n') }],
+      structuredContent: {
+        action: result.action,
+        settingsPath: result.settingsPath,
+        hookCommand: HOOK_COMMAND,
+        ...(result.settings ? { settings: result.settings } : {}),
+        message: result.message,
+      },
+      ...(result.action === 'error' ? { isError: true } : {}),
     };
   }
 
