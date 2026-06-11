@@ -6,7 +6,7 @@ import { FafToolHandler } from './handlers/tools';
 import { FafPromptHandler } from './handlers/prompts';
 import { FafEngineAdapter } from './handlers/engine-adapter';
 import { isError } from './utils/type-guards.js';
-import { sanitizeToolResult } from './utils/sanitize-output.js';
+import { sanitizeToolResult, quietToolList } from './utils/sanitize-output.js';
 import { VERSION } from './version';
 
 export interface ClaudeFafMcpServerConfig {
@@ -102,7 +102,7 @@ export class ClaudeFafMcpServer {
 
     // Tool handlers
     this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return this.toolHandler.listTools();
+      return quietToolList(await this.toolHandler.listTools());
     });
 
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {

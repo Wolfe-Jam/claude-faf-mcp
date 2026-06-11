@@ -19,16 +19,82 @@ export function stripAnsi(text: string): string {
   return text.replace(ANSI_PATTERN, '').split(ESC).join('');
 }
 
+// ── Quiet mode (The Trust Edition) ───────────────────────────────────────────
+//
+// Tool RESULT text is parsed by agents and read by humans; emoji are noise to
+// both. We strip emoji at the wire boundary so every tool is quiet by default —
+// one place, no per-tool opt-in, no toggle (a flag that changes output shape is
+// a footgun for anything parsing it). Brand voice lives in MARKETING surfaces,
+// never in tool results.
+//
+// TWO marks, by surface:
+//   🏆  — rich/marketing trophy (web badges, README, blog). NEVER in tool output.
+//   ✪  (U+272A) — the quiet trust SEAL. Renders identically everywhere (unlike
+//       emoji, which shapeshift per platform), so it can anchor falsifiable
+//       receipts (TAF / WJTTC / CI logs). The 🏆 in tool output becomes ✪.
+//
+// PRESERVED (these are geometric Unicode, NOT emoji — the quiet tier ladder):
+//   ♡ U+2661 · ○ U+25CB · ● U+25CF · ◇ U+25C7 · ◆ U+25C6 · ★ U+2605 · ✪ U+272A
+
+const RICH_TROPHY = '\u{1F3C6}'; // 🏆
+export const QUIET_TROPHY = '✪'; // ✪ — the quiet trust seal
+
+// Emoji code points to strip. Built from two zones, with HOLES punched out for
+// the tier seals we keep (★ 2605, ☆ 2606, ♡ 2661, ✪ 272A):
+//   • Supplementary plane  U+1F000–U+1FAFF  (🏎 🧡 🐘 🤖 🚀 … — no tier glyph here)
+//   • BMP symbols/dingbats U+2600–U+27BF     (✅ ⚡ ⚠ ✨ ❌ … — minus the four seals)
+//     split into 2600-2604, 2607-2660, 2662-2729, 272B-27BF to skip 2605/2606/2661/272A.
+// Trailing joiners/selectors (VS16 FE0F, ZWJ 200D, keycap 20E3) and skin-tone
+// modifiers, plus an optional adjacent space, are consumed too — so "✅ Done"
+// becomes "Done" rather than " Done".
+const EMOJI_BASE =
+  '[\\u{1F000}-\\u{1FAFF}]' +                                       // supplementary plane
+  '|[\\u2600-\\u2604\\u2607-\\u2660\\u2662-\\u2729\\u272B-\\u27BF]' + // misc symbols + dingbats (seals held out)
+  '|[\\u2B00-\\u2BFF]';                                             // ⭐ ⭕ ⬛ ⬜ ⬆-⬇ etc (no tier glyph here)
+const JOINERS = '[\\uFE0F\\u200D\\u20E3\\u{1F3FB}-\\u{1F3FF}]';
+const EMOJI_PATTERN = new RegExp(`(?:${EMOJI_BASE})${JOINERS}*[ \\t]?`, 'gu');
+
+// Any joiners/selectors left orphaned after their base emoji was removed.
+const ORPHAN_JOINERS = new RegExp(JOINERS, 'gu');
+
 /**
- * Sanitise a CallToolResult in place: strip ANSI from every text content block.
- * Returns the same object for convenient inline use at the return boundary.
+ * Quiet a string: map the rich trophy to the trust seal, then strip all other
+ * emoji while preserving the geometric tier ladder (♡ ○ ● ◇ ◆ ★ ✪).
+ */
+export function quietText(text: string): string {
+  return text
+    .split(RICH_TROPHY).join(QUIET_TROPHY) // 🏆 → ✪ before the strip removes it
+    .replace(EMOJI_PATTERN, '')
+    .replace(ORPHAN_JOINERS, '')
+    .replace(/[ \t]+$/gm, ''); // trim whitespace orphaned at line ends
+}
+
+/**
+ * Quiet the descriptions (and titles) of a tools/list response in place, so the
+ * tool catalogue reads as plainly as the tool output. Names and schemas are
+ * left exactly as-is — only human-facing prose is quieted.
+ */
+export function quietToolList<T extends { tools?: unknown[] }>(list: T): T {
+  if (!list || !Array.isArray(list.tools)) return list;
+  for (const tool of list.tools as Array<Record<string, unknown>>) {
+    if (typeof tool.description === 'string') tool.description = quietText(tool.description);
+    if (typeof tool.title === 'string') tool.title = quietText(tool.title);
+  }
+  return list;
+}
+
+/**
+ * Sanitise a CallToolResult in place: strip ANSI, then quiet emoji, on every
+ * text content block. Returns the same object for convenient inline use at the
+ * return boundary. structuredContent (machine data) is intentionally untouched.
  */
 export function sanitizeToolResult(result: CallToolResult): CallToolResult {
   if (!result || !Array.isArray(result.content)) return result;
   for (const item of result.content) {
     if (item && (item as { type?: string }).type === 'text'
         && typeof (item as { text?: unknown }).text === 'string') {
-      (item as { text: string }).text = stripAnsi((item as { text: string }).text);
+      const cleaned = quietText(stripAnsi((item as { text: string }).text));
+      (item as { text: string }).text = cleaned;
     }
   }
   return result;
