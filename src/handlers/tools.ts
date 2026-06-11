@@ -188,6 +188,16 @@ export class FafToolHandler {
             type: 'object',
             properties: {},
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Trust validation of the project.faf integrity.',
+            properties: {
+              valid: { type: 'boolean', description: 'Whether the project.faf passed trust validation' },
+              report: { type: 'string', description: 'Human-readable validation report' }
+            },
+            required: ['valid'],
+            additionalProperties: true
           }
         },
         {
@@ -492,6 +502,37 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Human-context quality report, or the result of a protect/unlock action.',
+            properties: {
+              mode: { type: 'string', description: 'report | protect | unlock' },
+              qualityPercent: { type: 'number', description: 'Share of fields rated good/excellent (report mode)' },
+              goodCount: { type: 'number', description: 'Fields rated good or excellent' },
+              emptyCount: { type: 'number', description: 'Fields that are empty' },
+              protected: {
+                type: 'array', items: { type: 'string' },
+                description: 'Field names currently protected'
+              },
+              protectedNow: {
+                type: 'array', items: { type: 'string' },
+                description: 'Fields newly protected by this call (protect mode)'
+              },
+              fields: {
+                type: 'object',
+                description: 'Per-field quality + protection (report mode)',
+                additionalProperties: {
+                  type: 'object',
+                  properties: {
+                    quality: { type: 'string', description: 'empty | generic | good | excellent' },
+                    protected: { type: 'boolean' }
+                  }
+                }
+              }
+            },
+            required: ['mode'],
+            additionalProperties: true
           }
         },
         {
@@ -578,6 +619,36 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'The project\'s score history: birth DNA, current score, growth, and milestones.',
+            properties: {
+              hasFaf: { type: 'boolean', description: 'Whether a project.faf was found' },
+              hasDna: { type: 'boolean', description: 'Whether a .faf-dna history exists (or was just created)' },
+              justBorn: { type: 'boolean', description: 'True if this call created the birth certificate' },
+              birthScore: { type: 'number', description: 'Score at birth' },
+              currentScore: { type: 'number', description: 'Current score' },
+              totalGrowth: { type: 'number', description: 'currentScore - birthScore' },
+              daysActive: { type: 'number', description: 'Days since birth' },
+              authenticated: { type: 'boolean', description: 'Whether the birth certificate is authenticated' },
+              certificate: { type: ['string', 'null'], description: 'Birth certificate ID' },
+              milestones: {
+                type: 'array',
+                description: 'Recorded milestones',
+                items: {
+                  type: 'object',
+                  properties: {
+                    type: { type: 'string' },
+                    score: { type: 'number' },
+                    date: { type: 'string' },
+                    version: { type: 'string' }
+                  }
+                }
+              }
+            },
+            required: ['hasFaf', 'hasDna'],
+            additionalProperties: true
           }
         },
         {
@@ -664,6 +735,31 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Health check: an overall verdict plus per-check diagnostics with fixes.',
+            properties: {
+              health: { type: 'string', description: 'Overall verdict: ok | warning | error' },
+              checks: { type: 'number', description: 'Number of checks run' },
+              errors: { type: 'number', description: 'Count of error-level findings' },
+              warnings: { type: 'number', description: 'Count of warning-level findings' },
+              diagnostics: {
+                type: 'array',
+                description: 'Per-check results',
+                items: {
+                  type: 'object',
+                  properties: {
+                    status: { type: 'string', description: 'ok | warning | error' },
+                    message: { type: 'string' },
+                    fix: { type: 'string', description: 'Suggested fix, if any' }
+                  },
+                  required: ['status', 'message']
+                }
+              }
+            },
+            required: ['health', 'checks', 'diagnostics'],
+            additionalProperties: true
           }
         },
         // ============================================================================
@@ -1384,7 +1480,11 @@ package_manager: ${projectData.package_manager}` : ''}
       content: [{
         type: 'text',
         text: `🔒 Claude FAF Trust Validation:\n\n${output}`
-      }]
+      }],
+      structuredContent: {
+        valid: true,
+        report: output
+      }
     };
   }
 
@@ -2165,7 +2265,8 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           content: [{
             type: 'text',
             text: `🔓 FAF Check:\n\n✅ All fields unlocked\n📁 Updated: ${fafResult.filename}`
-          }]
+          }],
+          structuredContent: { mode: 'unlock', protected: [] }
         };
       }
 
@@ -2192,7 +2293,8 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
             content: [{
               type: 'text',
               text: `🔒 FAF Check:\n\n⚠️ No fields qualify for protection (need good or excellent quality)`
-            }]
+            }],
+            structuredContent: { mode: 'protect', protectedNow: [], protected: protectedFields }
           };
         }
         fafData._protected_fields = [...new Set([...protectedFields, ...toProtect])];
@@ -2201,7 +2303,8 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           content: [{
             type: 'text',
             text: `🔒 FAF Check:\n\n✅ Protected ${toProtect.length} field(s): ${toProtect.join(', ')}\n📁 Updated: ${fafResult.filename}`
-          }]
+          }],
+          structuredContent: { mode: 'protect', protectedNow: toProtect, protected: fafData._protected_fields }
         };
       }
 
@@ -2230,7 +2333,22 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         output += `\n💡 Use faf_readme or faf_human_add to fill empty slots`;
       }
 
-      return { content: [{ type: 'text', text: output }] };
+      const fieldReport: Record<string, { quality: string; protected: boolean }> = {};
+      for (const field of fields) {
+        fieldReport[field] = { quality: qualities[field], protected: protectedFields.includes(field) };
+      }
+
+      return {
+        content: [{ type: 'text', text: output }],
+        structuredContent: {
+          mode: 'report',
+          qualityPercent: Math.round((goodCount / fields.length) * 100),
+          goodCount,
+          emptyCount,
+          protected: protectedFields,
+          fields: fieldReport
+        }
+      };
     } catch (error: any) {
       return {
         content: [{ type: 'text', text: `🔍 FAF Check:\n\n❌ Error: ${error.message}` }],
@@ -2797,7 +2915,8 @@ ${fafData.stack_signature || 'Auto-detected stack'}
             content: [{
               type: 'text',
               text: `🧬 FAF DNA Journey\n\n❌ No FAF DNA found\n💡 Run faf_auto to start your journey!`
-            }]
+            }],
+            structuredContent: { hasFaf: false, hasDna: false }
           };
         }
 
@@ -2832,7 +2951,18 @@ ${fafData.stack_signature || 'Auto-detected stack'}
           content: [{
             type: 'text',
             text: `🧬 FAF DNA Journey\n\n🐣 Birth Certificate Created!\n\n📊 Birth DNA: ${currentScore}%\n📅 Born: ${new Date().toISOString().split('T')[0]}\n🎫 Certificate: ${dna.birthCertificate.certificate}\n\n💡 Your journey begins here! Run faf_auto or faf_go to grow.`
-          }]
+          }],
+          structuredContent: {
+            hasFaf: true,
+            hasDna: true,
+            justBorn: true,
+            birthScore: currentScore,
+            currentScore,
+            totalGrowth: 0,
+            authenticated: false,
+            certificate: dna.birthCertificate.certificate,
+            milestones: dna.milestones
+          }
         };
       }
 
@@ -2915,7 +3045,21 @@ ${fafData.stack_signature || 'Auto-detected stack'}
         output += `🐣 Just born! Your growth story starts now.\n`;
       }
 
-      return { content: [{ type: 'text', text: output }] };
+      return {
+        content: [{ type: 'text', text: output }],
+        structuredContent: {
+          hasFaf: true,
+          hasDna: true,
+          justBorn: false,
+          birthScore,
+          currentScore,
+          totalGrowth,
+          daysActive,
+          authenticated: !!dna.birthCertificate?.authenticated,
+          certificate: dna.birthCertificate?.certificate ?? null,
+          milestones
+        }
+      };
 
     } catch (error: any) {
       return {
@@ -3481,7 +3625,18 @@ Use force: true to overwrite, or use faf_enhance to modify.`
         output += `⚠️ Issues detected. Follow the fixes above.`;
       }
 
-      return { content: [{ type: 'text', text: output }] };
+      const health = hasErrors ? 'error' : hasWarnings ? 'warning' : 'ok';
+
+      return {
+        content: [{ type: 'text', text: output }],
+        structuredContent: {
+          health,
+          checks: results.length,
+          errors: results.filter(r => r.status === 'error').length,
+          warnings: results.filter(r => r.status === 'warning').length,
+          diagnostics: results
+        }
+      };
 
     } catch (error: any) {
       return {
