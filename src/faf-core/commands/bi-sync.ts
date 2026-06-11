@@ -33,65 +33,69 @@ export interface BiSyncResult {
   message: string;
 }
 
+/** A slot value that carries real content (not empty, not slotignored). */
+function filled(v: unknown): v is string {
+  return typeof v === 'string' && v.trim() !== '' && v.trim() !== 'slotignored';
+}
+
+/** snake_case slot key → Title Case label (main_language → Main Language). */
+function labelOf(key: string): string {
+  return key.split('_').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+}
+
 /**
- * 🔄 Convert project.faf YAML content to CLAUDE.md Markdown format
+ * Convert project.faf YAML content to CLAUDE.md Markdown — QUIET format
+ * (Trust Edition P1 applied to the generated artifact, not just tool output).
+ *
+ * The block this renders is injected into the file Claude READS every session,
+ * so it is plain, parseable context: no emoji, no brand voice (that lives in
+ * marketing), nothing the consuming model has to skip over. Mirrors the
+ * canonical faf-cli CLAUDE.md export shape: What This Is / Stack / Context.
  */
 export function fafToClaudeMd(fafContent: string): string {
   try {
     const fafData = parseYAML(fafContent);
 
-    let claudeMd = `# 🏎️ CLAUDE.md - ${fafData.project?.name || 'Project'} Persistent Context & Intelligence\n\n`;
+    const name = fafData.project?.name || 'Project';
+    const lines: string[] = [`# CLAUDE.md — ${name}`, ''];
 
-    // Project State
-    if (fafData.project) {
-      claudeMd += `## PROJECT STATE: ${fafData.context_quality?.overall_assessment || 'ACTIVE'} 🚀\n`;
-      if (fafData.project.goal) {
-        claudeMd += `**Current Position:** ${fafData.project.goal}\n`;
-      }
-      claudeMd += `**Tyre Compound:** ULTRASOFT C5 (Maximum Performance)\n\n`;
-      claudeMd += `---\n\n`;
+    // What This Is — the one-line identity.
+    const what = fafData.project?.goal || fafData.instant_context?.what_building;
+    if (filled(what)) {
+      lines.push('## What This Is', '', what, '');
     }
 
-    // Core Context
-    claudeMd += `## 🎨 CORE CONTEXT\n\n`;
-
-    if (fafData.project) {
-      claudeMd += `### Project Identity\n`;
-      claudeMd += `- **Name:** ${fafData.project.name || 'Unknown'}\n`;
-      if (fafData.instant_context?.tech_stack) {
-        claudeMd += `- **Stack:** ${fafData.instant_context.tech_stack}\n`;
+    // Stack — every filled slot, slotignored stays invisible (the What-Not).
+    const stackEntries: string[] = [];
+    if (filled(fafData.project?.main_language)) {
+      stackEntries.push(`- **Language:** ${fafData.project.main_language}`);
+    } else if (filled(fafData.instant_context?.main_language)) {
+      stackEntries.push(`- **Language:** ${fafData.instant_context.main_language}`);
+    }
+    if (fafData.stack && typeof fafData.stack === 'object') {
+      for (const [key, value] of Object.entries(fafData.stack)) {
+        if (filled(value)) stackEntries.push(`- **${labelOf(key)}:** ${value}`);
       }
-      claudeMd += `- **Quality:** F1-INSPIRED (Championship Performance)\n\n`;
+    }
+    if (stackEntries.length === 0 && filled(fafData.instant_context?.tech_stack)) {
+      stackEntries.push(`- **Stack:** ${fafData.instant_context.tech_stack}`);
+    }
+    if (stackEntries.length > 0) {
+      lines.push('## Stack', '', ...stackEntries, '');
     }
 
-    // Technical Context
-    if (fafData.instant_context) {
-      claudeMd += `### Technical Architecture\n`;
-      if (fafData.instant_context.what_building) {
-        claudeMd += `- **What Building:** ${fafData.instant_context.what_building}\n`;
-      }
-      if (fafData.instant_context.main_language) {
-        claudeMd += `- **Main Language:** ${fafData.instant_context.main_language}\n`;
-      }
-      claudeMd += `\n`;
+    // Context — the 6Ws, exactly as authored.
+    const sixWs = ['who', 'what', 'why', 'where', 'when', 'how'] as const;
+    const contextEntries = sixWs
+      .filter((w) => filled(fafData.human_context?.[w]))
+      .map((w) => `- **${labelOf(w)}:** ${fafData.human_context[w]}`);
+    if (contextEntries.length > 0) {
+      lines.push('## Context', '', ...contextEntries, '');
     }
 
-    // Context Quality
-    if (fafData.context_quality) {
-      claudeMd += `### 📊 Context Quality Status\n`;
-      claudeMd += `- **Overall Assessment:** ${fafData.context_quality.overall_assessment || 'Good'}\n`;
-      claudeMd += `- **Last Updated:** ${new Date().toISOString().split('T')[0]}\n\n`;
-    }
+    lines.push('---', '', `*STATUS: BI-SYNC ACTIVE — ${new Date().toISOString()}*`, '');
 
-    // Championship Footer
-    claudeMd += `---\n\n`;
-    claudeMd += `**STATUS: BI-SYNC ACTIVE 🔗 - Synchronized with .faf context!**\n\n`;
-    claudeMd += `*Last Sync: ${new Date().toISOString()}*\n`;
-    claudeMd += `*Sync Engine: F1-Inspired Software Engineering*\n`;
-    claudeMd += `*🏎️⚡️_championship_sync*\n`;
-
-    return claudeMd;
-
+    return lines.join('\n');
   } catch (error) {
     throw new Error(`Failed to convert .faf to CLAUDE.md: ${error instanceof Error ? error.message : String(error)}`);
   }

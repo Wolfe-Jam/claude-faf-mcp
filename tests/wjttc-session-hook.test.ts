@@ -111,6 +111,26 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
       const r = await sessionRefresh(path.join(dir, 'no', 'such', 'dir'));
       expect(['no-faf', 'error']).toContain(r.action); // missing dir = no faf; either way: no throw
     });
+
+    test('QUIET: the generated CLAUDE.md block carries no emoji (P1 applied to the artifact)', async () => {
+      // The hook writes into the file Claude READS every session — the block
+      // must be plain context, not brand voice. Quiet ladder applies.
+      fs.writeFileSync(
+        path.join(dir, 'project.faf'),
+        'project:\n  name: quiet-check\n  goal: no noise\n  main_language: TypeScript\n' +
+        'stack:\n  backend: MCP SDK (TS)\n  frontend: slotignored\n' +
+        'human_context:\n  who: devs\n  what: a server\n',
+      );
+      await sessionRefresh(dir);
+      const md = fs.readFileSync(path.join(dir, 'CLAUDE.md'), 'utf-8');
+      // No emoji (1F000+ planes, variation selector, ⚡). The quiet LADDER
+      // glyphs (♡ ○ ● ◇ ◆ ★ ✪) are geometric symbols, NOT emoji — they stay legal.
+      expect(md).not.toMatch(/[\u{1F000}-\u{1FAFF}\u{FE0F}\u{26A1}]/u);
+      expect(md).not.toContain('Tyre Compound'); // the legacy voice is gone
+      expect(md).toContain('## Stack');
+      expect(md).toContain('- **Who:** devs'); // 6Ws rendered
+      expect(md).not.toContain('slotignored'); // the What-Not stays invisible
+    });
   });
 
   describe('setupSessionHook() — the explicit installer', () => {
