@@ -66,6 +66,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
+import * as os from 'os';
 import { FafToolHandler } from '../src/handlers/tools';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';
 import { ClaudeFafMcpServer } from '../src/server';
@@ -272,7 +273,7 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
 
   beforeAll(async () => {
     handler = new FafToolHandler(new FafEngineAdapter('native'));
-    testDir = path.join('/tmp', `wjttc-mcp-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `wjttc-mcp-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
   });
 
@@ -445,7 +446,7 @@ describe('🏎️ TIER 4: Resource Management', () => {
 
   beforeAll(() => {
     handler = new FafToolHandler(new FafEngineAdapter('native'));
-    testDir = path.join('/tmp', `wjttc-resource-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `wjttc-resource-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
   });
 
@@ -541,7 +542,7 @@ describe('🏎️ TIER 5: Security Validation', () => {
 
     it('MUST: Prevent symlink attacks', async () => {
       // Attempt to create a symlink to sensitive file
-      const testDir = path.join('/tmp', `symlink-test-${Date.now()}`);
+      const testDir = path.join(os.tmpdir(), `symlink-test-${Date.now()}`);
       fs.mkdirSync(testDir, { recursive: true });
 
       try {
@@ -623,7 +624,7 @@ describe('🏎️ TIER 5: Security Validation', () => {
 
   describe('Resource Limits', () => {
     it('SHOULD: Enforce file size limits', async () => {
-      const testDir = path.join('/tmp', `size-test-${Date.now()}`);
+      const testDir = path.join(os.tmpdir(), `size-test-${Date.now()}`);
       fs.mkdirSync(testDir, { recursive: true });
 
       // Create a very large file (>10MB)
@@ -651,7 +652,7 @@ describe('🏎️ TIER 6: Performance Benchmarks', () => {
 
   beforeAll(() => {
     handler = new FafToolHandler(new FafEngineAdapter('native'));
-    testDir = path.join('/tmp', `wjttc-perf-test-${Date.now()}`);
+    testDir = path.join(os.tmpdir(), `wjttc-perf-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
 
     // Create test files

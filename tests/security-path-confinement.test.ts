@@ -36,10 +36,15 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
   });
 
   describe('confinePath() unit', () => {
-    test('refuses /etc/passwd', () => {
+    // These specific Unix attack paths only EXIST on Unix; confinePath refuses an
+    // existing non-.faf file (so /etc/passwd is rejected on Unix). On Windows the
+    // path doesn't exist → it's lexical, no secret to leak. The platform-neutral
+    // guarantee (any existing non-.faf file is refused) is covered by the
+    // "real existing secret file" + symlink-bypass tests below.
+    test.skipIf(process.platform === 'win32')('refuses /etc/passwd', () => {
       expect(() => confinePath('/etc/passwd')).toThrow(PathConfinementError);
     });
-    test('refuses ../ traversal to a non-.faf file', () => {
+    test.skipIf(process.platform === 'win32')('refuses ../ traversal to a non-.faf file', () => {
       expect(() => confinePath('../../../../../../etc/passwd')).toThrow(PathConfinementError);
     });
     test('refuses a real existing secret file (any directory)', () => {
