@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 32 tools -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 35 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
 # claude-faf-mcp — The Canonical Edition
@@ -28,7 +28,7 @@
 
 > 🏆 **v5.7.2 — The Canonical Edition.** Security patch — caller-supplied `path` arguments are now confined: reads are restricted to `.faf` / `.fafm` context files and file ops to the project root (override with `FAF_ALLOWED_ROOTS`), closing an arbitrary local file read. Built on the Canonical foundation: typed structured output (`structuredContent` + output schemas), edge-direct remote, 32 must-have tools.
 
-32 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,538 test executions per push.
+35 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,611 test executions per push.
 
 ---
 
@@ -84,7 +84,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 [**⬇ Download `claude-faf-mcp-5.7.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.7.2.mcpb)
 
-Double-click. **No terminal. No JSON config. 32 tools live in 10 seconds.**
+Double-click. **No terminal. No JSON config. 35 tools live in 10 seconds.**
 
 **Copy** — paste-prompt to Claude
 
@@ -246,7 +246,7 @@ Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ## Quality
 
-423 tests · 13 suites · 6 platforms (ubuntu/macos/windows × Node 18/20)
+547 tests · 24 suites · 3 platforms (bun on ubuntu/macos/windows)
 
 **[CI Dashboard →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
 

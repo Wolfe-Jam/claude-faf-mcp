@@ -1,5 +1,5 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 32 tools -->
-<!-- faf: doc=changelog | latest=v5.7.2 | canonical=project.faf | family=FAF -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 35 tools -->
+<!-- faf: doc=changelog | latest=v5.8.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -11,11 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**Interop now enhances your files.** The same solid, structured `.faf` data is prefixed to the top of your context files for rapid AI consumption upfront — and your Markdown stays in the instruction lane.
+## [5.8.0] - 2026-06-11 — The Trust Edition
+
+**Claude Code-native context that just works.** Five pillars, one theme: the experience an agent can parse and a human can read (quiet + typed), the proof a third party can verify (parity hash + ✪ receipt), and the integration that earns "native" (the session hook). Plus the non-destructive interop layer — enhance, never replace.
+
+### Added
+
+- **Native SessionStart hook (`--session-refresh`).** One cheap, deterministic action at every Claude Code session start: refresh CLAUDE.md's faf-managed block from project.faf, then hand over the baton — a one-line heartbeat carrying the quiet-ladder seal and score (`faf: context ✪ 100% — fresh`). Freshness-gated (no write, no mtime churn when current), never throws, always exit 0; non-faf directories stay fully silent.
+- **`faf_setup` (tool #35).** The explicit hook installer. Preview by default — shows the exact settings JSON and path, writes nothing; `confirm: true` merges non-destructively into the project's `.claude/settings.json` (every existing key and hook preserved, idempotent); `remove: true` takes out exactly the faf hook. Malformed settings are surfaced, never overwritten.
+- **Determinism parity hash.** `faf_score` (and `faf_trust`) now carry an engine-agnostic `parity` receipt: a SHA-256 over the canonical score projection, bound to the input bytes — any conformant engine (faf-cli, the Rust kernel, this server) reproduces it, and a third party can verify `sha256(projection) === parityHash`. Falsifiable, not self-asserted.
+- **The ✪ trust receipt.** `faf_trust` emits a render-identical, no-emoji, self-verifying score+parity artifact (text + structuredContent) — a receipt that means the same thing in a terminal, a CI log, and a report.
+- **Typed structured output across the data tools.** `faf_context`, `faf_list`, `faf_formats`, `faf_dna`, `faf_doctor`, `faf_check` join `faf_score`/`faf_status` with `outputSchema` + `structuredContent` on every return path (text retained for back-compat).
 
 ### Changed
 
+- **Quiet output, everywhere, always.** Tool results and descriptions carry no emoji — plain, parseable, scriptable. Tier glyphs use the quiet ladder `♡ ○ ● ◇ ◆ ★ ✪` (geometric symbols, render-identical); ✪ is the Trophy seal. One predictable output format, no toggle.
+- **The generated CLAUDE.md block is quiet too.** The native faf→CLAUDE.md renderer now emits the canonical format (`What This Is / Stack / Context`) — no emoji, no brand voice — matching faf-cli's export, since the session hook makes that block part of every session's context. `slotignored` slots stay invisible.
 - **Non-destructive interop.** `faf_agents`, `faf_gemini`, `faf_cursor`, and `faf_sync` now inject a structured `.faf` block at the top of AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md and preserve everything you've written below. Re-runs update the block in place (idempotent); existing faf-generated files upgrade cleanly in one pass.
+
+### Fixed
+
+- **`faf_trust` works again.** It shelled out to a `faf trust` subcommand that no longer exists in faf-cli (every call errored); now a self-contained local attestation.
+
+35 tools live. 547 tests, 0 fail.
 
 ## [5.7.2] - 2026-06-11 — The Canonical Edition
 

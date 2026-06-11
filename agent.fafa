@@ -7,7 +7,7 @@ agent:
   name: claude-faf-mcp
   id: did:web:faf.one:claude-faf-mcp
   vendor: WolfeJAM
-  version: 5.7.1
+  version: 5.8.0
   description: Persistent project context for Claude — define once, never
     re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
   homepage: https://faf.one
@@ -15,197 +15,211 @@ agent:
 capabilities:
   - name: faf
     type: tool
-    description: Type faf to start — scores, drives to 100%, syncs everything
+    description: Type "faf" to start. Scores your project, drives it to 100%, syncs everything. The one command that does it all.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_about
     type: tool
-    description: Learn what .faf format is
+    description: Learn what .faf format is - project DNA for AI
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_status
     type: tool
-    description: Check if project has project.faf
+    description: Check if your project has project.faf (project DNA for AI) - Shows AI-readability status
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_score
     type: tool
-    description: Calculate AI-readiness score (0-100%)
+    description: Calculate your project's AI-readability from project.faf (project DNA for AI) - F1-inspired metrics!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-    apophatic: true
   - name: faf_init
     type: tool
-    description: Create project.faf for a project
+    description: "Create project.faf (project DNA for AI) - Makes your project instantly AI-readable . Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project"
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_trust
     type: tool
-    description: Validate project.faf integrity
+    description: Attest project.faf integrity — validity, score, and a deterministic parity hash any conformant engine reproduces.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-    apophatic: true
+  - name: faf_setup
+    type: tool
+    description: "Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook."
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
   - name: faf_sync
     type: tool
-    description: Sync .faf with CLAUDE.md
+    description: Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_enhance
     type: tool
-    description: Enhance .faf with AI optimization
+    description: Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_bi_sync
     type: tool
-    description: Bi-directional sync to all AI formats
+    description: "Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!"
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_clear
     type: tool
-    description: Clear caches and reset state
+    description: Clear caches, temporary files, and reset FAF state for a fresh start
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_debug
     type: tool
-    description: Debug MCP environment info
+    description: Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_read
     type: tool
-    description: Read file content
+    description: Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_write
     type: tool
-    description: Write file content
+    description: Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_list
     type: tool
-    description: List and discover .faf projects
+    description: List directories and discover projects with project.faf files - Essential for FAF discovery workflow
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_friday
     type: tool
-    description: Fun features and fuzzy matching
+    description: Detect the FAF Chrome extension and run fuzzy-matching helpers.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_guide
     type: tool
-    description: FAF MCP usage guide
+    description: FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_readme
     type: tool
-    description: Extract context from README.md
+    description: Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_human_add
     type: tool
-    description: Add human context (6Ws)
+    description: Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_check
     type: tool
-    description: Quality inspection for .faf fields
+    description: Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-    apophatic: true
   - name: faf_context
     type: tool
-    description: Set or view active project context
+    description: Set or view active project context - Path is remembered for subsequent faf_ calls
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_go
     type: tool
-    description: Guided interview to Gold Code (100%)
+    description: "Guided interview to Gold Code (100%): returns questions for missing fields, then applies your answers."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_auto
     type: tool
-    description: Zero to AI context in one command
+    description: "Run the full FAF pipeline in one step: init + sync + formats + bi-sync + score."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_dna
     type: tool
-    description: Show project DNA evolution journey
+    description: Show the project FAF DNA — score history and progression over time.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_formats
     type: tool
-    description: Discover all formats in your project
+    description: Discover all formats in the project (154+ validated types) and fill stack slots.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_quick
     type: tool
-    description: Lightning-fast .faf creation
+    description: "Lightning-fast .faf creation - One-liner format: \"name, description, language, framework, hosting\""
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_doctor
     type: tool
-    description: Diagnose and fix .faf issues
+    description: Health check for your .faf setup - Diagnose and fix common issues
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-    apophatic: true
   - name: faf_agents
     type: tool
-    description: Sync AGENTS.md (OpenAI/Codex)
+    description: Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_cursor
     type: tool
-    description: Sync .cursorrules (Cursor IDE)
+    description: Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_gemini
     type: tool
-    description: Sync GEMINI.md (Google Gemini)
+    description: Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_conductor
     type: tool
-    description: Sync Conductor directory
+    description: Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_git
     type: tool
-    description: Generate .faf from GitHub repo URL
+    description: Generate project.faf from any GitHub repo URL - 1-click context extraction!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_tri_sync
     type: tool
-    description: Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers
+    description: Tri-directionally sync project.faf ↔ CLAUDE.md ↔ MEMORY.md so context persists across sessions.
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_etch
+    type: tool
+    description: Etch a memory — remember this across sessions (a decision, gotcha, or win). Writes to the project soul (.fafm).
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_recall
+    type: tool
+    description: Recall memories from the project soul (.fafm), ranked by priority then recency.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
