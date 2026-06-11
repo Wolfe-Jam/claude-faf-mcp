@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.8.0] - 2026-06-11 — The Trust Edition
 
-**Claude Code-native context that just works.** Five pillars, one theme: the experience an agent can parse and a human can read (quiet + typed), the proof a third party can verify (parity hash + ✪ receipt), and the integration that earns "native" (the session hook). Plus the non-destructive interop layer — enhance, never replace.
+**Claude Code-native context that just works.** Five pillars, one theme: the experience an agent can parse and a human can read (quiet + typed), the proof a third party can verify (parity hash + ✪ receipt), and the integration that earns "native" (the session hook). Plus enhanced interop — your files get enhanced, never replaced.
 
 ### Added
 
@@ -27,10 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Quiet output, everywhere, always.** Tool results and descriptions carry no emoji — plain, parseable, scriptable. Tier glyphs use the quiet ladder `♡ ○ ● ◇ ◆ ★ ✪` (geometric symbols, render-identical); ✪ is the Trophy seal. One predictable output format, no toggle.
 - **The generated CLAUDE.md block is quiet too.** The native faf→CLAUDE.md renderer now emits the canonical format (`What This Is / Stack / Context`) — no emoji, no brand voice — matching faf-cli's export, since the session hook makes that block part of every session's context. `slotignored` slots stay invisible.
-- **Non-destructive interop.** `faf_agents`, `faf_gemini`, `faf_cursor`, and `faf_sync` now inject a structured `.faf` block at the top of AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md and preserve everything you've written below. Re-runs update the block in place (idempotent); existing faf-generated files upgrade cleanly in one pass.
 
 ### Fixed
 
+- **Enhanced interop — your files are enhanced, never replaced.** The interop tools (`faf_agents`, `faf_gemini`, `faf_cursor`, `faf_sync`) overwrote AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md wholesale — anything you'd written was lost. Now every write goes through a non-destructive injector: a structured `.faf` block owns the top of the file, everything you've written below is preserved, re-runs update the block in place (idempotent), and existing faf-generated files upgrade cleanly in one pass. A build-failing write-guard makes the old behavior impossible to reintroduce.
 - **`faf_trust` works again.** It shelled out to a `faf trust` subcommand that no longer exists in faf-cli (every call errored); now a self-contained local attestation.
 
 35 tools live. 547 tests, 0 fail.
