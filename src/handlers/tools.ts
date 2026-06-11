@@ -16,6 +16,7 @@ import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
 // for why this exists (faf-cli's bun exports condition + Node 18 ESM-from-CJS).
 import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
+import { computeParity } from '../trust/parity.js';
 
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
@@ -148,7 +149,21 @@ export class FafToolHandler {
               },
               inherited: { type: 'boolean', description: 'True if the score is attested from a source repo (app_type: about)' },
               hasFaf: { type: 'boolean', description: 'Whether a readable, valid project.faf was scored' },
-              path: { type: 'string', description: 'Path that was scored' }
+              path: { type: 'string', description: 'Path that was scored' },
+              parity: {
+                type: 'object',
+                description: 'Determinism parity receipt — an engine-agnostic hash any conformant scorer reproduces for this exact file. Third-party verifiable: sha256(projection) === parityHash.',
+                properties: {
+                  spec: { type: 'string', description: 'Parity spec id, e.g. faf-parity/v1' },
+                  algo: { type: 'string', description: 'Hash algorithm (sha256)' },
+                  scorer: { type: 'string', description: 'The single deterministic source the score comes from' },
+                  producedBy: { type: 'string', description: 'Which wrapper emitted this receipt (metadata, not hashed)' },
+                  sourceSha256: { type: 'string', description: 'SHA-256 of the raw .faf bytes' },
+                  parityHash: { type: 'string', description: 'sha256(projection) — identical across any conformant engine' },
+                  projection: { type: 'string', description: 'The exact canonical string that was hashed (for verification)' }
+                },
+                required: ['spec', 'parityHash', 'sourceSha256', 'projection']
+              }
             },
             required: ['score', 'tier', 'hasFaf'],
             additionalProperties: true
@@ -177,26 +192,47 @@ export class FafToolHandler {
         },
         {
           name: 'faf_trust',
-          description: 'Validate project.faf integrity - Trust metrics for project DNA for AI',
+          description: 'Attest project.faf integrity — validity, score, and a deterministic parity hash any conformant engine reproduces.',
           annotations: {
-            title: 'Trust Score',
+            title: 'Trust Attestation',
             readOnlyHint: true,
             destructiveHint: false,
             openWorldHint: false
           },
           inputSchema: {
             type: 'object',
-            properties: {},
+            properties: {
+              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
+            },
             additionalProperties: false
           },
           outputSchema: {
             type: 'object',
-            description: 'Trust validation of the project.faf integrity.',
+            description: 'Trust attestation: validity, score, and a third-party-verifiable determinism parity receipt.',
             properties: {
-              valid: { type: 'boolean', description: 'Whether the project.faf passed trust validation' },
-              report: { type: 'string', description: 'Human-readable validation report' }
+              valid: { type: 'boolean', description: 'Whether the project.faf is readable and valid' },
+              hasFaf: { type: 'boolean', description: 'Whether a project.faf was found' },
+              score: { type: 'number', description: 'AI-readiness score, 0-100' },
+              tier: { type: 'string', description: 'Tier name for this score' },
+              path: { type: 'string', description: 'Path that was attested' },
+              sourceSha256: { type: 'string', description: 'SHA-256 of the raw .faf bytes' },
+              reason: { type: 'string', description: 'Why validation failed, when valid is false' },
+              parity: {
+                type: 'object',
+                description: 'Determinism parity receipt (same shape as faf_score.parity).',
+                properties: {
+                  spec: { type: 'string' },
+                  algo: { type: 'string' },
+                  scorer: { type: 'string' },
+                  producedBy: { type: 'string' },
+                  sourceSha256: { type: 'string' },
+                  parityHash: { type: 'string' },
+                  projection: { type: 'string' }
+                },
+                required: ['spec', 'parityHash', 'sourceSha256', 'projection']
+              }
             },
-            required: ['valid'],
+            required: ['valid', 'hasFaf'],
             additionalProperties: true
           }
         },
@@ -1324,6 +1360,20 @@ Once confirmed, the sequence is:
     }
 
     const slotEntries = Object.entries(result.slots);
+    const parity = computeParity(
+      raw,
+      {
+        score,
+        tier: result.tier.name,
+        active: result.active,
+        populated: result.populated,
+        empty: result.empty,
+        ignored: result.ignored,
+        total: result.total,
+        slots: result.slots as Record<string, string>,
+      },
+      { producedBy: `claude-faf-mcp@${VERSION}` },
+    );
     return {
       content: [
         {
@@ -1348,6 +1398,7 @@ Once confirmed, the sequence is:
           empty: slotEntries.filter(([, s]) => s === 'empty').map(([k]) => k),
           ignored: slotEntries.filter(([, s]) => s === 'slotignored').map(([k]) => k),
         },
+        parity,
       },
     };
   }
@@ -1459,31 +1510,82 @@ package_manager: ${projectData.package_manager}` : ''}
     }
   }
 
-  private async handleFafTrust(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    const result = await this.engineAdapter.callEngine('trust');
+  private async handleFafTrust(args: any): Promise<CallToolResult> {
+    // Self-contained trust attestation (The Trust Edition · Pillar 3+4).
+    // Was: shelled to `faf trust` — a command faf-cli has since removed. Now we
+    // attest locally and deterministically: the .faf is valid, here is its score,
+    // and here is a parity hash any conformant engine reproduces. No fake numbers,
+    // no dead CLI dependency — the receipt is the trust.
+    const cwd = this.getProjectPath(args?.path);
+    const { findFafFile, readFafRaw, scoreFafYaml } = await fafCli;
 
-    if (!result.success) {
+    const fafPath = findFafFile(cwd);
+    if (!fafPath) {
       return {
         content: [{
           type: 'text',
-          text: `🔒 Claude FAF Trust Validation:\n\nFailed to check trust: ${result.error}`
+          text: `FAF Trust: no .faf found in ${cwd}\nRun faf_init first, then faf_trust attests the real score.`
         }],
+        structuredContent: { valid: false, hasFaf: false, reason: 'no .faf found', path: cwd },
         isError: true
       };
     }
 
-    const output = typeof result.data === 'string'
-      ? result.data
-      : result.data?.output || JSON.stringify(result.data, null, 2);
+    let raw: string;
+    try {
+      raw = readFafRaw(fafPath);
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `FAF Trust: could not read ${fafPath}: ${error?.message ?? String(error)}` }],
+        structuredContent: { valid: false, hasFaf: false, reason: 'unreadable', path: fafPath },
+        isError: true
+      };
+    }
+
+    let result: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>;
+    try {
+      result = scoreFafYaml(raw);
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `FAF Trust: ${fafPath} is not valid .faf YAML: ${error?.message ?? String(error)}` }],
+        structuredContent: { valid: false, hasFaf: true, reason: 'invalid YAML', path: fafPath },
+        isError: true
+      };
+    }
+
+    const parity = computeParity(
+      raw,
+      {
+        score: result.score,
+        tier: result.tier.name,
+        active: result.active,
+        populated: result.populated,
+        empty: result.empty,
+        ignored: result.ignored,
+        total: result.total,
+        slots: result.slots as Record<string, string>,
+      },
+      { producedBy: `claude-faf-mcp@${VERSION}` },
+    );
+
+    const text =
+      `FAF Trust: VALID\n` +
+      `score: ${result.score}/100 (${result.tier.name})\n` +
+      `source sha256: ${parity.sourceSha256}\n` +
+      `parity (${parity.spec}): ${parity.parityHash}\n\n` +
+      `Deterministic: any conformant engine reproduces this hash from the same file. ` +
+      `Verify with sha256(projection) === parityHash.`;
 
     return {
-      content: [{
-        type: 'text',
-        text: `🔒 Claude FAF Trust Validation:\n\n${output}`
-      }],
+      content: [{ type: 'text', text }],
       structuredContent: {
         valid: true,
-        report: output
+        hasFaf: true,
+        score: result.score,
+        tier: result.tier.name,
+        path: fafPath,
+        sourceSha256: parity.sourceSha256,
+        parity,
       }
     };
   }
