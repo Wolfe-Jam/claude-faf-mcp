@@ -366,6 +366,32 @@ export class FafToolHandler {
             },
             required: ['path'],
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Directory entries, with project.faf discovery flagged per entry.',
+            properties: {
+              directory: { type: 'string', description: 'Absolute path that was scanned' },
+              filter: { type: 'string', description: 'Filter applied: faf | dirs | all' },
+              total: { type: 'number', description: 'Number of entries returned' },
+              fafProjects: { type: 'number', description: 'How many entries contain a project.faf' },
+              entries: {
+                type: 'array',
+                description: 'The listed entries',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: { type: 'string' },
+                    path: { type: 'string' },
+                    hasFaf: { type: 'boolean' },
+                    isDir: { type: 'boolean' }
+                  },
+                  required: ['name', 'path', 'hasFaf', 'isDir']
+                }
+              }
+            },
+            required: ['directory', 'total', 'entries'],
+            additionalProperties: true
           }
         },
         // faf_chat — DEPRECATED, un-advertised. The host IS the chat (Claude Desktop /
@@ -483,6 +509,18 @@ export class FafToolHandler {
               path: { type: 'string', description: 'Set active project path. If omitted, shows current context.' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'The active project context and whether a project.faf lives there.',
+            properties: {
+              active: { type: 'string', description: 'Absolute path of the active project' },
+              hasFaf: { type: 'boolean', description: 'Whether a project.faf (or .faf) was found there' },
+              filename: { type: ['string', 'null'], description: 'The .faf filename, if found' },
+              changed: { type: 'boolean', description: 'True if this call set a new context, false if it only reported' }
+            },
+            required: ['active', 'hasFaf', 'changed'],
+            additionalProperties: true
           }
         },
         {
@@ -558,6 +596,37 @@ export class FafToolHandler {
               json: { type: 'boolean', description: 'Return results as JSON' }
             },
             additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Formats discovered in the project and the stack signature derived from them.',
+            properties: {
+              directory: { type: 'string', description: 'Directory that was scanned' },
+              count: { type: 'number', description: 'Number of known formats discovered' },
+              elapsedMs: { type: 'number', description: 'Discovery time in milliseconds' },
+              stackSignature: { type: 'string', description: 'Derived stack signature' },
+              intelligenceScore: { type: 'number', description: 'Total intelligence score across discovered formats' },
+              formats: {
+                type: 'array',
+                description: 'Discovered formats',
+                items: {
+                  type: 'object',
+                  properties: {
+                    fileName: { type: 'string' },
+                    category: { type: 'string' },
+                    priority: { type: 'number' }
+                  },
+                  required: ['fileName']
+                }
+              },
+              slotFillRecommendations: {
+                type: 'object',
+                description: 'Recommended .faf slot fills derived from discovered formats',
+                additionalProperties: { type: 'string' }
+              }
+            },
+            required: ['directory', 'count', 'formats'],
+            additionalProperties: true
           }
         },
         {
@@ -1852,8 +1921,8 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       }
 
       output += `\nTotal: ${results.length} items`;
+      const fafCount = results.filter(r => r.hasFaf).length;
       if (filter === 'faf') {
-        const fafCount = results.filter(r => r.hasFaf).length;
         output += ` (${fafCount} with project.faf)`;
       }
 
@@ -1861,7 +1930,14 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         content: [{
           type: 'text',
           text: output
-        }]
+        }],
+        structuredContent: {
+          directory: resolvedPath,
+          filter,
+          total: results.length,
+          fafProjects: fafCount,
+          entries: results
+        }
       };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -2174,7 +2250,13 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           content: [{
             type: 'text',
             text: `📂 FAF Context Set:\n\n✅ Active project: ${newPath}\n${fafResult ? `✅ project.faf found: ${fafResult.filename}` : '⚠️ No project.faf in this directory'}\n\n💡 Subsequent faf_* calls will use this context`
-          }]
+          }],
+          structuredContent: {
+            active: newPath,
+            hasFaf: !!fafResult,
+            filename: fafResult ? fafResult.filename : null,
+            changed: true
+          }
         };
       } else {
         // Show current context
@@ -2185,7 +2267,13 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           content: [{
             type: 'text',
             text: `📂 FAF Current Context:\n\n📁 Active project: ${currentPath}\n${fafResult ? `✅ project.faf: ${fafResult.filename}` : '⚠️ No project.faf found'}\n\n💡 Use path parameter to change context`
-          }]
+          }],
+          structuredContent: {
+            active: currentPath,
+            hasFaf: !!fafResult,
+            filename: fafResult ? fafResult.filename : null,
+            changed: false
+          }
         };
       }
     } catch (error: any) {
@@ -2849,12 +2937,23 @@ ${fafData.stack_signature || 'Auto-detected stack'}
       const analysis = await this.discoverFormatsInternal(cwd);
       const elapsed = Date.now() - startTime;
 
+      const structured = {
+        directory: cwd,
+        count: analysis.discoveredFormats.length,
+        elapsedMs: elapsed,
+        stackSignature: analysis.stackSignature,
+        intelligenceScore: analysis.totalIntelligenceScore,
+        formats: analysis.discoveredFormats,
+        slotFillRecommendations: analysis.slotFillRecommendations
+      };
+
       if (args?.json) {
         return {
           content: [{
             type: 'text',
             text: JSON.stringify(analysis, null, 2)
-          }]
+          }],
+          structuredContent: structured
         };
       }
 
@@ -2883,7 +2982,7 @@ ${fafData.stack_signature || 'Auto-detected stack'}
       output += `───────────────────────────────────────────────────\n`;
       output += `😽 TURBO-CAT™: "I detected ${analysis.discoveredFormats.length} formats and made your stack PURRR!"\n`;
 
-      return { content: [{ type: 'text', text: output }] };
+      return { content: [{ type: 'text', text: output }], structuredContent: structured };
 
     } catch (error: any) {
       return {
