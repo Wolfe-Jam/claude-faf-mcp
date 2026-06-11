@@ -280,7 +280,9 @@ export async function memoryExport(
       warnings.push(`Total MEMORY.md is ${totalLines} lines — exceeds 200-line auto-load ceiling. Lines 201+ will be silently truncated by Claude Code.`);
     }
 
-    await fs.writeFile(outputPath, merged);
+    // MEMORY.md marker-merge (FAF_SECTION_START/END) replaces only our section and
+    // preserves Claude's notes — non-destructive (enhance, never replace).
+    await fs.writeFile(outputPath, merged); // trust-seal-ok: non-destructive marker-merge
     return { success: true, filePath: outputPath, linesWritten: totalLines, warnings, merged: true };
   } catch {
     // File doesn't exist — write fresh
