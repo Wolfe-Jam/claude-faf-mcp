@@ -5,6 +5,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as os from 'os';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
+import { confineFileOp, PathConfinementError } from '../utils/safe-path';
 
 function expandTilde(p: string): string {
   return p.startsWith('~') ? path.join(os.homedir(), p.slice(1)) : p;
@@ -102,20 +103,22 @@ export async function handleFafRead(args: any): Promise<CallToolResult> {
 
   try {
     const { path: rawPath } = args;
-    const filePath = expandTilde(rawPath);
-    
-    // Validate path
-    const pathValidation = PathValidator.validate(filePath);
-    if (!pathValidation.valid) {
-      return {
-        content: [{
-          type: 'text',
-          text: `❌ Security error: ${pathValidation.error}`
-        }],
-        isError: true
-      };
+
+    // Confine to the project root(s) — any file type, no escape to /etc, ~/.ssh,
+    // or via ../ traversal (CWE-22). Returns symlink-canonical path.
+    let filePath: string;
+    try {
+      filePath = confineFileOp(rawPath);
+    } catch (err) {
+      if (err instanceof PathConfinementError) {
+        return {
+          content: [{ type: 'text', text: `❌ Security error: ${err.message}` }],
+          isError: true,
+        };
+      }
+      throw err;
     }
-    
+
     // Check file size
     const sizeValidation = await PathValidator.checkFileSize(filePath);
     if (!sizeValidation.valid) {
@@ -171,20 +174,22 @@ export async function handleFafWrite(args: any): Promise<CallToolResult> {
 
   try {
     const { path: rawPath, content } = args;
-    const filePath = expandTilde(rawPath);
-    
-    // Validate path
-    const pathValidation = PathValidator.validate(filePath);
-    if (!pathValidation.valid) {
-      return {
-        content: [{
-          type: 'text',
-          text: `❌ Security error: ${pathValidation.error}`
-        }],
-        isError: true
-      };
+
+    // Confine to the project root(s) before any write — closes arbitrary file
+    // write outside the project (e.g. overwriting ~/.bashrc).
+    let filePath: string;
+    try {
+      filePath = confineFileOp(rawPath);
+    } catch (err) {
+      if (err instanceof PathConfinementError) {
+        return {
+          content: [{ type: 'text', text: `❌ Security error: ${err.message}` }],
+          isError: true,
+        };
+      }
+      throw err;
     }
-    
+
     // Check content size
     const contentSize = Buffer.byteLength(content, 'utf8');
     if (contentSize > 50 * 1024 * 1024) {

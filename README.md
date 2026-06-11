@@ -26,7 +26,7 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-> 🏆 **v5.7.1 — The Canonical Edition.** Typed structured output — `faf_score` and `faf_status` now return MCP `structuredContent` with output schemas alongside the text — plus one-click install straight from the MCP registry. Built on 5.7.0's canonical foundation: edge-direct remote, 32 must-have tools.
+> 🏆 **v5.7.2 — The Canonical Edition.** Security patch — caller-supplied `path` arguments are now confined: reads are restricted to `.faf` / `.fafm` context files and file ops to the project root (override with `FAF_ALLOWED_ROOTS`), closing an arbitrary local file read. Built on the Canonical foundation: typed structured output (`structuredContent` + output schemas), edge-direct remote, 32 must-have tools.
 
 32 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 2,538 test executions per push.
 
@@ -82,7 +82,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.7.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.7.1.mcpb)
+[**⬇ Download `claude-faf-mcp-5.7.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.7.2.mcpb)
 
 Double-click. **No terminal. No JSON config. 32 tools live in 10 seconds.**
 
