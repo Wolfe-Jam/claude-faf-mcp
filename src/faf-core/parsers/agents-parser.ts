@@ -14,6 +14,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { injectFafBlock } from '../inject';
 
 // ============================================================================
 // Types
@@ -339,9 +340,9 @@ export async function agentsExport(
   lines.push(`*Generated from project.faf by claude-faf-mcp — ${new Date().toISOString().split('T')[0]}*`);
   lines.push('');
 
-  // Write file
+  // Write file — non-destructive: inject/update the faf block, preserve the rest.
   const content = lines.join('\n');
-  await fs.writeFile(outputPath, content);
+  await injectFafBlock(outputPath, content);
 
   return {
     success: true,

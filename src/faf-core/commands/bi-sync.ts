@@ -9,6 +9,7 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 import { findFafFile, fileExists } from '../utils/file-utils';
 import { agentsExportCommand } from './agents.js';
+import { injectFafBlock } from '../inject';
 import { cursorExportCommand } from './cursor.js';
 import { geminiExportCommand } from './gemini.js';
 
@@ -134,7 +135,7 @@ export async function syncBiDirectional(projectPath?: string, _options: BiSyncOp
     if (!claudeMdExists) {
       // Create CLAUDE.md from project.faf
       const claudeMdContent = fafToClaudeMd(fafContent);
-      await fs.writeFile(claudeMdPath, claudeMdContent, 'utf-8');
+      await injectFafBlock(claudeMdPath, claudeMdContent);
 
       result.success = true;
       result.direction = 'faf-to-claude';
@@ -144,7 +145,7 @@ export async function syncBiDirectional(projectPath?: string, _options: BiSyncOp
     } else {
       // Both files exist - update CLAUDE.md from project.faf
       const claudeMdContent = fafToClaudeMd(fafContent);
-      await fs.writeFile(claudeMdPath, claudeMdContent, 'utf-8');
+      await injectFafBlock(claudeMdPath, claudeMdContent);
 
       result.success = true;
       result.direction = 'faf-to-claude';

@@ -14,6 +14,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { injectFafBlock } from '../inject';
 
 // ============================================================================
 // Types
@@ -288,9 +289,9 @@ export async function geminiExport(
     lines.push('');
   }
 
-  // Write file
+  // Write file — non-destructive: inject/update the faf block, preserve the rest.
   const content = lines.join('\n');
-  await fs.writeFile(outputPath, content);
+  await injectFafBlock(outputPath, content);
 
   return {
     success: true,

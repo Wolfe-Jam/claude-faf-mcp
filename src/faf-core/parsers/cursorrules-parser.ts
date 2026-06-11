@@ -17,6 +17,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
+import { injectFafBlock } from '../inject';
 
 // ============================================================================
 // Types
@@ -79,6 +80,9 @@ export function parseCursorRules(content: string): CursorRulesFile {
 
   for (const line of lines) {
     rawLines.push(line);
+
+    // Skip faf's own block markers — they are not headings or content.
+    if (line.trim() === '# faf:start' || line.trim() === '# faf:end') continue;
 
     // H1 = Project name
     const h1Match = line.match(/^#\s+(?:Project:\s*)?(.+)$/);
@@ -352,9 +356,9 @@ export async function cursorExport(
   lines.push(`Generated from project.faf by claude-faf-mcp — ${new Date().toISOString().split('T')[0]}`);
   lines.push('');
 
-  // Write file
+  // Write file — non-destructive: inject/update the faf block (hash-comment markers), preserve the rest.
   const content = lines.join('\n');
-  await fs.writeFile(outputPath, content);
+  await injectFafBlock(outputPath, content, '# faf:start', '# faf:end');
 
   return {
     success: true,
