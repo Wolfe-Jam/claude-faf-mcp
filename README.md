@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 35 tools -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Canonical Edition
+# claude-faf-mcp — The Trust Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -26,7 +26,7 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-> 🏆 **v5.7.2 — The Canonical Edition.** Security patch — caller-supplied `path` arguments are now confined: reads are restricted to `.faf` / `.fafm` context files and file ops to the project root (override with `FAF_ALLOWED_ROOTS`), closing an arbitrary local file read. Built on the Canonical foundation: typed structured output (`structuredContent` + output schemas), edge-direct remote, 32 must-have tools.
+> 🏆 **v5.8.0 — The Trust Edition.** Claude Code-native context that just works. A native SessionStart hook opens every session with fresh context and a one-line `✪` heartbeat (`faf: context ✪ 100% — fresh`); tool output is quiet (no emoji, parseable) and typed (`structuredContent` everywhere); every score carries a deterministic parity hash any engine reproduces, sealed in a self-verifying `✪` receipt. Installed explicitly via `faf_setup` — preview first, your settings preserved. Built on the Canonical foundation: path-confined file access, edge-direct remote, 35 tools.
 
 35 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,611 test executions per push.
 
