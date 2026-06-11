@@ -6,6 +6,7 @@ import * as os from 'os';
 import * as pathModule from 'path';
 import { FuzzyDetector, applyIntelFriday } from '../utils/fuzzy-detector';
 import { findFafFile } from '../utils/faf-file-finder.js';
+import { confinePath, PathConfinementError } from '../utils/safe-path';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
@@ -25,13 +26,10 @@ export class FafToolHandler {
    */
   private getProjectPath(explicitPath?: string): string {
     if (explicitPath) {
-      // Expand tilde
-      const expandedPath = explicitPath.startsWith('~')
-        ? pathModule.join(os.homedir(), explicitPath.slice(1))
-        : explicitPath;
-
-      // Resolve to absolute path
-      const resolvedPath = pathModule.resolve(expandedPath);
+      // Confine the caller-supplied path. A passed *file* must be a .faf/.fafm
+      // context file; absolute/`..` escapes to secrets are refused. Throws
+      // PathConfinementError, caught centrally in callTool() (CWE-22/73/200).
+      const resolvedPath = confinePath(explicitPath);
 
       // If it's a file path, get the directory
       const projectDir = fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isFile()
@@ -291,7 +289,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_read',
-          description: 'Read content from any file on the local filesystem',
+          description: 'Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.',
           annotations: {
             title: 'Read .faf File',
             readOnlyHint: true,
@@ -312,7 +310,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_write',
-          description: 'Write content to any file on the local filesystem',
+          description: 'Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.',
           annotations: {
             title: 'Write .faf File',
             readOnlyHint: false,
@@ -814,6 +812,7 @@ export class FafToolHandler {
       throw new Error('Tool name must be a non-empty string');
     }
     
+    try {
     switch (name) {
       case 'faf': {
         const projectPath = this.getProjectPath(args?.path);
@@ -934,8 +933,16 @@ Once confirmed, the sequence is:
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
+    } catch (err) {
+      // Central catch for path-confinement violations from getProjectPath()
+      // (CWE-22/73/200). Anything else propagates unchanged.
+      if (err instanceof PathConfinementError) {
+        return { content: [{ type: 'text', text: `PATH DENIED\n\n${err.message}` }], isError: true };
+      }
+      throw err;
+    }
   }
-  
+
   private async handleFafStatus(args: any): Promise<CallToolResult> {
     // Native implementation - no CLI needed!
     const cwd = this.getProjectPath(args?.path);
