@@ -7,7 +7,7 @@ export class FafPromptHandler {
       prompts: [
         {
           name: '/faf',
-          description: 'Relentless pursuit of 100% — one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.',
+          description: 'Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.',
           arguments: [
             {
               name: 'path',
@@ -29,42 +29,37 @@ export class FafPromptHandler {
       ? `The project is at: ${args.path}`
       : 'Use the current working directory as the project path.';
 
-    const promptText = `FAF is relentless in its pursuit of 100% persistent project context — one source of truth that every AI and every MD can benefit from.
+    const promptText = `The user typed \`/faf\`. That is the only command they need. Your job: do everything FAF can do — automatically — and then tell the human, plainly, exactly what only they can do. Drive to a verified ✪ 100% and keep it there.
 
-Your job: get this project to 100% and lock it there. Do not stop until it is done.
+The rule above all: FAF don't lie. Fill a slot ONLY from real, sourced evidence (their files, README, manifest, git). Never guess, never infer, never use a placeholder to fake completeness. An honest empty slot you hand back to the human is right; a guessed one is a lie.
 
 ${pathClause}
 
-Follow this sequence exactly — no steps skipped, no shortcuts:
+Run this sequence yourself, end to end:
 
-1. **Check** — Run \`faf_status\` to see if project.faf exists.
-   - If it exists: continue to step 2.
-   - If it does not exist: run \`faf_auto\` to create one, then continue.
+1. **Check & create** — \`faf_status\`. If there's no project.faf, run \`faf_auto\` to create one (sourced fills only — no guesses).
 
-2. **Score** — Run \`faf_score\` with details:true.
-   - This reveals the current score and every missing slot.
-   - Anything below 100% is incomplete. FAF knows.
+2. **Score** — \`faf_score\` (details:true) to see exactly what is filled and what is missing.
 
-3. **Drive to 100%** — If the score is below 100%:
-   - Run \`faf_go\` to fill missing context through a guided interview.
-   - Re-score after each round of improvements.
-   - Repeat until the score is 🏆 100%. No exceptions.
-   - FAF is relentless. So are you.
+3. **Do FAF's part, then hand over the human's part:**
+   - Fill everything you can SOURCE — automatically, no questions.
+   - Whatever is left is the human-only context (the who/what/why only they truly know). Don't guess it. Tell them, in one plain message: here's what FAF already did, and here are the few things only you can answer — then let them answer (via \`faf_go\` or directly).
+   - Re-score. Repeat until ✪ 100%. The human's part stays the human's; FAF never fabricates it.
 
-4. **Sync** — At 100%, run \`faf_tri_sync\` to lock context into CLAUDE.md and MEMORY.md.
-   - Sync is mandatory. A 100% score without sync is not finished.
-   - This is the one source of truth — .faf ↔ CLAUDE.md ↔ MEMORY.md — locked and aligned.
+4. **Verify** — \`faf_trust\`. Attests the 100% with a determinism parity hash any engine reproduces — a ✪ receipt, not a claim. FAF don't lie, and now it's provable.
 
-5. **Confirm** — Report:
-   - Project name and score: 🏆 100%
-   - What was missing and what was filled in
-   - "Claude is now optimized for [project name]."
-   - "FAF defines. MD instructs. AI codes."
+5. **Lock** — \`faf_tri_sync\` writes the one source of truth into CLAUDE.md and MEMORY.md. Not finished until synced.
 
-This is what FAF does. Get to 100%. Sync. Lock. Done.`;
+6. **Keep it that way** — run \`faf_setup\` to install the session hook so the verified 100% refreshes every session and they never run this again. (Previews and confirms before writing — never silent.)
+
+7. **Done** — one short, honest report:
+   - "[project name]: ✪ 100% — verified and locked. Stays optimized every session."
+   - What FAF filled automatically, and what the human supplied. Keep the line between the two honest.
+
+They typed one command. FAF did all it could; the human did only what only they could.`;
 
     return {
-      description: 'Relentless pursuit of 100% — one source of truth. FAF defines. MD instructs. AI codes.',
+      description: 'Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth. FAF defines. MD instructs. AI codes.',
       messages: [
         {
           role: 'user' as const,
