@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 35 tools -->
-<!-- faf: doc=changelog | latest=v5.8.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.9.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.9.0] - 2026-06-12 — The Sourced Edition
+
+**Every answer comes from one source.** claude-faf-mcp now composes faf-cli's single-source engines — the 6Ws interview and Turbo-Cat detection — instead of carrying its own copies that drift. Fills come from real evidence or stay honestly empty; nothing is guessed. FAF don't lie, by construction.
+
+### Changed
+
+- **`faf_go` composes the canonical interview.** The guided interview is now sourced from faf-cli's public `INTERVIEW` / `interviewForMissing` (shipped in faf-cli 6.9.0) — the hand-maintained local question registry is deleted, so question text and options can never drift from the kernel. Only missing AND active slots are asked (`slotignored` is skipped), so the full canonical set never means more questions on screen.
+- **Turbo-Cat detection composes faf-cli.** `faf_formats` and `faf_auto` now use faf-cli's single-source Turbo-Cat (`turboCatScan` / `turboCatSlots`, ~200 formats; faf-cli 6.10.1) — the local 25-entry copy (`discoverFormatsInternal`) is deleted. Detection that's correct and can't drift: a server with an `mcpb` `manifest.json` is detected as what it is, not mis-flagged as a Chrome extension.
+- **The `/faf` prompt drives to a *verified* 100%, and maintains it.** It now runs `faf_trust` to attest the score with the `✪` parity receipt, offers `faf_setup` to keep 100% fresh every session, and reports the quiet `✪` seal. Its lead rule: fill only from sourced evidence — never guess; hand the human, plainly, only what only they can answer.
+
+### Removed
+
+- **The v5 guessing extractor.** The legacy human-context extractor inferred slots from the project name / tech stack (writing `INFERRED`/`DEFAULT` placeholders into empty slots). Removed; replaced by a sourced-or-empty README extractor, verified by a test that proves it cannot fabricate. No-guess is now structural, not accidental.
+
+35 tools live. 567 tests, 0 fail. Composes faf-cli `^6.10.1`.
 
 ## [5.8.0] - 2026-06-11 — The Trust Edition
 
