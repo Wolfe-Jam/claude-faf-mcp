@@ -57,7 +57,7 @@
       "registryType": "mcpb",
       "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.9.0/claude-faf-mcp-5.9.0.mcpb",
       "version": "5.9.0",
-      "fileSha256": "TBD-RECOMPUTE-FOR-5.9.0-MCPB",
+      "fileSha256": "fbaffa51a355ca95258c4257c44aab6c6b44ac6bce02512d44c561615e3de3d1",
       "transport": {
         "type": "stdio"
       }
