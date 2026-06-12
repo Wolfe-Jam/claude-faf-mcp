@@ -18,6 +18,7 @@ import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
+import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-context.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
 export class FafToolHandler {
@@ -2276,8 +2277,8 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       // Read README content
       const readmeContent = fs.readFileSync(readmePath, 'utf-8');
 
-      // Extract 6 Ws using simple pattern matching
-      const extracted = this.extractSixWsFromReadme(readmeContent);
+      // Extract 6 Ws using sourced-or-empty pattern matching (never guesses)
+      const extracted = extractSixWsFromReadme(readmeContent);
 
       if (!args?.apply) {
         // Preview mode
@@ -2326,38 +2327,6 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         isError: true
       };
     }
-  }
-
-  private extractSixWsFromReadme(content: string): Record<string, string | null> {
-    const result: Record<string, string | null> = {
-      who: null, what: null, why: null, where: null, when: null, how: null
-    };
-
-    // WHAT: First paragraph after title
-    const whatMatch = content.match(/^#\s+[^\n]+\n+(?:\*\*[^*]+\*\*\n+)?([A-Z][^#\n]{30,})/m);
-    if (whatMatch) result.what = whatMatch[1].trim().substring(0, 200);
-
-    // WHO: Look for "team", "company", "by", "for"
-    const whoMatch = content.match(/(?:built by|created by|maintained by|for|team)\s+([^\n.]{10,50})/i);
-    if (whoMatch) result.who = whoMatch[1].trim();
-
-    // WHY: Look for "because", "to", benefits
-    const whyMatch = content.match(/(?:because|to help|enables|allows|makes it)\s+([^\n.]{15,100})/i);
-    if (whyMatch) result.why = whyMatch[1].trim();
-
-    // WHERE: Look for deployment/runtime mentions
-    const whereMatch = content.match(/(?:runs on|deployed to|works with|for)\s+(browser|server|edge|npm|cargo|cloud|local)/i);
-    if (whereMatch) result.where = whereMatch[0].trim();
-
-    // WHEN: Look for version, date
-    const whenMatch = content.match(/(?:version|v)\s*(\d+\.\d+(?:\.\d+)?)/i);
-    if (whenMatch) result.when = `v${whenMatch[1]}`;
-
-    // HOW: Look for install/run commands
-    const howMatch = content.match(/(?:npm install|cargo|pip install|brew install)\s+[^\n]+/i);
-    if (howMatch) result.how = howMatch[0].trim();
-
-    return result;
   }
 
   private async handleFafHumanAdd(args: any): Promise<CallToolResult> {
@@ -2997,7 +2966,7 @@ faffless: true
       const readmePath = path.join(cwd, 'README.md');
       if (fs.existsSync(readmePath)) {
         const readmeContent = fs.readFileSync(readmePath, 'utf-8');
-        const extracted = this.extractSixWsFromReadme(readmeContent);
+        const extracted = extractSixWsFromReadme(readmeContent);
 
         if (!fafData.human_context) fafData.human_context = {};
 

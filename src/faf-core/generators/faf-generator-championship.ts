@@ -15,7 +15,6 @@ import {
 } from "../utils/file-utils";
 import { generateFafContent } from "../utils/yaml-generator";
 import { FabFormatsProcessor, type FabFormatsAnalysis } from "../engines/fab-formats-processor";
-import { relentlessExtractor } from "../engines/relentless-context-extractor";
 
 export interface GenerateOptions {
   projectType?: string;
@@ -121,14 +120,10 @@ export async function generateFafFromProject(
     };
   }
 
-  // 🏎️ AERO PACKAGE - RelentlessContextExtractor for human context!
-  let humanContext;
-  try {
-    humanContext = await relentlessExtractor.extractFromProject(projectRoot);
-  } catch {
-    // Fallback to empty context
-    humanContext = null;
-  }
+  // Human-context (6W) slots are NOT inferred here. They are filled only from
+  // sourced evidence elsewhere (README via extractSixWsFromReadme, or the human
+  // via faf_go). The v5 RelentlessContextExtractor that guessed them from project
+  // name / tech stack was removed — FAF don't lie.
 
   // TypeScript configuration analysis
   const tsConfigPath = await findTsConfig(projectRoot);
@@ -193,27 +188,6 @@ export async function generateFafFromProject(
     if (ctx.approach) contextSlotsFilled['how'] = ctx.approach;
   }
 
-  // Apply RELENTLESS human context extraction (overrides if higher confidence)
-  if (humanContext) {
-    if (humanContext.who.confidence === 'CERTAIN' || !contextSlotsFilled['who']) {
-      contextSlotsFilled['who'] = humanContext.who.value;
-    }
-    if (humanContext.what.confidence === 'CERTAIN' || !contextSlotsFilled['what']) {
-      contextSlotsFilled['what'] = humanContext.what.value;
-    }
-    if (humanContext.why.confidence === 'CERTAIN' || !contextSlotsFilled['why']) {
-      contextSlotsFilled['why'] = humanContext.why.value;
-    }
-    if (humanContext.where.confidence === 'CERTAIN' || !contextSlotsFilled['where']) {
-      contextSlotsFilled['where'] = humanContext.where.value;
-    }
-    if (humanContext.when.confidence === 'CERTAIN' || !contextSlotsFilled['when']) {
-      contextSlotsFilled['when'] = humanContext.when.value;
-    }
-    if (humanContext.how.confidence === 'CERTAIN' || !contextSlotsFilled['how']) {
-      contextSlotsFilled['how'] = humanContext.how.value;
-    }
-  }
 
   // CLI-specific detection and smart slot reuse
   const deps = {
