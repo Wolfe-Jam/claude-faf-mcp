@@ -19,6 +19,7 @@ import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
 import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-context.js';
+import { composedTurboCat, normalizeTurboCatKeys } from '../faf-core/extract/turbocat-bridge.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
 export class FafToolHandler {
@@ -3401,6 +3402,15 @@ ${fafData.stack_signature || 'Auto-detected stack'}
 
     } catch (error) {
       // Ignore errors, return empty results
+    }
+
+    // Composed Turbo-Cat overlay (STAGED): when faf-cli exposes its single-source
+    // engine (the 43KB knowledge base), its sourced slot fills take precedence
+    // over this local copy. Returns null until that export lands — non-breaking.
+    // See src/faf-core/extract/turbocat-bridge.ts.
+    const composed = await composedTurboCat(projectDir);
+    if (composed) {
+      Object.assign(slotFillRecommendations, normalizeTurboCatKeys(composed.slotFills));
     }
 
     // Generate stack signature
