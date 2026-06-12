@@ -170,3 +170,4 @@ TEST_CENTER.sh
 comprehensive-test.js
 dashboard.html
 npm-preflight.sh
+.faf-bench.json
