@@ -19,6 +19,7 @@ import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
 import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-context.js';
+import { composedTurboCat, composedTurboCatSlots, turboCatDisplay } from '../faf-core/extract/turbocat-bridge.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
 export class FafToolHandler {
@@ -2826,13 +2827,15 @@ faffless: true
       const fafData = yaml.parse(fafContent) || {};
       currentScore = this.calculateSimpleScore(fafData);
 
-      // Step 2: Run TURBO-CAT format discovery
-      const formatsResult = await this.discoverFormatsInternal(cwd);
-      if (formatsResult.discoveredFormats.length > 0) {
-        // Apply slot fills to .faf
+      // Step 2: Run TURBO-CAT format discovery — composed from faf-cli's engine.
+      const formatsResult = await composedTurboCat(cwd);
+      if (formatsResult && formatsResult.discoveredFormats.length > 0) {
+        // Apply slot fills to .faf. turboCatSlots routes them correctly into the
+        // .faf sections (stack.*); main_language lives under project (a string
+        // here), so we fill the stack section only — clean keys, no noise.
+        const slots = await composedTurboCatSlots(cwd);
         if (!fafData.stack) fafData.stack = {};
-
-        for (const [key, value] of Object.entries(formatsResult.slotFillRecommendations)) {
+        for (const [key, value] of Object.entries(slots?.stack ?? {})) {
           if (!fafData.stack[key] || fafData.stack[key] === 'None') {
             fafData.stack[key] = value;
           }
@@ -3122,7 +3125,7 @@ ${fafData.stack_signature || 'Auto-detected stack'}
     const startTime = Date.now();
 
     try {
-      const analysis = await this.discoverFormatsInternal(cwd);
+      const analysis = await turboCatDisplay(cwd);
       const elapsed = Date.now() - startTime;
 
       const structured = {
@@ -3178,130 +3181,6 @@ ${fafData.stack_signature || 'Auto-detected stack'}
         isError: true
       };
     }
-  }
-
-  /**
-   * Internal helper: Discover formats in a directory (TURBO-CAT logic)
-   */
-  private async discoverFormatsInternal(projectDir: string): Promise<{
-    discoveredFormats: Array<{ fileName: string; category: string; priority: number }>;
-    totalIntelligenceScore: number;
-    stackSignature: string;
-    slotFillRecommendations: Record<string, string>;
-    extractedContext: Record<string, any>;
-  }> {
-    const path = await import('path');
-
-    // Known format files and their categories
-    const KNOWN_FORMATS: Record<string, { category: string; priority: number }> = {
-      'package.json': { category: 'package-manager', priority: 35 },
-      'tsconfig.json': { category: 'typescript-config', priority: 30 },
-      'Cargo.toml': { category: 'package-manager', priority: 35 },
-      'pyproject.toml': { category: 'package-manager', priority: 35 },
-      'requirements.txt': { category: 'package-manager', priority: 25 },
-      'go.mod': { category: 'package-manager', priority: 35 },
-      'pom.xml': { category: 'package-manager', priority: 35 },
-      'README.md': { category: 'documentation', priority: 20 },
-      'CLAUDE.md': { category: 'ai-context', priority: 40 },
-      'project.faf': { category: 'faf-context', priority: 45 },
-      '.faf': { category: 'faf-context', priority: 45 },
-      'Dockerfile': { category: 'docker', priority: 25 },
-      'docker-compose.yml': { category: 'docker', priority: 25 },
-      'vercel.json': { category: 'deployment', priority: 20 },
-      'netlify.toml': { category: 'deployment', priority: 20 },
-      '.eslintrc.json': { category: 'linting', priority: 15 },
-      '.prettierrc': { category: 'linting', priority: 15 },
-      'jest.config.js': { category: 'testing', priority: 20 },
-      'vitest.config.ts': { category: 'testing', priority: 20 },
-      'svelte.config.js': { category: 'framework', priority: 30 },
-      'next.config.js': { category: 'framework', priority: 30 },
-      'vite.config.ts': { category: 'build', priority: 25 },
-      'webpack.config.js': { category: 'build', priority: 25 },
-      '.github': { category: 'ci-cd', priority: 20 },
-      'manifest.json': { category: 'chrome-extension', priority: 35 }
-    };
-
-    const discoveredFormats: Array<{ fileName: string; category: string; priority: number }> = [];
-    let totalIntelligenceScore = 0;
-    const slotFillRecommendations: Record<string, string> = {};
-    const extractedContext: Record<string, any> = {};
-
-    // Scan directory
-    try {
-      const files = fs.readdirSync(projectDir);
-
-      for (const file of files) {
-        if (KNOWN_FORMATS[file]) {
-          const format = KNOWN_FORMATS[file];
-          discoveredFormats.push({
-            fileName: file,
-            category: format.category,
-            priority: format.priority
-          });
-          totalIntelligenceScore += format.priority;
-        }
-      }
-
-      // Extract intelligence from package.json
-      const pkgPath = path.join(projectDir, 'package.json');
-      if (fs.existsSync(pkgPath)) {
-        const pkgContent = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
-        const allDeps = { ...pkgContent.dependencies, ...pkgContent.devDependencies };
-
-        extractedContext.projectName = pkgContent.name;
-        extractedContext.projectDescription = pkgContent.description;
-
-        // Detect frameworks and fill slots
-        if (allDeps['typescript'] || allDeps['@types/node']) {
-          slotFillRecommendations['mainLanguage'] = 'TypeScript';
-        }
-        if (allDeps['react'] || allDeps['next']) {
-          slotFillRecommendations['frontend'] = allDeps['next'] ? 'Next.js' : 'React';
-        }
-        if (allDeps['vue'] || allDeps['nuxt']) {
-          slotFillRecommendations['frontend'] = allDeps['nuxt'] ? 'Nuxt' : 'Vue';
-        }
-        if (allDeps['svelte'] || allDeps['@sveltejs/kit']) {
-          slotFillRecommendations['frontend'] = allDeps['@sveltejs/kit'] ? 'SvelteKit' : 'Svelte';
-        }
-        if (allDeps['express']) {
-          slotFillRecommendations['backend'] = 'Express';
-        }
-        if (allDeps['fastify']) {
-          slotFillRecommendations['backend'] = 'Fastify';
-        }
-        if (allDeps['vite']) {
-          slotFillRecommendations['build'] = 'Vite';
-        }
-        if (allDeps['jest'] || allDeps['vitest']) {
-          slotFillRecommendations['testing'] = allDeps['vitest'] ? 'Vitest' : 'Jest';
-        }
-      }
-
-      // Check for deployment indicators
-      if (fs.existsSync(path.join(projectDir, 'vercel.json'))) {
-        slotFillRecommendations['hosting'] = 'Vercel';
-      } else if (fs.existsSync(path.join(projectDir, 'netlify.toml'))) {
-        slotFillRecommendations['hosting'] = 'Netlify';
-      }
-
-    } catch (error) {
-      // Ignore errors, return empty results
-    }
-
-    // Generate stack signature
-    const parts: string[] = [];
-    if (slotFillRecommendations['mainLanguage']) parts.push(slotFillRecommendations['mainLanguage'].toLowerCase());
-    if (slotFillRecommendations['frontend']) parts.push(slotFillRecommendations['frontend'].toLowerCase());
-    const stackSignature = parts.length > 0 ? parts.join('-') : 'unknown-stack';
-
-    return {
-      discoveredFormats,
-      totalIntelligenceScore,
-      stackSignature,
-      slotFillRecommendations,
-      extractedContext
-    };
   }
 
   /**
