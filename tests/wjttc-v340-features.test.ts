@@ -650,6 +650,8 @@ stack:
   database: PostgreSQL
   hosting: Vercel
   build: Vite
+  runtime: Node.js
+  cicd: GitHub Actions
 stack_signature: typescript-react
 `
         );

@@ -2592,127 +2592,16 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
       const fafData = yaml.parse(fafContent) || {};
 
-      // Question registry - maps field paths to questions
-      const QUESTION_REGISTRY: Record<string, { question: string; header: string; type: string; required: boolean; options?: Array<{ label: string; value: string; description: string }> }> = {
-        'project.goal': {
-          question: 'What does this project do? (one sentence)',
-          header: 'Goal',
-          type: 'text',
-          required: true
-        },
-        'project.name': {
-          question: 'What is the name of this project?',
-          header: 'Name',
-          type: 'text',
-          required: true
-        },
-        'project.main_language': {
-          question: 'What is the primary programming language?',
-          header: 'Language',
-          type: 'select',
-          required: true,
-          options: [
-            { label: 'TypeScript', value: 'TypeScript', description: 'JavaScript with types' },
-            { label: 'JavaScript', value: 'JavaScript', description: 'Vanilla JS or Node.js' },
-            { label: 'Python', value: 'Python', description: 'Python 3.x' },
-            { label: 'Rust', value: 'Rust', description: 'Systems programming' },
-            { label: 'Go', value: 'Go', description: 'Golang' },
-            { label: 'Other', value: 'Other', description: 'Specify manually' }
-          ]
-        },
-        'human_context.why': {
-          question: 'Why does this project exist? (motivation)',
-          header: 'Why',
-          type: 'text',
-          required: true
-        },
-        'human_context.who': {
-          question: 'Who uses this project? (target audience)',
-          header: 'Who',
-          type: 'text',
-          required: false
-        },
-        'human_context.what': {
-          question: 'What problem does this solve?',
-          header: 'What',
-          type: 'text',
-          required: false
-        },
-        'human_context.where': {
-          question: 'Where does this run? (environment)',
-          header: 'Where',
-          type: 'text',
-          required: false
-        },
-        'human_context.when': {
-          question: 'When was this started or what phase is it in?',
-          header: 'When',
-          type: 'text',
-          required: false
-        },
-        'human_context.how': {
-          question: 'How should AI assist with this project?',
-          header: 'How',
-          type: 'text',
-          required: false
-        },
-        'stack.frontend': {
-          question: 'What frontend framework do you use?',
-          header: 'Frontend',
-          type: 'select',
-          required: false,
-          options: [
-            { label: 'React', value: 'React', description: 'React.js' },
-            { label: 'Vue', value: 'Vue', description: 'Vue.js' },
-            { label: 'Svelte', value: 'Svelte', description: 'Svelte/SvelteKit' },
-            { label: 'Next.js', value: 'Next.js', description: 'React framework' },
-            { label: 'None', value: 'None', description: 'No frontend' },
-            { label: 'Other', value: 'Other', description: 'Specify manually' }
-          ]
-        },
-        'stack.backend': {
-          question: 'What backend framework do you use?',
-          header: 'Backend',
-          type: 'select',
-          required: false,
-          options: [
-            { label: 'Express', value: 'Express', description: 'Node.js Express' },
-            { label: 'Fastify', value: 'Fastify', description: 'Node.js Fastify' },
-            { label: 'Django', value: 'Django', description: 'Python Django' },
-            { label: 'FastAPI', value: 'FastAPI', description: 'Python FastAPI' },
-            { label: 'None', value: 'None', description: 'No backend' },
-            { label: 'Other', value: 'Other', description: 'Specify manually' }
-          ]
-        },
-        'stack.database': {
-          question: 'What database do you use?',
-          header: 'Database',
-          type: 'select',
-          required: false,
-          options: [
-            { label: 'PostgreSQL', value: 'PostgreSQL', description: 'Relational database' },
-            { label: 'MongoDB', value: 'MongoDB', description: 'Document database' },
-            { label: 'SQLite', value: 'SQLite', description: 'File-based database' },
-            { label: 'Supabase', value: 'Supabase', description: 'Postgres + auth' },
-            { label: 'None', value: 'None', description: 'No database' },
-            { label: 'Other', value: 'Other', description: 'Specify manually' }
-          ]
-        },
-        'stack.hosting': {
-          question: 'Where is this hosted/deployed?',
-          header: 'Hosting',
-          type: 'select',
-          required: false,
-          options: [
-            { label: 'Vercel', value: 'Vercel', description: 'Frontend/serverless' },
-            { label: 'AWS', value: 'AWS', description: 'Amazon Web Services' },
-            { label: 'Cloudflare', value: 'Cloudflare', description: 'Workers/Pages' },
-            { label: 'Railway', value: 'Railway', description: 'App hosting' },
-            { label: 'Local only', value: 'Local', description: 'Not deployed' },
-            { label: 'Other', value: 'Other', description: 'Specify manually' }
-          ]
-        }
-      };
+      // Single-source the interview from faf-cli (the canonical INTERVIEW set,
+      // shipped public in v6.9.0). Replaces the hand-maintained local registry so
+      // question text / options can never drift from the kernel. faf_go only ever
+      // ASKS for missing + active slots (interviewForMissing skips slotignored),
+      // so the larger menu never means more questions on screen — "we will never
+      // ask 16". QUESTION_REGISTRY (keyed by path) is kept for question lookup +
+      // the apply phase.
+      const { INTERVIEW, interviewForMissing } = await fafCli;
+      const QUESTION_REGISTRY: Record<string, (typeof INTERVIEW)[number]> =
+        Object.fromEntries(INTERVIEW.map((q) => [q.path, q]));
 
       // Priority order for questions
       const priorityOrder = [
@@ -2802,14 +2691,11 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // PHASE 1: Analyze and return questions
-      const missingFields: string[] = [];
-      for (const fieldPath of Object.keys(QUESTION_REGISTRY)) {
-        const value = getNestedValue(fafData, fieldPath);
-        if (isEmpty(value)) {
-          missingFields.push(fieldPath);
-        }
-      }
+      // PHASE 1: Analyze and return questions. Single-sourced from faf-cli:
+      // interviewForMissing returns the canonical questions whose slot is empty
+      // AND active — slotignored slots are skipped ("the What-Not is never
+      // asked"), so we never prompt for fields that don't apply to this app_type.
+      const missingFields: string[] = interviewForMissing(fafData, isEmpty).map((q) => q.path);
 
       // Calculate current score
       const totalFields = Object.keys(QUESTION_REGISTRY).length;
