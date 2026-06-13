@@ -2593,16 +2593,15 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
       const fafData = yaml.parse(fafContent) || {};
 
-      // Single-source the interview from faf-cli (the canonical INTERVIEW set,
-      // shipped public in v6.9.0). Replaces the hand-maintained local registry so
-      // question text / options can never drift from the kernel. faf_go only ever
-      // ASKS for missing + active slots (interviewForMissing skips slotignored),
-      // so the larger menu never means more questions on screen — "we will never
-      // ask 16". QUESTION_REGISTRY (keyed by path) is kept for question lookup +
-      // the apply phase.
-      const { INTERVIEW, interviewForMissing } = await fafCli;
-      const QUESTION_REGISTRY: Record<string, (typeof INTERVIEW)[number]> =
-        Object.fromEntries(INTERVIEW.map((q) => [q.path, q]));
+      // Single-source the HUMAN interview from faf-cli's canonical SIX_WS_INTERVIEW
+      // (8 = the 6Ws + name + goal; public since 6.9.0). This is THE 6Ws — human-
+      // only context that can't be derived. main_language + stack are NOT here:
+      // they're SOURCED by Turbo-Cat (faf-cli's separate STACK_INTERVIEW if ever
+      // needed), never asked of a human. (Decision: single-source the 8-Q 6Ws
+      // Interview, wolfejam 2026-06-10 — language is not on the human side.)
+      const { SIX_WS_INTERVIEW } = await fafCli;
+      const QUESTION_REGISTRY: Record<string, (typeof SIX_WS_INTERVIEW)[number]> =
+        Object.fromEntries(SIX_WS_INTERVIEW.map((q) => [q.path, q]));
 
       // Priority order for questions
       const priorityOrder = [
@@ -2692,11 +2691,11 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // PHASE 1: Analyze and return questions. Single-sourced from faf-cli:
-      // interviewForMissing returns the canonical questions whose slot is empty
-      // AND active — slotignored slots are skipped ("the What-Not is never
-      // asked"), so we never prompt for fields that don't apply to this app_type.
-      const missingFields: string[] = interviewForMissing(fafData, isEmpty).map((q) => q.path);
+      // PHASE 1: Analyze and return questions — the canonical 6Ws (SIX_WS_INTERVIEW),
+      // scoped to slots that are empty AND active (slotignored is never asked).
+      const missingFields: string[] = SIX_WS_INTERVIEW
+        .filter((q) => { const v = getNestedValue(fafData, q.path); return v !== 'slotignored' && isEmpty(v); })
+        .map((q) => q.path);
 
       // Calculate current score
       const totalFields = Object.keys(QUESTION_REGISTRY).length;
