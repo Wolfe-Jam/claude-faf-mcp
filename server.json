@@ -38,12 +38,6 @@
     "source": "github"
   },
   "websiteUrl": "https://faf.one",
-  "remotes": [
-    {
-      "type": "streamable-http",
-      "url": "https://mcpaas.live/claude/mcp/v1"
-    }
-  ],
   "packages": [
     {
       "registryType": "npm",
