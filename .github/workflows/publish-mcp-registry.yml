@@ -9,8 +9,9 @@ name: Publish to MCP Registry
 # identity to authorise the io.github.Wolfe-Jam/* namespace (repo owner matches).
 
 on:
-  release:
-    types: [published]      # each release = a new server.json version → publish it
+  # release auto-publish DISABLED for the one.faf migration: OIDC authorises
+  # io.github.Wolfe-Jam/* only, not the one.faf DNS namespace (see header) — it 400s.
+  # Registry publish is manual via `mcp-publisher login dns` in /pubpro for now.
   workflow_dispatch: {}      # manual re-publish if ever needed
 
 permissions:

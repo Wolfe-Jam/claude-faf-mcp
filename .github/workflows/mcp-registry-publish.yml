@@ -1,8 +1,12 @@
 name: 📡 MCP Registry Publish
 
 on:
-  release:
-    types: [created]
+  # release auto-publish DISABLED for the one.faf migration: GitHub-OIDC authorises
+  # io.github.Wolfe-Jam/* only, NOT the DNS-verified one.faf namespace — it 400s.
+  # Registry publish is now manual via `mcp-publisher login dns` in /pubpro.
+  # TODO restore: switch `login github-oidc` → `login dns` with the one.faf ed25519
+  #      key as a GitHub secret (FAF_ONE_MCP_PRIVATE_KEY). Also: dedupe with
+  #      publish-mcp-registry.yml (two workflows do the same job).
   workflow_dispatch:  # manual trigger for backfills / retries
 
 jobs:
