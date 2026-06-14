@@ -1,10 +1,11 @@
-faf_version: "2.5.0"
+faf_version: 2.5.0
 project:
   name: claude-faf-mcp
   goal: Persistent project context for Claude — define once, never re-explain
   main_language: TypeScript
   type: mcp
   framework: mcp-sdk-ts
+  homepage: https://faf.one
 stack:
   frontend: slotignored
   css_framework: slotignored

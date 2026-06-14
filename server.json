@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.Wolfe-Jam/claude-faf-mcp",
+  "name": "one.faf/claude-faf-mcp",
   "description": "Persistent project context for Claude. IANA-registered .faf format.",
   "icons": [
     {
@@ -62,5 +62,16 @@
         "type": "stdio"
       }
     }
-  ]
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "one.faf/context": {
+        "faf": "./project.faf",
+        "mediaType": "application/vnd.faf+yaml",
+        "iana": "https://www.iana.org/assignments/media-types/application/vnd.faf+yaml",
+        "deterministic": true,
+        "generated": "2026-06-14T00:00:00.000Z"
+      }
+    }
+  }
 }
