@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 35 tools -->
-<!-- faf: doc=changelog | latest=v5.9.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.9.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.9.1] - 2026-06-14
+
+Patch — inherits The Sourced Edition.
+
+### Changed
+
+- **Registry namespace → `one.faf/*`.** `claude-faf-mcp` now publishes to the MCP Registry as `one.faf/claude-faf-mcp` (from `io.github.Wolfe-Jam/claude-faf-mcp`) — the DNS-verified `one.faf` namespace (reverse-DNS of `faf.one`) in place of the personal GitHub namespace. The FAF context block now rides `server.json` `_meta` under `io.modelcontextprotocol.registry/publisher-provided` — emitted by faf-cli (`registryMeta`), honest-first: no score baked, it points to the `.faf` and asserts determinism (verify, don't trust).
+
+### Fixed
+
+- **`faf_go` is the 6Ws interview, not the full slot interview.** The guided interview now correctly uses `SIX_WS_INTERVIEW` (8: name + goal + 6Ws) instead of `INTERVIEW` (16) — language and stack are sourced, never asked of the human.
 
 ## [5.9.0] - 2026-06-12 — The Sourced Edition
 
