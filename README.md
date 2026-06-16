@@ -148,7 +148,7 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## 32 MCP Tools
+## 35 MCP Tools
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
