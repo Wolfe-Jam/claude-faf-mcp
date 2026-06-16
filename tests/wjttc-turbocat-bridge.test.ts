@@ -90,3 +90,57 @@ describe('ENGINE — key mapping (faf-cli keys → CFM display keys)', () => {
       .toEqual({ mainLanguage: 'TypeScript', frontend: 'SvelteKit', build: 'Vite', backend: 'Express' });
   });
 });
+
+// ──────────────────────────────────────────────────────────────────────────
+// AERO — Dart/Flutter composes from faf-cli (>= 6.13.0). The drift Randal
+// Schwartz exposed (a pubspec invisible to the MCP, or every pubspec flattened
+// to "Flutter") is fixed at the SOURCE: faf-cli's turbo-cat is content-aware,
+// and CFM inherits it BY COMPOSITION — there is no forked pubspec parser here.
+// ──────────────────────────────────────────────────────────────────────────
+describe('AERO — Dart/Flutter via composition (faf-cli >= 6.13.0)', () => {
+  let dir: string;
+  const file = (rel: string, c = '') => {
+    const p = path.join(dir, rel);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, c);
+  };
+  beforeEach(() => { dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tcat-dart-')); });
+  afterEach(() => { try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* */ } });
+
+  test('D1 — a Flutter app: main_language Dart, frontend Flutter, state Riverpod', async () => {
+    file('pubspec.yaml', 'name: my_app\ndependencies:\n  flutter:\n    sdk: flutter\n  flutter_riverpod: ^2.5.0\ndev_dependencies:\n  flutter_test:\n    sdk: flutter\n');
+    file('lib/main.dart', '');
+    const s = await composedTurboCatSlots(dir);
+    expect(s!.project?.main_language).toBe('Dart');
+    expect(s!.stack?.frontend).toBe('Flutter');
+    expect(s!.stack?.state_management).toBe('Riverpod');
+    const r = await composedTurboCat(dir);
+    expect(r!.slotFills.mainLanguage).toBe('Dart');
+    expect(r!.stackSignature).toBe('dart-flutter');
+  });
+
+  test('D2 — THE no-guess Dart proof: a pure-Dart CLI is Dart, NOT Flutter', async () => {
+    // The exact drift Randal exposed — a pubspec must never blindly read as Flutter.
+    file('pubspec.yaml', 'name: mytool\nexecutables:\n  mytool:\ndependencies:\n  args: ^2.5.0\n');
+    const s = await composedTurboCatSlots(dir);
+    expect(s!.project?.main_language).toBe('Dart');
+    expect(s!.stack?.frontend).toBeUndefined();   // NOT Flutter
+    const r = await composedTurboCat(dir);
+    expect(r!.slotFills.framework).toBeUndefined();
+    expect(r!.stackSignature).toBe('dart');
+  });
+
+  test('D3 — a Dart MCP server surfaces api_type MCP', async () => {
+    file('pubspec.yaml', 'name: my_mcp\ndependencies:\n  dart_mcp: ^0.2.0\n');
+    const s = await composedTurboCatSlots(dir);
+    expect(s!.project?.main_language).toBe('Dart');
+    expect(s!.stack?.api_type).toBe('MCP');
+  });
+
+  test('D4 — a Dart backend surfaces the backend framework', async () => {
+    file('pubspec.yaml', 'name: my_api\ndependencies:\n  serverpod: ^2.1.0\n');
+    const s = await composedTurboCatSlots(dir);
+    expect(s!.project?.main_language).toBe('Dart');
+    expect(s!.stack?.backend).toBe('Serverpod');
+  });
+});
