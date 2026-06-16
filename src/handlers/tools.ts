@@ -1847,7 +1847,12 @@ package_manager: ${projectData.package_manager}` : ''}
       npm: 'https://www.npmjs.com/package/claude-faf-mcp'
     };
 
-    const aboutText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    const aboutText = `well seeing as you clearly have time to burn, faf is about saving your AI time, how is that working out...
+
+faff about (v., Brit.) — what your AI does for 20 minutes relearning your project, every session.
+.faf (n.) — what stops it. Same four letters, opposite outcomes.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🤖 .faf = project DNA for AI
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
