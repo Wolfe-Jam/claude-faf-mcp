@@ -26,7 +26,7 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-> 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated 12-tool Core surface, the interview + README extractor + server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
+> 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated Core of 12 self-documenting tools, with the interview, README extractor, and server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
 
 > 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift. 35 tools, npm audit clean.
 

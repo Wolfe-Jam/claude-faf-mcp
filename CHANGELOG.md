@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [5.11.0] - 2026-06-17 — The Distilled Edition
 
-claude-faf-mcp, distilled — a curated 12-tool Core surface, the interview + README extractor + server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
+claude-faf-mcp, distilled — a curated Core of 12 self-documenting tools, with the interview, README extractor, and server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
 
 ### Changed
 
