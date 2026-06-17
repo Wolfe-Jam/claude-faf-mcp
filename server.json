@@ -32,7 +32,7 @@
       ]
     }
   ],
-  "version": "5.9.1",
+  "version": "5.10.0",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github"
@@ -42,16 +42,16 @@
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "5.9.1",
+      "version": "5.10.0",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.9.1/claude-faf-mcp-5.9.1.mcpb",
-      "version": "5.9.1",
-      "fileSha256": "ead4aa222102299d44ac611a2a125f647874e21af8a689173667f2ce9dd86bd9",
+      "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.10.0/claude-faf-mcp-5.10.0.mcpb",
+      "version": "5.10.0",
+      "fileSha256": "89530ce7ec38893f08655c6fccd591114da75e680577711f7a13ff01067ae2ee",
       "transport": {
         "type": "stdio"
       }
@@ -64,7 +64,7 @@
         "mediaType": "application/vnd.faf+yaml",
         "iana": "https://www.iana.org/assignments/media-types/application/vnd.faf+yaml",
         "deterministic": true,
-        "generated": "2026-06-14T00:00:00.000Z"
+        "generated": "2026-06-17T00:00:00.000Z"
       }
     }
   }

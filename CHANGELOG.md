@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 35 tools -->
-<!-- faf: doc=changelog | latest=v5.9.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.10.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.10.0] - 2026-06-17 — The Dart Edition
+
+**claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI.** Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift.
+
+### Added
+
+- **Dart & Flutter detection, by composition.** `faf_formats` / `faf_auto` now surface Dart and Flutter projects correctly via faf-cli's single-source Turbo-Cat: a Flutter app reads as Flutter (state + routing detected), a pure-Dart CLI reads as Dart — **not** mis-flagged as Flutter — and a Dart MCP server / backend surfaces its `api_type` and framework. No forked pubspec parser; the classifier lives once in faf-cli and CFM composes it. The doctrine-pure fix for the drift a Dart/Flutter expert flagged publicly.
+
+### Changed
+
+- **Composes `faf-cli` `^6.13.0`** (from `^6.10.1`) — the release carrying the content-aware Dart classifier in Turbo-Cat.
+
+### Security
+
+- **`npm audit fix`: `hono` → 4.12.25, `js-yaml` → 4.2.0.** Clears the 🔒 Security Audit CI gate (`hono` path-traversal / CORS / cookie advisories — high; `js-yaml` quadratic-complexity DoS — moderate). `npm audit` now reports 0 vulnerabilities; both semver-safe patch bumps, the hono HTTP-SSE transport unaffected.
+
+35 tools. 572 tests, 0 fail. Zero-Config — one-click `.mcpb`, no terminal, no JSON config.
 
 ## [5.9.1] - 2026-06-14
 
