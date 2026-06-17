@@ -18,7 +18,6 @@ import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
-import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-context.js';
 import { composedTurboCat, composedTurboCatSlots, turboCatDisplay } from '../faf-core/extract/turbocat-bridge.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
@@ -2298,16 +2297,15 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // Read README content
-      const readmeContent = fs.readFileSync(readmePath, 'utf-8');
-
-      // Extract 6 Ws using sourced-or-empty pattern matching (never guesses)
-      const extracted = extractSixWsFromReadme(readmeContent);
+      // Extract 6 Ws — composed from faf-cli's canonical sourced extractor
+      // (README + package, no-guess). Single source; no local fork.
+      const { relentlessContext } = await fafCli;
+      const extracted = relentlessContext(cwd);
 
       if (!args?.apply) {
         // Preview mode
-        let output = `📖 FAF README Extraction (Preview)\n\n`;
-        output += `Found in README.md:\n`;
+        let output = `📖 FAF Context Extraction (Preview)\n\n`;
+        output += `Sourced from README + package.json:\n`;
         for (const [field, value] of Object.entries(extracted)) {
           if (value) {
             output += `  ${field.toUpperCase()}: ${value}\n`;
@@ -2622,26 +2620,9 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
       // they're SOURCED by Turbo-Cat (faf-cli's separate STACK_INTERVIEW if ever
       // needed), never asked of a human. (Decision: single-source the 8-Q 6Ws
       // Interview, wolfejam 2026-06-10 — language is not on the human side.)
-      const { SIX_WS_INTERVIEW } = await fafCli;
+      const { SIX_WS_INTERVIEW, buildTableOf8 } = await fafCli;
       const QUESTION_REGISTRY: Record<string, (typeof SIX_WS_INTERVIEW)[number]> =
         Object.fromEntries(SIX_WS_INTERVIEW.map((q) => [q.path, q]));
-
-      // Priority order for questions
-      const priorityOrder = [
-        'project.goal',
-        'human_context.why',
-        'human_context.who',
-        'human_context.what',
-        'project.name',
-        'project.main_language',
-        'stack.database',
-        'stack.hosting',
-        'stack.frontend',
-        'stack.backend',
-        'human_context.where',
-        'human_context.when',
-        'human_context.how'
-      ];
 
       // Helper to get nested value
       const getNestedValue = (obj: any, path: string): any => {
@@ -2714,19 +2695,17 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // PHASE 1: Analyze and return questions — the canonical 6Ws (SIX_WS_INTERVIEW),
-      // scoped to slots that are empty AND active (slotignored is never asked).
-      const missingFields: string[] = SIX_WS_INTERVIEW
-        .filter((q) => { const v = getNestedValue(fafData, q.path); return v !== 'slotignored' && isEmpty(v); })
-        .map((q) => q.path);
+      // PHASE 1: Build the Table-of-8 (the 8Qs flow) — single-sourced from
+      // faf-cli's buildTableOf8. Name/Goal are filled where known; WHO/WHAT/WHERE
+      // are SEEDED from the goal (facts only, terse); WHY/WHEN/HOW are asked. The
+      // host presents the table: seeded rows are confirm-or-edit suggestions
+      // (Tab/Enter), empty rows are questions. Nothing is committed until the
+      // human approves and faf_go is called back with answers.
+      const table = buildTableOf8(fafData);
+      const currentScore = Math.round((table.filledCount / table.rows.length) * 100);
 
-      // Calculate current score
-      const totalFields = Object.keys(QUESTION_REGISTRY).length;
-      const filledFields = totalFields - missingFields.length;
-      const currentScore = Math.round((filledFields / totalFields) * 100);
-
-      // Already at 100%?
-      if (currentScore >= 100) {
+      // Already complete (all 8 filled)?
+      if (table.complete) {
         return {
           content: [{
             type: 'text',
@@ -2740,54 +2719,34 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // No missing fields but score < 100? Content quality issue
-      if (missingFields.length === 0) {
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              score: currentScore,
-              message: `Score is ${currentScore}%. All fields filled but content may need enhancement.`,
-              suggestion: 'Use faf_enhance to improve content quality.',
-              context: 'faf_go'
-            }, null, 2)
-          }]
-        };
-      }
-
-      // Sort by priority
-      const prioritizedFields = missingFields.sort((a, b) => {
-        const aIdx = priorityOrder.indexOf(a);
-        const bIdx = priorityOrder.indexOf(b);
-        if (aIdx === -1) return 1;
-        if (bIdx === -1) return -1;
-        return aIdx - bIdx;
-      });
-
-      // Build questions
-      const questions = prioritizedFields.map(field => {
-        const reg = QUESTION_REGISTRY[field];
-        return {
-          field,
-          question: reg.question,
-          header: reg.header,
-          type: reg.type,
-          required: reg.required,
-          options: reg.options
-        };
-      });
+      // Rows needing human input: seeded (confirm/edit the goal-fact) + empty (answer).
+      const questions = table.rows
+        .filter((r) => r.status !== 'filled')
+        .map((r) => ({
+          field: r.path,
+          question: r.question,
+          header: r.header,
+          status: r.status,                       // 'seeded' | 'empty'
+          suggested: r.seeded ? r.value : '',      // a goal-fact to accept (Tab/Enter) or edit
+          options: QUESTION_REGISTRY[r.path]?.options,
+        }));
 
       return {
         content: [{
           type: 'text',
           text: JSON.stringify({
             needsInput: true,
-            context: 'faf_go - guided path to Gold Code',
+            context: 'faf_go — the Table-of-8 (guided path to Gold Code)',
             currentScore,
             targetScore: 100,
+            // The full Table-of-8 to render: each box filled / seeded / empty.
+            table: table.rows.map((r) => ({ n: r.n, header: r.header, field: r.path, value: r.value, status: r.status })),
+            filled: table.filledCount,
+            seeded: table.seededCount,
+            empty: table.emptyCount,
             questionsRemaining: questions.length,
             questions,
-            instructions: 'Use AskUserQuestion to ask these questions, then call faf_go again with the answers parameter to apply them.'
+            instructions: 'Present the Table-of-8. For SEEDED rows, show the `suggested` value for the human to accept (Tab/Enter) or edit — these are facts pulled from the project goal, confirm them, do not re-ask blind. For EMPTY rows, ask the question. Then call faf_go again with the answers parameter (field path → value) to apply.'
           }, null, 2)
         }]
       };
@@ -2873,11 +2832,12 @@ faffless: true
         steps.push('⚠️ No additional formats detected');
       }
 
-      // Step 3: Extract human context from README
+      // Step 3: Extract human context — composed from faf-cli's canonical sourced
+      // extractor (README + package, no-guess). Single source; no local fork.
       const readmePath = path.join(cwd, 'README.md');
       if (fs.existsSync(readmePath)) {
-        const readmeContent = fs.readFileSync(readmePath, 'utf-8');
-        const extracted = extractSixWsFromReadme(readmeContent);
+        const { relentlessContext } = await fafCli;
+        const extracted = relentlessContext(cwd);
 
         if (!fafData.human_context) fafData.human_context = {};
 
