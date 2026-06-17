@@ -29,7 +29,8 @@
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.js",
     "debug": "node --inspect-brk=0.0.0.0:9229 -r ts-node/register src/cli.ts",
-    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/@esbuild node_modules/esbuild node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging"
+    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/@esbuild node_modules/esbuild node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
+    "gen:server-card": "node scripts/gen-server-card.js"
   },
   "keywords": [
     "claude",
