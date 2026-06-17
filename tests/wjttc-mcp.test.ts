@@ -66,6 +66,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
+// This suite verifies the FULL tool contract; the Core-tier default surface
+// (12 tools, Extended opt-in) is covered separately by tests/core-tier.test.ts.
+process.env.FAF_TOOLS = 'all';
 import * as os from 'os';
 import { FafToolHandler } from '../src/handlers/tools';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';

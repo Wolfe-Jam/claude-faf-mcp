@@ -11,6 +11,9 @@
  * Pass-through = "considered, N/A this stage → pass" (not skipped).
  */
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
+// This suite verifies the FULL tool contract; the Core-tier default surface
+// (12 tools, Extended opt-in) is covered separately by tests/core-tier.test.ts.
+process.env.FAF_TOOLS = 'all';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';

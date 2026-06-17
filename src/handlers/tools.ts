@@ -22,6 +22,20 @@ import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-conte
 import { composedTurboCat, composedTurboCatSlots, turboCatDisplay } from '../faf-core/extract/turbocat-bridge.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
+/**
+ * The Core tier — the 12 distinct, well-described tools advertised by default.
+ * Everything else is Extended: still callable by name (the dispatch in callTool
+ * is unchanged), but advertised only when FAF_TOOLS=all. Glama (and any client)
+ * runs the server and scores the default tools/list, so a tight, non-overlapping
+ * Core is what earns the coherence grade. See
+ * PLANET-FAF/strategy/claude-faf-mcp-core-tier-glama-a-2026-06-17.md.
+ */
+const CORE_TOOLS = new Set<string>([
+  'faf_init', 'faf_auto', 'faf_go', 'faf_enhance',
+  'faf_score', 'faf_doctor', 'faf_sync', 'faf_context',
+  'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
+]);
+
 export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
 
@@ -52,8 +66,7 @@ export class FafToolHandler {
   }
 
   async listTools() {
-    return {
-      tools: [
+    const allTools = [
         {
           name: 'faf',
           description: 'Type "faf" to start. Scores your project, drives it to 100%, syncs everything. The one command that does it all.',
@@ -73,7 +86,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_about',
-          description: 'Learn what .faf format is - project DNA for AI',
+          description: 'Explain what the FAF format is — project DNA for AI — with its IANA registration, version, and connected platforms. Returns format metadata and the available MCP bridges. Use this when someone asks what FAF is or how it connects to other AI tools.',
           annotations: {
             title: 'About FAF',
             readOnlyHint: true,
@@ -117,7 +130,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_score',
-          description: 'Calculate your project\'s AI-readability from project.faf (project DNA for AI) - F1-inspired metrics!',
+          description: 'Score a project.faf and return its 0–100% AI-readability, tier, and per-slot breakdown, via the deterministic Mk4 engine. Use this for a quick status check; use faf_doctor when you need to diagnose and fix what\'s missing.',
           annotations: {
             title: 'AI-Readiness Score',
             readOnlyHint: true,
@@ -175,7 +188,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create project.faf (project DNA for AI) - Makes your project instantly AI-readable . Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project',
+          description: 'Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won\'t overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.',
           annotations: {
             title: 'Initialize .faf',
             readOnlyHint: false,
@@ -196,7 +209,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_trust',
-          description: 'Attest project.faf integrity — validity, score, and a deterministic parity hash any conformant engine reproduces.',
+          description: 'Attest a project.faf\'s integrity: its validity, score, and a deterministic parity hash any conformant engine reproduces. Returns the ✪ receipt. Use this to prove a score is genuine and untampered.',
           annotations: {
             title: 'Trust Attestation',
             readOnlyHint: true,
@@ -288,7 +301,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context',
+          description: 'Sync project.faf into CLAUDE.md (and optionally AGENTS.md, GEMINI.md, .cursorrules) as a faf-managed block. Updates the block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.',
           annotations: {
             title: 'Sync .faf to CLAUDE.md',
             readOnlyHint: false,
@@ -305,7 +318,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_enhance',
-          description: 'Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift',
+          description: 'Refine a project.faf with an AI model (claude/gemini/grok, optionally by consensus). Returns the enhanced content, or a dry-run preview when dryRun is set. Use this to polish after faf_auto and faf_go have filled the slots.',
           annotations: {
             title: 'Enhance .faf',
             readOnlyHint: false,
@@ -623,7 +636,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_context',
-          description: 'Set or view active project context - Path is remembered for subsequent faf_ calls',
+          description: 'Set or show the active project path that subsequent faf_ calls resolve against. Returns the current context path. Call this once at the start of a session so the other tools target the right project.',
           annotations: {
             title: 'View Context',
             readOnlyHint: true,
@@ -652,7 +665,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_go',
-          description: 'Guided interview to Gold Code (100%): returns questions for missing fields, then applies your answers.',
+          description: 'Ask the human the 6Ws (goal, why, who, what, where, when) that can\'t be auto-detected, then apply the answers to project.faf. Returns the next questions for missing fields, or applies the answers you pass back. Use this for human context; use faf_auto for the technical stack.',
           annotations: {
             title: 'Guided Setup',
             readOnlyHint: false,
@@ -674,7 +687,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_auto',
-          description: 'Run the full FAF pipeline in one step: init + sync + formats + bi-sync + score.',
+          description: 'Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can\'t detect, and faf_enhance to have an AI refine the result.',
           annotations: {
             title: 'Auto-detect Context',
             readOnlyHint: false,
@@ -808,7 +821,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_doctor',
-          description: 'Health check for your .faf setup - Diagnose and fix common issues',
+          description: 'Diagnose a project.faf: report empty or weak slots, common issues, and how to fix each. Returns a prioritized checklist. Use this when faf_score is below target and you need to know why.',
           annotations: {
             title: 'Diagnose Issues',
             readOnlyHint: true,
@@ -981,7 +994,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_etch',
-          description: 'Etch a memory — remember this across sessions (a decision, gotcha, or win). Writes to the project soul (.fafm).',
+          description: 'Remember a decision, gotcha, or win across sessions by writing it to the project soul (.fafm). Returns the stored memory\'s id. Use this to persist something an AI should recall later; use faf_recall to read them back.',
           annotations: { title: 'Etch Memory', readOnlyHint: false, destructiveHint: false, openWorldHint: false },
           inputSchema: {
             type: 'object',
@@ -1017,7 +1030,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_recall',
-          description: 'Recall memories from the project soul (.fafm), ranked by priority then recency.',
+          description: 'Recall memories from the project soul (.fafm), ranked by priority then recency, filtered by query/tags/type. Returns the matching entries. Use this to surface past decisions; use faf_etch to add new ones.',
           annotations: { title: 'Recall Memory', readOnlyHint: true, destructiveHint: false, openWorldHint: false },
           inputSchema: {
             type: 'object',
@@ -1053,8 +1066,13 @@ export class FafToolHandler {
             additionalProperties: true
           }
         }
-      ] as Tool[]
-    };
+    ] as Tool[];
+
+    // Core-tier gate: advertise only the Core by default; FAF_TOOLS=all (or
+    // FAF_EXTENDED=1) exposes the full set. Dispatch in callTool keeps every
+    // case, so Extended tools stay callable by name even when un-advertised.
+    const showAll = process.env.FAF_TOOLS === 'all' || process.env.FAF_EXTENDED === '1';
+    return { tools: showAll ? allTools : allTools.filter((t) => CORE_TOOLS.has(t.name)) };
   }
 
   async callTool(name: string, args: any): Promise<CallToolResult> {
