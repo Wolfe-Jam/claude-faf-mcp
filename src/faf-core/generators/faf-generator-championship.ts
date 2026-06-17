@@ -121,9 +121,9 @@ export async function generateFafFromProject(
   }
 
   // Human-context (6W) slots are NOT inferred here. They are filled only from
-  // sourced evidence elsewhere (README via extractSixWsFromReadme, or the human
-  // via faf_go). The v5 RelentlessContextExtractor that guessed them from project
-  // name / tech stack was removed — FAF don't lie.
+  // sourced evidence elsewhere (README + package via faf-cli's relentlessContext,
+  // or the human via faf_go). The v5 RelentlessContextExtractor that guessed them
+  // from project name / tech stack was removed — FAF don't lie.
 
   // TypeScript configuration analysis
   const tsConfigPath = await findTsConfig(projectRoot);

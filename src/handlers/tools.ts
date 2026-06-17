@@ -18,7 +18,6 @@ import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
-import { extractSixWsFromReadme } from '../faf-core/extract/sourced-readme-context.js';
 import { composedTurboCat, composedTurboCatSlots, turboCatDisplay } from '../faf-core/extract/turbocat-bridge.js';
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
@@ -2280,16 +2279,15 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
         };
       }
 
-      // Read README content
-      const readmeContent = fs.readFileSync(readmePath, 'utf-8');
-
-      // Extract 6 Ws using sourced-or-empty pattern matching (never guesses)
-      const extracted = extractSixWsFromReadme(readmeContent);
+      // Extract 6 Ws — composed from faf-cli's canonical sourced extractor
+      // (README + package, no-guess). Single source; no local fork.
+      const { relentlessContext } = await fafCli;
+      const extracted = relentlessContext(cwd);
 
       if (!args?.apply) {
         // Preview mode
-        let output = `📖 FAF README Extraction (Preview)\n\n`;
-        output += `Found in README.md:\n`;
+        let output = `📖 FAF Context Extraction (Preview)\n\n`;
+        output += `Sourced from README + package.json:\n`;
         for (const [field, value] of Object.entries(extracted)) {
           if (value) {
             output += `  ${field.toUpperCase()}: ${value}\n`;
@@ -2816,11 +2814,12 @@ faffless: true
         steps.push('⚠️ No additional formats detected');
       }
 
-      // Step 3: Extract human context from README
+      // Step 3: Extract human context — composed from faf-cli's canonical sourced
+      // extractor (README + package, no-guess). Single source; no local fork.
       const readmePath = path.join(cwd, 'README.md');
       if (fs.existsSync(readmePath)) {
-        const readmeContent = fs.readFileSync(readmePath, 'utf-8');
-        const extracted = extractSixWsFromReadme(readmeContent);
+        const { relentlessContext } = await fafCli;
+        const extracted = relentlessContext(cwd);
 
         if (!fafData.human_context) fafData.human_context = {};
 
