@@ -10,6 +10,9 @@
  */
 
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
+// This suite verifies the FULL tool contract; the Core-tier default surface
+// (12 tools, Extended opt-in) is covered separately by tests/core-tier.test.ts.
+process.env.FAF_TOOLS = 'all';
 import { ClaudeFafMcpServer } from '../src/server.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';

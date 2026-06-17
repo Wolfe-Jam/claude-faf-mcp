@@ -31,6 +31,9 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'bun:test';
+// This suite verifies the FULL tool contract; the Core-tier default surface
+// (12 tools, Extended opt-in) is covered separately by tests/core-tier.test.ts.
+process.env.FAF_TOOLS = 'all';
 import { FafToolHandler } from '../src/handlers/tools';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';
 import * as fs from 'fs';
@@ -121,14 +124,14 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafGo = tools.find(t => t.name === 'faf_go');
         expect(fafGo).toBeDefined();
-        expect(fafGo?.description).toContain('Gold Code');
+        expect(fafGo?.description).toContain('6Ws');
       });
 
       it('should include faf_auto in tool list', async () => {
         const { tools } = await toolHandler.listTools();
         const fafAuto = tools.find(t => t.name === 'faf_auto');
         expect(fafAuto).toBeDefined();
-        expect(fafAuto?.description).toContain('pipeline');
+        expect(fafAuto?.description).toContain('manifests');
       });
 
       it('should include faf_dna in tool list', async () => {
@@ -156,7 +159,7 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafDoctor = tools.find(t => t.name === 'faf_doctor');
         expect(fafDoctor).toBeDefined();
-        expect(fafDoctor?.description).toContain('Health check');
+        expect(fafDoctor?.description).toContain('Diagnose');
       });
 
       it('should have at least 32 total tools', async () => {
