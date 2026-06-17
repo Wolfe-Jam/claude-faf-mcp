@@ -1,5 +1,5 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 35 tools -->
-<!-- faf: doc=changelog | latest=v5.10.0 | canonical=project.faf | family=FAF -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 12 Core tools (35 total) -->
+<!-- faf: doc=changelog | latest=v5.11.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.11.0] - 2026-06-17 — The Distilled Edition
+
+claude-faf-mcp, distilled — a curated 12-tool Core surface, the interview + README extractor + server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
+
+### Changed
+
+- **Core tier — a distilled 12-tool surface.** `tools/list` now advertises a focused **Core of 12** by default (`faf_init`, `faf_auto`, `faf_go`, `faf_enhance`, `faf_score`, `faf_doctor`, `faf_sync`, `faf_context`, `faf_trust`, `faf_about`, `faf_etch`, `faf_recall`). The other 23 stay one flag away — set `FAF_TOOLS=all` to expose every tool. Dispatch is unchanged, so Extended tools remain callable by name even when un-advertised. The 12 Core descriptions were rewritten verb-first (what it does · what it returns · when to use vs which sibling).
+- **`faf_go` — the Table-of-8.** The interview now seeds the 6Ws from your project goal and presents the full Table-of-8 — seeded rows are confirm-or-edit suggestions, empties are asked — single-sourced from faf-cli's `buildTableOf8`.
+
+### Added
+
+- **`server.json` emitter** — `npm run gen:server-card` composes the registry identity (`one.faf/*` name + the `one.faf/context` `_meta` block) from faf-cli; `server.json` is now regenerable from a single source instead of hand-authored. `--sha` stamps the real `.mcpb` `fileSha256` at release.
+
+### Removed
+
+- The local README extractor — `faf_readme` now composes faf-cli's `relentlessContext` (compose-not-fork; one less forked path).
 
 ## [5.10.0] - 2026-06-17 — The Dart Edition
 

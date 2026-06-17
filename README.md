@@ -1,7 +1,7 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 35 tools -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 12 Core tools (35 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Dart Edition
+# claude-faf-mcp — The Distilled Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -26,13 +26,15 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
+> 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated 12-tool Core surface, the interview + README extractor + server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
+
 > 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift. 35 tools, npm audit clean.
 
 > 🏆 **v5.9.0 — The Sourced Edition.** Every answer comes from one source. `faf_go` and Turbo-Cat detection now **compose faf-cli's single-source engines** instead of carrying their own copies — fills come from real evidence or stay honestly empty, nothing guessed. The legacy guessing extractor is gone; the `/faf` prompt drives to a *verified* 100% (`faf_trust` + `✪` parity receipt) and keeps it fresh. FAF don't lie, by construction.
 
 > 🏆 **v5.8.0 — The Trust Edition.** Claude Code-native context that just works. A native SessionStart hook opens every session with fresh context and a one-line `✪` heartbeat (`faf: context ✪ 100% — fresh`); tool output is quiet (no emoji, parseable) and typed (`structuredContent` everywhere); every score carries a deterministic parity hash any engine reproduces, sealed in a self-verifying `✪` receipt. Installed explicitly via `faf_setup` — preview first, your settings preserved. Built on the Canonical foundation: path-confined file access, edge-direct remote, 35 tools.
 
-35 MCP tools. IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,716 test executions per push.
+12 Core MCP tools (35 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,716 test executions per push.
 
 ---
 
@@ -86,9 +88,9 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.10.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.10.0.mcpb)
+[**⬇ Download `claude-faf-mcp-5.11.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.11.0.mcpb)
 
-Double-click. **Zero-Config — no terminal, no JSON config. 35 tools live in 10 seconds.**
+Double-click. **Zero-Config — no terminal, no JSON config. 12 Core tools live in 10 seconds.**
 
 **Copy** — paste-prompt to Claude
 
@@ -150,7 +152,9 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## 35 MCP Tools
+## MCP Tools — 12 Core, 35 with `FAF_TOOLS=all`
+
+By default claude-faf-mcp advertises a distilled **Core of 12** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose all 35 (Extended tools stay callable by name regardless). **Core 12:** `faf_init` · `faf_auto` · `faf_go` · `faf_enhance` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`.
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
