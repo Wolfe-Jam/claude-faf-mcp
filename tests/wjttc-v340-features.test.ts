@@ -171,7 +171,7 @@ For developers who care about quality.
     });
 
     describe('Basic Invocation (No Crash)', () => {
-      it('faf_go should not crash without .faf file', async () => {
+      it('faf_go bootstraps (init+auto) when no .faf file exists', async () => {
         const emptyDir = path.join(testDir, 'empty-project');
         fs.mkdirSync(emptyDir, { recursive: true });
 
@@ -179,7 +179,11 @@ For developers who care about quality.
         expect(result).toBeDefined();
         expect(result.content).toBeDefined();
         const text = getTextContent(result.content);
-        expect(text).toContain('needsInit');
+        // faf_go is the front door: with no .faf it now BOOTSTRAPS (faf_init +
+        // faf_auto) rather than bailing with 'needsInit', then presents the
+        // Table-of-8. The bootstrap must actually create the file.
+        expect(text).toContain('bootstrap');
+        expect(fs.existsSync(path.join(emptyDir, 'project.faf'))).toBe(true);
       });
 
       it('faf_auto should not crash on empty directory', async () => {

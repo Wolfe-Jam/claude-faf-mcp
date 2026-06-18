@@ -664,7 +664,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_go',
-          description: 'Ask the human the 6Ws (goal, why, who, what, where, when) that can\'t be auto-detected, then apply the answers to project.faf. Returns the next questions for missing fields, or applies the answers you pass back. Use this for human context; use faf_auto for the technical stack.',
+          description: 'The friendly front door — "let\'s go, tell me about your idea." Asks the human the 6Ws (goal, why, who, what, where, when) that can\'t be auto-detected, then applies them to project.faf. If no project.faf exists yet, faf_go bootstraps it first (creates it, sources the stack) so you go from nothing to the 6Ws in one step. Returns the Table-of-8 to confirm/answer, or applies the answers you pass back. Use faf_auto for the technical stack on its own.',
           annotations: {
             title: 'Guided Setup',
             readOnlyHint: false,
@@ -700,6 +700,91 @@ export class FafToolHandler {
               force: { type: 'boolean', description: 'Force overwrite existing files' }
             },
             additionalProperties: false
+          }
+        },
+        {
+          name: 'faf_bench',
+          description: 'Prove the .faf earns its place — measure how much the context is worth, on THIS repo, falsifiably. Questions derive from the project.faf\'s own populated slots (the .faf is the answer key), so grading is mechanical — no judge, no rubric. action=questions returns the answer-key-safe question set; action=grade takes your answers WITHOUT the .faf (cold) and WITH it (faf), grades both, and returns the cold→with-faf lift with a ✪ receipt. The delta is the product; the cold number belongs to the absence of context, never to FAF.',
+          annotations: {
+            title: 'AI-Grounding Benchmark',
+            readOnlyHint: true,
+            destructiveHint: false,
+            openWorldHint: false
+          },
+          inputSchema: {
+            type: 'object',
+            properties: {
+              path: { type: 'string', description: 'Project path (optional — current directory if omitted).' },
+              action: {
+                type: 'string',
+                enum: ['questions', 'grade'],
+                description: 'questions = get the answer-key-safe question set to answer; grade = submit cold + with-faf answers to score the delta. Default: questions.'
+              },
+              cold: {
+                type: 'object',
+                description: 'action=grade: answers produced WITHOUT the .faf (general repo knowledge only). Map of question number → answer string.',
+                additionalProperties: { type: 'string' }
+              },
+              faf: {
+                type: 'object',
+                description: 'action=grade: answers produced WITH the project.faf in context. Map of question number → answer string.',
+                additionalProperties: { type: 'string' }
+              },
+              coldTokens: { type: 'number', description: 'action=grade (optional): tokens spent answering cold.' },
+              fafTokens: { type: 'number', description: 'action=grade (optional): tokens spent answering with the .faf.' },
+              model: { type: 'string', description: 'action=grade (optional): the model that produced the answers.' }
+            },
+            additionalProperties: false
+          },
+          outputSchema: {
+            type: 'object',
+            description: 'Question set (action=questions) or the cold→with-faf grading + ✪ receipt (action=grade).',
+            properties: {
+              action: { type: 'string' },
+              version: { type: 'string' },
+              qsetHash: { type: 'string', description: 'Hash of the question set — rides the receipt; same .faf reproduces it.' },
+              protocol: { type: 'string', description: 'in-session — answers are self-reported by the agent under test.' },
+              total: { type: 'number', description: 'Number of questions in the set.' },
+              questions: {
+                type: 'array',
+                description: 'action=questions only — NEVER includes the answer key.',
+                items: {
+                  type: 'object',
+                  properties: {
+                    n: { type: 'number' },
+                    path: { type: 'string', description: 'The .faf slot this question probes.' },
+                    question: { type: 'string' }
+                  }
+                }
+              },
+              cold: {
+                type: 'object',
+                description: 'action=grade — score WITHOUT context (absence baseline).',
+                properties: {
+                  correct: { type: 'number' },
+                  total: { type: 'number' },
+                  misses: { type: 'array', items: { type: 'string' }, description: 'Slots missed (paths only — no answer key).' }
+                }
+              },
+              faf: {
+                type: 'object',
+                description: 'action=grade — score WITH the .faf.',
+                properties: {
+                  correct: { type: 'number' },
+                  total: { type: 'number' },
+                  misses: { type: 'array', items: { type: 'string' } }
+                }
+              },
+              delta: { type: 'number', description: 'with-faf minus cold — the product.' },
+              receipt: {
+                type: 'object',
+                description: '✪ receipt — sha256 over the canonical projection; third-party verifiable.',
+                properties: {
+                  projection: { type: 'string' },
+                  hash: { type: 'string' }
+                }
+              }
+            }
           }
         },
         {
@@ -1173,6 +1258,8 @@ Once confirmed, the sequence is:
         return await this.handleFafContext(args);
       case 'faf_go':
         return await this.handleFafGo(args);
+      case 'faf_bench':
+        return await this.handleFafBench(args);
       case 'faf_auto':
         return await this.handleFafAuto(args);
       case 'faf_dna':
@@ -2595,20 +2682,43 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
 
     try {
       // Find .faf file
-      const fafResult = await findFafFile(cwd);
+      let fafResult = await findFafFile(cwd);
+      let bootstrap: { ran: boolean; birthScore?: number; sourcedScore?: number } = { ran: false };
 
       if (!fafResult) {
-        return {
-          content: [{
-            type: 'text',
-            text: JSON.stringify({
-              needsInit: true,
-              context: 'faf_go',
-              message: 'No project.faf found. Run faf_init first to create project DNA.',
-              suggestion: 'Use faf_init to create project.faf, then use faf_go to reach Gold Code.'
-            }, null, 2)
-          }]
+        // BOOTSTRAP — faf_go is the front door ("let's go"). With no project.faf
+        // yet, walk the rungs FOR the human instead of bailing: faf_init creates
+        // it (the birth-score reveal), faf_auto sources the stack. We DELEGATE to
+        // the existing handlers (compose, never reimplement) and pass the resolved
+        // cwd so all three target the same file. The human half is still only ever
+        // ASKED below — init owns creation, auto owns sourcing, faf_go owns the 6Ws.
+        const { scoreFafYaml } = await fafCli;
+        const scoreOf = (p: { path: string } | null | undefined): number | undefined => {
+          if (!p) return undefined;
+          try { return scoreFafYaml(fs.readFileSync(p.path, 'utf-8')).score; } catch { return undefined; }
         };
+
+        await this.handleFafInit({ ...args, path: cwd });
+        bootstrap.birthScore = scoreOf(await findFafFile(cwd));
+
+        await this.handleFafAuto({ ...args, path: cwd });
+        fafResult = await findFafFile(cwd);
+        bootstrap.sourcedScore = scoreOf(fafResult);
+        bootstrap.ran = true;
+
+        if (!fafResult) {
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                needsInit: true,
+                context: 'faf_go',
+                message: 'No project.faf found, and the bootstrap (faf_init + faf_auto) did not produce one. Run faf_init manually, then faf_go.',
+              }, null, 2)
+            }],
+            isError: true
+          };
+        }
       }
 
       const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
@@ -2712,7 +2822,10 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
             text: JSON.stringify({
               complete: true,
               score: 100,
-              message: '🏆 GOLD CODE ACHIEVED! Your project has 100% AI-Readiness.',
+              message: bootstrap.ran
+                ? '🏆 Created, sourced, and already complete — the project reached 100% AI-Readiness on the strength of what was already there. Nothing to ask; confirm and go.'
+                : '🏆 GOLD CODE ACHIEVED! Your project has 100% AI-Readiness.',
+              ...(bootstrap.ran ? { bootstrap: { created: true, sourced: true, birthScore: bootstrap.birthScore, sourcedScore: bootstrap.sourcedScore } } : {}),
               context: 'faf_go'
             }, null, 2)
           }]
@@ -2737,6 +2850,19 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
           text: JSON.stringify({
             needsInput: true,
             context: 'faf_go — the Table-of-8 (guided path to Gold Code)',
+            ...(bootstrap.ran ? {
+              bootstrap: {
+                created: true,
+                sourced: true,
+                birthScore: bootstrap.birthScore,
+                sourcedScore: bootstrap.sourcedScore,
+                message: `No project.faf existed — created it and sourced your stack${
+                  bootstrap.birthScore != null && bootstrap.sourcedScore != null
+                    ? ` (${bootstrap.birthScore}% → ${bootstrap.sourcedScore}%)`
+                    : ''
+                }. The 6Ws below complete it.`,
+              },
+            } : {}),
             currentScore,
             targetScore: 100,
             // The full Table-of-8 to render: each box filled / seeded / empty.
@@ -2754,6 +2880,143 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
     } catch (error: any) {
       return {
         content: [{ type: 'text', text: `🎯 FAF Go:\n\n❌ Error: ${error.message}` }],
+        isError: true
+      };
+    }
+  }
+
+  /**
+   * faf_bench — the AI-grounding benchmark, in-session.
+   *
+   * Composes faf-cli's bench engine (the single source): questions derive from
+   * the project.faf's populated slots — the .faf IS the answer key — so grading
+   * is mechanical (deriveQuestionSet + gradeAnswers, no judge). We hand out only
+   * publicQuestions (NEVER the answer key — a tool that prints it makes the
+   * benchmark a lie) and seal the result with buildReceipt (✪, qset-hash bound).
+   *
+   * DOCTRINE (faf-cli bench): the delta IS the product. A low score is an alarm,
+   * not a FAF verdict — the cold number belongs to the ABSENCE of context. Never
+   * render cold alone; always end in a prescription, never a verdict.
+   */
+  private async handleFafBench(args: any): Promise<CallToolResult> {
+    const cwd = this.getProjectPath(args?.path);
+    try {
+      const {
+        findFafFile: cliFindFaf, readFafRaw, deriveQuestionSet, publicQuestions,
+        gradeAnswers, buildReceipt: buildBenchReceipt, BENCH_VERSION,
+      } = await fafCli;
+
+      const fafPath = cliFindFaf(cwd);
+      if (!fafPath) {
+        return {
+          content: [{ type: 'text', text: 'faf_bench needs a project.faf to derive its questions — there is nothing to benchmark without context. Run faf_go (or faf_init) first.' }],
+          isError: true
+        };
+      }
+
+      const raw = readFafRaw(fafPath);
+      const qset = deriveQuestionSet(raw);          // includes the answer key — NEVER emit it
+      const N = qset.questions.length;
+      const action = args?.action === 'grade' ? 'grade' : 'questions';
+
+      if (N === 0) {
+        return {
+          content: [{ type: 'text', text: 'faf_bench: no populated slots to derive questions from — the .faf is empty. Run faf_go to ground it, then benchmark.' }],
+          structuredContent: { action, version: qset.version, qsetHash: qset.qsetHash, total: 0 },
+        };
+      }
+
+      // ── action: questions ── hand out the answer-key-SAFE set only.
+      if (action === 'questions') {
+        const pub = publicQuestions(qset);          // { version, qsetHash, questions } — no answers
+        const text = [
+          `faf_bench — ${pub.questions.length} grounding questions  (qset ${pub.qsetHash.slice(0, 12)}… · ${BENCH_VERSION})`,
+          '',
+          'Answer each one TWICE, honestly:',
+          '  • cold — from general knowledge of this repo ONLY, as if the project.faf did not exist.',
+          '  • faf  — with the project.faf in context.',
+          'Then call: faf_bench { action: "grade", cold: { "1": "…", … }, faf: { "1": "…", … } }',
+          '',
+          ...pub.questions.map((q) => `  ${q.n}. [${q.path}] ${q.question}`),
+        ].join('\n');
+        return {
+          content: [{ type: 'text', text }],
+          structuredContent: { action: 'questions', version: pub.version, qsetHash: pub.qsetHash, total: pub.questions.length, questions: pub.questions },
+        };
+      }
+
+      // ── action: grade ──
+      const cold = args?.cold && typeof args.cold === 'object' ? (args.cold as Record<string, string>) : undefined;
+      const faf = args?.faf && typeof args.faf === 'object' ? (args.faf as Record<string, string>) : undefined;
+      if (!cold && !faf) {
+        return {
+          content: [{ type: 'text', text: 'faf_bench grade needs answers: pass `cold` and/or `faf` as { questionNumber: answer }. Get the set first with faf_bench { action: "questions" }.' }],
+          isError: true
+        };
+      }
+
+      const cg = cold ? gradeAnswers(qset, cold) : undefined;
+      const fg = faf ? gradeAnswers(qset, faf) : undefined;
+      const repo = pathModule.basename(cwd);
+      const receipt = buildBenchReceipt(
+        {
+          version: qset.version,
+          qsetHash: qset.qsetHash,
+          protocol: 'in-session',
+          ...(cg ? { cold: { score: cg.correct, total: cg.total, ...(typeof args?.coldTokens === 'number' ? { tokens: args.coldTokens } : {}), ...(args?.model ? { model: String(args.model) } : {}) } } : {}),
+          ...(fg ? { faf: { score: fg.correct, total: fg.total, ...(typeof args?.fafTokens === 'number' ? { tokens: args.fafTokens } : {}), ...(args?.model ? { model: String(args.model) } : {}) } } : {}),
+        },
+        repo,
+      );
+
+      // Render per bench doctrine: the pair, the delta as the product, a
+      // prescription to close — never a bare cold verdict.
+      const lines: string[] = [`faf_bench — grounding accuracy  (qset ${qset.qsetHash.slice(0, 12)}… · ${BENCH_VERSION})`, ''];
+      if (cg && fg) {
+        const delta = fg.correct - cg.correct;
+        lines.push(`Without context:  ${cg.correct}/${N}`);
+        lines.push(`With FAF:         ${fg.correct}/${N}`);
+        lines.push(`Delta:            ${delta >= 0 ? '+' : ''}${delta}   ← the product`);
+        if (typeof args?.coldTokens === 'number' && typeof args?.fafTokens === 'number') {
+          lines.push(`Tokens to ground: ${args.coldTokens} (cold) → ${args.fafTokens} (with FAF)`);
+        }
+        lines.push('');
+        lines.push(fg.correct >= N
+          ? 'Prescription: fully grounded with the .faf. Keep it current — run faf_go after material changes so the context never drifts.'
+          : `Prescription: ${N - fg.correct} question(s) still ungrounded even with the .faf — fill the matching slots (faf_go) to close them. The delta above is what the .faf already buys you.`);
+      } else if (fg) {
+        lines.push(`With FAF:  ${fg.correct}/${N}`);
+        lines.push('');
+        lines.push('No cold run submitted — the delta is the product; run the cold pass too to see what the context is worth.');
+        lines.push(fg.correct >= N
+          ? 'Prescription: fully grounded — keep the .faf current with faf_go.'
+          : `Prescription: ${N - fg.correct} ungrounded — fill the matching slots with faf_go.`);
+      } else if (cg) {
+        // cold alone — framed as the ABSENCE baseline, never a FAF verdict.
+        lines.push(`Without context: ${cg.correct}/${N}  — the absence-of-context baseline, NOT a FAF score.`);
+        lines.push(`${N - cg.correct} of ${N} questions can't be answered without the project.faf — that's the AI guessing, and tokens burned doing it.`);
+        lines.push('');
+        lines.push('Prescription: run the WITH-FAF pass (answer with the .faf in context, then faf_bench grade) to see the lift — or just faf_go to ground the project now.');
+      }
+      lines.push('', `✪ ${receipt.hash.slice(0, 16)}…   (in-session · ${repo})`);
+
+      return {
+        content: [{ type: 'text', text: lines.join('\n') }],
+        structuredContent: {
+          action: 'grade',
+          version: qset.version,
+          qsetHash: qset.qsetHash,
+          protocol: 'in-session',
+          total: N,
+          ...(cg ? { cold: { correct: cg.correct, total: cg.total, misses: cg.misses.map((m) => m.path) } } : {}),
+          ...(fg ? { faf: { correct: fg.correct, total: fg.total, misses: fg.misses.map((m) => m.path) } } : {}),
+          ...(cg && fg ? { delta: fg.correct - cg.correct } : {}),
+          receipt,
+        },
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `faf_bench:\n\n❌ Error: ${error?.message ?? String(error)}` }],
         isError: true
       };
     }
