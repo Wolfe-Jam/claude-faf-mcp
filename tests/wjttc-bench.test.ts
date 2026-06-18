@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { FafToolHandler } from '../src/handlers/tools.js';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';
+import { FafPromptHandler } from '../src/handlers/prompts.js';
 import { fafCli } from '../src/utils/faf-cli-bridge.js';
 
 // WJTTC — faf_bench, the in-session AI-grounding benchmark.
@@ -105,6 +106,36 @@ describe('ENGINE — faf_bench grades the cold→with-faf delta', () => {
     expect(text).toContain('Delta:');
     expect(text).toContain('Prescription:');
     expect(text).toContain('✪');
+  });
+});
+
+describe('ENGINE — the /faf-bench two-pass protocol prompt', () => {
+  const prompts = new FafPromptHandler();
+
+  test('/faf-bench is registered with a path arg', () => {
+    const list = prompts.listPrompts().prompts;
+    const bench = list.find((p) => p.name === '/faf-bench');
+    expect(bench).toBeDefined();
+    expect(bench!.arguments?.[0]?.name).toBe('path');
+  });
+
+  test('the prompt drives an honest two-pass run (cold blind, then with-faf)', () => {
+    const text = prompts.getPrompt('/faf-bench').messages[0].content.text;
+    expect(text).toContain('action: "questions"');
+    expect(text).toContain('action: "grade"');
+    expect(text).toContain('DO NOT read project.faf yet');     // cold must be blind
+    expect(text).toContain('NEVER invent token counts');        // token honesty
+    expect(text).toContain('never present the cold number alone as a verdict'); // bench doctrine
+  });
+
+  test('path arg flows into the prompt', () => {
+    const text = prompts.getPrompt('/faf-bench', { path: '/tmp/demo' }).messages[0].content.text;
+    expect(text).toContain('/tmp/demo');
+  });
+
+  test('the original /faf prompt still works; unknown still throws', () => {
+    expect(prompts.getPrompt('/faf').messages[0].content.text).toContain('/faf');
+    expect(() => prompts.getPrompt('/nope')).toThrow();
   });
 });
 

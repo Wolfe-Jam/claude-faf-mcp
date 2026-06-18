@@ -15,19 +15,34 @@ export class FafPromptHandler {
               required: false
             }
           ]
+        },
+        {
+          name: '/faf-bench',
+          description: 'Prove the .faf earns its place — run the AI-grounding benchmark honestly, in two passes (cold, then with the .faf), and report the cold→with-faf delta with a ✪ receipt. The delta is the product.',
+          arguments: [
+            {
+              name: 'path',
+              description: 'Project directory path (optional — uses current directory if not provided)',
+              required: false
+            }
+          ]
         }
       ]
     };
   }
 
   getPrompt(name: string, args?: Record<string, string>) {
-    if (name !== '/faf') {
-      throw new Error(`Unknown prompt: ${name}`);
-    }
-
     const pathClause = args?.path
       ? `The project is at: ${args.path}`
       : 'Use the current working directory as the project path.';
+
+    if (name === '/faf-bench') {
+      return this.benchPrompt(pathClause);
+    }
+
+    if (name !== '/faf') {
+      throw new Error(`Unknown prompt: ${name}`);
+    }
 
     const promptText = `The user typed \`/faf\`. That is the only command they need. Your job: do everything FAF can do — automatically — and then tell the human, plainly, exactly what only they can do. Drive to a verified ✪ 100% and keep it there.
 
@@ -60,6 +75,50 @@ They typed one command. FAF did all it could; the human did only what only they 
 
     return {
       description: 'Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth. FAF defines. MD instructs. AI codes.',
+      messages: [
+        {
+          role: 'user' as const,
+          content: {
+            type: 'text' as const,
+            text: promptText
+          }
+        }
+      ]
+    };
+  }
+
+  /**
+   * /faf-bench — the honest two-pass session protocol.
+   *
+   * faf_bench can't measure the host's tokens itself, so the integrity lives in
+   * HOW the run is driven: a genuinely-blind cold pass, then a with-faf pass,
+   * with token numbers reported ONLY if the host actually surfaces them. A staged
+   * benchmark proves nothing — FAF don't lie, and neither does its benchmark.
+   */
+  private benchPrompt(pathClause: string) {
+    const promptText = `The user typed \`/faf-bench\`. Run the FAF AI-grounding benchmark honestly, in two passes, and report the delta. The delta is the product: what structured context is worth. A low cold score is the ABSENCE of context — never a verdict on FAF.
+
+${pathClause}
+
+The integrity rule, above all: the cold pass must be GENUINELY blind, and any token numbers must be REAL. A staged benchmark proves nothing. FAF don't lie — neither does its benchmark.
+
+Run this protocol exactly:
+
+1. **Get the questions** — call \`faf_bench\` { action: "questions" }. You get N questions, each tied to a .faf slot. DO NOT read project.faf yet.
+
+2. **COLD pass — answer blind.** Answer every question from your general knowledge of this repo ONLY — what you can infer from the code, file names, and manifests (package.json, tsconfig, .github…). You have NOT read project.faf. Give your honest best answer; if you genuinely don't know, say so — do not peek. (The 6Ws — who/what/why/where/when/how — are usually NOT derivable from code. Coming up short there is expected; that gap is the point.) Record answers keyed by question number.
+   - If, and only if, your host surfaces token usage, note what this pass cost.
+
+3. **WITH-FAF pass — now read it.** Read project.faf (\`faf_context\` or \`faf_read\`). Answer the same N questions again, grounded in it. Record them keyed by question number.
+   - Note what this pass cost, if your host reports it.
+
+4. **Grade** — call \`faf_bench\` { action: "grade", cold: { …blind answers }, faf: { …grounded answers }, model: <your model id> }.
+   - Pass \`coldTokens\`/\`fafTokens\` ONLY if your host actually reported real numbers. NEVER invent token counts — an invented number is a lie, and the accuracy delta stands on its own without them.
+
+5. **Report** — show the pair (without context → with FAF), the delta, and the ✪ receipt. Frame the delta plainly: it is the context the code cannot carry — the intent. End with the prescription faf_bench returns; never present the cold number alone as a verdict.`;
+
+    return {
+      description: 'Prove the .faf earns its place — the honest two-pass AI-grounding benchmark (cold → with-faf), with a ✪ receipt. The delta is the product.',
       messages: [
         {
           role: 'user' as const,
