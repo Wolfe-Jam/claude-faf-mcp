@@ -22,15 +22,19 @@ import { composedTurboCat, composedTurboCatSlots, turboCatDisplay } from '../faf
 import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
 
 /**
- * The Core tier — the 12 distinct, well-described tools advertised by default.
+ * The Core tier — the 13 distinct, well-described tools advertised by default.
  * Everything else is Extended: still callable by name (the dispatch in callTool
  * is unchanged), but advertised only when FAF_TOOLS=all. Glama (and any client)
  * runs the server and scores the default tools/list, so a tight, non-overlapping
  * Core is what earns the coherence grade. See
  * PLANET-FAF/strategy/claude-faf-mcp-core-tier-glama-a-2026-06-17.md.
+ *
+ * faf_bench leads on the default surface (added 5.12.0): the in-session proof
+ * tool — "see the delta yourself" — is the value-prop made callable, so it
+ * belongs where newcomers meet it, not behind FAF_TOOLS=all.
  */
 const CORE_TOOLS = new Set<string>([
-  'faf_init', 'faf_auto', 'faf_go', 'faf_enhance',
+  'faf_init', 'faf_auto', 'faf_go', 'faf_bench', 'faf_enhance',
   'faf_score', 'faf_doctor', 'faf_sync', 'faf_context',
   'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
 ]);
