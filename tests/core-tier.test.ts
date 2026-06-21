@@ -1,15 +1,16 @@
 /**
  * Core tier — the Glama-facing default tool surface.
  * Glama runs the server in a sandbox and scores `tools/list`, so the DEFAULT
- * surface must be exactly the 12 Core tools (gemini's proven count); Extended is
- * opt-in via FAF_TOOLS=all. This test guards the one non-negotiable: Extended
- * defaults OFF. See PLANET-FAF/strategy/claude-faf-mcp-core-tier-glama-a-2026-06-17.md.
+ * surface must be exactly the Core tools (12 was gemini's proven count; 5.12.0
+ * adds faf_bench, the in-session proof tool, to lead → 13); Extended is opt-in
+ * via FAF_TOOLS=all. This test guards the one non-negotiable: Extended defaults
+ * OFF. See PLANET-FAF/strategy/claude-faf-mcp-core-tier-glama-a-2026-06-17.md.
  */
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { FafToolHandler } from '../src/handlers/tools.js';
 
 const CORE = [
-  'faf_init', 'faf_auto', 'faf_go', 'faf_enhance', 'faf_score', 'faf_doctor',
+  'faf_init', 'faf_auto', 'faf_go', 'faf_bench', 'faf_enhance', 'faf_score', 'faf_doctor',
   'faf_sync', 'faf_context', 'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
 ];
 
@@ -22,7 +23,7 @@ describe('Core tier — Glama-facing default surface', () => {
     delete process.env.FAF_EXTENDED;
   });
 
-  test('default tools/list advertises EXACTLY the 12 Core tools', async () => {
+  test('default tools/list advertises EXACTLY the 13 Core tools', async () => {
     const { tools } = await handler().listTools();
     expect(tools.map((t: any) => t.name).sort()).toEqual([...CORE].sort());
   });
