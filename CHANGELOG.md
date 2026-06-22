@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (36 total) -->
-<!-- faf: doc=changelog | latest=v5.12.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.13.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.13.0] - 2026-06-22 — 🧡 The Heartbeat Edition
+
+Persistent Project Context with Memory, looped for you. The SessionStart heartbeat now surfaces the intent delta — the goal and 6Ws the code can't carry — so every Claude Code session opens grounded in what your project *means*, not just what it contains.
+
+### Added
+- **Heartbeat intent delta** — the SessionStart heartbeat now appends `· +N intent the code can't carry`, where `N` counts the populated human-intent slots (`project.goal` + the 6Ws, `slotignored` excluded). A live `.faf` reports e.g. `faf: context ✪ 100% — fresh · +7 intent the code can't carry`; with no intent slots filled, the suffix is omitted. A structural count of what only a human can give or confirm — never a fabricated benchmark number.
+- **README — "For Claude Code teams"** — how the committed `.faf` plus the SessionStart hook give every teammate's Claude the same grounding on `git clone`.
+
+### Changed
+- **Tagline** — "Persistent Project Context with Memory, looped for you" (Context + Memory + the loop).
+
+### Removed
+- **Two dead registry workflows** (`mcp-registry-publish.yml`, `publish-mcp-registry.yml`) — redundant io.github GitHub-OIDC auto-publish, superseded by the manual one.faf DNS publish in `/pubpro`.
+
+### Registry
+- **One canonical listing** — the duplicate `io.github.Wolfe-Jam/claude-faf-mcp` is deprecated in favour of `one.faf/claude-faf-mcp` (DNS-verified); the `one.faf/context` receipt ships with this publish.
 
 ## [5.12.0] - 2026-06-21 — The Proof Edition
 

@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (36 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Proof Edition
+# claude-faf-mcp — 🧡 The Heartbeat Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -11,7 +11,7 @@
 **Home:** [faf.one/mcp](https://faf.one/mcp)
 **Live demo:** [claude.faf.one](https://claude.faf.one)
 
-**One-click setup. Persistent Project Context for Claude. 30 seconds. 🐘 Nelly Never Forgets.**
+**Persistent Project Context with Memory, looped for you.** One-click setup. 30 seconds. 🐘 Nelly Never Forgets.
 
 [![FAF](https://mcpaas.live/badge/Wolfe-Jam/claude-faf-mcp.svg)](https://builder.faf.one)
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
@@ -25,6 +25,8 @@
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+> 🧡 **v5.13.0 — The Heartbeat Edition.** Persistent Project Context with Memory, looped for you. Every Claude Code session now opens with a one-line heartbeat that carries the intent the code can't: `faf: context ✪ 100% — fresh · +7 intent the code can't carry`. The `+N` is the goal and 6Ws only you can **give or confirm** — so Claude starts each session grounded in what your project *means*, not just what it contains.
 
 > 🏆 **v5.12.0 — The Proof Edition.** `faf_bench` proves FAF's grounding lift in-session — it asks Claude about your repo cold (no context) and with the `.faf`, grades mechanically (no judge), and emits a `✪` receipt showing the delta. Promoted to lead the Core tier (13 tools, 36 total). `faf_go` now bootstraps a cold repo (init → auto → 6Ws), and you can still just **type `faf` to start**. Proof, not pitch.
 
@@ -90,7 +92,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.11.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.11.0.mcpb)
+[**⬇ Download `claude-faf-mcp-5.13.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.13.0.mcpb)
 
 Double-click. **Zero-Config — no terminal, no JSON config. 13 Core tools live in 10 seconds.**
 
@@ -134,6 +136,33 @@ project.faf  ←── 8ms ──→  MEMORY.md     (tri-sync, Pro 🐘)
 ```
 
 Claude does the rest. Zero-effort, right first time, fast, accurate, done. Language, framework, package manager, build tools — all auto-detected from your existing files. The human context is the part only you can give.
+
+---
+
+## For Claude Code teams
+
+`.faf` lives in the repo. Your context travels with the code — committed, versioned, done.
+
+**Every session starts grounded.** Install the native SessionStart hook once (`faf_setup` — preview first, your settings preserved). After that, every Claude Code session opens with a one-line heartbeat instead of a blank slate:
+
+```
+faf: context ✪ 100% — fresh · +7 intent the code can't carry
+```
+
+That line is the relay: Claude already knows your stack and your score — and the `+N` is the intent the code **can't carry**: the goal and 6Ws only you can **give or confirm**. No re-explaining "what this project is" at the top of every session.
+
+**It scales to the team by construction:**
+
+```
+commit project.faf  →  every teammate's Claude starts with the same context
+git clone           →  a new dev's Claude is grounded before they write a line
+```
+
+- **One source of truth.** `.faf` ↔ `CLAUDE.md` stay in sync (bi-sync'd). Add `MEMORY.md` for cross-session memory (tri-sync 🐘).
+- **No drift.** The score is deterministic — same `.faf`, same number, on every machine and in CI. A teammate can't be *accidentally* less grounded than you.
+- **Local and private.** Nothing leaves the machine — no accounts, no telemetry. The context is yours; it just rides in the repo.
+
+**Onboarding becomes `git clone` → grounded.** The context a new teammate would normally pick up by asking around is already in the repo, machine-readable, from the first clone.
 
 ---
 
@@ -257,7 +286,7 @@ Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ## Quality
 
-572 tests · 26 suites · 3 platforms (bun on ubuntu/macos/windows)
+572 tests · 28 suites · 3 platforms (bun on ubuntu/macos/windows)
 
 **[CI Dashboard →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
 
