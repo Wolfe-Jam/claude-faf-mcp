@@ -1,5 +1,5 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 12 Core tools (35 total) -->
-<!-- faf: doc=changelog | latest=v5.11.0 | canonical=project.faf | family=FAF -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (36 total) -->
+<!-- faf: doc=changelog | latest=v5.12.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.12.0] - 2026-06-21 — The Proof Edition
+
+`faf_bench` proves FAF's grounding lift in-session — a cold-vs-`.faf` benchmark with a mechanical `✪` receipt — and `faf_go` now bootstraps from a cold repo (init → auto → 6Ws).
+
+### Added
+- **`faf_bench`** — the in-session AI-grounding benchmark, promoted to lead the Core tier. It derives a question set from the `.faf`, has the model answer them cold (no context) and with the `.faf`, grades mechanically (no judge — the `.faf` is the answer key), and emits a `✪` receipt showing the grounding delta. Proof you can run, in-session — not a pitch.
+- **`/faf-bench` prompt** — the honest two-pass session protocol: cold-blind first, never invents token counts, never presents the cold pass alone as a verdict.
+
+### Changed
+- **`faf_go` now bootstraps a cold repo** — if no `project.faf` exists it runs `faf_init` → `faf_auto` first, then the 6Ws, so one call takes a bare repo to a real score.
+- **Core tier is now 13 tools** (`faf_bench` leads the default surface; `faf` stays Extended to keep the Glama-scored default surface coherent — AAA protected).
+
+### Tools
+- **36 total** — 13 Core (advertised by default), the rest Extended via `FAF_TOOLS=all`.
 
 ## [5.11.0] - 2026-06-17 — The Distilled Edition
 
