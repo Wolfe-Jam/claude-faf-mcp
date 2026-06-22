@@ -1,0 +1,49 @@
+name: 📡 MCP Registry Publish (DNS)
+
+# DNS-authenticated registry publish for the one.faf/* namespace. GitHub-OIDC
+# only authorises io.github.<owner>/* — DNS auth proves ownership of faf.one →
+# authorises one.faf/*. Fires on every release so the registry stays current
+# automatically; no manual `mcp-publisher login dns` step in /pubpro.
+#
+# Requires repo secret FAF_ONE_MCP_PRIVATE_KEY = the ed25519 private key (64-hex)
+# whose public key is the `v=MCPv1; k=ed25519; p=...` TXT record at the faf.one apex.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install mcp-publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
+          tar -xzf mcp-publisher.tar.gz && chmod +x ./mcp-publisher
+
+      - name: Verify server.json version == release tag
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          MV=$(node -p "require('./server.json').version")
+          [ "$TAG" = "$MV" ] || { echo "::error::server.json $MV != tag $TAG"; exit 1; }
+
+      - name: Wait for the .mcpb release asset to resolve (registry validates HTTP 200)
+        run: |
+          URL=$(node -e "const s=require('./server.json');const m=(s.packages||[]).find(p=>(p.registryType||p.registry_type)==='mcpb')||{};console.log((m.transport&&m.transport.url)||m.identifier||'')")
+          if [ -z "$URL" ]; then echo "no mcpb package — skipping asset check"; exit 0; fi
+          for i in $(seq 1 10); do
+            code=$(curl -sIL -o /dev/null -w '%{http_code}' "$URL")
+            if [ "$code" = "200" ]; then echo "✅ mcpb asset live: $URL"; exit 0; fi
+            echo "⏳ mcpb HTTP $code (attempt $i/10) — $URL"; sleep 6
+          done
+          echo "::error::mcpb asset never resolved to HTTP 200: $URL"; exit 1
+
+      - name: Login via DNS (one.faf namespace)
+        run: ./mcp-publisher login dns --domain faf.one --private-key "${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}"
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish server.json
