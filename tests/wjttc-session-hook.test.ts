@@ -65,10 +65,29 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
 
       const r = await sessionRefresh(dir);
       expect(r.action).toBe('fresh');
-      // The relay: one line, the baton. Seal + score when the kernel is present.
-      expect(r.message).toMatch(/^faf: context (?:[♡○●◇◆★✪] \d+% — )?fresh$/);
+      // The relay: one line, the baton. Seal + score when the kernel is present,
+      // plus the honest intent delta (+N intent) when the .faf carries goal/6Ws.
+      expect(r.message).toMatch(/^faf: context (?:[♡○●◇◆★✪] \d+% — )?fresh(?: · \+\d+ intent the code can't carry)?$/);
       expect(fs.statSync(mdPath).mtimeMs).toBe(before); // still no mtime churn
       expect(fs.readFileSync(mdPath, 'utf-8')).toBe(contentBefore); // still no write
+    });
+
+    test('heartbeat surfaces the honest intent delta — goal + populated 6Ws, slotignored excluded', async () => {
+      // goal + who + what = +3 intent (the slots no manifest can derive). slotignored never counts.
+      const faf =
+        'project:\n  name: delta\n  goal: prove the context is worth something\nfaf_score: 100%\n' +
+        'stack:\n  frontend: slotignored\n' +
+        'human_context:\n  who: Claude devs\n  what: a context server\n';
+      fs.writeFileSync(path.join(dir, 'project.faf'), faf);
+      const r = await sessionRefresh(dir);
+      expect(r.message).toContain("+3 intent the code can't carry");
+    });
+
+    test('heartbeat OMITS the intent delta when there is nothing to claim (no nag, no lie)', async () => {
+      // no goal, no human_context → +0 → the suffix must be ABSENT.
+      fs.writeFileSync(path.join(dir, 'project.faf'), 'project:\n  name: bare\n  main_language: TypeScript\nfaf_score: 50%\n');
+      const r = await sessionRefresh(dir);
+      expect(r.message).not.toContain('intent');
     });
 
     test('heartbeat carries the quiet-ladder seal + score (kernel present)', async () => {
