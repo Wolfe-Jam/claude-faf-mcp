@@ -358,7 +358,8 @@ export class FafToolHandler {
               agents: { type: 'boolean', description: 'Also sync to AGENTS.md (OpenAI/Codex format)' },
               cursor: { type: 'boolean', description: 'Also sync to .cursorrules (Cursor IDE format)' },
               gemini: { type: 'boolean', description: 'Also sync to GEMINI.md (Google Gemini format)' },
-              all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md' },
+              copilot: { type: 'boolean', description: 'Also sync to .github/copilot-instructions.md (GitHub Copilot)' },
+              all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md + .github/copilot-instructions.md' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -1878,6 +1879,22 @@ package_manager: ${projectData.package_manager}` : ''}
     }
     if (args?.force) {
       biSyncArgs.push('--force');
+    }
+    // Multi-format sync flags (were advertised in the schema but not forwarded)
+    if (args?.agents) {
+      biSyncArgs.push('--agents');
+    }
+    if (args?.cursor) {
+      biSyncArgs.push('--cursor');
+    }
+    if (args?.gemini) {
+      biSyncArgs.push('--gemini');
+    }
+    if (args?.copilot) {
+      biSyncArgs.push('--copilot');
+    }
+    if (args?.all) {
+      biSyncArgs.push('--all');
     }
 
     const result = await this.engineAdapter.callEngine('bi-sync', biSyncArgs);
