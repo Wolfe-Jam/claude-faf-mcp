@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (36 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — 🧡 The Heartbeat Edition
+# claude-faf-mcp — The Copilot Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -25,6 +25,8 @@
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+> **v5.14.0 — The Copilot Edition.** FAF now writes the file GitHub Copilot reads — from inside Claude. `faf_bi_sync` gains a `copilot` flag (`all` includes it), syncing `.github/copilot-instructions.md` — Copilot's **widest-surface** instruction file, read by default across web chat, code review, VS Code, JetBrains, the CLI, and the coding agent — straight from your scored `.faf`. Non-destructive, idempotent.
 
 > 🧡 **v5.13.0 — The Heartbeat Edition.** Persistent Project Context with Memory, looped for you. Every Claude Code session now opens with a one-line heartbeat that carries the intent the code can't: `faf: context ✪ 100% — fresh · +7 intent the code can't carry`. The `+N` is the goal and 6Ws only you can **give or confirm** — so Claude starts each session grounded in what your project *means*, not just what it contains.
 

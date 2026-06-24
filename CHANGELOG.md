@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (36 total) -->
-<!-- faf: doc=changelog | latest=v5.13.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.14.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.14.0] - 2026-06-24 — The Copilot Edition
+
+FAF now writes the file GitHub Copilot reads — from inside Claude. `faf_bi_sync` syncs `.github/copilot-instructions.md`, GitHub Copilot's widest-surface instruction file, straight from your scored `.faf`.
+
+### Added
+- `faf_bi_sync` gains a `copilot` flag (and `all` includes it) — syncs `.github/copilot-instructions.md`, GitHub Copilot's repository-wide custom-instructions file, honored by default across web chat, code review, VS Code, JetBrains, Copilot CLI, and the coding agent. Non-destructive, auto-creates `.github/`.
+
+### Fixed
+- `faf_bi_sync` now forwards every format flag (`agents`/`cursor`/`gemini`/`copilot`/`all`) through to the engine — they were advertised in the tool schema but silently dropped, so multi-format sync via the tool never actually fired.
 
 ## [5.13.0] - 2026-06-22 — 🧡 The Heartbeat Edition
 
