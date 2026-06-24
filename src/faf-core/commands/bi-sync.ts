@@ -12,6 +12,7 @@ import { agentsExportCommand } from './agents.js';
 import { injectFafBlock } from '../inject';
 import { cursorExportCommand } from './cursor.js';
 import { geminiExportCommand } from './gemini.js';
+import { copilotExportCommand } from './copilot.js';
 
 export interface BiSyncOptions {
   auto?: boolean;
@@ -21,6 +22,7 @@ export interface BiSyncOptions {
   agents?: boolean;
   cursor?: boolean;
   gemini?: boolean;
+  copilot?: boolean;
   all?: boolean;
 }
 
@@ -161,6 +163,7 @@ export async function syncBiDirectional(projectPath?: string, _options: BiSyncOp
     const doAgents = _options.agents || _options.all;
     const doCursor = _options.cursor || _options.all;
     const doGemini = _options.gemini || _options.all;
+    const doCopilot = _options.copilot || _options.all;
 
     if (doAgents) {
       try {
@@ -189,6 +192,17 @@ export async function syncBiDirectional(projectPath?: string, _options: BiSyncOp
         const geminiResult = await geminiExportCommand(projectDir, { force: true });
         if (geminiResult.success) {
           result.filesChanged.push('GEMINI.md');
+        }
+      } catch {
+        // Non-fatal
+      }
+    }
+
+    if (doCopilot) {
+      try {
+        const copilotResult = await copilotExportCommand(projectDir, { force: true });
+        if (copilotResult.success) {
+          result.filesChanged.push('.github/copilot-instructions.md');
         }
       } catch {
         // Non-fatal

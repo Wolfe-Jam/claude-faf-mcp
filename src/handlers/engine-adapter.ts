@@ -272,6 +272,7 @@ export class FafEngineAdapter {
           agents: args.includes('--agents'),
           cursor: args.includes('--cursor'),
           gemini: args.includes('--gemini'),
+          copilot: args.includes('--copilot'),
           all: args.includes('--all'),
         });
         const duration = Date.now() - startTime;
