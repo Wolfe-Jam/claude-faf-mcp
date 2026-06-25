@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (36 total) -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (35 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
 # claude-faf-mcp — The Copilot Edition
@@ -26,7 +26,7 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
-> **v5.14.0 — The Copilot Edition.** FAF now writes the file GitHub Copilot reads — from inside Claude. `faf_bi_sync` gains a `copilot` flag (`all` includes it), syncing `.github/copilot-instructions.md` — Copilot's **widest-surface** instruction file, read by default across web chat, code review, VS Code, JetBrains, the CLI, and the coding agent — straight from your scored `.faf`. Non-destructive, idempotent.
+> **v5.14.1 — The Copilot Edition.** FAF now writes the file GitHub Copilot reads — from inside Claude. The Core `faf_sync` gains a `copilot` flag (`all` includes it), syncing `.github/copilot-instructions.md` — Copilot's **widest-surface** instruction file, read by default across web chat, code review, VS Code, JetBrains, the CLI, and the coding agent — straight from your scored `.faf`. `faf_sync` now emits every format (`agents`/`cursor`/`gemini`/`copilot`/`all`) from the default surface; the redundant `faf_bi_sync` is retired. Non-destructive, idempotent.
 
 > 🧡 **v5.13.0 — The Heartbeat Edition.** Persistent Project Context with Memory, looped for you. Every Claude Code session now opens with a one-line heartbeat that carries the intent the code can't: `faf: context ✪ 100% — fresh · +7 intent the code can't carry`. The `+N` is the goal and 6Ws only you can **give or confirm** — so Claude starts each session grounded in what your project *means*, not just what it contains.
 
@@ -40,7 +40,7 @@
 
 > 🏆 **v5.8.0 — The Trust Edition.** Claude Code-native context that just works. A native SessionStart hook opens every session with fresh context and a one-line `✪` heartbeat (`faf: context ✪ 100% — fresh`); tool output is quiet (no emoji, parseable) and typed (`structuredContent` everywhere); every score carries a deterministic parity hash any engine reproduces, sealed in a self-verifying `✪` receipt. Installed explicitly via `faf_setup` — preview first, your settings preserved. Built on the Canonical foundation: path-confined file access, edge-direct remote, 35 tools.
 
-13 Core MCP tools (36 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,716 test executions per push.
+13 Core MCP tools (35 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,716 test executions per push.
 
 ---
 
@@ -185,9 +185,9 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## MCP Tools — 13 Core, 36 with `FAF_TOOLS=all`
+## MCP Tools — 13 Core, 35 with `FAF_TOOLS=all`
 
-By default claude-faf-mcp advertises a distilled **Core of 13** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose all 36 (Extended tools stay callable by name regardless). **Core 13:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_enhance` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`.
+By default claude-faf-mcp advertises a distilled **Core of 13** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose all 35 (Extended tools stay callable by name regardless). **Core 13:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_enhance` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`.
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
@@ -214,8 +214,7 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 **Sync & Persist**
 | Tool | Purpose |
 |------|---------|
-| `faf_sync` | Sync .faf → CLAUDE.md |
-| `faf_bi_sync` | Bi-directional .faf ↔ CLAUDE.md |
+| `faf_sync` | Sync .faf → CLAUDE.md — `agents`/`cursor`/`gemini`/`copilot`/`all` also emit AGENTS.md / .cursorrules / GEMINI.md / copilot-instructions.md |
 | `faf_tri_sync` | Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers 🐘 |
 | `faf_enhance` | Intelligent enhancement |
 

@@ -50,9 +50,8 @@ const _CORE_TOOLS = [
   'faf_stacks',
   'faf_skills',
 
-  // Sync & Evolution (7) — v4.5.0: +agents/cursor/gemini
+  // Sync & Evolution (6) — faf_sync emits all formats (agents/cursor/gemini/copilot)
   'faf_sync',
-  'faf_bi_sync',
   'faf_update',
   'faf_migrate',
   'faf_agents',
@@ -244,13 +243,6 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     category: 'sync',
     description: 'Sync .faf with CLAUDE.md - Bi-directional context',
     priority: 1,
-  },
-  faf_bi_sync: {
-    name: 'faf_bi_sync',
-    visibility: 'core',
-    category: 'sync',
-    description: 'Bi-directional sync between .faf context and CLAUDE.md (v4.5.0: +all formats)',
-    priority: 2,
   },
   faf_update: {
     name: 'faf_update',

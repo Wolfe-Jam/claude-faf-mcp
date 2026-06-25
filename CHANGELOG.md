@@ -1,5 +1,5 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (36 total) -->
-<!-- faf: doc=changelog | latest=v5.14.0 | canonical=project.faf | family=FAF -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (35 total) -->
+<!-- faf: doc=changelog | latest=v5.14.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.14.1] - 2026-06-25 — The Copilot Edition
+
+Reachability fix: the Copilot emit now lives on the Core `faf_sync` tool. In 5.14.0 the `copilot` flag was wired only onto `faf_bi_sync`, which isn't in the default 13-tool surface — so a default user couldn't reach the headline feature. `faf_sync` now carries every format flag, and the redundant `faf_bi_sync` is retired.
+
+### Changed
+- `faf_sync` (Core) gains `agents` / `cursor` / `gemini` / `copilot` / `all` flags — syncs `.github/copilot-instructions.md` (and AGENTS.md / .cursorrules / GEMINI.md) straight from `.faf`, reachable from the default surface. A bare `faf_sync` stays CLAUDE.md-only (unchanged default behaviour).
+
+### Removed
+- `faf_bi_sync` — collapsed into `faf_sync`. It was never truly bidirectional (one-way `.faf → CLAUDE.md` + format exports), and every capability now lives on `faf_sync`. Tool surface: 13 Core, 35 with `FAF_TOOLS=all` (was 36).
+
+### Added
+- WJTTC regression guard: `faf_sync` with `copilot:true` writes `.github/copilot-instructions.md` (in-process, asserts the file materializes) — the test that would have caught the 5.14.0 gap.
 
 ## [5.14.0] - 2026-06-24 — The Copilot Edition
 

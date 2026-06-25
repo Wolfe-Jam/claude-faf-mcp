@@ -19,14 +19,14 @@ import { Tool } from '@modelcontextprotocol/sdk/types.js';
 
 describe('🏎️ Tool Visibility System', () => {
   describe('Tool Registry', () => {
-    it('should have exactly 62 total tools defined (current implementation)', () => {
+    it('should have exactly 61 total tools defined (current implementation)', () => {
       const counts = validateToolCounts();
-      expect(counts.total).toBe(62);
+      expect(counts.total).toBe(61);
     });
 
-    it('should have exactly 26 core tools (current implementation)', () => {
+    it('should have exactly 25 core tools (current implementation)', () => {
       const counts = validateToolCounts();
-      expect(counts.core).toBe(26);
+      expect(counts.core).toBe(25);
     });
 
     it('should have exactly 36 advanced tools (current implementation)', () => {
@@ -52,7 +52,7 @@ describe('🏎️ Tool Visibility System', () => {
 
     it('should have all core tools in TOOL_REGISTRY', () => {
       const coreTools = getCoreTools();
-      expect(coreTools.length).toBe(26);
+      expect(coreTools.length).toBe(25);
 
       const expectedCore = [
         'faf',
@@ -70,7 +70,6 @@ describe('🏎️ Tool Visibility System', () => {
         'faf_stacks',
         'faf_skills',
         'faf_sync',
-        'faf_bi_sync',
         'faf_update',
         'faf_migrate',
         'faf_agents',
@@ -256,11 +255,11 @@ describe('🏎️ Tool Visibility System', () => {
 });
 
 describe('🏁 WJTTC Certification Tests', () => {
-  it('Tier 1: Critical - Tool count integrity (current implementation: 26+36=62)', () => {
+  it('Tier 1: Critical - Tool count integrity (current implementation: 25+36=61)', () => {
     const counts = validateToolCounts();
-    expect(counts.core).toBe(26);
+    expect(counts.core).toBe(25);
     expect(counts.advanced).toBe(36);
-    expect(counts.total).toBe(62);
+    expect(counts.total).toBe(61);
   });
 
   it('Tier 1: Critical - No duplicate tools', () => {
