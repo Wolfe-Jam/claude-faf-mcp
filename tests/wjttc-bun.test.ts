@@ -232,7 +232,7 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
       // faf_clear, faf_human_add, faf_go, faf_quick, faf_dna), anything that
       // shells out to the FAF engine subprocess (faf_chat, faf_agents,
       // faf_cursor, faf_gemini, faf_git, faf_conductor, faf_tri_sync,
-      // faf_sync, faf_enhance, faf_bi_sync, faf_trust, faf_status, faf_auto,
+      // faf_sync, faf_enhance, faf_trust, faf_status, faf_auto,
       // faf_doctor, faf_readme), anything that uses cwd state via
       // getProjectPath (faf_score, faf_debug, faf_list, faf_read, faf_check,
       // faf_context, faf_formats), and the top-level `faf` entry tool
@@ -449,6 +449,37 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
       // Connection survives.
       const followup = await client.callTool({ name: 'faf_about', arguments: {} });
       expect(followup.isError).toBeFalsy();
+    });
+
+    // ─────────────────────────────────────────────────────────────────────
+    // Category 4b: the Copilot reachability guard (5.14.1 regression)
+    // ─────────────────────────────────────────────────────────────────────
+    //
+    // 5.14.0 wired the copilot flag ONLY onto faf_bi_sync — a tool NOT in the
+    // default surface — so the headline feature was unreachable from the Core
+    // sync tool. 5.14.1 collapses the format flags onto faf_sync (Core) and
+    // removes faf_bi_sync. Unlike faf_agents (which shells out to a subprocess),
+    // faf_sync's format path runs the bundled bi-sync engine in-process, so with
+    // a seeded project.faf the file MUST materialize. This is the guard that
+    // would have caught the original gap.
+    test('faf_sync with copilot:true writes .github/copilot-instructions.md', async () => {
+      const result = await client.callTool({
+        name: 'faf_sync',
+        arguments: { path: tmpDir, copilot: true },
+      });
+      expect(result.isError).toBeFalsy();
+      expect(Array.isArray(result.content)).toBe(true);
+
+      const copilotPath = path.join(tmpDir, '.github', 'copilot-instructions.md');
+      expect(fs.existsSync(copilotPath)).toBe(true);
+      expect(fs.statSync(copilotPath).size).toBeGreaterThan(0);
+    });
+
+    test('faf_bi_sync is gone — collapsed into faf_sync', async () => {
+      const { tools } = await client.listTools();
+      const names = new Set(tools.map((t) => t.name));
+      expect(names.has('faf_sync')).toBe(true);
+      expect(names.has('faf_bi_sync')).toBe(false);
     });
 
     // ─────────────────────────────────────────────────────────────────────

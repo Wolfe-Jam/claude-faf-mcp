@@ -304,9 +304,9 @@ export class FafToolHandler {
         },
         {
           name: 'faf_sync',
-          description: 'Sync project.faf into CLAUDE.md (and optionally AGENTS.md, GEMINI.md, .cursorrules) as a faf-managed block. Updates the block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.',
+          description: 'Sync project.faf into CLAUDE.md as a faf-managed block, and optionally into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini), and .github/copilot-instructions.md (copilot) — or all of them (all). Updates each block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.',
           annotations: {
-            title: 'Sync .faf to CLAUDE.md',
+            title: 'Sync .faf to CLAUDE.md (+ any AI format)',
             readOnlyHint: false,
             destructiveHint: false,
             openWorldHint: false
@@ -314,6 +314,11 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
+              agents: { type: 'boolean', description: 'Also sync to AGENTS.md (OpenAI/Codex format)' },
+              cursor: { type: 'boolean', description: 'Also sync to .cursorrules (Cursor IDE format)' },
+              gemini: { type: 'boolean', description: 'Also sync to GEMINI.md (Google Gemini format)' },
+              copilot: { type: 'boolean', description: 'Also sync to .github/copilot-instructions.md (GitHub Copilot)' },
+              all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md + .github/copilot-instructions.md' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -335,31 +340,6 @@ export class FafToolHandler {
               focus: { type: 'string', description: 'Enhancement focus: claude-optimal|human-context|ai-instructions|completeness' },
               consensus: { type: 'boolean', description: 'Build consensus from multiple AI models' },
               dryRun: { type: 'boolean', description: 'Preview enhancement without applying changes' },
-              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
-            },
-            additionalProperties: false
-          }
-        },
-        {
-          name: 'faf_bi_sync',
-          description: 'Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!',
-          annotations: {
-            title: 'Bi-directional Sync',
-            readOnlyHint: false,
-            destructiveHint: false,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {
-              auto: { type: 'boolean', description: 'Enable automatic synchronization' },
-              watch: { type: 'boolean', description: 'Start real-time file watching for changes' },
-              force: { type: 'boolean', description: 'Force overwrite conflicting changes' },
-              agents: { type: 'boolean', description: 'Also sync to AGENTS.md (OpenAI/Codex format)' },
-              cursor: { type: 'boolean', description: 'Also sync to .cursorrules (Cursor IDE format)' },
-              gemini: { type: 'boolean', description: 'Also sync to GEMINI.md (Google Gemini format)' },
-              copilot: { type: 'boolean', description: 'Also sync to .github/copilot-instructions.md (GitHub Copilot)' },
-              all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md + .github/copilot-instructions.md' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -1226,8 +1206,6 @@ Once confirmed, the sequence is:
         return await this.handleFafSync(args);
       case 'faf_enhance':
         return await this.handleFafEnhance(args);
-      case 'faf_bi_sync':
-        return await this.handleFafBiSync(args);
       case 'faf_clear':
         return await this.handleFafClear(args);
       case 'faf_debug':
@@ -1793,7 +1771,20 @@ package_manager: ${projectData.package_manager}` : ''}
     if (args?.path) {
       this.getProjectPath(args.path);
     }
-    const result = await this.engineAdapter.callEngine('sync');
+
+    // Multi-format sync: when any format flag is set, route through the engine's
+    // bi-directional path (.faf → CLAUDE.md + the requested one-way format exports).
+    // A bare faf_sync stays CLAUDE.md-only — the default behaviour is unchanged.
+    const formatArgs: string[] = [];
+    if (args?.agents) formatArgs.push('--agents');
+    if (args?.cursor) formatArgs.push('--cursor');
+    if (args?.gemini) formatArgs.push('--gemini');
+    if (args?.copilot) formatArgs.push('--copilot');
+    if (args?.all) formatArgs.push('--all');
+
+    const result = formatArgs.length > 0
+      ? await this.engineAdapter.callEngine('bi-sync', formatArgs)
+      : await this.engineAdapter.callEngine('sync');
 
     if (!result.success) {
       return {
@@ -1859,64 +1850,6 @@ package_manager: ${projectData.package_manager}` : ''}
       content: [{
         type: 'text',
         text: `🚀 Claude FAF Enhancement:\n\n${output}`
-      }]
-    };
-  }
-
-  private async handleFafBiSync(args: any): Promise<CallToolResult> {
-    // Set project context if path provided
-    if (args?.path) {
-      this.getProjectPath(args.path);
-    }
-
-    const biSyncArgs: string[] = [];
-
-    if (args?.auto) {
-      biSyncArgs.push('--auto');
-    }
-    if (args?.watch) {
-      biSyncArgs.push('--watch');
-    }
-    if (args?.force) {
-      biSyncArgs.push('--force');
-    }
-    // Multi-format sync flags (were advertised in the schema but not forwarded)
-    if (args?.agents) {
-      biSyncArgs.push('--agents');
-    }
-    if (args?.cursor) {
-      biSyncArgs.push('--cursor');
-    }
-    if (args?.gemini) {
-      biSyncArgs.push('--gemini');
-    }
-    if (args?.copilot) {
-      biSyncArgs.push('--copilot');
-    }
-    if (args?.all) {
-      biSyncArgs.push('--all');
-    }
-
-    const result = await this.engineAdapter.callEngine('bi-sync', biSyncArgs);
-
-    if (!result.success) {
-      return {
-        content: [{
-          type: 'text',
-          text: `🔗 Claude FAF Bi-Sync:\n\nFailed to bi-sync: ${result.error}`
-        }],
-        isError: true
-      };
-    }
-
-    const output = typeof result.data === 'string'
-      ? result.data
-      : result.data?.output || JSON.stringify(result.data, null, 2);
-
-    return {
-      content: [{
-        type: 'text',
-        text: `🔗 Claude FAF Bi-Sync:\n\n${output}`
       }]
     };
   }
@@ -2191,7 +2124,6 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
 **Extensions:**
 - \`new\` - force overwrite existing
 - \`full\` - detailed output
-- \`bi\` - bi-directional sync
 
 ## UX Rules
 1. **Don't offer option menus** - just solve it
@@ -3740,7 +3672,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
         results.push({
           status: 'warning',
           message: 'No CLAUDE.md file',
-          fix: 'Run: faf_auto or faf_bi_sync to create bi-directional sync'
+          fix: 'Run: faf_auto or faf_sync to create the CLAUDE.md sync'
         });
       } else {
         results.push({
