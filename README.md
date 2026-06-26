@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (35 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Copilot Edition
+# claude-faf-mcp — The Instructions Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -25,6 +25,8 @@
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+> **v5.15.0 — The Instructions Edition.** CFM writes the file Copilot reads — done right. `.github/copilot-instructions.md` is now genuine, distinct Copilot *instructions*: a prose overview, a `## Build & run` command section, and "every request" framing — not the AGENTS.md content reused. The file Copilot actually reads, done to GitHub's spec.
 
 > **v5.14.1 — The Copilot Edition.** FAF now writes the file GitHub Copilot reads — from inside Claude. The Core `faf_sync` gains a `copilot` flag (`all` includes it), syncing `.github/copilot-instructions.md` — Copilot's **widest-surface** instruction file, read by default across web chat, code review, VS Code, JetBrains, the CLI, and the coding agent — straight from your scored `.faf`. `faf_sync` now emits every format (`agents`/`cursor`/`gemini`/`copilot`/`all`) from the default surface; the redundant `faf_bi_sync` is retired. Non-destructive, idempotent.
 
