@@ -42,6 +42,7 @@ jobs:
   test:
     name: 🧪 Test Suite
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30   # backstop: bound the job so an --isolate epoll hang can't run unbounded → cancelled (red badge)
     permissions:
       contents: write  # Required for faf-taf-git auto-commit to taf-receipts branch
     strategy:
@@ -70,7 +71,9 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          npm test -- --coverage --coverage-reporter=lcov 2>&1 | tee /tmp/test-output.txt
+          # via the wrapper (bounds the Linux --isolate epoll hang + retries); package.json
+          # `test` stays `bun test …` so the bun-migration meta-test passes.
+          sh scripts/run-tests.sh --coverage --coverage-reporter=lcov 2>&1 | tee /tmp/test-output.txt
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
