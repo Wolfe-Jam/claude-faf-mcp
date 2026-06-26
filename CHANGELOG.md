@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (35 total) -->
-<!-- faf: doc=changelog | latest=v5.14.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.15.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.15.0] - 2026-06-26 — The Instructions Edition
+
+CFM writes the file Copilot reads — done right. `.github/copilot-instructions.md` is now genuine, distinct Copilot instructions, not the AGENTS.md content reused.
+
+### Changed
+- **`.github/copilot-instructions.md` is now Copilot-grade** — a CFM-native emitter replaces the AGENTS.md clone (`copilotExportCommand` no longer reuses `agentsExport`): a prose project overview, a `## Build & run` command section (build/CI as imperative commands), and the "broadly applicable / every request" framing GitHub's custom-instructions spec calls for. Distinct from AGENTS.md (which it outranks in-repo), reusing CFM's existing well-labelled stack. Per the FAF/WJTTC/TAF boundary, build/CI come from FAF context; testing is not a FAF slot.
 
 ## [5.14.1] - 2026-06-25 — The Copilot Edition
 

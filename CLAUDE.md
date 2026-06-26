@@ -12,11 +12,11 @@ Persistent project context for Claude — define once, never re-explain
 
 - **Language:** TypeScript
 - **Backend:** MCP SDK (TS)
-- **Api Type:** MCP (stdio + Streamable HTTP)
+- **API:** MCP (stdio + Streamable HTTP)
 - **Runtime:** Node.js
 - **Hosting:** npm/Claude Desktop
 - **Build:** tsc
-- **Cicd:** GitHub Actions
+- **CI/CD:** GitHub Actions
 
 ## Context
 
@@ -29,5 +29,5 @@ Persistent project context for Claude — define once, never re-explain
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-25T16:20:04.773Z*
+*STATUS: BI-SYNC ACTIVE — 2026-06-26T04:55:43.251Z*
 <!-- faf:end -->
