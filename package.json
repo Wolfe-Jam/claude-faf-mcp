@@ -15,7 +15,7 @@
     "dev": "ts-node src/server.ts",
     "dev:stdio": "ts-node src/cli.ts --transport stdio",
     "dev:http": "ts-node src/cli.ts --transport http-sse --port 3001",
-    "test": "bun test --isolate --timeout=120000 --path-ignore-patterns=\"**/performance.test.ts\"",
+    "test": "sh scripts/run-tests.sh",
     "test:performance": "bun test tests/performance.test.ts",
     "test:mcp": "mcp-inspector stdio ts-node src/cli.ts",
     "lint": "eslint src/**/*.ts",
