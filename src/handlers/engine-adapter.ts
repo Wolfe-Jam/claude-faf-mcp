@@ -109,7 +109,28 @@ export class FafEngineAdapter {
       return mcpWorkingDir;
     }
 
-    // Priority 3: FORCE ~/Projects as universal default
+    // Priority 3 (FIX 2026-06-30): the caller's ACTUAL working directory — the
+    // workspace an IDE / MCP host (Claude Desktop, Cursor, VS Code) launches the
+    // server in. This MUST win over the ~/Projects convention below. Previously
+    // ~/Projects was FORCED here, so every no-path tool call that resolves via
+    // the engine adapter operated on ~/Projects instead of the project the user
+    // actually had open. Prefer a real FAF project (cwd contains project.faf —
+    // the path-check), else the cwd itself when it's a usable, non-root
+    // directory (so faf_init/score act on the open workspace even before a .faf
+    // exists). Shared fix across faf-mcp / grok-faf-mcp / claude-faf-mcp.
+    const currentDir = process.cwd();
+    const usableCwd =
+      currentDir !== '/' && currentDir !== '/root' && fs.existsSync(currentDir);
+    if (usableCwd && fs.existsSync(path.join(currentDir, 'project.faf'))) {
+      return currentDir;
+    }
+    if (usableCwd) {
+      return currentDir;
+    }
+
+    // Priority 4: ~/Projects convention — a soft landing ONLY when the host gave
+    // us no usable workspace (e.g. cwd is the filesystem root). Never overrides a
+    // real cwd above.
     const homeDir = process.env.HOME ?? process.env.USERPROFILE;
     if (homeDir) {
       // Try capitalized Projects first (macOS/Windows convention)
@@ -132,12 +153,6 @@ export class FafEngineAdapter {
         // Fall back to home
         return homeDir;
       }
-    }
-
-    // Priority 4: Current directory if not root
-    const currentDir = process.cwd();
-    if (currentDir !== '/' && currentDir !== '/root' && fs.existsSync(currentDir)) {
-      return currentDir;
     }
 
     // Last resort: /tmp (should rarely happen)
