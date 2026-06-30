@@ -1,6 +1,7 @@
 faf_version: 2.5.0
 project:
   name: claude-faf-mcp
+  title: Claude FAF
   goal: Persistent project context for Claude — define once, never re-explain
   main_language: TypeScript
   type: mcp

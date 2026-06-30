@@ -225,18 +225,18 @@ capabilities:
       - faf
 endpoints:
   - protocol: mcp
-    version: 2025-06-18
+    version: "2025-06-18"
     transport: stdio
     location: claude-faf-mcp
   - protocol: mcp
-    version: 2025-06-18
+    version: "2025-06-18"
     transport: http
     location: https://mcpaas.live/claude/mcp/v1
 provenance:
   faf: ./project.faf
   mediaType: application/vnd.faf+yaml
   deterministic: true
-  generated: 2026-06-10T05:17:34Z
+  generated: "2026-06-10T05:17:34Z"
 metadata:
   repository: https://github.com/Wolfe-Jam/claude-faf-mcp
   privacy: Runs locally. No telemetry, no analytics, no data leaves the machine.

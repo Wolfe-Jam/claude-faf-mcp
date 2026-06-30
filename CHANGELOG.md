@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (35 total) -->
-<!-- faf: doc=changelog | latest=v5.15.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.20.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.20.0] - 2026-06-30 — The GitHub Registry Edition
+
+claude-faf-mcp joins GitHub's MCP Registry — discoverable in VS Code — as **Claude FAF**, its display title now emitted from `project.faf`, single-sourced and idempotent.
+
+### Added
+- **`title` is now an emitted server-card field.** `scripts/gen-server-card.js` reads `project.title` from `project.faf` and composes it into `server.json` — so GitHub's MCP Registry (github.com/mcp, which powers VS Code's MCP discovery) shows **Claude FAF** instead of the auto-derived "Faf Claude Faf". `title` joins `name` and `_meta` as a single-sourced, never-hand-authored field; the BRAKE B1 idempotency test enforces emitted == live.
+
+### Changed
+- `project.faf` gains `project.title: Claude FAF` — the single source for the display title, distinct from `project.name` (which drives the `one.faf/claude-faf-mcp` registry id).
+- `server.json` gains `repository.id` (GitHub repo node-id) — anti-resurrection hardening recommended by the MCP registry server-card best-practices.
 
 ## [5.15.0] - 2026-06-26 — The Instructions Edition
 

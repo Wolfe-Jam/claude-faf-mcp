@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (35 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Instructions Edition
+# claude-faf-mcp — The GitHub Registry Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
@@ -25,6 +25,8 @@
 > 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+
+> **v5.20.0 — The GitHub Registry Edition.** claude-faf-mcp joins GitHub's MCP Registry — discoverable in VS Code — as **Claude FAF**, its display title now emitted from `project.faf`, single-sourced and idempotent. The registry derives a display name from the server-card `title`; CFM now provides it through the emitter (`name` + `_meta` + `title`, all composed from `project.faf`, never hand-authored — the BRAKE B1 test enforces emitted == live).
 
 > **v5.15.0 — The Instructions Edition.** CFM writes the file Copilot reads — done right. `.github/copilot-instructions.md` is now genuine, distinct Copilot *instructions*: a prose overview, a `## Build & run` command section, and "every request" framing — not the AGENTS.md content reused. The file Copilot actually reads, done to GitHub's spec.
 

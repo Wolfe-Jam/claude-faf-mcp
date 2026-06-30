@@ -57,6 +57,7 @@ const mcpbUrl = `https://github.com/Wolfe-Jam/${pkg.name}/releases/download/v${v
 const server = {
   $schema: existing.$schema,
   name: faf.registryName(data),                              // EMITTED — one.faf/<name>
+  title: data.project?.title,                                // EMITTED — display title from project.faf (omitted if unset)
   description: existing.description || pkg.description,
   icons: existing.icons,                                     // release-managed asset
   version,                                                   // ← package.json
