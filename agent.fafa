@@ -7,9 +7,8 @@ agent:
   name: claude-faf-mcp
   id: did:web:faf.one:claude-faf-mcp
   vendor: WolfeJAM
-  version: 5.8.0
-  description: Persistent project context for Claude — define once, never
-    re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
+  version: 5.20.0
+  description: Persistent project context for Claude — define once, never re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
   homepage: https://faf.one
   license: MIT
 capabilities:
@@ -21,7 +20,7 @@ capabilities:
       - faf
   - name: faf_about
     type: tool
-    description: Learn what .faf format is - project DNA for AI
+    description: Explain what the FAF format is — project DNA for AI — with its IANA registration, version, and connected platforms. Returns format metadata and the available MCP bridges. Use this when someone asks what FAF is or how it connects to other AI tools.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -33,19 +32,19 @@ capabilities:
       - faf
   - name: faf_score
     type: tool
-    description: Calculate your project's AI-readability from project.faf (project DNA for AI) - F1-inspired metrics!
+    description: Score a project.faf and return its 0–100% AI-readability, tier, and per-slot breakdown, via the deterministic Mk4 engine. Use this for a quick status check; use faf_doctor when you need to diagnose and fix what's missing.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_init
     type: tool
-    description: "Create project.faf (project DNA for AI) - Makes your project instantly AI-readable . Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project"
+    description: Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won't overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_trust
     type: tool
-    description: Attest project.faf integrity — validity, score, and a deterministic parity hash any conformant engine reproduces.
+    description: "Attest a project.faf's integrity: its validity, score, and a deterministic parity hash any conformant engine reproduces. Returns the ✪ receipt. Use this to prove a score is genuine and untampered."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -57,19 +56,13 @@ capabilities:
       - faf
   - name: faf_sync
     type: tool
-    description: Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context
+    description: Sync project.faf into CLAUDE.md as a faf-managed block, and optionally into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini), and .github/copilot-instructions.md (copilot) — or all of them (all). Updates each block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_enhance
     type: tool
-    description: Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_bi_sync
-    type: tool
-    description: "Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!"
+    description: Refine a project.faf with an AI model (claude/gemini/grok, optionally by consensus). Returns the enhanced content, or a dry-run preview when dryRun is set. Use this to polish after faf_auto and faf_go have filled the slots.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -135,19 +128,25 @@ capabilities:
       - faf
   - name: faf_context
     type: tool
-    description: Set or view active project context - Path is remembered for subsequent faf_ calls
+    description: Set or show the active project path that subsequent faf_ calls resolve against. Returns the current context path. Call this once at the start of a session so the other tools target the right project.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_go
     type: tool
-    description: "Guided interview to Gold Code (100%): returns questions for missing fields, then applies your answers."
+    description: The friendly front door — "let's go, tell me about your idea." Asks the human the 6Ws (goal, why, who, what, where, when) that can't be auto-detected, then applies them to project.faf. If no project.faf exists yet, faf_go bootstraps it first (creates it, sources the stack) so you go from nothing to the 6Ws in one step. Returns the Table-of-8 to confirm/answer, or applies the answers you pass back. Use faf_auto for the technical stack on its own.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_auto
     type: tool
-    description: "Run the full FAF pipeline in one step: init + sync + formats + bi-sync + score."
+    description: Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can't detect, and faf_enhance to have an AI refine the result.
+    cites_spec: application/vnd.faf+yaml
+    tags:
+      - faf
+  - name: faf_bench
+    type: tool
+    description: Prove the .faf earns its place — measure how much the context is worth, on THIS repo, falsifiably. Questions derive from the project.faf's own populated slots (the .faf is the answer key), so grading is mechanical — no judge, no rubric. action=questions returns the answer-key-safe question set; action=grade takes your answers WITHOUT the .faf (cold) and WITH it (faf), grades both, and returns the cold→with-faf lift with a ✪ receipt. The delta is the product; the cold number belongs to the absence of context, never to FAF.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -165,13 +164,13 @@ capabilities:
       - faf
   - name: faf_quick
     type: tool
-    description: "Lightning-fast .faf creation - One-liner format: \"name, description, language, framework, hosting\""
+    description: 'Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting"'
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_doctor
     type: tool
-    description: Health check for your .faf setup - Diagnose and fix common issues
+    description: "Diagnose a project.faf: report empty or weak slots, common issues, and how to fix each. Returns a prioritized checklist. Use this when faf_score is below target and you need to know why."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -213,40 +212,38 @@ capabilities:
       - faf
   - name: faf_etch
     type: tool
-    description: Etch a memory — remember this across sessions (a decision, gotcha, or win). Writes to the project soul (.fafm).
+    description: Remember a decision, gotcha, or win across sessions by writing it to the project soul (.fafm). Returns the stored memory's id. Use this to persist something an AI should recall later; use faf_recall to read them back.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_recall
     type: tool
-    description: Recall memories from the project soul (.fafm), ranked by priority then recency.
+    description: Recall memories from the project soul (.fafm), ranked by priority then recency, filtered by query/tags/type. Returns the matching entries. Use this to surface past decisions; use faf_etch to add new ones.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
 endpoints:
   - protocol: mcp
-    version: "2025-06-18"
+    version: 2025-06-18
     transport: stdio
     location: claude-faf-mcp
   - protocol: mcp
-    version: "2025-06-18"
+    version: 2025-06-18
     transport: http
     location: https://mcpaas.live/claude/mcp/v1
 provenance:
   faf: ./project.faf
   mediaType: application/vnd.faf+yaml
   deterministic: true
-  generated: "2026-06-10T05:17:34Z"
+  generated: 2026-07-01T04:35:37Z
 metadata:
   repository: https://github.com/Wolfe-Jam/claude-faf-mcp
   privacy: Runs locally. No telemetry, no analytics, no data leaves the machine.
   tool_tiers:
     status: planned
     model: Essentials (~17 core) + Extended specialist kit
-    note: Capabilities declared flat for now; tier-based surfacing is a planned
-      dimension (per the tool-surface curation design), not yet finalized — no
-      fabricated split.
+    note: Capabilities declared flat for now; tier-based surfacing is a planned dimension (per the tool-surface curation design), not yet finalized — no fabricated split.
   trinity:
     context: ./project.faf (live)
-    memory: soul.fafm (planned)
+    memory: soul.fafm (live)
     agent: this card
