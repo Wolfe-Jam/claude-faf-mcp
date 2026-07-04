@@ -4,6 +4,7 @@
 # claude-faf-mcp — The GitHub Registry Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
+[![smithery badge](https://smithery.ai/badge/wolfe-jam/claude-faf-mcp)](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
 [![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
 [![DOI: Context paper](https://img.shields.io/badge/DOI-Context%20paper-FF6B35)](https://doi.org/10.5281/zenodo.18251362)[![DOI: Memory paper](https://img.shields.io/badge/DOI-Memory%20paper-FF6B35)](https://doi.org/10.5281/zenodo.20348942)
@@ -121,6 +122,8 @@ Double-click. **Zero-Config — no terminal, no JSON config. 13 Core tools live 
 ```bash
 npm install -g claude-faf-mcp
 ```
+
+**Smithery:** [wolfe-jam/claude-faf-mcp](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp) — hosted at `https://mcpaas.live/claude/mcp/v1`
 
 Restart Claude Desktop.
 

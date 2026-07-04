@@ -2,7 +2,7 @@
 # https://smithery.ai/docs/build/project-config/smithery-yaml
 
 name: claude-faf-mcp
-description: "IANA-registered .faf format for persistent AI project context. Zero drift, works everywhere."
+description: "Claude FAF — persistent project context for Anthropic Claude via the IANA-registered .faf format. 13 core MCP tools (stdio via npx); hosted URL at mcpaas.live/claude/mcp/v1. Scoring, validation, sync, memory."
 icon: https://raw.githubusercontent.com/Wolfe-Jam/claude-faf-mcp/main/assets/icons/faf-icon-256.png
 
 startCommand:
