@@ -2,7 +2,7 @@
  * `.fafa` → A2A AgentCard mapper.
  *
  * Maps CFM's FAF Agent Card (`.fafa`) to a conformant **A2A AgentCard**
- * (A2A protocol v1.0, served at `/.well-known/a2a-agent-card`).
+ * (A2A protocol v1.0, served at `/.well-known/agent-card.json`).
  *
  * Posture: `.fafa` is a PEER to the A2A AgentCard — **compatible + enhancing**.
  * Every A2A field maps from `.fafa`; the enhancement is the **FAF context block**,
@@ -14,7 +14,7 @@
  */
 
 export const A2A_PROTOCOL_VERSION = '1.0';
-export const A2A_WELL_KNOWN_PATH = '/.well-known/a2a-agent-card';
+export const A2A_WELL_KNOWN_PATH = '/.well-known/agent-card.json';
 
 export interface A2AAgentSkill {
   id: string;
