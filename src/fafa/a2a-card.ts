@@ -85,7 +85,10 @@ export function fafaToA2ACard(fafa: any, opts: { url: string }): A2AAgentCard {
     }];
   }
   return {
-    name: agent.name,
+    // Human display name, sourced from the `.fafa` — never hardcoded. Explicit
+    // `agent.displayName` wins; else the `metadata.persona`; else the machine id
+    // `agent.name`. A changeable default: set `displayName` in the `.fafa` to change it.
+    name: agent.displayName ?? fafa?.metadata?.persona ?? agent.name,
     description: agent.description,
     // v1.0: the A2A service endpoint (JSON-RPC) lives inside supportedInterfaces[].
     supportedInterfaces: [{

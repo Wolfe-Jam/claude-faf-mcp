@@ -26,6 +26,17 @@ test('maps required A2A v1.0 fields (supportedInterfaces, not top-level url)', (
   expect(c.capabilities.extendedAgentCard).toBe(false);
 });
 
+test('name is SOURCED, never hardcoded: displayName > metadata.persona > agent.name', () => {
+  // explicit displayName wins
+  const withDisplay = fafaToA2ACard({ ...FAFA, agent: { ...FAFA.agent, displayName: 'FAFA — the Voice of FAF' } }, { url: URL });
+  expect(withDisplay.name).toBe('FAFA — the Voice of FAF');
+  // else the persona
+  const withPersona = fafaToA2ACard({ ...FAFA, metadata: { persona: 'The Voice of FAF' } }, { url: URL });
+  expect(withPersona.name).toBe('The Voice of FAF');
+  // else the machine id (the default)
+  expect(fafaToA2ACard(FAFA, { url: URL }).name).toBe('claude-faf-mcp');
+});
+
 test('capability → skill (id/name/description/tags), count preserved', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
   expect(c.skills.length).toBe(2);
