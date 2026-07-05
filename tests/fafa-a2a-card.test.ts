@@ -12,12 +12,18 @@ const FAFA = {
 };
 const URL = 'https://mcpaas.live/claude/a2a';
 
-test('maps required A2A fields', () => {
+test('maps required A2A v1.0 fields (supportedInterfaces, not top-level url)', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
-  expect(c.protocolVersion).toBe(A2A_PROTOCOL_VERSION);
   expect(c.name).toBe('claude-faf-mcp');
-  expect(c.url).toBe(URL);
-  expect(c.capabilities).toEqual({ streaming: false, pushNotifications: false, extendedAgentCard: false });
+  // v1.0: no top-level url / protocolVersion — they live in supportedInterfaces[].
+  expect((c as any).url).toBeUndefined();
+  expect((c as any).protocolVersion).toBeUndefined();
+  expect(c.supportedInterfaces).toEqual([
+    { url: URL, protocolBinding: 'JSONRPC', protocolVersion: A2A_PROTOCOL_VERSION },
+  ]);
+  expect(c.capabilities.streaming).toBe(false);
+  expect(c.capabilities.pushNotifications).toBe(false);
+  expect(c.capabilities.extendedAgentCard).toBe(false);
 });
 
 test('capability → skill (id/name/description/tags), count preserved', () => {
@@ -31,17 +37,19 @@ test('provider from vendor + homepage', () => {
   expect(c.provider).toEqual({ organization: 'WolfeJAM', url: 'https://faf.one' });
 });
 
-test('FAF context block rides as a one.faf extension (NEVER io.faf)', () => {
+test('FAF context block rides as a one.faf extension under capabilities (NEVER io.faf)', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
-  expect(c.extensions).toHaveLength(1);
-  expect(c.extensions![0].uri).toBe('https://one.faf/context');
-  expect(c.extensions![0].uri).not.toContain('io.faf');
-  expect(c.extensions![0].params).toEqual(FAFA.provenance);
+  // v1.0: extensions live under capabilities, not top-level.
+  expect((c as any).extensions).toBeUndefined();
+  expect(c.capabilities.extensions).toHaveLength(1);
+  expect(c.capabilities.extensions![0].uri).toBe('https://one.faf/context');
+  expect(c.capabilities.extensions![0].uri).not.toContain('io.faf');
+  expect(c.capabilities.extensions![0].params).toEqual(FAFA.provenance);
 });
 
 test('no provenance → no extensions (clean omission)', () => {
   const c = fafaToA2ACard({ ...FAFA, provenance: undefined }, { url: URL });
-  expect(c.extensions).toBeUndefined();
+  expect(c.capabilities.extensions).toBeUndefined();
 });
 
 test('default I/O modes present + valid JSON-serializable', () => {
@@ -55,5 +63,5 @@ test('default I/O modes present + valid JSON-serializable', () => {
 // exists, with that endpoint's real url + tools. Identity (.fafa) ≠ hosting.
 test('mapper requires a real url to be supplied (no fabricated default)', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
-  expect(c.url).toBe(URL); // url comes from the caller (a real endpoint), never baked in
+  expect(c.supportedInterfaces[0].url).toBe(URL); // url comes from the caller, never baked in
 });
