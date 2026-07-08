@@ -39,6 +39,8 @@
 
 > 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated Core of 12 self-documenting tools, with the interview, README extractor, and server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
 
+**Generator for all surfaces:** faf-cli v7.1 (`bunx faf export --agents` or `export --all`) produces the AGENTS.md / CLAUDE.md / .cursorrules that this MCP keeps in sync. Works the same for Grok and Cursor. See the [faf-cli agent guide](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-agents.md).
+
 > 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift. 35 tools, npm audit clean.
 
 > 🏆 **v5.9.0 — The Sourced Edition.** Every answer comes from one source. `faf_go` and Turbo-Cat detection now **compose faf-cli's single-source engines** instead of carrying their own copies — fills come from real evidence or stay honestly empty, nothing guessed. The legacy guessing extractor is gone; the `/faf` prompt drives to a *verified* 100% (`faf_trust` + `✪` parity receipt) and keeps it fresh. FAF don't lie, by construction.
