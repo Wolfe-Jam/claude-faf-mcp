@@ -23,7 +23,7 @@
 
 **FAF defines. MD instructs. AI codes.**
 
-> 🐘 **tri-sync now free for all builders** — `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command. Pro feature. Now free.
+> 🐘 **tri-sync** | `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command.
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
