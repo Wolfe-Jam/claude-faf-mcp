@@ -295,7 +295,7 @@ export async function conductorExport(
     return {
       success: false,
       filesGenerated: [],
-      warnings: [`Failed to create output directory: ${err}`],
+      warnings: [`Failed to create output directory: ${err instanceof Error ? err.message : String(err)}`],
     };
   }
 

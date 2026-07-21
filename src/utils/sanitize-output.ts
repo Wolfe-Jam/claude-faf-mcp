@@ -51,7 +51,9 @@ const EMOJI_BASE =
   '[\\u{1F000}-\\u{1FAFF}]' +                                       // supplementary plane
   '|[\\u2600-\\u2604\\u2607-\\u2660\\u2662-\\u2729\\u272B-\\u27BF]' + // misc symbols + dingbats (seals held out)
   '|[\\u2B00-\\u2BFF]';                                             // ⭐ ⭕ ⬛ ⬜ ⬆-⬇ etc (no tier glyph here)
-const JOINERS = '[\\uFE0F\\u200D\\u20E3\\u{1F3FB}-\\u{1F3FF}]';
+// VS16 / ZWJ / keycap / skin-tone — alternation (not a misleading character class)
+const JOINERS =
+  '(?:\\uFE0F|\\u200D|\\u20E3|\\u{1F3FB}|\\u{1F3FC}|\\u{1F3FD}|\\u{1F3FE}|\\u{1F3FF})';
 const EMOJI_PATTERN = new RegExp(`(?:${EMOJI_BASE})${JOINERS}*[ \\t]?`, 'gu');
 
 // Any joiners/selectors left orphaned after their base emoji was removed.

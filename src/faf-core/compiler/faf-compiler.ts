@@ -6,11 +6,15 @@
  * Result: Pure, traceable, reproducible scores
  */
 
-import { parse as parseYAML } from '../fix-once/yaml';
+import { parse as parseYAML, stringify as stringifyYAML } from '../fix-once/yaml.js';
 import * as crypto from 'crypto';
+import { createRequire } from 'node:module';
 import { ChromeExtensionDetector } from '../utils/chrome-extension-detector';
 import { FabFormatsProcessor } from '../engines/fab-formats-processor';
 import * as path from 'path';
+
+// Optional native WASM kernel — createRequire keeps CJS interop clean under ESLint
+const nodeRequire = createRequire(__filename);
 
 // ============================================================================
 // TYPE_DEFINITIONS - Single Source of Truth for Project Types
@@ -955,8 +959,9 @@ export class FafCompiler {
     let mk4Total: number | null = null;
 
     try {
-      const kernel = require('faf-scoring-kernel');
-      const { stringify } = require('yaml');
+      const kernel = nodeRequire('faf-scoring-kernel') as {
+        score_faf: (yaml: string) => string;
+      };
 
       // Detect project type and get applicable slots
       const projectType = this.detectProjectTypeFromContext(ast);
@@ -998,8 +1003,12 @@ export class FafCompiler {
         }
       }
 
-      const normalizedYaml = stringify(normalizedAst);
-      const kernelResult = JSON.parse(kernel.score_faf(normalizedYaml));
+      const normalizedYaml = stringifyYAML(normalizedAst);
+      const kernelResult = JSON.parse(kernel.score_faf(normalizedYaml)) as {
+        score: number;
+        populated: number;
+        active: number;
+      };
 
       mk4Score = kernelResult.score;
       mk4Filled = kernelResult.populated;

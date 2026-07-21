@@ -96,7 +96,7 @@ export class ClaudeFafMcpServer {
     this.server.setRequestHandler(GetPromptRequestSchema, async (request) => {
       return this.promptHandler.getPrompt(
         request.params.name,
-        request.params.arguments as Record<string, string> | undefined
+        request.params.arguments
       );
     });
 

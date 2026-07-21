@@ -10,8 +10,6 @@ import { confinePath, PathConfinementError } from '../utils/safe-path';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
-import { FafCompiler } from '../faf-core/compiler/faf-compiler.js';
-
 // Truthful single-source FAF score wiring — see src/utils/faf-cli-bridge.ts
 // for why this exists (faf-cli's bun exports condition + Node 18 ESM-from-CJS).
 import { fafCli } from '../utils/faf-cli-bridge.js';
@@ -1166,7 +1164,9 @@ export class FafToolHandler {
             const pkg = JSON.parse(fs.readFileSync(pathModule.join(projectPath, 'package.json'), 'utf8'));
             if (pkg.name) projectName = pkg.name;
           }
-        } catch {}
+        } catch {
+          // package.json unreadable — keep basename projectName
+        }
 
         const projectInfo = hasFaf
           ? `Found project.faf in: ${projectPath} (${projectName})`
@@ -1445,7 +1445,7 @@ Once confirmed, the sequence is:
             type: 'text',
             text:
               `FAF SCORE: 0/100 (0%)  ○ INVALID\n\n` +
-              `\`${fafPath}\` couldn\'t be parsed as a valid .faf YAML:\n` +
+              `\`${fafPath}\` couldn't be parsed as a valid .faf YAML:\n` +
               `  ${error?.message ?? String(error)}\n\n` +
               `Re-run \`faf_init\` to regenerate a valid file.`,
           },
@@ -2636,7 +2636,7 @@ All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
     try {
       // Find .faf file
       let fafResult = await findFafFile(cwd);
-      let bootstrap: { ran: boolean; birthScore?: number; sourcedScore?: number } = { ran: false };
+      const bootstrap: { ran: boolean; birthScore?: number; sourcedScore?: number } = { ran: false };
 
       if (!fafResult) {
         // BOOTSTRAP — faf_go is the front door ("let's go"). With no project.faf

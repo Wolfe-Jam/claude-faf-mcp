@@ -36,7 +36,6 @@ export interface StackAnalysis {
 
 // Default sentinel values — if unchanged, we omit from output
 const DEFAULT_WHO = 'Open source contributors';
-const DEFAULT_WHY = '';
 const DEFAULT_HOW = 'See README for usage';
 
 /**

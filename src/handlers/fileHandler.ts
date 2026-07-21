@@ -3,13 +3,8 @@
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import * as os from 'os';
 import type { Tool, CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { confineFileOp, PathConfinementError } from '../utils/safe-path';
-
-function expandTilde(p: string): string {
-  return p.startsWith('~') ? path.join(os.homedir(), p.slice(1)) : p;
-}
 
 /**
  * Security validator for file paths
