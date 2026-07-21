@@ -23,6 +23,8 @@
 
 **FAF defines. MD instructs. AI codes.**
 
+⭐ **A star helps other devs discover claude-faf-mcp** — despite the downloads, ~3 of 4 devs check stars first.
+
 **v0.2-conformant reader** of the [FAF Context Ingestion Contract](https://github.com/Wolfe-Jam/faf/blob/main/CONTEXT-INGESTION.md).
 
 > 🐘 **tri-sync** | `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command.
