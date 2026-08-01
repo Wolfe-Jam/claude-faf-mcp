@@ -3,6 +3,11 @@ name: 🏁 Championship CI/CD
 on:
   push:
     branches: [ main, develop ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'LICENSE*'
+      - '.gitignore'
   pull_request:
     branches: [ main ]
   release:
