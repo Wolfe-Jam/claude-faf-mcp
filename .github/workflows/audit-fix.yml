@@ -55,7 +55,7 @@ jobs:
 
       - name: Open issue if audit still fails after fix
         if: failure() && steps.audit.outputs.clean == 'false'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const title = 'npm audit high: needs package.json overrides (weekly gate)';
