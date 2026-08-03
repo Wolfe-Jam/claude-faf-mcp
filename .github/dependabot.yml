@@ -1,0 +1,44 @@
+# Keep transitive security floors current. CI already fails on
+# `npm audit --audit-level=high`; Dependabot + weekly audit-fix
+# catch drift before a manual re-run of an old SHA surprises us.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: UTC
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - security
+    commit-message:
+      prefix: "fix(deps)"
+    # Prefer security updates; group noisy minors so the board stays readable.
+    groups:
+      production-minor:
+        dependency-type: production
+        update-types:
+          - minor
+          - patch
+      development-minor:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "08:00"
+      timezone: UTC
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies
+      - ci
+    commit-message:
+      prefix: "ci(deps)"
