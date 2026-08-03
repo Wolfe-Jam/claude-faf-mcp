@@ -132,7 +132,7 @@
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@upstash/redis": "^1.37.0",
     "esbuild": "^0.28.1",
-    "faf-cli": "^6.13.0",
+    "faf-cli": "^7.2.0",
     "faf-scoring-kernel": "^2.0.3",
     "yaml": "^2.4.1"
   },
