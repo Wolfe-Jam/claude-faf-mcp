@@ -1,6 +1,10 @@
 # Keep transitive security floors current. CI already fails on
 # `npm audit --audit-level=high`; Dependabot + weekly audit-fix
 # catch drift before a manual re-run of an old SHA surprises us.
+#
+# Policy: minor/patch auto-PRs only for noisy toolchain packages.
+# Major bumps (eslint 10, typescript 7, @types/node 26, …) are
+# deliberate migrations — not weekly drive-by PRs.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -13,7 +17,6 @@ updates:
     open-pull-requests-limit: 5
     labels:
       - dependencies
-      - security
     commit-message:
       prefix: "fix(deps)"
     # Prefer security updates; group noisy minors so the board stays readable.
@@ -28,6 +31,20 @@ updates:
         update-types:
           - minor
           - patch
+    ignore:
+      # Align @types/node with engines + CI (Node 18/20), not latest Node.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/parser"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@typescript-eslint/eslint-plugin"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript-eslint"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: github-actions
     directory: /
