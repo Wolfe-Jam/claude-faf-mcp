@@ -32,7 +32,7 @@ import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.
  * belongs where newcomers meet it, not behind FAF_TOOLS=all.
  */
 const CORE_TOOLS = new Set<string>([
-  'faf_init', 'faf_auto', 'faf_go', 'faf_bench', 'faf_enhance',
+  'faf_init', 'faf_auto', 'faf_go', 'faf_bench',
   'faf_score', 'faf_doctor', 'faf_sync', 'faf_context',
   'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
 ]);
@@ -317,27 +317,6 @@ export class FafToolHandler {
               gemini: { type: 'boolean', description: 'Also sync to GEMINI.md (Google Gemini format)' },
               copilot: { type: 'boolean', description: 'Also sync to .github/copilot-instructions.md (GitHub Copilot)' },
               all: { type: 'boolean', description: 'Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md + .github/copilot-instructions.md' },
-              path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
-            },
-            additionalProperties: false
-          }
-        },
-        {
-          name: 'faf_enhance',
-          description: 'Refine a project.faf with an AI model (claude/gemini/grok, optionally by consensus). Returns the enhanced content, or a dry-run preview when dryRun is set. Use this to polish after faf_auto and faf_go have filled the slots.',
-          annotations: {
-            title: 'Enhance .faf',
-            readOnlyHint: false,
-            destructiveHint: false,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {
-              model: { type: 'string', description: 'Target AI model: claude|chatgpt|gemini|universal (default: claude)' },
-              focus: { type: 'string', description: 'Enhancement focus: claude-optimal|human-context|ai-instructions|completeness' },
-              consensus: { type: 'boolean', description: 'Build consensus from multiple AI models' },
-              dryRun: { type: 'boolean', description: 'Preview enhancement without applying changes' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -669,7 +648,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_auto',
-          description: 'Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can\'t detect, and faf_enhance to have an AI refine the result.',
+          description: 'Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can\'t detect, ',
           annotations: {
             title: 'Auto-detect Context',
             readOnlyHint: false,
@@ -1204,8 +1183,6 @@ Once confirmed, the sequence is:
         return await this.handleFafSetup(args);
       case 'faf_sync':
         return await this.handleFafSync(args);
-      case 'faf_enhance':
-        return await this.handleFafEnhance(args);
       case 'faf_clear':
         return await this.handleFafClear(args);
       case 'faf_debug':
@@ -1635,7 +1612,7 @@ package_manager: ${projectData.package_manager}` : ''}
             chromeDetection.detected ? '\n\n🎯 Friday Feature: Chrome Extension detected!\n📈 Auto-filled 7 slots for 90%+ score!' : ''
           }${
             chromeDetection.corrected ? `\n📝 Auto-corrected: "${args?.description}" → "${chromeDetection.corrected}"` : ''
-          }\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_enhance to improve context`
+          }\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_go for human 6Ws`
         }]
       };
     } catch (error: any) {
@@ -1808,52 +1785,6 @@ package_manager: ${projectData.package_manager}` : ''}
     };
   }
 
-  private async handleFafEnhance(args: any): Promise<CallToolResult> {
-    // Set project context if path provided
-    if (args?.path) {
-      this.getProjectPath(args.path);
-    }
-
-    const enhanceArgs: string[] = [];
-
-    // Default to Claude optimization if no model specified
-    const model = args?.model || 'claude';
-    enhanceArgs.push('--model', model);
-
-    if (args?.focus) {
-      enhanceArgs.push('--focus', args.focus);
-    }
-    if (args?.consensus) {
-      enhanceArgs.push('--consensus');
-    }
-    if (args?.dryRun) {
-      enhanceArgs.push('--dry-run');
-    }
-
-    const result = await this.engineAdapter.callEngine('enhance', enhanceArgs);
-
-    if (!result.success) {
-      return {
-        content: [{
-          type: 'text',
-          text: `🚀 Claude FAF Enhancement:\n\nFailed to enhance: ${result.error}`
-        }],
-        isError: true
-      };
-    }
-
-    const output = typeof result.data === 'string'
-      ? result.data
-      : result.data?.message || result.data?.output || JSON.stringify(result.data, null, 2);
-
-    return {
-      content: [{
-        type: 'text',
-        text: `🚀 Claude FAF Enhancement:\n\n${output}`
-      }]
-    };
-  }
-
   private async handleFafClear(args: any): Promise<CallToolResult> {
     const clearArgs: string[] = [];
     
@@ -2006,7 +1937,7 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
 💡 Quick Start:
    1. If FAF CLI not found: npm install -g faf-cli
    2. If .faf file missing: use faf_init tool
-   3. For optimization: use faf_enhance tool with model="claude"
+   3. For human context gaps: use faf_go
 `;
       
       return {
@@ -3127,7 +3058,7 @@ ${fafData.stack_signature || 'Auto-detected stack'}
         output += `🚀 Good start! Run faf_go for guided improvement.\n`;
       }
 
-      output += `\n💡 Next: faf_score --details | faf_go | faf_enhance`;
+      output += `\n💡 Next: faf_score --details | faf_go`;
 
       return { content: [{ type: 'text', text: output }] };
 
@@ -3476,7 +3407,7 @@ Example: "my-app, e-commerce platform"`
 
 ⚠️ project.faf already exists at: ${fafPath}
 
-Use force: true to overwrite, or use faf_enhance to modify.`
+Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
           }]
         };
       }
@@ -3519,7 +3450,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
       output += `✅ Created: ${fafPath}\n\n`;
       output += `Next steps:\n`;
       output += `  • faf_score - Check AI-readiness\n`;
-      output += `  • faf_enhance - Improve context\n`;
+      output += ``;
       output += `  • faf_go - Guided interview to 100%`;
 
       return { content: [{ type: 'text', text: output }] };
@@ -3626,7 +3557,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
               results.push({
                 status: 'warning',
                 message: `Missing important fields: ${missingFields.join(', ')}`,
-                fix: 'Run: faf_enhance or faf_go to add missing info'
+                fix: 'Run: faf_go to add missing human context'
               });
             } else {
               results.push({
@@ -3642,7 +3573,7 @@ Use force: true to overwrite, or use faf_enhance to modify.`
               results.push({
                 status: 'error',
                 message: `Score too low: ${score}%`,
-                fix: 'Run: faf_enhance or faf_go to improve context'
+                fix: 'Run: faf_go to improve human context'
               });
             } else if (score < 70) {
               results.push({

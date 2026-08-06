@@ -131,36 +131,6 @@
    }
   },
   {
-   "name": "faf_enhance",
-   "description": "Enhance project.faf (project DNA for AI) with AI optimization — persistent context, zero drift",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "model": {
-      "type": "string",
-      "description": "Target AI model: claude|chatgpt|gemini|universal (default: claude)"
-     },
-     "focus": {
-      "type": "string",
-      "description": "Enhancement focus: claude-optimal|human-context|ai-instructions|completeness"
-     },
-     "consensus": {
-      "type": "boolean",
-      "description": "Build consensus from multiple AI models"
-     },
-     "dryRun": {
-      "type": "boolean",
-      "description": "Preview enhancement without applying changes"
-     },
-     "path": {
-      "type": "string",
-      "description": "Project path. Sets session context for subsequent calls."
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
    "name": "faf_bi_sync",
    "description": "Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!",
    "inputSchema": {

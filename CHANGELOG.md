@@ -1,3 +1,8 @@
+## Unreleased
+
+### Removed
+- **`faf_enhance`** — removed from the MCP surface (and the bundled enhance command). AI rewrite of a filled `project.faf` was a silent DNA clobber; stack/human fill stays on `faf_auto` / `faf_go`. Aligns with faf-cli (enhance already gone there). Core tier is **12** tools.
+
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (35 total) -->
 <!-- faf: doc=changelog | latest=v5.20.0 | canonical=project.faf | family=FAF -->
 

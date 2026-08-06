@@ -664,9 +664,9 @@ describe('TIER 3: MCP Integration', () => {
   });
 
   describe('Tool count integrity', () => {
-    it('should have 25 core tools (26 at 5.8.0, −faf_bi_sync collapsed into faf_sync at 5.14.1)', () => {
+    it('should have 24 core tools (26 at 5.8.0, −bi_sync@5.14.1, −faf_enhance)', () => {
       const counts = validateToolCounts();
-      expect(counts.core).toBe(25);
+      expect(counts.core).toBe(24);
     });
 
     it('should have 36 advanced tools after v4.5.0', () => {
@@ -674,9 +674,9 @@ describe('TIER 3: MCP Integration', () => {
       expect(counts.advanced).toBe(36);
     });
 
-    it('should have 61 total tools (62 at 5.8.0, −faf_bi_sync collapsed into faf_sync at 5.14.1)', () => {
+    it('should have 60 total tools (62 at 5.8.0, −bi_sync@5.14.1, −faf_enhance)', () => {
       const counts = validateToolCounts();
-      expect(counts.total).toBe(61);
+      expect(counts.total).toBe(60);
     });
   });
 

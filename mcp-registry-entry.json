@@ -23,10 +23,6 @@
       "description": "Calculate AI-readiness score with detailed breakdown"
     },
     {
-      "name": "faf_enhance",
-      "description": "Claude-optimized AI enhancement with multi-model support"
-    },
-    {
       "name": "faf_sync",
       "description": "Synchronize .faf context with claude.md"
     },

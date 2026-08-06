@@ -63,7 +63,7 @@ export async function doctorCommand(projectPath?: string): Promise<DoctorResult>
             results.push({
               status: 'warning',
               message: `Missing important fields: ${missingFields.join(', ')}`,
-              fix: 'Run: faf enhance or faf chat to add missing info'
+              fix: 'Run: faf go to add missing human context'
             });
           } else {
             results.push({
@@ -80,7 +80,7 @@ export async function doctorCommand(projectPath?: string): Promise<DoctorResult>
             results.push({
               status: 'error',
               message: `Score too low: ${scoreResult.score}%`,
-              fix: 'Run: faf enhance to improve, or faf chat to add context'
+              fix: 'Run: faf go to improve human context'
             });
           } else if (scoreResult.score < 70) {
             results.push({

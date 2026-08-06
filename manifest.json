@@ -75,10 +75,6 @@
       "description": "Sync .faf with CLAUDE.md"
     },
     {
-      "name": "faf_enhance",
-      "description": "Enhance .faf with AI optimization"
-    },
-    {
       "name": "faf_bi_sync",
       "description": "Bi-directional sync to all AI formats"
     },

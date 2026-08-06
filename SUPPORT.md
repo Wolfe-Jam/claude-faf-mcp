@@ -45,7 +45,7 @@ npm run build
 **Issue**: Low context scores (below 85%)
 
 **Solution**: 
-- Run `faf_enhance` with focus on missing areas
+- Run `faf_go` for human 6Ws gaps
 - Check that key files are included (README, package.json, .faf)
 - Ensure file format is valid YAML
 

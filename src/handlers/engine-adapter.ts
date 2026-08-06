@@ -17,7 +17,6 @@ import { updateFafFile } from '../faf-core/commands/update.js';
 import { migrateFafFile } from '../faf-core/commands/migrate.js';
 import { innitFafFile } from '../faf-core/commands/innit.js';
 import { quickCommand } from '../faf-core/commands/quick.js';
-import { enhanceCommand } from '../faf-core/commands/enhance.js';
 import { humanAddCommand, humanSetCommand } from '../faf-core/commands/human.js';
 import { readmeExtractCommand, readmeMergeCommand } from '../faf-core/commands/readme.js';
 // v4.5.0 Interop commands
@@ -491,32 +490,6 @@ export class FafEngineAdapter {
         return {
           success: false,
           error: isError(error) ? error.message : 'Quick command failed',
-          duration
-        };
-      }
-    }
-
-    // ENHANCE command - use bundled enhance
-    if (command === 'enhance') {
-      try {
-        const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
-        const projectPath = pathArgs[0] || this.workingDirectory;
-        const autoFill = args.includes('--auto-fill');
-        const interactive = args.includes('--interactive');
-        const json = args.includes('--json');
-        const result = await enhanceCommand(projectPath, { autoFill, interactive, json });
-        const duration = Date.now() - startTime;
-
-        return {
-          success: result.success,
-          data: result,
-          duration
-        };
-      } catch (error: unknown) {
-        const duration = Date.now() - startTime;
-        return {
-          success: false,
-          error: isError(error) ? error.message : 'Enhance command failed',
           duration
         };
       }

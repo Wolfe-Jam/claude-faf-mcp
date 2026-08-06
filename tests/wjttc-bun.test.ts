@@ -232,7 +232,7 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
       // faf_clear, faf_human_add, faf_go, faf_quick, faf_dna), anything that
       // shells out to the FAF engine subprocess (faf_chat, faf_agents,
       // faf_cursor, faf_gemini, faf_git, faf_conductor, faf_tri_sync,
-      // faf_sync, faf_enhance, faf_trust, faf_status, faf_auto,
+      // faf_sync, faf_trust, faf_status, faf_auto,
       // faf_doctor, faf_readme), anything that uses cwd state via
       // getProjectPath (faf_score, faf_debug, faf_list, faf_read, faf_check,
       // faf_context, faf_formats), and the top-level `faf` entry tool
