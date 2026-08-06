@@ -272,15 +272,40 @@ describe('🏎️ TIER 2: Capability Negotiation', () => {
 
 describe('🏎️ TIER 3: Tool Integrity', () => {
   let handler: FafToolHandler;
+  let engine: FafEngineAdapter;
   let testDir: string;
+  /** Repo root project.faf — must never be mutated by these tests. */
+  const repoRoot = path.resolve(import.meta.dir, '..');
+  const repoFaf = path.join(repoRoot, 'project.faf');
+  let repoFafBefore = '';
 
   beforeAll(async () => {
-    handler = new FafToolHandler(new FafEngineAdapter('native'));
+    // Snapshot production DNA before any write tool runs.
+    if (fs.existsSync(repoFaf)) {
+      repoFafBefore = fs.readFileSync(repoFaf, 'utf-8');
+    }
+    // Isolation: adapter sticky cwd is set at construct from process.cwd()
+    // (usually the repo). chdir alone does NOT rebind getProjectPath — always
+    // setWorkingDirectory(testDir) + pass path: testDir on project-scoped tools.
     testDir = path.join(os.tmpdir(), `wjttc-mcp-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
+    engine = new FafEngineAdapter('native');
+    engine.setWorkingDirectory(testDir);
+    handler = new FafToolHandler(engine);
   });
 
   afterAll(() => {
+    // Fail the suite loudly if anything touched repo project.faf
+    if (repoFafBefore && fs.existsSync(repoFaf)) {
+      const after = fs.readFileSync(repoFaf, 'utf-8');
+      if (after !== repoFafBefore) {
+        // Restore first so the tree stays clean, then throw
+        fs.writeFileSync(repoFaf, repoFafBefore, 'utf-8');
+        throw new Error(
+          'ISOLATION BREACH: TIER 3 tests mutated repo-root project.faf — restored from snapshot'
+        );
+      }
+    }
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
@@ -328,18 +353,9 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
 
   describe('Core Tools - faf_score', () => {
     it('MUST: Return scoring information', async () => {
-      // Setup minimal project structure
       fs.writeFileSync(path.join(testDir, 'project.faf'), 'project: test');
-
-      const originalCwd = process.cwd();
-      process.chdir(testDir);
-
-      try {
-        const result = await handler.callTool('faf_score', {});
-        expect(getTextContent(result.content)).toBeDefined();
-      } finally {
-        process.chdir(originalCwd);
-      }
+      const result = await handler.callTool('faf_score', { path: testDir });
+      expect(getTextContent(result.content)).toBeDefined();
     });
   });
 
@@ -386,55 +402,82 @@ November 2025
 Using TypeScript and Jest
 `;
       fs.writeFileSync(path.join(testDir, 'README.md'), readme);
+      // Seed a disposable project.faf in the sandbox only
+      fs.writeFileSync(path.join(testDir, 'project.faf'), 'project:\n  name: sandbox\n');
 
-      const originalCwd = process.cwd();
-      process.chdir(testDir);
-
-      try {
-        const result = await handler.callTool('faf_readme', {});
-        const text = getTextContent(result.content);
-
-        expect(text).toBeDefined();
-      } finally {
-        process.chdir(originalCwd);
-      }
+      const result = await handler.callTool('faf_readme', { path: testDir, apply: true });
+      const text = getTextContent(result.content);
+      expect(text).toBeDefined();
+      // Must write into the sandbox, never the repo root
+      expect(fs.realpathSync(path.dirname(
+        fs.existsSync(path.join(testDir, 'project.faf'))
+          ? path.join(testDir, 'project.faf')
+          : testDir
+      ))).toBe(fs.realpathSync(testDir));
     });
   });
 
   describe('New Tools - faf_human_add (v3.3.4)', () => {
-    it('SHOULD: Add human_context fields', async () => {
-      fs.writeFileSync(path.join(testDir, 'project.faf'), 'project: test');
+    it('SHOULD: Add human_context fields (sandbox only)', async () => {
+      const sandboxFaf = path.join(testDir, 'project.faf');
+      fs.writeFileSync(sandboxFaf, 'project:\n  name: sandbox\n');
+
+      const result = await handler.callTool('faf_human_add', {
+        field: 'who',
+        value: 'WJTTC Test Suite',
+        path: testDir,
+      });
+
+      expect(getTextContent(result.content)).toBeDefined();
+      expect(result.isError).not.toBe(true);
+
+      // Wrote into sandbox
+      const sand = fs.readFileSync(sandboxFaf, 'utf-8');
+      expect(sand).toContain('WJTTC Test Suite');
+      expect(sand).toMatch(/who:\s*WJTTC Test Suite/);
+
+      // Did NOT touch repo-root project.faf
+      if (repoFafBefore) {
+        expect(fs.readFileSync(repoFaf, 'utf-8')).toBe(repoFafBefore);
+        expect(fs.readFileSync(repoFaf, 'utf-8')).not.toContain('WJTTC Test Suite');
+      }
+    });
+
+    it('ISOLATION: chdir alone must not redirect writes to repo (sticky cwd trap)', async () => {
+      // Reproduces the historical bug: chdir(sandbox) without path/setWorkingDirectory
+      // left getProjectPath on the construct-time repo and polluted who.
+      const stickyEngine = new FafEngineAdapter('native');
+      // Construct while still in repo → sticky cwd is repo (or env). Do NOT
+      // setWorkingDirectory. Only chdir like the old test.
+      const stickyHandler = new FafToolHandler(stickyEngine);
+      const sandboxFaf = path.join(testDir, 'project.faf');
+      fs.writeFileSync(sandboxFaf, 'project:\n  name: sandbox-chdir\n');
 
       const originalCwd = process.cwd();
       process.chdir(testDir);
-
       try {
-        const result = await handler.callTool('faf_human_add', {
+        // Without path: may target sticky repo. With path: must stay sandbox.
+        await stickyHandler.callTool('faf_human_add', {
           field: 'who',
-          value: 'WJTTC Test Suite'
+          value: 'Sandbox Isolation Probe',
+          path: testDir,
         });
-
-        expect(getTextContent(result.content)).toBeDefined();
       } finally {
         process.chdir(originalCwd);
+      }
+
+      expect(fs.readFileSync(sandboxFaf, 'utf-8')).toContain('Sandbox Isolation Probe');
+      if (repoFafBefore) {
+        expect(fs.readFileSync(repoFaf, 'utf-8')).toBe(repoFafBefore);
       }
     });
   });
 
   describe('New Tools - faf_check (v3.3.4)', () => {
     it('SHOULD: Return quality assessment', async () => {
-      fs.writeFileSync(path.join(testDir, 'project.faf'), 'project: test');
-
-      const originalCwd = process.cwd();
-      process.chdir(testDir);
-
-      try {
-        const result = await handler.callTool('faf_check', {});
-
-        expect(getTextContent(result.content)).toBeDefined();
-      } finally {
-        process.chdir(originalCwd);
-      }
+      fs.writeFileSync(path.join(testDir, 'project.faf'), 'project:\n  name: sandbox\n');
+      const result = await handler.callTool('faf_check', { path: testDir });
+      expect(getTextContent(result.content)).toBeDefined();
     });
   });
 });

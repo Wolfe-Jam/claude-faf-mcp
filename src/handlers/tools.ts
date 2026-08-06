@@ -41,8 +41,15 @@ export class FafToolHandler {
   constructor(private engineAdapter: FafEngineAdapter) {}
 
   /**
-   * Get the project path - uses explicit path if provided, otherwise returns current context
-   * If an explicit path is provided, it also sets the session context for subsequent calls
+   * Get the project path - uses explicit path if provided, otherwise the sticky
+   * session working directory (set at adapter construct / last path arg).
+   *
+   * ⚠️ Sticky cwd is intentional for MCP sessions ("set path once, then omit").
+   * process.chdir() does NOT rebind this. Callers that write project.faf
+   * (faf_human_add, faf_readme apply, faf_check protect, faf_go answers, …)
+   * MUST pass `path` (or setWorkingDirectory) when not operating on the session
+   * project — otherwise they can clobber the construct-time project.faf.
+   * Tests: always path: testDir; never rely on chdir alone.
    */
   private getProjectPath(explicitPath?: string): string {
     if (explicitPath) {
