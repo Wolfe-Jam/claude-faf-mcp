@@ -8,9 +8,13 @@
  * `discoverFormatsInternal` (a 25-entry map) is DELETED; this is the single
  * source.
  *
- * Requires faf-cli >= 6.10.1 (the dep range). The feature-detect + null-return
+ * Requires faf-cli >= 7.7.0 (package.json). Feature-detect + null-return still
  * survive a mis-installed older faf-cli (degrade to "no formats") rather than
  * crash — detection must never break a tool.
+ *
+ * Language Editions (Go · C# · JVM · Ruby · Swift · Dart/Flutter) live ONLY in
+ * faf-cli. CFM never forks classifiers — bump the dep, retest, ship. Sibling
+ * MCPs (faf-mcp, grok-faf-mcp, …) follow the same compose floor.
  */
 import { fafCli } from '../../utils/faf-cli-bridge.js';
 

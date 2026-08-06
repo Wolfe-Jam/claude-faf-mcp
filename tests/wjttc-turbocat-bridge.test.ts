@@ -144,3 +144,27 @@ describe('AERO — Dart/Flutter via composition (faf-cli >= 6.13.0)', () => {
     expect(s!.stack?.backend).toBe('Serverpod');
   });
 });
+
+
+// AERO — Go via composition (faf-cli >= 7.3.0; floor 7.7.0)
+// Proves Edition rail is inherited by dep bump — no CFM Go parser.
+describe('AERO — Go via composition (faf-cli Edition rail)', () => {
+  test('G1 — Gin module: main_language Go, backend Gin', async () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'faf-go-compose-'));
+    try {
+      fs.writeFileSync(
+        path.join(dir, 'go.mod'),
+        'module example.com/x\n\ngo 1.22\n\nrequire github.com/gin-gonic/gin v1.9.0\n',
+      );
+      const slots = await composedTurboCatSlots(dir);
+      expect(slots).not.toBeNull();
+      // turboCatSlots routes main_language under project
+      expect(
+        (slots?.project?.main_language || slots?.stack?.main_language || '').toLowerCase(),
+      ).toContain('go');
+      expect((slots?.stack?.backend || '').toLowerCase()).toMatch(/gin/);
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+});

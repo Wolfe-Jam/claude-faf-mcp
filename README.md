@@ -45,7 +45,9 @@
 
 **Context for Claude:** faf-cli keeps this MCP's CLAUDE.md / AGENTS.md in sync from one scored source — `bunx faf sync`. See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
 
-> 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift. 35 tools, npm audit clean.
+> 🏆 **Compose floor faf-cli ^7.7.0.** Language Editions (Dart · Go · C# · JVM · Ruby · Swift) arrive **by composition** — Turbo-Cat in faf-cli; CFM does not fork detectors. Bump the dep, retest, ship. Precedent for sibling MCPs: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
+
+> 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift.
 
 > 🏆 **v5.9.0 — The Sourced Edition.** Every answer comes from one source. `faf_go` and Turbo-Cat detection now **compose faf-cli's single-source engines** instead of carrying their own copies — fills come from real evidence or stay honestly empty, nothing guessed. The legacy guessing extractor is gone; the `/faf` prompt drives to a *verified* 100% (`faf_trust` + `✪` parity receipt) and keeps it fresh. FAF don't lie, by construction.
 

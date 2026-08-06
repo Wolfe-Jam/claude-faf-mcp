@@ -1,9 +1,4 @@
-## Unreleased
-
-### Removed
-- **`faf_enhance`** — removed from the MCP surface (and the bundled enhance command). AI rewrite of a filled `project.faf` was a silent DNA clobber; stack/human fill stays on `faf_auto` / `faf_go`. Aligns with faf-cli (enhance already gone there). Core tier is **12** tools.
-
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, 13 Core tools (35 total) -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
 <!-- faf: doc=changelog | latest=v5.20.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
@@ -15,6 +10,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+### Changed
+- **Compose faf-cli `^7.7.0`** (was `^7.2.0`, lock was 7.2.0). Turbo-Cat / `faf_auto` / `faf_formats` inherit **by construction** the language Edition rail already shipped on the CLI:
+  - **7.2.1** Dart/Flutter knowledge v2 · **7.3** Go · **7.4** C# · **7.5/7.5.1** JVM · **7.6** Ruby · **7.7** Swift
+  - Kill lines apply (e.g. `go.mod` alone ≠ backend, `Package.swift` alone ≠ app) — no forked detectors in CFM.
+- **Precedent for sibling MCPs:** pin `faf-cli` to the same floor as npm latest when Editions land; do **not** re-implement language detection in the MCP. Composition is the product. See `docs/compose-faf-cli.md`.
+
+### Removed
+- **`faf_enhance`** — removed from the MCP surface (and the bundled enhance command). AI rewrite of a filled `project.faf` was a silent DNA clobber; stack/human fill stays on `faf_auto` / `faf_go`. Aligns with faf-cli (enhance already gone there). Core tier is **12** tools.
+
+### Fixed
+- **Test isolation** — suite no longer mutates repo-root `project.faf` via sticky adapter cwd (`faf_human_add` fixture).
 
 ## [5.20.0] - 2026-06-30 — The GitHub Registry Edition
 
