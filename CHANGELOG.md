@@ -20,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - **`faf_enhance`** — removed from the MCP surface (and the bundled enhance command). AI rewrite of a filled `project.faf` was a silent DNA clobber; stack/human fill stays on `faf_auto` / `faf_go`. Aligns with faf-cli (enhance already gone there). Core tier is **12** tools.
 
+### Tests
+- **`tests/wjttc-edition-compose.test.ts`** — permanent E2E that `faf_auto` / `faf_formats` surface faf-cli Edition signals (Go · Ruby · Swift · C# · bare JVM, no Spring leak).
+
 ### Fixed
 - **Test isolation** — suite no longer mutates repo-root `project.faf` via sticky adapter cwd (`faf_human_add` fixture).
 

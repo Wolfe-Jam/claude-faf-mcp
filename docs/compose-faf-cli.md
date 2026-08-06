@@ -50,3 +50,8 @@ Keep floors aligned unless a sibling intentionally freezes for a release train.
 - `pubspec` alone ≠ Flutter  
 
 Those claims live in faf-cli Editions; MCP marketing can say **“inherits faf-cli Edition rail by composition.”**
+
+## Permanent proof (CFM)
+
+`tests/wjttc-edition-compose.test.ts` — E2E `faf_auto` + `faf_formats` on Go · Ruby · Swift · C# · bare JVM fixtures (sandbox-isolated). Run with the full suite; fails if Edition signals disappear or Spring leaks onto a bare `pom`.
+
