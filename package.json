@@ -130,7 +130,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@upstash/redis": "^1.37.0",
+    "@upstash/redis": "^1.38.2",
     "esbuild": "^0.28.1",
     "faf-cli": "^7.7.0",
     "faf-scoring-kernel": "^2.0.3",
