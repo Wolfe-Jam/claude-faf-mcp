@@ -1,7 +1,7 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 13 Core tools (35 total) -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 12 Core tools (34 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The GitHub Registry Edition
+# claude-faf-mcp — The Compose Edition
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![smithery badge](https://smithery.ai/badge/wolfe-jam/claude-faf-mcp)](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp)
@@ -31,6 +31,8 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
+> **v5.21.0 — The Compose Edition.** Language Editions arrive by composition — pin faf-cli ^7.7.0 so Core `faf_auto` inherits the CLI rail (Dart · Go · C# · JVM · Ruby · Swift); Core 12 tools; `faf_enhance` removed. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Permanent E2E: `tests/wjttc-edition-compose.test.ts`. Sibling MCP precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
+
 > **v5.20.0 — The GitHub Registry Edition.** claude-faf-mcp joins GitHub's MCP Registry — discoverable in VS Code — as **Claude FAF**, its display title now emitted from `project.faf`, single-sourced and idempotent. The registry derives a display name from the server-card `title`; CFM now provides it through the emitter (`name` + `_meta` + `title`, all composed from `project.faf`, never hand-authored — the BRAKE B1 test enforces emitted == live).
 
 > **v5.15.0 — The Instructions Edition.** CFM writes the file Copilot reads — done right. `.github/copilot-instructions.md` is now genuine, distinct Copilot *instructions*: a prose overview, a `## Build & run` command section, and "every request" framing — not the AGENTS.md content reused. The file Copilot actually reads, done to GitHub's spec.
@@ -53,7 +55,7 @@
 
 > 🏆 **v5.8.0 — The Trust Edition.** Claude Code-native context that just works. A native SessionStart hook opens every session with fresh context and a one-line `✪` heartbeat (`faf: context ✪ 100% — fresh`); tool output is quiet (no emoji, parseable) and typed (`structuredContent` everywhere); every score carries a deterministic parity hash any engine reproduces, sealed in a self-verifying `✪` receipt. Installed explicitly via `faf_setup` — preview first, your settings preserved. Built on the Canonical foundation: path-confined file access, edge-direct remote, 35 tools.
 
-13 Core MCP tools (35 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 1,716 test executions per push.
+12 Core MCP tools (34 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 592 tests per suite.
 
 ---
 
@@ -107,9 +109,9 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.13.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.13.0.mcpb)
+[**⬇ Download `claude-faf-mcp-5.21.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.21.0.mcpb)
 
-Double-click. **Zero-Config — no terminal, no JSON config. 13 Core tools live in 10 seconds.**
+Double-click. **Zero-Config — no terminal, no JSON config. 12 Core tools live in 10 seconds.**
 
 **Copy** — paste-prompt to Claude
 
@@ -200,7 +202,7 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## MCP Tools — 13 Core, 35 with `FAF_TOOLS=all`
+## MCP Tools — 12 Core, 34 with `FAF_TOOLS=all`
 
 By default claude-faf-mcp advertises a distilled **Core of 12** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose Extended tools (callable by name regardless). **Core 12:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`. (`faf_enhance` removed — no silent AI rewrite of project.faf.)
 

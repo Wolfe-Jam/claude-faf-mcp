@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v5.20.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.21.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.21.0] - 2026-08-11 — The Compose Edition
+
+Language Editions arrive by composition — pin faf-cli ^7.7.0 so Core `faf_auto` inherits the CLI rail (Dart · Go · C# · JVM · Ruby · Swift); Core 12 tools; `faf_enhance` removed.
 
 ### Changed
 - **Compose faf-cli `^7.7.0`** (was `^7.2.0`, lock was 7.2.0). Turbo-Cat / `faf_auto` / `faf_formats` inherit **by construction** the language Edition rail already shipped on the CLI:

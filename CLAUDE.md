@@ -29,5 +29,5 @@ Persistent project context for Claude — define once, never re-explain
 
 ---
 
-*STATUS: BI-SYNC ACTIVE — 2026-06-30T22:27:24.126Z*
+*STATUS: BI-SYNC ACTIVE — 2026-08-11T16:52:00.346Z*
 <!-- faf:end -->
