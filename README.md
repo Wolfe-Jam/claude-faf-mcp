@@ -3,6 +3,8 @@
 
 # claude-faf-mcp — The GitHub Registry Edition
 
+[![MCP Toplist](https://mcptoplist.com/badge/one.faf%2Fclaude-faf-mcp.svg)](https://mcptoplist.com/server/one.faf%2Fclaude-faf-mcp)
+
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![smithery badge](https://smithery.ai/badge/wolfe-jam/claude-faf-mcp)](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp)
 [![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
