@@ -14,7 +14,6 @@
 
 **Persistent Project Context with Memory, looped for you.** One-click setup. 30 seconds. 🐘 Nelly Never Forgets.
 
-[![FAF](https://mcpaas.live/badge/Wolfe-Jam/claude-faf-mcp.svg)](https://builder.faf.one)
 [![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
