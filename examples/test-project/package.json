@@ -12,7 +12,7 @@
     "next": "^16.0.0",
     "react": "^19.0.0",
     "@anthropic-ai/sdk": "^1.0.0",
-    "drizzle-orm": "^0.40.0"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "typescript": "^6.0.0",
