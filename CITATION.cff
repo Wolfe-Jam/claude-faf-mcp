@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 type: software
-message: "If you use claude-faf-mcp or the .faf / .fafm IANA-registered formats in your work, please cite the format papers in `preferred-citation` and `references` below."
-title: "claude-faf-mcp — Claude Desktop MCP server for .faf and .fafm IANA-registered formats"
+message: "If you use claude-faf-mcp or the .faf / .fafm / .fafa IANA-registered formats in your work, please cite the format papers in `preferred-citation` and `references` below."
+title: "claude-faf-mcp — Claude Desktop MCP server for .faf, .fafm, and .fafa IANA-registered formats"
 authors:
   - family-names: Wolfe
     given-names: James
