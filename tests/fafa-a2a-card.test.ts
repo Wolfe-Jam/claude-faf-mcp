@@ -1,6 +1,8 @@
 import { test, expect } from 'bun:test';
-import { fafaToA2ACard, A2A_PROTOCOL_VERSION } from '../src/fafa/a2a-card';
+import { fafContextBlock } from 'faf-cli';
+import { fafaToA2ACard, A2A_PROTOCOL_VERSION, A2A_CONTEXT_URI } from '../src/fafa/a2a-card';
 
+const GENERATED = '2026-05-04T18:00:00.000Z';
 const FAFA = {
   version: '0.1',
   agent: { name: 'claude-faf-mcp', id: 'did:web:faf.one:claude-faf-mcp', vendor: 'WolfeJAM', version: '5.7.1', description: 'Persistent project context for Claude', homepage: 'https://faf.one' },
@@ -8,9 +10,16 @@ const FAFA = {
     { name: 'faf_score', type: 'tool', description: 'AI-readiness score', tags: ['faf'], apophatic: true },
     { name: 'faf_etch', type: 'tool', description: 'Etch a memory', tags: ['faf'] },
   ],
-  provenance: { faf: './project.faf', mediaType: 'application/vnd.faf+yaml', deterministic: true },
+  provenance: { faf: './project.faf', mediaType: 'application/vnd.faf+yaml', deterministic: true, generated: GENERATED },
 };
 const URL = 'https://mcpaas.live/claude/a2a';
+
+function wantBlock(pointer = './project.faf') {
+  return fafContextBlock(
+    { generated: GENERATED, project: { name: 'claude-faf-mcp' } } as any,
+    { fafPointer: pointer },
+  );
+}
 
 test('maps required A2A v1.0 fields (supportedInterfaces, not top-level url)', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
@@ -48,19 +57,34 @@ test('provider from vendor + homepage', () => {
   expect(c.provider).toEqual({ organization: 'WolfeJAM', url: 'https://faf.one' });
 });
 
-test('FAF context block rides as a one.faf extension under capabilities (NEVER io.faf)', () => {
+test('FAF context block is the projector block (https://faf.one/context, never io.faf, never raw provenance)', () => {
   const c = fafaToA2ACard(FAFA, { url: URL });
-  // v1.0: extensions live under capabilities, not top-level.
   expect((c as any).extensions).toBeUndefined();
   expect(c.capabilities.extensions).toHaveLength(1);
-  expect(c.capabilities.extensions![0].uri).toBe('https://one.faf/context');
+  expect(c.capabilities.extensions![0].uri).toBe(A2A_CONTEXT_URI);
+  expect(A2A_CONTEXT_URI).toBe('https://faf.one/context');
   expect(c.capabilities.extensions![0].uri).not.toContain('io.faf');
-  expect(c.capabilities.extensions![0].params).toEqual(FAFA.provenance);
+  expect(c.capabilities.extensions![0].uri).not.toBe('https://one.faf/context');
+  expect(c.capabilities.extensions![0].params).toEqual(wantBlock());
+  expect(c.capabilities.extensions![0].params).not.toEqual(FAFA.provenance);
+  expect(c.capabilities.extensions![0].params!.version).toBeUndefined();
 });
 
-test('no provenance → no extensions (clean omission)', () => {
+test('unofficial provenance.version is dropped (block only)', () => {
+  const dirty = { ...FAFA, provenance: { ...FAFA.provenance, version: '2.5.2' } };
+  const params = fafaToA2ACard(dirty, { url: URL }).capabilities.extensions![0].params!;
+  expect(params.version).toBeUndefined();
+  expect(params).toEqual(wantBlock());
+});
+
+test('no provenance → still the canonical block', () => {
   const c = fafaToA2ACard({ ...FAFA, provenance: undefined }, { url: URL });
-  expect(c.capabilities.extensions).toBeUndefined();
+  expect(c.capabilities.extensions).toHaveLength(1);
+  expect(c.capabilities.extensions![0].uri).toBe(A2A_CONTEXT_URI);
+  expect(c.capabilities.extensions![0].params!.deterministic).toBe(true);
+  expect(c.capabilities.extensions![0].params!.faf).toBe('./project.faf');
+  expect(c.capabilities.extensions![0].params!.version).toBeUndefined();
+  expect(c.capabilities.extensions![0].params!.iana).toContain('iana.org');
 });
 
 test('default I/O modes present + valid JSON-serializable', () => {
