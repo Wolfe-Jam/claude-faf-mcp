@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v5.21.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.22.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.22.0] - 2026-08-18 — The Projector Floor
+
+A2A mapper uses faf cards — https://faf.one/context, same fafContextBlock() as MCP. Not raw provenance.
+
+### Changed
+- **Compose faf-cli `^7.8.0`** (was `^7.7.0`). Inherits `faf cards` / `generateA2ACard` by construction.
+- **`fafaToA2ACard`** is a thin adapter: `opts.url` is the door; params are `fafContextBlock()` (or `generateA2ACard` when exported). Extension URI is `https://faf.one/context`, never `https://one.faf/context`. Unofficial `provenance.version` is dropped.
+
+### Tests
+- **`tests/fafa-a2a-card.test.ts`** — URI + block lock. `tests/wjttc-edition-compose.test.ts` still the language-rail E2E.
+
+### Notes / non-claims
+- **Claim:** A2A params === `fafContextBlock()`; URI is the dereference `https://faf.one/context`.
+- **Do NOT claim:** CFM serves a live A2A endpoint · invents a door · replaces A2A or MCP cards.
+- **Kill line:** one projector, every door.
+- `server.json` product `title` stays **Claude FAF**.
 
 ## [5.21.0] - 2026-08-11 — The Compose Edition
 

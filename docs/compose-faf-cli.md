@@ -18,7 +18,7 @@ Forking = drift. Composition = one truth.
 | `faf_score` / trust | `scoreFafYaml`, parity helpers |
 | Bridge | `src/utils/faf-cli-bridge.ts` |
 
-**Current pin:** `faf-cli: ^7.7.0` (The Swift Edition floor — includes Go→Swift rail).
+**Current pin:** `faf-cli: ^7.8.0` (The Projector Edition floor — `faf cards` + Go→Swift rail).
 
 ## Update playbook (this MCP and siblings)
 

@@ -30,6 +30,8 @@
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
+> **v5.22.0 — The Projector Floor.** A2A mapper uses faf cards — https://faf.one/context, same fafContextBlock() as MCP. Not raw provenance. Pin `faf-cli ^7.8.0`. Core 12 tools. Language rail still arrives by composition.
+
 > **v5.21.0 — The Compose Edition.** Language Editions arrive by composition — pin faf-cli ^7.7.0 so Core `faf_auto` inherits the CLI rail (Dart · Go · C# · JVM · Ruby · Swift); Core 12 tools; `faf_enhance` removed. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Permanent E2E: `tests/wjttc-edition-compose.test.ts`. Sibling MCP precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
 
 > **v5.20.0 — The GitHub Registry Edition.** claude-faf-mcp joins GitHub's MCP Registry — discoverable in VS Code — as **Claude FAF**, its display title now emitted from `project.faf`, single-sourced and idempotent. The registry derives a display name from the server-card `title`; CFM now provides it through the emitter (`name` + `_meta` + `title`, all composed from `project.faf`, never hand-authored — the BRAKE B1 test enforces emitted == live).
@@ -46,7 +48,7 @@
 
 **Context for Claude:** faf-cli keeps this MCP's CLAUDE.md / AGENTS.md in sync from one scored source — `bunx faf sync`. See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
 
-> 🏆 **Compose floor faf-cli ^7.7.0.** Language Editions (Dart · Go · C# · JVM · Ruby · Swift) arrive **by composition** — Turbo-Cat in faf-cli; CFM does not fork detectors. Bump the dep, retest, ship. Precedent for sibling MCPs: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
+> 🏆 **Compose floor faf-cli ^7.8.0.** `faf cards` + language Editions arrive **by composition**. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
 
 > 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift.
 
@@ -108,7 +110,7 @@ Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm �
 
 **Click** — one-click `.mcpb`
 
-[**⬇ Download `claude-faf-mcp-5.21.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.21.0.mcpb)
+[**⬇ Download `claude-faf-mcp-5.22.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.22.0.mcpb)
 
 Double-click. **Zero-Config — no terminal, no JSON config. 12 Core tools live in 10 seconds.**
 
