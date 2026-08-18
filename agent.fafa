@@ -234,6 +234,7 @@ endpoints:
 provenance:
   faf: ./project.faf
   mediaType: application/vnd.faf+yaml
+  iana: https://www.iana.org/assignments/media-types/application/vnd.faf+yaml
   deterministic: true
   generated: 2026-07-01T04:35:37Z
 metadata:
