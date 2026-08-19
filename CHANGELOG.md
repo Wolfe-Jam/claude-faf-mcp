@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v5.22.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v5.22.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+
+## [5.22.1] - 2026-08-19
+
+Patch — inherits The Projector Floor.
+
+### Fixed
+
+- **README H1 said "The Compose Edition" instead of "The Projector Floor."** The 5.22.0 release commit updated CHANGELOG.md and the README's own What's New blockquote correctly but missed the H1 title line — npm bakes README into the tarball at publish, so the stale title was live. No functional change.
 
 ## [5.22.0] - 2026-08-18 — The Projector Floor
 

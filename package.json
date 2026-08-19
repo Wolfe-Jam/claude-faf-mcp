@@ -1,8 +1,8 @@
 {
   "name": "claude-faf-mcp",
-  "version": "5.22.0",
+  "version": "5.22.1",
   "mcpName": "one.faf/claude-faf-mcp",
-  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 34 MCP tools, 592 tests.",
+  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 34 MCP tools, 594 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
   "displayName": ".faf 🐘",
