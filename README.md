@@ -1,7 +1,7 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 12 Core tools (34 total) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Compose Edition
+# claude-faf-mcp — The Projector Floor
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Smithery](https://img.shields.io/badge/Smithery-listed-00CCFF)](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp)
