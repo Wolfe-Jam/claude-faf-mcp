@@ -2,7 +2,7 @@ export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     if (pathname === "/mcp/server-card") {
-      return Response.redirect("https://mcpaas.live/mcp/server-card", 308);
+      return Response.redirect("https://mcpaas.live/claude/mcp/v1/server-card", 308);
     }
     if (pathname === "/sse" || pathname === "/mcp" || pathname.startsWith("/mcp/")) {
       return Response.redirect("https://mcpaas.live/claude/mcp/v1", 308);
