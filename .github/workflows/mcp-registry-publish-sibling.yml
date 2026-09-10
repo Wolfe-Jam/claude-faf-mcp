@@ -1,0 +1,64 @@
+name: 📡 MCP Registry Publish — sibling one.faf server (DNS)
+
+# Publish ANOTHER one.faf/* server's server.json with THIS repo's DNS key.
+# Why: the faf.one DNS key is shared across every one.faf/* server but GitHub
+# secrets are per-repo and cannot be read back. A sibling that never received
+# the secret (faf-mcp, 2026-09-10) can still be published from here without
+# the key ever leaving GitHub. Manual only — nothing fires this on its own.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Sibling repo (owner/name) whose server.json to publish'
+        required: true
+        default: 'Wolfe-Jam/faf-mcp'
+      ref:
+        description: 'Tag or ref of that repo to publish (server.json version must match)'
+        required: true
+        default: 'v3.0.0'
+
+jobs:
+  publish-sibling:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the sibling repo at the release tag
+        uses: actions/checkout@v7
+        with:
+          repository: ${{ inputs.repo }}
+          ref: ${{ inputs.ref }}
+
+      - name: Install mcp-publisher
+        run: |
+          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
+          tar -xzf mcp-publisher.tar.gz && chmod +x ./mcp-publisher
+
+      - name: Verify server.json is one.faf/* and its version matches the ref
+        run: |
+          NAME=$(node -p "require('./server.json').name")
+          case "$NAME" in one.faf/*) ;; *) echo "::error::server.json name '$NAME' is not one.faf/* — this key cannot publish it"; exit 1;; esac
+          TAG="${{ inputs.ref }}"; TAG="${TAG#v}"
+          MV=$(node -p "require('./server.json').version")
+          [ "$TAG" = "$MV" ] || { echo "::error::server.json $MV != ref $TAG"; exit 1; }
+          echo "publishing $NAME $MV"
+
+      - name: Login via DNS (one.faf namespace)
+        run: ./mcp-publisher login dns --domain faf.one --private-key "${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}"
+
+      - name: Publish to MCP Registry
+        run: ./mcp-publisher publish server.json
+
+      - name: Round-trip verify (version-detail endpoint, publisher-provided receipt lives in server._meta)
+        run: |
+          ENC=$(node -p "encodeURIComponent(require('./server.json').name)")
+          VER=$(node -p "require('./server.json').version")
+          for i in 1 2 3 4 5; do
+            OUT=$(curl -s --max-time 20 "https://registry.modelcontextprotocol.io/v0.1/servers/${ENC}/versions/${VER}" | node -e '
+              let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const j=JSON.parse(d);const s=j.server||{};const pp=(s._meta||{})["io.modelcontextprotocol.registry/publisher-provided"]||{};console.log((pp["one.faf/context"]?"ok":"no-ctx")+" "+(s.version||""))}catch{console.log("lag")}})')
+            case "$OUT" in
+              ok\ *) echo "✅ live + serves one.faf/context — $OUT"; exit 0;;
+              no-ctx\ *) echo "⚠️ live but no one.faf/context receipt — $OUT"; exit 0;;
+              *) echo "⏳ not consistent yet ($i/5)"; sleep 8;;
+            esac
+          done
+          echo "::warning::registry detail endpoint not consistent after retries — verify manually"
