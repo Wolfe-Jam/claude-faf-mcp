@@ -1,0 +1,36 @@
+name: 🔑 Copy one.faf registry key to a sibling repo
+
+# One-off, manual. Copies THIS repo's FAF_ONE_MCP_PRIVATE_KEY into a sibling
+# repo's Actions secrets so that sibling can DNS-publish its own one.faf/*
+# server on release. GitHub secrets cannot be read back, so this is the only
+# way to move the key without it leaving GitHub or touching DNS.
+#
+# Needs SIBLING_SECRETS_PAT in this repo: a fine-grained PAT scoped to the
+# target repo only, Repository permissions → Secrets: Read and write, short
+# expiry. Delete the PAT after the copy. Nothing fires this on its own.
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        description: 'Sibling repo (owner/name) that should receive the key'
+        required: true
+        default: 'Wolfe-Jam/faf-mcp'
+
+jobs:
+  copy-key:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy FAF_ONE_MCP_PRIVATE_KEY into the sibling repo
+        env:
+          GH_TOKEN: ${{ secrets.SIBLING_SECRETS_PAT }}
+          KEY: ${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}
+          TARGET: ${{ inputs.repo }}
+        run: |
+          set -euo pipefail
+          [ -n "$GH_TOKEN" ] || { echo "::error::SIBLING_SECRETS_PAT is not set in this repo"; exit 1; }
+          [ -n "$KEY" ]      || { echo "::error::FAF_ONE_MCP_PRIVATE_KEY is not set in this repo"; exit 1; }
+          echo "source secret length: ${#KEY} chars (64 = hex private key)"
+          printf '%s' "$KEY" | gh secret set FAF_ONE_MCP_PRIVATE_KEY --repo "$TARGET"
+          echo "Secrets now in $TARGET:"
+          gh secret list --repo "$TARGET"
