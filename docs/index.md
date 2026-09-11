@@ -19,7 +19,7 @@ title: claude-faf-mcp
   }
 </style>
 
-> Official MCP server for FAF (Foundational AI-context Format) with 50 tools - Persistent project context that integrates seamlessly with Claude Desktop workflows
+> Official MCP server for FAF (Foundational AI-context Format) — Core 12 tools, 34 with FAF_TOOLS=all - Persistent project context that integrates seamlessly with Claude Desktop workflows
 
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=total%20downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lnecebepmpjpilldfmndnaofbfjkjlkm)
@@ -46,14 +46,14 @@ At 55% you are building your project with half a blueprint and basically flippin
 
 📊 CORE INTELLIGENCE                    🎯 CONTEXT DELIVERY
 ├─ Project DNA            [██████] 100%  ├─ MCP Protocol      [██████] 100%
-├─ Architecture Map       [██████] 100%  ├─ 50 Native Tools   [██████] 100%
+├─ Architecture Map       [██████] 100%  ├─ 34 Native Tools   [██████] 100%
 ├─ Domain Model          [██████] 100%  ├─ IANA Format       [██████] 100%
 └─ Version Tracking      [██████] 100%  └─ Universal Context [██████] 100%
 
 🚀 PERFORMANCE                          ⚡ STANDALONE OPERATION
 ├─ 16.2x CLI Speedup     [██████] 100%  ├─ Zero Dependencies [██████] 100%
 ├─ 19ms Avg Execution    [██████] 100%  ├─ Bundled Engine    [██████] 100%
-├─ 50/50 Tools Active    [██████] 100%  ├─ Direct Function   [██████] 100%
+├─ 34/34 Tools Active    [██████] 100%  ├─ Direct Function   [██████] 100%
 └─ Zero Memory Leaks     [██████] 100%  └─ 14 Bundled Cmds   [██████] 100%
 
 🏆 project.faf score: podium
@@ -107,7 +107,7 @@ Any LLM  →   IANA Format →    Open Protocol
 
 ## 🛠️ Core Features
 
-### 50 MCP Tools (100% Standalone)
+### MCP Tools — Core 12, 34 with FAF_TOOLS=all (100% Standalone)
 - **faf_quick** - Lightning-fast project.faf creation (3ms avg)
 - **faf_enhance** - Intelligent enhancement with auto-detection
 - **faf_read** - Parse and validate FAF files
@@ -135,7 +135,7 @@ Any LLM  →   IANA Format →    Open Protocol
 - **[Full README](https://github.com/Wolfe-Jam/claude-faf-mcp#readme)** - Complete documentation
 - **[FAQ](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/FAQ.md)** - Common questions
 - **[Getting Started](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/getting-started.md)** - Installation & setup
-- **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)** - All 50 tools
+- **[MCP Tools Reference](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)** - Core 12, 34 with FAF_TOOLS=all
 - **[Website](https://faf.one)** - faf.one
 
 ---

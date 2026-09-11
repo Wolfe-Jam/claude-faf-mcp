@@ -33,7 +33,7 @@ export type CreditCategory =
   | 'ai_compatibility'        // AI happiness boost
   | 'performance'            // Speed improvements
   | 'completeness'           // More complete context
-  | 'sync_harmony'           // Bi-directional sync success
+  | 'sync_harmony'           // CLAUDE.md sync success
   | 'stack_discovery'        // New stack identified
   | 'trust_building';        // Trust score improvements
 
@@ -328,7 +328,7 @@ export async function autoAwardCredit(
     sync_success: {
       action: 'Synchronized files',
       category: 'sync_harmony',
-      impact: 'Bi-sync harmony maintained'
+      impact: 'CLAUDE.md kept in sync with project.faf'
     },
     validation_passed: {
       action: 'Validation successful',

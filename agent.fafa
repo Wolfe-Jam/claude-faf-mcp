@@ -1,5 +1,5 @@
 # claude-faf-mcp — FAF Agent Card (.fafa)
-# Generated from package.json + manifest.json + server.json. Capabilities = the live MCP tools.
+# Authored from package.json + manifest.json + server.json. Capabilities = the live MCP tools.
 # Provenance is the canonical FAF context block (one context, every door).
 
 version: "0.1"
@@ -57,12 +57,6 @@ capabilities:
   - name: faf_sync
     type: tool
     description: Sync project.faf into CLAUDE.md as a faf-managed block, and optionally into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini), and .github/copilot-instructions.md (copilot) — or all of them (all). Updates each block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_enhance
-    type: tool
-    description: Refine a project.faf with an AI model (claude/gemini/grok, optionally by consensus). Returns the enhanced content, or a dry-run preview when dryRun is set. Use this to polish after faf_auto and faf_go have filled the slots.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -140,7 +134,7 @@ capabilities:
       - faf
   - name: faf_auto
     type: tool
-    description: Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can't detect, and faf_enhance to have an AI refine the result.
+    description: Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can't detect. Also writes CLAUDE.md's faf-managed block from the result.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -200,13 +194,13 @@ capabilities:
       - faf
   - name: faf_git
     type: tool
-    description: Generate project.faf from any GitHub repo URL - 1-click context extraction!
+    description: Author project.faf from any GitHub repo URL — 1-click context extraction.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_tri_sync
     type: tool
-    description: Tri-directionally sync project.faf ↔ CLAUDE.md ↔ MEMORY.md so context persists across sessions.
+    description: Write MEMORY.md from project.faf (tri-sync; faf_sync writes CLAUDE.md)
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf

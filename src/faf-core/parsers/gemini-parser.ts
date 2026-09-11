@@ -14,7 +14,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import { injectFafBlock } from '../inject';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 // ============================================================================
 // Types
@@ -291,7 +291,8 @@ export async function geminiExport(
 
   // Write file — non-destructive: inject/update the faf block, preserve the rest.
   const content = lines.join('\n');
-  await injectFafBlock(outputPath, content);
+  const { injectFafBlock } = await fafCli;
+  injectFafBlock(outputPath, content);
 
   return {
     success: true,

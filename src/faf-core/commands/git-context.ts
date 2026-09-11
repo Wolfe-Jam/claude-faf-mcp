@@ -1,7 +1,7 @@
 /**
  * Git Context Command - v4.5.0 Interop Edition
  *
- * Generate project.faf from a GitHub repository URL.
+ * Author project.faf from a GitHub repository URL.
  * Fetches metadata, README, package.json — no cloning needed.
  * Bundled command — no CLI dependency required.
  */
@@ -32,7 +32,7 @@ export interface GitContextResult {
 }
 
 /**
- * Generate project.faf from a GitHub URL
+ * Author project.faf from a GitHub URL
  */
 export async function gitContextCommand(
   url: string,
@@ -69,7 +69,9 @@ export async function gitContextCommand(
 
     return {
       success: true,
-      message: `Generated project.faf for ${owner}/${repo} — Score: ${score}% (${tier})`,
+      message: filePath
+        ? `Wrote project.faf for ${owner}/${repo} — Score: ${score}% (${tier})`
+        : `Authored project.faf for ${owner}/${repo} (preview, not written) — Score: ${score}% (${tier})`,
       data: {
         owner,
         repo,

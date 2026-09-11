@@ -7,7 +7,7 @@
  * - Birth DNA (Initial score from CLAUDE.md)
  * - Growth Record (Version history)
  * - Life Events (Log of all changes)
- * - Immortality (Disaster recovery through bi-sync)
+ * - Immortality (Disaster recovery through sync)
  */
 
 import { promises as fs } from 'fs';

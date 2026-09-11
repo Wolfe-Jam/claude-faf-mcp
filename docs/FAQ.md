@@ -8,7 +8,7 @@ A Model Context Protocol server that enhances Claude Desktop with project intell
 
 ### Do I need the FAF CLI installed?
 
-No. As of v3.0.5, the MCP server is 100% standalone with all 50 tools operational. Zero CLI dependencies required.
+No. As of v3.0.5, the MCP server is 100% standalone. Tools: Core 12, 34 with FAF_TOOLS=all. Zero CLI dependencies required.
 
 ### What's the difference between FAF and FAF MCP?
 
@@ -66,17 +66,15 @@ Check after significant changes to documentation or project structure. The score
 
 ### What commands are available?
 
-All 50 MCP tools work natively (no CLI required):
-- **Core Tools**: `faf_score`, `faf_detect`, `faf_list`, `faf_read`, `faf_write`
-- **Advanced Tools**: `faf_init`, `faf_enhance`, `faf_quick`, `faf_sync`, `faf_trust`
-- **Utilities**: `faf_debug`, `faf_status`, `faf_clear`, `faf_migrate`, `faf_formats`
-- **Plus**: 35+ additional specialized tools
+Core 12, 34 with FAF_TOOLS=all — all native (no CLI required):
+- **Core (advertised by default)**: `faf_init`, `faf_auto`, `faf_go`, `faf_bench`, `faf_score`, `faf_doctor`, `faf_sync`, `faf_context`, `faf_trust`, `faf_about`, `faf_etch`, `faf_recall`
+- **Extended (`FAF_TOOLS=all`)**: 22 more — still callable by name when not advertised
 
 As of v3.0.5, all features are bundled and operational standalone.
 
-### What is bi-directional sync?
+### What does faf_sync do?
 
-A feature (currently in development) that keeps .faf and CLAUDE.md files synchronized automatically. The current version is being redesigned.
+It writes CLAUDE.md from project.faf, one direction; only the faf-managed block changes, and everything you wrote outside it is kept. Flags add AGENTS.md, .cursorrules, GEMINI.md and .github/copilot-instructions.md (`all` writes every one).
 
 ## Troubleshooting
 

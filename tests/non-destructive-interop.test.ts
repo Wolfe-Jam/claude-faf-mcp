@@ -1,7 +1,7 @@
 /**
  * Non-destructive interop — regression guard for the file-wipe bug.
  * The export parsers must ENHANCE an existing AGENTS.md / GEMINI.md / .cursorrules
- * (and CLAUDE.md via bi-sync), never replace them. Enhance, never replace.
+ * (and CLAUDE.md via faf_sync), never replace them. Enhance, never replace.
  */
 import { describe, test, expect } from 'bun:test';
 import { mkdtempSync, promises as fs } from 'fs';
@@ -10,7 +10,10 @@ import { tmpdir } from 'os';
 import { agentsExport } from '../src/faf-core/parsers/agents-parser';
 import { geminiExport } from '../src/faf-core/parsers/gemini-parser';
 import { cursorExport } from '../src/faf-core/parsers/cursorrules-parser';
-import { injectFafBlock } from '../src/faf-core/inject';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
+
+// The block writer is faf-cli's own injector (the local port was retired in 5.23).
+const { injectFafBlock } = await fafCli;
 
 const DATA: any = {
   project: { name: 'Demo', goal: 'a small api', main_language: 'TypeScript' },

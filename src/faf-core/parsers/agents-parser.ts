@@ -14,7 +14,7 @@
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import { injectFafBlock } from '../inject';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 // ============================================================================
 // Types
@@ -337,12 +337,13 @@ export async function agentsExport(
 
   // Footer
   lines.push('---');
-  lines.push(`*Generated from project.faf by claude-faf-mcp — ${new Date().toISOString().split('T')[0]}*`);
+  lines.push(`*Written from project.faf by claude-faf-mcp — ${new Date().toISOString().split('T')[0]}*`);
   lines.push('');
 
   // Write file — non-destructive: inject/update the faf block, preserve the rest.
   const content = lines.join('\n');
-  await injectFafBlock(outputPath, content);
+  const { injectFafBlock } = await fafCli;
+  injectFafBlock(outputPath, content);
 
   return {
     success: true,

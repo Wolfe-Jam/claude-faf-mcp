@@ -12,13 +12,17 @@ Forking = drift. Composition = one truth.
 
 | Surface | Composed from faf-cli |
 |---------|------------------------|
+| `faf_init` / `faf_auto` (and `faf_go`'s bootstrap) — project.faf | `assembleFreshFaf`, `updateExistingFaf`, `writeFaf`, `readFaf`, `readFafRaw`, `scoreFafYaml` |
 | `faf_auto` / `faf_formats` | `turboCatScan`, `turboCatSlots` |
+| `faf_sync` / `faf_auto` CLAUDE.md step / SessionStart hook — CLAUDE.md | `renderClaudeMd`, `writeClaudeMd`, `readFaf`, `findFafBlock` |
+| AGENTS.md / .cursorrules / GEMINI.md / copilot-instructions.md block writes | `injectFafBlock` |
+| `faf_etch` — soul.fafm | `FafmSoul` |
 | `faf_go` Table-of-8 | `SIX_WS_INTERVIEW`, `buildTableOf8` |
 | `faf_readme` / human extract | `relentlessContext` |
 | `faf_score` / trust | `scoreFafYaml`, parity helpers |
 | Bridge | `src/utils/faf-cli-bridge.ts` |
 
-**Current pin:** `faf-cli: ^7.8.0` (The Projector Edition floor — `faf cards` + Go→Swift rail).
+**Current pin:** `faf-cli: ^7.12.1` (The Open Renderers Edition — public renderers, injector, `updateExistingFaf`, `writeFaf`).
 
 ## Update playbook (this MCP and siblings)
 

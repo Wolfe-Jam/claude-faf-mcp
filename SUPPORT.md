@@ -26,7 +26,7 @@ which claude-faf-mcp  # Should show installation path
 **Issue**: Claude Desktop not detecting MCP server
 
 **Solution**: Check your config file:
-- macOS/Linux: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 Verify JSON syntax and restart Claude Desktop.
@@ -61,7 +61,7 @@ npm run build
 **Solution**:
 - Verify both files are in project root
 - Check file permissions (must be writable)
-- Run `faf_bi_sync` to force synchronization
+- Run `faf_sync` — it rewrites CLAUDE.md's faf-managed block from project.faf (your own content outside the block is kept)
 
 ## Getting Help
 
@@ -172,9 +172,9 @@ When seeking help:
 
 ## Version Support
 
-- **Current version (2.x)**: Full support
-- **Previous minor versions (2.x-1)**: Security fixes only
-- **Versions < 2.0**: No longer supported
+- **Current version (5.x)**: Full support
+- **Previous major version (4.x)**: Security fixes only
+- **Versions < 4.0**: No longer supported
 
 Always update to the latest version:
 ```bash

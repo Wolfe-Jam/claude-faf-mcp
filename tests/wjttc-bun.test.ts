@@ -459,7 +459,7 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
     // default surface — so the headline feature was unreachable from the Core
     // sync tool. 5.14.1 collapses the format flags onto faf_sync (Core) and
     // removes faf_bi_sync. Unlike faf_agents (which shells out to a subprocess),
-    // faf_sync's format path runs the bundled bi-sync engine in-process, so with
+    // faf_sync's format path runs the bundled 'claude' engine command in-process, so with
     // a seeded project.faf the file MUST materialize. This is the guard that
     // would have caught the original gap.
     test('faf_sync with copilot:true writes .github/copilot-instructions.md', async () => {

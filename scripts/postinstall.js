@@ -15,10 +15,10 @@ const fs = require('fs');
 
 const message = `
 \x1b[32m✓\x1b[0m claude-faf-mcp@${packageJson.version} installed successfully
-  32 MCP tools ready
+  12 Core MCP tools ready (34 with FAF_TOOLS=all)
 
 Test in Claude Desktop:
-  "Extract context from my README"
+  "What's my AI-readiness score?"
 
 \x1b[33m⭐\x1b[0m If this helps, a star compounds:
   https://github.com/Wolfe-Jam/claude-faf-mcp

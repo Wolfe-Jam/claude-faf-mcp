@@ -16,7 +16,7 @@ import path from 'path';
 import { promises as fs } from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
 import { parse as parseYAML } from '../fix-once/yaml.js';
-import { injectFafBlock } from '../inject.js';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 export interface CopilotCommandResult {
   success: boolean;
@@ -53,7 +53,7 @@ export function generateCopilotInstructions(fafContent: any): string {
   lines.push(`# GitHub Copilot Instructions — ${name}`);
   lines.push('');
   lines.push(
-    '> Generated from project.faf by claude-faf-mcp. Copilot reads these instructions on every request in this repository — keep them short and broadly applicable.',
+    '> Written from project.faf by claude-faf-mcp. Copilot reads these instructions on every request in this repository — keep them short and broadly applicable.',
   );
   lines.push('');
 
@@ -142,7 +142,8 @@ export async function copilotExportCommand(
 
   // Copilot-grade content — distinct from AGENTS.md, injected non-destructively.
   const content = generateCopilotInstructions(fafData);
-  await injectFafBlock(outputPath, content);
+  const { injectFafBlock } = await fafCli;
+  injectFafBlock(outputPath, content);
 
   return {
     success: true,

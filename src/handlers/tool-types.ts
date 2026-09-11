@@ -46,11 +46,6 @@ export interface FafSyncArgs {
   direction?: string;
 }
 
-export interface FafBiSyncArgs {
-  watch?: boolean;
-  force?: boolean;
-}
-
 // Trust Suite Args
 export interface FafTrustArgs {
   mode?: 'confidence' | 'garage' | 'panic' | 'validated';

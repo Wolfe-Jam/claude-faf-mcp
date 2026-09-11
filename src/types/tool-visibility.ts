@@ -240,7 +240,7 @@ export const TOOL_REGISTRY: Record<string, ToolMetadata> = {
     name: 'faf_sync',
     visibility: 'core',
     category: 'sync',
-    description: 'Sync .faf with CLAUDE.md - Bi-directional context',
+    description: 'Sync .faf into CLAUDE.md (+ any AI format)',
     priority: 1,
   },
   faf_update: {

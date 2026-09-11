@@ -63,7 +63,7 @@ Run this sequence yourself, end to end:
 
 4. **Verify** — \`faf_trust\`. Attests the 100% with a determinism parity hash any engine reproduces — a ✪ receipt, not a claim. FAF don't lie, and now it's provable.
 
-5. **Lock** — \`faf_tri_sync\` writes the one source of truth into CLAUDE.md and MEMORY.md. Not finished until synced.
+5. **Lock** — \`faf_sync\` writes CLAUDE.md's faf-managed block; \`faf_tri_sync\` writes MEMORY.md. Not finished until both are written.
 
 6. **Keep it that way** — run \`faf_setup\` to install the session hook so the verified 100% refreshes every session and they never run this again. (Previews and confirms before writing — never silent.)
 

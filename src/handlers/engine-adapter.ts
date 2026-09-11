@@ -8,7 +8,7 @@ import { scoreFafFile } from '../faf-core/commands/score.js';
 import { initFafFile } from '../faf-core/commands/init.js';
 import { autoCommand } from '../faf-core/commands/auto.js';
 import { syncFafFile } from '../faf-core/commands/sync.js';
-import { syncBiDirectional } from '../faf-core/commands/bi-sync.js';
+import { claudeExportCommand } from '../faf-core/commands/claude.js';
 import { formatsCommand } from '../faf-core/commands/formats.js';
 import { doctorCommand } from '../faf-core/commands/doctor.js';
 import { validateFafFile } from '../faf-core/commands/validate.js';
@@ -276,12 +276,13 @@ export class FafEngineAdapter {
       }
     }
 
-    // BI-SYNC command - use bundled bi-sync (v4.5.0: supports agents/cursor/gemini/all flags)
-    if (command === 'bi-sync' || command === 'bisync') {
+    // CLAUDE command - write CLAUDE.md from project.faf via faf-cli (+ agents/cursor/gemini/copilot/all flags).
+    // 'bi-sync' and 'bisync' are the pre-5.23 names, kept as aliases.
+    if (command === 'claude' || command === 'bi-sync' || command === 'bisync') {
       try {
         const pathArgs = args.filter(arg => !arg.startsWith('--') && !arg.startsWith('-'));
         const projectPath = pathArgs[0] || this.workingDirectory;
-        const result = await syncBiDirectional(projectPath, {
+        const result = await claudeExportCommand(projectPath, {
           json: true,
           agents: args.includes('--agents'),
           cursor: args.includes('--cursor'),
@@ -300,7 +301,7 @@ export class FafEngineAdapter {
         const duration = Date.now() - startTime;
         return {
           success: false,
-          error: isError(error) ? error.message : 'Bi-sync command failed',
+          error: isError(error) ? error.message : 'CLAUDE.md write failed',
           duration
         };
       }

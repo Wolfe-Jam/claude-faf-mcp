@@ -155,7 +155,7 @@ export async function agentsExportCommand(
 }
 
 /**
- * Sync AGENTS.md <-> project.faf (FAF is source of truth by default)
+ * Sync project.faf → AGENTS.md — the same as export with force; project.faf is the source of truth.
  */
 export async function agentsSyncCommand(
   projectPath: string

@@ -681,8 +681,10 @@ stack_signature: typescript-react
 
         await toolHandler.callTool('faf_auto', { path: existingDir });
 
+        // 5.23: faf_auto writes faf-cli's managed block; the hand-written file is kept byte-for-byte.
         const afterContent = fs.readFileSync(path.join(existingDir, 'CLAUDE.md'), 'utf-8');
-        expect(afterContent).toBe(originalContent);
+        expect(afterContent.endsWith(originalContent)).toBe(true);
+        expect(afterContent.match(/^<!-- faf:start -->$/gm)?.length).toBe(1);
       });
 
       it('faf_formats should handle project with no known formats', async () => {

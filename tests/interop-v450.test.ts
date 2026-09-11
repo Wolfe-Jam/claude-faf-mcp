@@ -762,19 +762,28 @@ describe('TIER 4: Engine Adapter', () => {
     });
   });
 
-  describe('BiSync options support new flags', () => {
-    it('bi-sync module should export BiSyncOptions with interop fields', async () => {
-      const mod = await import('../src/faf-core/commands/bi-sync');
-      expect(typeof mod.syncBiDirectional).toBe('function');
-      expect(typeof mod.fafToClaudeMd).toBe('function');
+  describe('Claude export supports the format flags', () => {
+    it('claude module should export claudeExportCommand (the local CLAUDE.md port is gone)', async () => {
+      const mod: any = await import('../src/faf-core/commands/claude');
+      expect(typeof mod.claudeExportCommand).toBe('function');
+      expect(mod.fafToClaudeMd).toBeUndefined();
     });
 
-    it('fafToClaudeMd should generate valid CLAUDE.md content', async () => {
-      const { fafToClaudeMd } = await import('../src/faf-core/commands/bi-sync');
-      const fafContent = `project:\n  name: BiSync Test\n  goal: Test bi-sync output\ncontext_quality:\n  overall_assessment: Excellent\ninstant_context:\n  tech_stack: TypeScript + Node.js\n  what_building: MCP Server\n  main_language: TypeScript`;
-      const result = fafToClaudeMd(fafContent);
-      expect(result).toContain('BiSync Test');
-      expect(result).toContain('BI-SYNC ACTIVE');
+    it('claudeExportCommand should write valid CLAUDE.md content', async () => {
+      const { claudeExportCommand } = await import('../src/faf-core/commands/claude');
+      const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'faf-claude-export-'));
+      try {
+        const fafContent = `project:\n  name: Claude Export Test\n  goal: Test CLAUDE.md output\ncontext_quality:\n  overall_assessment: Excellent\ninstant_context:\n  tech_stack: TypeScript + Node.js\n  what_building: MCP Server\n  main_language: TypeScript`;
+        await fs.writeFile(path.join(dir, 'project.faf'), fafContent);
+        const result = await claudeExportCommand(dir, { json: true });
+        expect(result.success).toBe(true);
+        const md = await fs.readFile(path.join(dir, 'CLAUDE.md'), 'utf-8');
+        expect(md).toContain('Claude Export Test');
+        expect(md).toContain('STATUS: SYNC ACTIVE');
+        expect(md).not.toContain('BI-SYNC');
+      } finally {
+        await fs.rm(dir, { recursive: true, force: true });
+      }
     });
   });
 
@@ -1049,17 +1058,24 @@ describe('TIER 7: Roundtrip', () => {
     expect(importResult.faf.project.name).toBe('Gemini Roundtrip');
   });
 
-  it('BiSync should generate valid CLAUDE.md from project.faf', async () => {
+  it('claudeExportCommand should write valid CLAUDE.md from project.faf', async () => {
     const fafPath = path.join(tmpDir, 'project.faf');
-    await fs.writeFile(fafPath, `project:\n  name: BiSync Roundtrip\n  goal: Prove bi-sync works\ncontext_quality:\n  overall_assessment: Good\ninstant_context:\n  tech_stack: TypeScript\n  what_building: MCP Server\n  main_language: TypeScript\n`);
+    // The pre-5.23 roundtrip fixture: language and stack live ONLY under instant_context.
+    await fs.writeFile(fafPath, `project:\n  name: Claude Roundtrip\n  goal: Prove the CLAUDE.md write works\ncontext_quality:\n  overall_assessment: Good\ninstant_context:\n  tech_stack: TypeScript\n  what_building: MCP Server\n  main_language: TypeScript\n`);
 
-    const { fafToClaudeMd } = await import('../src/faf-core/commands/bi-sync');
-    const fafContent = await fs.readFile(fafPath, 'utf-8');
-    const claudeMd = fafToClaudeMd(fafContent);
+    const { claudeExportCommand } = await import('../src/faf-core/commands/claude');
+    const result = await claudeExportCommand(tmpDir, { json: true });
+    const claudeMd = await fs.readFile(path.join(tmpDir, 'CLAUDE.md'), 'utf-8');
 
-    expect(claudeMd).toContain('BiSync Roundtrip');
-    expect(claudeMd).toContain('BI-SYNC ACTIVE');
-    expect(claudeMd).toContain('TypeScript');
+    expect(result.direction).toBe('faf-to-claude');
+    expect(claudeMd).toContain('Claude Roundtrip');
+    expect(claudeMd).toContain('STATUS: SYNC ACTIVE');
+    // 5.23: CLAUDE.md is faf-cli's renderClaudeMd, which renders project.* /
+    // stack.* / human_context.* only. The old local port fell back to
+    // instant_context (Language / Stack); faf-cli does not, so none of it shows.
+    expect(claudeMd).not.toContain('**Language:**');
+    expect(claudeMd).not.toContain('## Stack');
+    expect(claudeMd).not.toContain('TypeScript');
     expect(claudeMd.length).toBeGreaterThan(100);
   });
 

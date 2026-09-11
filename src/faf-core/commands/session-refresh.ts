@@ -2,23 +2,31 @@
  * Session refresh — Trust Edition Pillar 5 (the hook action).
  *
  * What the Claude Code SessionStart hook runs: ONE cheap, deterministic action —
- * refresh CLAUDE.md's faf-managed block from project.faf, non-destructively —
+ * refresh CLAUDE.md's faf-managed block from project.faf, non-destructively
+ * (faf-cli's renderClaudeMd, written through faf-cli's writeClaudeMd) —
  * then hand over the baton: a ONE-LINE heartbeat carrying the ✪-ladder seal and
  * score. The line is a relay — it proves the native integration is alive (a
  * silent hook is indistinguishable from a broken one) and it grounds the model
  * ("a current .faf exists, score N%, don't re-derive the project").
  *
- * Freshness gate: if CLAUDE.md already carries the faf markers and is at least
- * as new as project.faf, nothing is WRITTEN — no write, no mtime churn — but
- * the heartbeat still speaks. Only non-faf directories stay fully silent: the
- * hook never talks where it has no business.
+ * Freshness gate: if CLAUDE.md already carries a current faf block (faf-cli's
+ * "STATUS: SYNC ACTIVE" footer) and is at least as new as project.faf, nothing
+ * is WRITTEN — no write, no mtime churn — but the heartbeat still speaks. A
+ * block from an older writer (CFM ≤5.22 or faf-cli ≤7.12.0, footed "STATUS:
+ * BI-SYNC ACTIVE") is stale and is rewritten once. Only non-faf directories
+ * stay fully silent: the hook never talks where it has no business.
+ *
+ * Nothing is written from a project.faf that is not a YAML mapping (empty,
+ * scalar, list or malformed): the hook returns 'error' and CLAUDE.md is kept.
  */
 import * as path from 'path';
 import { promises as fs } from 'fs';
 import { parse as parseYAML } from 'yaml';
-import { injectFafBlock, FAF_START } from '../inject';
-import { fafToClaudeMd } from './bi-sync';
+import { parse as parseFafYaml } from '../fix-once/yaml';
 import { sealForScore } from '../../trust/receipt';
+
+/** faf-cli's current CLAUDE.md footer. Not a substring of the old "STATUS: BI-SYNC ACTIVE". */
+const CURRENT_FOOTER = 'STATUS: SYNC ACTIVE';
 
 export type SessionRefreshAction = 'fresh' | 'refreshed' | 'created' | 'no-faf' | 'error';
 
@@ -99,23 +107,40 @@ export async function sessionRefresh(projectDir: string = process.cwd()): Promis
     const intent = intentCount(fafContent);
     const intentSuffix = intent > 0 ? ` · +${intent} intent the code can't carry` : '';
 
-    // Freshness gate: markers present + CLAUDE.md at least as new as project.faf
-    // → no WRITE (no mtime churn), but the heartbeat still hands over the baton.
-    if (claudeStat && claudeContent !== null && claudeContent.includes(FAF_START) && claudeStat.mtimeMs >= fafStat.mtimeMs) {
+    // CLAUDE.md is faf-cli's own bytes: its renderer, its block finder, its injector.
+    const { findFafBlock, readFaf, renderClaudeMd, writeClaudeMd } =
+      await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
+
+    // Freshness gate: a CURRENT faf block (faf-cli's footer) + CLAUDE.md at least
+    // as new as project.faf → no WRITE (no mtime churn), but the heartbeat still
+    // hands over the baton. An older writer's block is stale: rewritten once.
+    const found = claudeContent !== null ? findFafBlock(claudeContent) : null;
+    const current = found !== null && claudeContent !== null &&
+      claudeContent.slice(found.start, found.end).includes(CURRENT_FOOTER);
+    if (claudeStat && current && claudeStat.mtimeMs >= fafStat.mtimeMs) {
       return { action: 'fresh', message: `faf: context ${seal ? `${seal} — ` : ''}fresh${intentSuffix}`.replace('  ', ' ') };
     }
 
-    const block = fafToClaudeMd(fafContent);
-    await injectFafBlock(claudeMdPath, block);
+    // Unattended write: project.faf must be a YAML mapping. Empty / scalar / list /
+    // malformed throws here → 'error', and CLAUDE.md is left exactly as it was.
+    parseFafYaml(fafContent, { filepath: fafPath });
+
+    writeClaudeMd(projectDir, renderClaudeMd(readFaf(fafPath)));
 
     return claudeStat === null
       ? { action: 'created', message: `faf: CLAUDE.md created${seal ? ` — ${seal}` : ''}${intentSuffix}` }
       : { action: 'refreshed', message: `faf: context refreshed${seal ? ` — ${seal}` : ''}${intentSuffix}` };
   } catch (error) {
-    // Never break a session start. Quiet diagnostic on stderr is the caller's call.
+    // Never break a session start. Quiet diagnostic on stderr is the caller's call:
+    // one line, no colour codes (the parser's message is multi-line and coloured).
+    const reason = (error instanceof Error ? error.message : String(error))
+      // eslint-disable-next-line no-control-regex
+      .replace(/\x1b\[[0-9;]*m/g, '')
+      .split('\n')[0]
+      .trim();
     return {
       action: 'error',
-      message: `faf: session refresh skipped (${error instanceof Error ? error.message : String(error)})`,
+      message: `faf: session refresh skipped (${reason})`,
     };
   }
 }

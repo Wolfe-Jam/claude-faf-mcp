@@ -150,7 +150,7 @@ export async function cursorExportCommand(
 }
 
 /**
- * Sync .cursorrules <-> project.faf
+ * Sync project.faf → .cursorrules — the same as export with force; project.faf is the source of truth.
  */
 export async function cursorSyncCommand(
   projectPath: string

@@ -22,7 +22,7 @@ Returns a 0-100% score with tier (Bronze/Silver/Gold/Trophy).
 ```
 Run faf_sync on the test project
 ```
-Generates `CLAUDE.md` from the `.faf` context.
+Writes `CLAUDE.md` from the `.faf` context.
 
 ### 4. Check health
 ```

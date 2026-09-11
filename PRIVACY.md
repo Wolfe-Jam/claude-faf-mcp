@@ -9,13 +9,13 @@ FAF processes everything locally on your machine. No data leaves your computer.
 ## What FAF Does
 
 - Reads and writes `project.faf` files in your project directories
-- Syncs context between `.faf`, `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, and `GEMINI.md`
+- Writes `CLAUDE.md`'s faf-managed block from `project.faf` — and, on request, `AGENTS.md`, `.cursorrules`, `GEMINI.md`, `.github/copilot-instructions.md` and `MEMORY.md`; imports `AGENTS.md`/`.cursorrules`/`GEMINI.md` into `project.faf` only on request
 - Scores your project's AI-readiness based on local file content
 - Detects frameworks and languages by scanning local files
 
 ## What FAF Does NOT Do
 
-- **No external network requests** — all processing is local, with one exception: `faf_git` fetches public repository metadata from the GitHub API (`api.github.com`) when you explicitly ask it to generate context from a GitHub URL. No data is sent; it only reads public repo information.
+- **No external network requests** — all processing is local, with one exception: `faf_git` fetches public repository metadata from the GitHub API (`api.github.com`) when you explicitly ask it to author context from a GitHub URL. No data is sent; it only reads public repo information.
 - **No analytics or telemetry** — we don't track usage
 - **No data collection** — nothing is sent anywhere
 - **No user accounts** — no authentication, no sign-up
@@ -27,10 +27,12 @@ FAF processes everything locally on your machine. No data leaves your computer.
 FAF only accesses files you explicitly point it to (via `path` parameters or your current working directory). It creates and modifies:
 
 - `project.faf` — your project's AI context
-- `CLAUDE.md` — Anthropic Claude instructions (via bi-sync)
+- `CLAUDE.md` — Anthropic Claude instructions (via faf_sync; only the faf-managed block is written)
 - `AGENTS.md` — OpenAI/Codex instructions (via export)
 - `.cursorrules` — Cursor IDE instructions (via export)
 - `GEMINI.md` — Google Gemini instructions (via export)
+- `.github/copilot-instructions.md` — GitHub Copilot instructions (via export)
+- `MEMORY.md` — Claude Code memory, at `~/.claude/projects/<project>/memory/MEMORY.md` (via faf_tri_sync)
 
 No files are read or written outside your project directory without your explicit request.
 
@@ -46,4 +48,4 @@ Questions about privacy: team@faf.one
 
 ---
 
-*Last updated: 2026-04-15*
+*Last updated: 2026-09-10*

@@ -22,7 +22,9 @@ import {
   HOOK_COMMAND,
   HOOK_FINGERPRINT,
 } from '../src/faf-core/commands/setup-hook';
-import { FAF_START, FAF_END } from '../src/faf-core/inject';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
+
+const { FAF_START, FAF_END } = await fafCli;
 
 const FAF_CONTENT = 'project:\n  name: hook-test\n  goal: test the native session hook\nfaf_score: 100%\n';
 

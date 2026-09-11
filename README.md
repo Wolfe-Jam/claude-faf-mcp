@@ -26,7 +26,7 @@
 
 **v0.2-conformant reader** of the [FAF Context Ingestion Contract](https://github.com/Wolfe-Jam/faf/blob/main/CONTEXT-INGESTION.md).
 
-> 🐘 **tri-sync** | `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` in one command.
+> 🐘 **tri-sync** | `.faf` → `MEMORY.md` (`faf_tri_sync`), alongside `.faf` → `CLAUDE.md` (`faf_sync`).
 
 > ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
 
@@ -46,7 +46,7 @@
 
 > 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated Core of 12 self-documenting tools, with the interview, README extractor, and server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
 
-**Context for Claude:** faf-cli keeps this MCP's CLAUDE.md / AGENTS.md in sync from one scored source — `bunx faf sync`. See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
+**Context for Claude:** faf-cli writes this MCP's CLAUDE.md and AGENTS.md from one scored source — `bunx faf sync` (CLAUDE.md) and `bunx faf export --agents` (AGENTS.md). See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
 
 > 🏆 **Compose floor faf-cli ^7.8.0.** `faf cards` + language Editions arrive **by composition**. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
 
@@ -98,7 +98,7 @@ human_context:
 
 ## Quick Start
 
-### faf-cli — universal (any AI)
+### faf-cli — any AI
 
 ```bash
 npx faf-cli auto
@@ -151,8 +151,8 @@ Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 ```
 You → 3 answers → project.faf → AI reads it → every session → forever
 
-project.faf  ←── 8ms ──→  CLAUDE.md     (bi-sync, free)
-project.faf  ←── 8ms ──→  MEMORY.md     (tri-sync, Pro 🐘)
+project.faf  ─── 8ms ──→  CLAUDE.md     (faf_sync, free)
+project.faf  ─── 8ms ──→  MEMORY.md     (faf_tri_sync, Pro 🐘)
 ```
 
 Claude does the rest. Zero-effort, right first time, fast, accurate, done. Language, framework, package manager, build tools — all auto-detected from your existing files. The human context is the part only you can give.
@@ -178,7 +178,7 @@ commit project.faf  →  every teammate's Claude starts with the same context
 git clone           →  a new dev's Claude is grounded before they write a line
 ```
 
-- **One source of truth.** `.faf` ↔ `CLAUDE.md` stay in sync (bi-sync'd). Add `MEMORY.md` for cross-session memory (tri-sync 🐘).
+- **One source of truth.** `faf_sync` writes `CLAUDE.md` from `.faf` — only its faf-managed block, so your own notes stay put. Add `MEMORY.md` for cross-session memory (tri-sync 🐘).
 - **No drift.** The score is deterministic — same `.faf`, same number, on every machine and in CI. A teammate can't be *accidentally* less grounded than you.
 - **Local and private.** Nothing leaves the machine — no accounts, no telemetry. The context is yours; it just rides in the repo.
 
@@ -233,7 +233,7 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 | Tool | Purpose |
 |------|---------|
 | `faf_sync` | Sync .faf → CLAUDE.md — `agents`/`cursor`/`gemini`/`copilot`/`all` also emit AGENTS.md / .cursorrules / GEMINI.md / copilot-instructions.md |
-| `faf_tri_sync` | Tri-sync .faf ↔ CLAUDE.md ↔ MEMORY.md — Pro feature, free for developers 🐘 |
+| `faf_tri_sync` | Tri-sync: write MEMORY.md from .faf (faf_sync writes CLAUDE.md) — Pro feature, free for developers 🐘 |
 
 **Export & Interop**
 | Tool | Purpose |
@@ -252,19 +252,19 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 | `faf_debug` | Environment inspection |
 | `faf_about` | What is .faf? |
 
-**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/docs/mcp-tools.md)**
+**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp#mcp-tools--12-core-34-with-faf_toolsall)**
 
 ---
 
 ## 🐘 Nelly Never Forgets
 
-bi-sync keeps `.faf` ↔ `CLAUDE.md` aligned.
+`faf_sync` writes `CLAUDE.md` from `.faf`, so the two stay aligned.
 
 tri-sync adds MEMORY.md — your AI remembers your project across every session.
 
 ```
-bi-sync  = .faf ↔ CLAUDE.md              ← always in sync
-tri-sync = .faf ↔ CLAUDE.md ↔ MEMORY.md  ← Nelly never forgets 🐘
+faf_sync = .faf → CLAUDE.md              ← written from .faf
+tri-sync = .faf → MEMORY.md   (faf_sync writes CLAUDE.md)  ← Nelly never forgets 🐘
 ```
 
 Pro feature, free for developers. Teams & Enterprise: **[faf.one/pro](https://faf.one/pro)** (plans)
@@ -291,7 +291,7 @@ IANA-registered (`application/vnd.faf+yaml`). Works with any AI. Define once, us
 | Package | Platform | Registry |
 |---------|----------|----------|
 | **[claude-faf-mcp](https://www.npmjs.com/package/claude-faf-mcp)** (this) | Claude | npm |
-| **[faf-cli](https://www.npmjs.com/package/faf-cli)** | Universal CLI | npm + Homebrew |
+| **[faf-cli](https://www.npmjs.com/package/faf-cli)** | CLI | npm + Homebrew |
 | **[gemini-faf-mcp](https://pypi.org/project/gemini-faf-mcp/)** | Google Gemini | PyPI |
 | **[grok-faf-mcp](https://www.npmjs.com/package/grok-faf-mcp)** | xAI Grok | npm |
 | **[rust-faf-mcp](https://crates.io/crates/rust-faf-mcp)** | Rust | crates.io |
