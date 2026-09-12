@@ -86,16 +86,17 @@ export async function handleFafRead(args: any, ctx: FileOpContext): Promise<Call
     const duration = Date.now() - startTime;
     const stats = await fs.stat(filePath);
     
+    // Result metadata goes in `_meta` (MCP's reserved key), never a
+    // top-level key the protocol does not define.
     return {
       content: [{
         type: 'text',
         text: content
       }],
-      metadata: {
+      _meta: {
         duration_ms: duration,
         file_size: stats.size,
         file_path: path.resolve(filePath),
-        message: `✅ Read ${stats.size} bytes in ${duration}ms`
       }
     };
     

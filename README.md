@@ -203,9 +203,9 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler 
 
 ---
 
-## MCP Tools — 12 Core, 30 with `FAF_TOOLS=all`
+## MCP Tools — 14 Core, 30 with `FAF_TOOLS=all`
 
-By default claude-faf-mcp advertises a distilled **Core of 12** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose Extended tools (callable by name regardless). **Core 12:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`. (`faf_enhance` removed — no silent AI rewrite of project.faf.) Retired in 6.0.0: `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` — a call by name returns one line naming what to use instead — plus the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf and `faf_check` protect/unlock.
+By default claude-faf-mcp advertises a distilled **Core of 14** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose Extended tools (callable by name regardless). **Core 14:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_tri_sync` · `faf_setup` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`. (`faf_enhance` removed — no silent AI rewrite of project.faf.) Retired in 6.0.0: `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` — a call by name returns one line naming what to use instead — plus the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf and `faf_check` protect/unlock.
 
 All tools run standalone — zero CLI dependencies, 19ms average execution.
 
@@ -251,7 +251,7 @@ All tools run standalone — zero CLI dependencies, 19ms average execution.
 | `faf_debug` | Environment inspection |
 | `faf_about` | What is .faf? |
 
-**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp#mcp-tools--12-core-30-with-faf_toolsall)**
+**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp#mcp-tools--14-core-30-with-faf_toolsall)**
 
 ---
 

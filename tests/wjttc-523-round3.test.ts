@@ -249,7 +249,8 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
   test('faf_auto: served description is a full sentence naming the CLAUDE.md write; no unread `force` prop', async () => {
     const tools = (await client.listTools()).tools;
     const auto = tools.find((t) => t.name === 'faf_auto')!;
-    expect(auto.description!.endsWith("Also writes CLAUDE.md's faf-managed block from the result.")).toBe(true);
+    expect(auto.description!).toContain("Then writes CLAUDE.md's faf-managed block.");
+    expect(auto.description!.trim().endsWith('.')).toBe(true);
     expect(Object.keys((auto.inputSchema as { properties: object }).properties)).toEqual(['path']);
   });
 

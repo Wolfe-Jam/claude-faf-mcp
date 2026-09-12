@@ -131,7 +131,7 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafAuto = tools.find(t => t.name === 'faf_auto');
         expect(fafAuto).toBeDefined();
-        expect(fafAuto?.description).toContain('manifests');
+        expect(fafAuto?.description).toContain('package.json');
       });
 
       it('should include faf_dna in tool list', async () => {
@@ -485,8 +485,17 @@ generated: ${new Date().toISOString()}
         fs.mkdirSync(quickTestDir, { recursive: true });
       });
 
-      it('should show usage when no input provided', async () => {
+      it('should refuse a call with no input, naming it (6.0.0: the schema requires input)', async () => {
         const result = await toolHandler.callTool('faf_quick', { path: quickTestDir });
+        const text = getTextContent(result.content);
+
+        expect(result.isError).toBe(true);
+        expect(text).toContain('input is required');
+        expect(fs.existsSync(path.join(quickTestDir, 'project.faf'))).toBe(false);
+      });
+
+      it('should show usage when the input is empty', async () => {
+        const result = await toolHandler.callTool('faf_quick', { path: quickTestDir, input: '' });
         const text = getTextContent(result.content);
 
         expect(text).toContain('Usage');
@@ -574,11 +583,12 @@ generated: ${new Date().toISOString()}
         expect(text).toContain('CLAUDE.md');
       });
 
-      it('should detect project type', async () => {
+      it('should report the formats faf-cli finds in the folder', async () => {
         const result = await toolHandler.callTool('faf_doctor', { path: testProjectDir });
         const text = getTextContent(result.content);
 
-        expect(text).toContain('Node.js');
+        expect(text).toContain('faf-cli finds');
+        expect(text).toContain('package.json');
       });
 
       it('should show version', async () => {
@@ -654,8 +664,48 @@ stack_signature: typescript-react
         const text = getTextContent(result.content);
         const data = JSON.parse(text);
 
-        expect(data.complete).toBe(true);
-        expect(data.score).toBe(100);
+        // 6.0.0 (#31): a filled Table-of-8 is not 100% by itself. The score is
+        // faf-cli's (css_framework, ui_library, … are still empty here), and
+        // faf_go is complete only when faf-cli says 100.
+        const { scoreFafYaml } = await import('../src/utils/faf-cli-bridge.js').then((m) => m.fafCli);
+        const truth = scoreFafYaml(fs.readFileSync(path.join(completeDir, 'project.faf'), 'utf-8')).score;
+        expect(truth).toBeLessThan(100);
+        expect(data.complete).toBe(false);
+        expect(data.score).toBe(truth);
+        expect(data.message).toContain(`Stopped at ${truth}%`);
+        expect(text).not.toMatch(/GOLD CODE|🏆|✪/);
+
+        // A .faf faf-cli scores 100: complete, and the ✪ appears.
+        fs.writeFileSync(path.join(completeDir, 'project.faf'), `faf_version: "3.0"
+project:
+  name: complete-project
+  goal: Test complete project
+  main_language: TypeScript
+human_context:
+  who: Developers
+  what: Complete project test
+  why: Testing 100% case
+  where: Local testing
+  when: v1.0.0
+  how: Via WJTTC
+stack:
+  frontend: slotignored
+  css_framework: slotignored
+  ui_library: slotignored
+  state_management: slotignored
+  backend: Node.js
+  api_type: cli
+  runtime: Node.js
+  database: slotignored
+  connection: slotignored
+  hosting: local
+  build: tsc
+  cicd: GitHub Actions
+`);
+        const trophy = JSON.parse(getTextContent((await toolHandler.callTool('faf_go', { path: completeDir })).content));
+        expect(trophy.complete).toBe(true);
+        expect(trophy.score).toBe(100);
+        expect(trophy.message).toContain('✪ 100%');
       });
 
       it('faf_auto should not overwrite existing CLAUDE.md', async () => {

@@ -1,81 +1,68 @@
 /**
- * CFM Copilot-grade emitter (transfer #1 from faf-cli 6.16.0).
+ * The Copilot export composes faf-cli (6.0.0, #33).
  *
- * CFM's copilot-instructions.md was the AGENTS.md content reused verbatim
- * (`copilotExportCommand` → `agentsExport`) — a clone, lacking the Copilot-spec
- * touches. This locks the CFM-native `generateCopilotInstructions`: a distinct,
- * Copilot-grade file — "every request" framing, prose overview, a `## Build & run`
- * command section — reusing CFM's existing (good) hardcoded stack labels.
- *
- * Per the WJTTC/TAF boundary intel: build/cicd come from FAF context; testing is
- * NOT a FAF slot, so there is intentionally no test command sourced here.
+ * .github/copilot-instructions.md is faf-cli's renderCopilotInstructions,
+ * written by faf-cli's writeCopilotInstructions — the bytes `faf export
+ * --copilot` writes. claude-faf-mcp's own Copilot renderer (5.14–5.23) is
+ * gone: it printed a stack labelled by hand and its own framing, so faf_sync
+ * and `faf export` kept swapping the block.
  */
 import { describe, test, expect } from 'bun:test';
-import { generateCopilotInstructions } from '../src/faf-core/commands/copilot.js';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
+import { stringify } from 'yaml';
+import { FafToolHandler } from '../src/handlers/tools.js';
+import { FafEngineAdapter } from '../src/handlers/engine-adapter.js';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
 
 const FAF = {
-  project: { name: 'demo-mcp', goal: 'Persistent project context for Claude' },
+  faf_version: '3.0',
+  project: { name: 'demo-mcp', goal: 'Persistent project context for Claude', main_language: 'TypeScript' },
   stack: {
     backend: 'MCP SDK', runtime: 'Node.js', build: 'tsc',
-    cicd: 'GitHub Actions', hosting: 'npm', database: 'None',
+    cicd: 'GitHub Actions', hosting: 'npm', database: 'None', frontend: 'slotignored',
   },
   human_context: { who: 'Claude Desktop + Code devs', why: 'define once, never re-explain' },
 };
 
-describe('CFM copilot-grade emitter', () => {
-  test('Copilot header + every-request framing (distinct from AGENTS.md "# name")', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('# GitHub Copilot Instructions — demo-mcp');
-    expect(out.toLowerCase()).toContain('on every request');
+const START = '<!-- faf:start -->';
+const END = '<!-- faf:end -->';
+const blockOf = (text: string): string => text.slice(text.indexOf(START) + START.length, text.indexOf(END)).trim();
+
+function project(): string {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cfm-copilot-'));
+  fs.writeFileSync(path.join(dir, 'project.faf'), stringify(FAF));
+  return dir;
+}
+
+describe('Copilot export — faf-cli render and writer', () => {
+  test('faf_sync { copilot: true } writes exactly faf-cli\'s renderCopilotInstructions in the block', async () => {
+    const dir = project();
+    const r = await new FafToolHandler(new FafEngineAdapter()).callTool('faf_sync', { path: dir, copilot: true });
+    expect(r.isError).toBeFalsy();
+    const out = fs.readFileSync(path.join(dir, '.github', 'copilot-instructions.md'), 'utf-8');
+    const { renderCopilotInstructions, readFaf } = await fafCli;
+    expect(blockOf(out)).toBe(renderCopilotInstructions(readFaf(path.join(dir, 'project.faf'))).trim());
+    expect(out).not.toContain('slotignored');
+    const written = ((r.structuredContent as any).filesWritten as string[]).map((f) => fs.realpathSync(f));
+    expect(written).toContain(fs.realpathSync(path.join(dir, '.github', 'copilot-instructions.md')));
   });
 
-  test('goal leads as a prose overview, not a bullet', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('Persistent project context for Claude');
-    expect(out).not.toContain('- Persistent project context for Claude'); // not a bullet
+  test('a copilot-instructions.md you wrote keeps every line outside faf\'s block', async () => {
+    const dir = project();
+    fs.mkdirSync(path.join(dir, '.github'));
+    const mine = '# Our Copilot rules\n\nAlways write tests.\n';
+    fs.writeFileSync(path.join(dir, '.github', 'copilot-instructions.md'), mine);
+    const r = await new FafToolHandler(new FafEngineAdapter()).callTool('faf_sync', { path: dir, copilot: true });
+    expect(r.isError).toBeFalsy();
+    const out = fs.readFileSync(path.join(dir, '.github', 'copilot-instructions.md'), 'utf-8');
+    expect(out.endsWith(mine)).toBe(true);
+    expect(out.split(START).length - 1).toBe(1);
   });
 
-  test('## Build & run surfaces build/cicd as imperative commands', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('## Build & run');
-    expect(out).toContain('Build with `tsc`');
-    expect(out).toContain('CI runs on GitHub Actions');
-    expect(out).not.toContain('- Build: tsc'); // build is a command, not a stack bullet
-  });
-
-  test('Tech stack keeps CFM’s good labels; excludes the command slots', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('## Tech stack');
-    expect(out).toContain('- Backend: MCP SDK');
-    expect(out).toContain('- Runtime: Node.js');
-    expect(out).toContain('- Hosting: npm');
-    expect(out).not.toContain('Database: None'); // 'None' filtered
-    expect(out).not.toContain('## Tech Stack\n\n- Build:'); // build moved to Build & run
-  });
-
-  test('6Ws render as Project context when present', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('## Project context');
-    expect(out).toContain('- **Who:** Claude Desktop + Code devs');
-    expect(out).toContain('- **Why:** define once, never re-explain');
-  });
-
-  test('is NOT a clone — carries the Copilot header AGENTS.md never produces', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).toContain('# GitHub Copilot Instructions');
-    expect(out).not.toMatch(/^# demo-mcp$/m);           // not the AGENTS.md "# name" header
-    expect(out).not.toContain('by claude-faf-mcp —');   // not the AGENTS.md dated footer
-  });
-
-  test('no testing slot — build/cicd only (FAF≠testing boundary)', () => {
-    const out = generateCopilotInstructions(FAF);
-    expect(out).not.toContain('Test with');
-    expect(out).not.toContain('Lint with');
-  });
-
-  test('degrades gracefully on a near-empty .faf', () => {
-    expect(() => generateCopilotInstructions({ project: { name: 'x' } })).not.toThrow();
-    const out = generateCopilotInstructions({ project: { name: 'x' } });
-    expect(out).toContain('# GitHub Copilot Instructions — x');
+  test('the local renderer is gone', async () => {
+    const src = path.join(import.meta.dir, '..', 'src', 'faf-core', 'commands', 'copilot.ts');
+    expect(fs.existsSync(src)).toBe(false);
   });
 });

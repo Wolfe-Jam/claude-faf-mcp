@@ -12,7 +12,6 @@ import { VERSION } from './version';
 export interface ClaudeFafMcpServerConfig {
   transport: 'stdio';
   port?: number;
-  fafEnginePath: string;
   debug?: boolean;
   cors?: boolean;
   host?: string;
@@ -42,12 +41,14 @@ export class ClaudeFafMcpServer {
         capabilities: {
           // No subscribe/unsubscribe handler is registered, so do NOT advertise
           // `subscribe` — advertising it makes resources/subscribe -32601, which
-          // trips strict clients / Glama's capability health-check.
+          // trips strict clients / Glama's capability health-check. No list
+          // ever changes while the server runs and no list_changed
+          // notification is ever sent, so none is advertised.
           resources: {
-            listChanged: true,
+            listChanged: false,
           },
           tools: {
-            listChanged: true,
+            listChanged: false,
           },
           prompts: {
             listChanged: false,
@@ -56,8 +57,8 @@ export class ClaudeFafMcpServer {
       }
     );
 
-    // Create engine adapter to pass to handlers
-    const engineAdapter = new FafEngineAdapter(config.fafEnginePath);
+    // The session's project and the bundled commands, shared by the handlers.
+    const engineAdapter = new FafEngineAdapter();
 
     this.resourceHandler = new FafResourceHandler(engineAdapter);
     this.toolHandler = new FafToolHandler(engineAdapter);
@@ -105,23 +106,26 @@ export class ClaudeFafMcpServer {
       return quietToolList(await this.toolHandler.listTools());
     });
 
+    // callTool answers every failure of a known tool as an isError result the
+    // model can read; the one error it throws is McpError InvalidParams
+    // (-32602) for a tool name that does not exist.
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
       const startTime = Date.now();
       try {
         const result = await this.toolHandler.callTool(
           request.params.name,
-          request.params.arguments ?? {}
+          request.params.arguments
         );
-        
+
         if (this.config.debug) {
           const duration = Date.now() - startTime;
           console.error(`Tool ${request.params.name} executed in ${duration}ms`);
         }
-        
+
         return sanitizeToolResult(result);
       } catch (error: unknown) {
         const errorMessage = isError(error) ? error.message : 'Unknown error';
-        console.error(`Tool execution failed:`, errorMessage);
+        console.error(`Tool call refused:`, errorMessage);
         throw error;
       }
     });
@@ -146,9 +150,6 @@ export class ClaudeFafMcpServer {
  * package's `main`: importing it has no side effects.
  */
 export function createSandboxServer(): Server {
-  const wrapper = new ClaudeFafMcpServer({
-    transport: 'stdio',
-    fafEnginePath: 'faf'
-  });
+  const wrapper = new ClaudeFafMcpServer({ transport: 'stdio' });
   return wrapper.getServer();
 }

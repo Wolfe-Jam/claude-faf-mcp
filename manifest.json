@@ -47,127 +47,82 @@
   },
   "tools": [
     {
-      "name": "faf",
-      "description": "Type faf to start — scores, drives to 100%, syncs everything"
-    },
-    {
-      "name": "faf_about",
-      "description": "Learn what .faf format is"
-    },
-    {
-      "name": "faf_status",
-      "description": "Check if project has project.faf"
-    },
-    {
-      "name": "faf_score",
-      "description": "Calculate AI-readiness score (0-100%)"
-    },
-    {
       "name": "faf_init",
-      "description": "Create project.faf for a project"
-    },
-    {
-      "name": "faf_trust",
-      "description": "Validate project.faf integrity"
-    },
-    {
-      "name": "faf_sync",
-      "description": "Sync .faf to CLAUDE.md (+ any AI format)"
-    },
-    {
-      "name": "faf_debug",
-      "description": "Debug MCP environment info"
-    },
-    {
-      "name": "faf_read",
-      "description": "Read file content"
-    },
-    {
-      "name": "faf_list",
-      "description": "List and discover .faf projects"
-    },
-    {
-      "name": "faf_readme",
-      "description": "Extract context from README.md"
-    },
-    {
-      "name": "faf_human_add",
-      "description": "Add human context (6Ws)"
-    },
-    {
-      "name": "faf_check",
-      "description": "Quality inspection for .faf fields"
-    },
-    {
-      "name": "faf_context",
-      "description": "Set or view active project context"
-    },
-    {
-      "name": "faf_go",
-      "description": "Guided interview to Gold Code (100%)"
+      "description": "Create project.faf for a project (faf-cli detects the stack)"
     },
     {
       "name": "faf_auto",
-      "description": "Zero to AI context in one command"
+      "description": "Fill project.faf from the repo's own files, then CLAUDE.md"
     },
     {
-      "name": "faf_bench",
-      "description": "Benchmark AI grounding — cold vs .faf, with a ✪ receipt"
+      "name": "faf_score",
+      "description": "AI-readiness score (0-100%), from faf-cli"
     },
     {
-      "name": "faf_dna",
-      "description": "Show project DNA evolution journey"
+      "name": "faf_go",
+      "description": "Guided interview for the goal and the 6Ws"
     },
     {
-      "name": "faf_formats",
-      "description": "Discover all formats in your project"
-    },
-    {
-      "name": "faf_quick",
-      "description": "Lightning-fast .faf creation"
-    },
-    {
-      "name": "faf_doctor",
-      "description": "Diagnose and fix .faf issues"
-    },
-    {
-      "name": "faf_agents",
-      "description": "Sync AGENTS.md (OpenAI/Codex)"
-    },
-    {
-      "name": "faf_cursor",
-      "description": "Sync .cursorrules (Cursor IDE)"
-    },
-    {
-      "name": "faf_gemini",
-      "description": "Sync GEMINI.md (Google Gemini)"
-    },
-    {
-      "name": "faf_conductor",
-      "description": "Sync Conductor directory"
-    },
-    {
-      "name": "faf_git",
-      "description": "Author .faf from a GitHub repo URL"
+      "name": "faf_sync",
+      "description": "Write CLAUDE.md from project.faf (+ AGENTS.md, .cursorrules, GEMINI.md, Copilot)"
     },
     {
       "name": "faf_tri_sync",
-      "description": "Tri-sync: write MEMORY.md from project.faf (faf_sync writes CLAUDE.md) — Pro feature, free for developers"
+      "description": "Write faf's block into the MEMORY.md Claude Code loads for this project"
+    },
+    {
+      "name": "faf_setup",
+      "description": "Install the SessionStart hook in the project settings (preview first)"
+    },
+    {
+      "name": "faf_trust",
+      "description": "Validate project.faf and return a trust receipt for its score"
+    },
+    {
+      "name": "faf_doctor",
+      "description": "Diagnose project.faf: what is wrong and the tool that fixes it"
+    },
+    {
+      "name": "faf_context",
+      "description": "Show or set the active project; detail returns the .faf text"
+    },
+    {
+      "name": "faf_bench",
+      "description": "Benchmark AI grounding: cold vs with the .faf, with a receipt"
     },
     {
       "name": "faf_etch",
-      "description": "Etch a memory — remember this across sessions (writes to the project soul, .fafm)"
+      "description": "Remember a decision across sessions (writes to the project soul, .fafm)"
     },
     {
       "name": "faf_recall",
       "description": "Recall memories from the project soul (.fafm), ranked by priority then recency"
     },
     {
-      "name": "faf_setup",
-      "description": "Install the native SessionStart hook — fresh context every session"
+      "name": "faf_about",
+      "description": "What the .faf format is"
     }
   ],
   "tools_generated": true,
+  "prompts": [
+    {
+      "name": "faf",
+      "description": "Drive the project to a verified 100%: FAF sources what it can, you answer only what only you can.",
+      "arguments": [
+        "path"
+      ],
+      "text": "Run the faf flow for the project at ${arguments.path}: faf_score, faf_auto, faf_go, faf_trust, then faf_sync and faf_tri_sync, and faf_setup for the session hook."
+    },
+    {
+      "name": "faf-bench",
+      "description": "Run the two-pass AI-grounding benchmark (cold, then with the .faf) and report the delta with its receipt.",
+      "arguments": [
+        "path"
+      ],
+      "text": "Run faf_bench for the project at ${arguments.path}: answer the questions cold, then with the .faf (faf_context detail), and grade both."
+    }
+  ],
+  "prompts_generated": true,
   "compatibility": {
     "claude_desktop": ">=1.0.0",
     "platforms": [

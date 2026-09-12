@@ -51,6 +51,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - faf_dna reads the .faf-dna with faf-cli's FafDNAManager and writes nothing. faf_init and faf_quick write the birth certificate and faf_auto and faf_go add each new score, in faf-cli's own shape, so `faf auto` and `faf dna` keep working on the file.
 - faf_formats shows the formats faf-cli finds in the project folder, each with its file, and a dry run of what faf_auto would write. The canned recommendations and the "Intelligence Score" are gone. With faf-cli 7.13 a parent folder's package.json or tsconfig.json no longer shows up in a subfolder.
 - faf_go answers report faf-cli's score of the file just written.
+- One score everywhere: faf_go, faf_doctor and the SessionStart heartbeat report faf-cli's scoreFafYaml, the number faf_score shows. faf_go no longer says "100% GOLD CODE" when its Table-of-8 is filled: it is complete only at 100%, and below that it says where it stopped and points to faf_auto when the repo can still fill slots. The local scorer is gone.
+- faf_score prints populated/active slots ("17/17" on a Trophy), as faf-cli and faf_init do, never populated/total.
+- faf_trust runs faf-cli's validateFaf first: a list, a scalar or a file missing faf_version or project.name gets no receipt and an error naming what is missing.
+- faf_doctor lists faf-cli's validateFaf errors, each with its fix, and faf-cli's score with every empty slot and the tool that fills it (faf_auto or faf_go). It no longer calls such a file ".faf structure is valid", sets a "70%+" target or says "championship-ready".
+- A score faf-cli cannot know (an About repo with no about.source_score) shows as "unknown (—)" in faf_score, faf_trust, faf_doctor, faf_check, faf_auto, the resources and the heartbeat, never "-1%", and gets no trust receipt.
+- The faf_trust receipt names the project (project.name, else its folder) as its subject; the server that emitted it is on its own "by" line.
+- The ✪ mark appears only at 100%. The trophy emoji is stripped like any other emoji instead of becoming ✪, the faf_bench receipt line is plain, and the next-tier hint names the tier without its glyph.
+- The parity claim is true: faf-parity/v1 is claude-faf-mcp's own spec, which no other engine computes yet, and you check it with sha256(projection) === parityHash.
+- faf_check reports faf-cli's validateFaf verdict and the scorer's state for every slot, the 6Ws one by one, instead of a "Quality: N%" based on string length.
+- AGENTS.md, .cursorrules, GEMINI.md and .github/copilot-instructions.md are faf-cli's renders written by faf-cli's writers, the same bytes `faf export` writes (AGENTS.md and GEMINI.md enriched from the repo). No more "slotignored" printed as a value, "Deployed:" for the 6W where, a one-line GEMINI.md or a daily date line.
+- faf_sync names every requested file it could not write, with the reason, and returns an error instead of leaving it out of "Files written".
+- Both resources read the active project's .faf with the bundled faf-cli: their score is faf_score's, and reading one never runs a program or writes in your home folder.
+- faf_debug reports the bundled faf-cli version, not whatever `faf` is on PATH, and no longer tells you to install faf-cli.
+- Every tool's arguments are checked against its input schema before it runs: a wrong type, a missing required argument, an unknown argument or an action outside the list returns an error and runs nothing. `faf_agents {action: "bogus"}` used to write AGENTS.md.
+- A tool that fails returns an error result with a readable line, never a JSON-RPC -32603. An unknown tool or prompt is -32602 and an unknown resource -32002.
+- faf_tri_sync with no project.faf returns an error: nothing was written.
+- Tool annotations match what each handler does: faf_init (force), faf_human_add and faf_go answers are destructive, only tools that never write a file are read-only, every tool has idempotentHint, and every tool has a title.
+- Tool descriptions say what each handler does and returns: `faf` reads only and returns the steps, faf_about promises no bridges, faf_status says it shows the first 20 lines, faf_go lists the eight things it asks, and "Mk4 engine" is gone.
+- MCP output gives MCP advice ("faf_score (details: true)"), never `faf score` (CLI). faf_score no longer suggests marking empty slots slotignored.
+- faf_read returns its metadata in `_meta` instead of a top-level `metadata` key.
+- The `faf` tool names the project from project.faf (or faf-cli's detection) and its first step runs faf_auto for an existing project.faf too.
+- faf_bench names the older `project: <name>` shape, which faf-cli reads no name from.
 
 ### Removed
 
@@ -63,6 +85,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - esbuild, @upstash/redis and faf-scoring-kernel are no longer dependencies, so installs are smaller and no longer run esbuild's install script.
 - mcp-registry-entry.json, faf-mcp-config.json, .npmignore and .mcpbignore are out of the tree (the tag `archive/cfm-v5-surface` keeps them).
 - The GitHub-API port behind faf_git — its GitHub extractor, its own .faf writer and its slot counter, about 1,050 lines — and its own scorer. faf_git no longer reads GITHUB_TOKEN or GH_TOKEN.
+- The PATH detector (`which faf` and `faf --version` at every start), the shell-out that ran it and the "faf-cli REQUIRED FIRST" startup banner. Nothing is run from PATH.
+- The file:// resource: it answered any URI with a placeholder line and read nothing.
+- claude-faf-mcp's own AGENTS.md, .cursorrules, GEMINI.md and Copilot renderers, and its local scorer.
+- `fafEnginePath` in the server config: there is no engine on PATH to point at.
 
 ### Changed
 
@@ -74,6 +100,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `npm run dev` works: it runs the server from source with bun.
 - `npm run lint` quotes its glob, so ESLint checks every file under src/, not just the first level.
 - faf_git needs git on PATH, because it clones the repo. Its description says it uses the network.
+- Core 14: faf_setup and faf_tri_sync are listed by default, so every tool the faf prompt, the README onboarding and the .mcpb manifest name is on a default install.
+- The prompts are `faf` and `faf-bench`, with no leading slash; `/faf` and `/faf-bench` still answer in 6.x. The faf prompt starts with faf_score, and faf-bench reads project.faf with faf_context `{ detail: true }`, which now returns the file's text.
+- manifest.json lists the Core 14, led by faf_init, and declares the two prompts.
+- The server no longer advertises listChanged for tools or resources: no list changes while it runs.
 
 ## [5.22.1] - 2026-08-19
 

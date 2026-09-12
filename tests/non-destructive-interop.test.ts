@@ -1,15 +1,17 @@
 /**
  * Non-destructive interop — regression guard for the file-wipe bug.
- * The export parsers must ENHANCE an existing AGENTS.md / GEMINI.md / .cursorrules
- * (and CLAUDE.md via faf_sync), never replace them. Enhance, never replace.
+ * The exports must KEEP an existing AGENTS.md / GEMINI.md / .cursorrules
+ * (and CLAUDE.md via faf_sync) and add faf's block, never replace them.
+ * Since 6.0.0 the exports are faf-cli's writers (the local renderers are gone).
  */
 import { describe, test, expect } from 'bun:test';
 import { mkdtempSync, promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { agentsExport } from '../src/faf-core/parsers/agents-parser';
-import { geminiExport } from '../src/faf-core/parsers/gemini-parser';
-import { cursorExport } from '../src/faf-core/parsers/cursorrules-parser';
+import { stringify } from 'yaml';
+import { agentsExportCommand } from '../src/faf-core/commands/agents';
+import { geminiExportCommand } from '../src/faf-core/commands/gemini';
+import { cursorExportCommand } from '../src/faf-core/commands/cursor';
 import { fafCli } from '../src/utils/faf-cli-bridge.js';
 
 // The block writer is faf-cli's own injector (the local port was retired in 5.23).
@@ -61,21 +63,23 @@ describe('injectFafBlock — non-destructive', () => {
   });
 });
 
-describe('export parsers — enhance, never replace', () => {
+describe('exports (faf-cli writers) — keep what is there, never replace', () => {
   for (const [file, exporter] of [
-    ['AGENTS.md', agentsExport],
-    ['GEMINI.md', geminiExport],
-    ['.cursorrules', cursorExport],
+    ['AGENTS.md', agentsExportCommand],
+    ['GEMINI.md', geminiExportCommand],
+    ['.cursorrules', cursorExportCommand],
   ] as const) {
     test(`${file} preserves an existing file + idempotent`, async () => {
-      const p = join(tmp(), file);
+      const dir = tmp();
+      await fs.writeFile(join(dir, 'project.faf'), stringify({ faf_version: '3.0', ...DATA }));
+      const p = join(dir, file);
       await fs.writeFile(p, `# Mine\n${MARK}\nnotes\n`);
-      await exporter(DATA, p);
+      expect((await exporter(dir)).success).toBe(true);
       let out = await fs.readFile(p, 'utf-8');
       expect(out).toContain(MARK);   // user content preserved
       expect(blocks(out)).toBe(1);   // exactly one faf block
-      await exporter(DATA, p);
-      await exporter(DATA, p);
+      await exporter(dir);
+      await exporter(dir);
       out = await fs.readFile(p, 'utf-8');
       expect(out).toContain(MARK);
       expect(blocks(out)).toBe(1);   // still one after repeats

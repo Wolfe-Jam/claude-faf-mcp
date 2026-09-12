@@ -5,7 +5,9 @@
  * bytes `faf sync` pushes), written through faf-cli's injector (writeClaudeMd),
  * so content outside the faf-managed block survives. With agents / cursor /
  * gemini / copilot / all it also writes AGENTS.md, .cursorrules, GEMINI.md and
- * .github/copilot-instructions.md. Nothing here reads CLAUDE.md back into
+ * .github/copilot-instructions.md with faf-cli's writers (utils/export-format.ts);
+ * a requested file that is not written is named in the result with its reason
+ * (filesFailed), never dropped. Nothing here reads CLAUDE.md back into
  * project.faf. Named bi-sync before 5.23; the old name claimed a two-way sync
  * this code never did.
  *
@@ -17,16 +19,12 @@
 
 import { parse as parseYAML } from '../fix-once/yaml';
 import * as path from 'path';
-import { agentsExportCommand } from './agents.js';
-import { cursorExportCommand } from './cursor.js';
-import { geminiExportCommand } from './gemini.js';
-import { copilotExportCommand } from './copilot.js';
 import { fafCli } from '../../utils/faf-cli-bridge.js';
 import { readFafData, isMapping, legacyProjectHint } from '../../utils/faf-read.js';
 import { exportSource } from '../utils/export-source.js';
+import { exportFormat, type FormatFile } from '../utils/export-format.js';
 
 export interface ClaudeExportOptions {
-  json?: boolean;
   agents?: boolean;
   cursor?: boolean;
   gemini?: boolean;
@@ -37,7 +35,14 @@ export interface ClaudeExportOptions {
 export interface ClaudeExportResult {
   success: boolean;
   direction: 'faf-to-claude' | 'none';
+  /** Files written, CLAUDE.md first. */
   filesChanged: string[];
+  /** Requested formats that were not written, each with the reason. */
+  filesFailed: Array<{ file: string; reason: string }>;
+  /** The .faf the files were written from ('' when none was found). */
+  fafPath: string;
+  /** faf-cli's score of the .faf, as text: "85%" or "unknown (—)". */
+  score: string;
   duration: number;
   message: string;
 }
@@ -171,6 +176,9 @@ export async function claudeExportCommand(projectPath: string, options: ClaudeEx
     success: false,
     direction: 'none',
     filesChanged: [],
+    filesFailed: [],
+    fafPath: '',
+    score: 'unknown (—)',
     duration: 0,
     message: ''
   };
@@ -185,7 +193,8 @@ export async function claudeExportCommand(projectPath: string, options: ClaudeEx
       return result;
     }
     const { fafPath, dir: projectDir } = source;
-    const { scoreFafYaml, readFafRaw } = await fafCli;
+    result.fafPath = fafPath;
+    const { scoreFafYaml, readFafRaw, scoreText } = await fafCli;
 
     // Read .faf content through faf-cli's reader (a link out of the project is
     // refused, never read) — validate the YAML before anything is written.
@@ -194,12 +203,10 @@ export async function claudeExportCommand(projectPath: string, options: ClaudeEx
     const { data, legacyProject } = await readFafData(fafPath);
     // The score in the message is faf-cli's scorer on the bytes read, not a
     // `faf_score` key nothing writes. Unscorable → say so, never invent one.
-    let currentScore = 'unknown';
     try {
-      const score = scoreFafYaml(fafContent).score;
-      if (score >= 0) {currentScore = `${Math.round(score)}%`;}
+      result.score = scoreText(scoreFafYaml(fafContent));
     } catch {
-      /* scorer unavailable */
+      /* the kernel could not read it: the score stays unknown */
     }
 
     // CLAUDE.md is faf-cli's render of project.faf, injected with faf-cli's
@@ -211,63 +218,33 @@ export async function claudeExportCommand(projectPath: string, options: ClaudeEx
     result.direction = 'faf-to-claude';
     result.filesChanged.push(claudePath);
     result.message = written.before !== null
-      ? `CLAUDE.md refreshed from ${fafPath}. FAF Score: ${currentScore}`
-      : `CLAUDE.md written from ${fafPath}. FAF Score: ${currentScore}`;
+      ? `CLAUDE.md refreshed from ${fafPath}. FAF Score: ${result.score}`
+      : `CLAUDE.md written from ${fafPath}. FAF Score: ${result.score}`;
     for (const note of written.notes) {result.message += `\n${note}`;}
     if (legacyProject !== null) {result.message += `\n${legacyProjectHint(path.basename(fafPath), legacyProject)}`;}
 
-    // v4.5.0: Chain additional format exports if requested
-    const doAgents = options.agents || options.all;
-    const doCursor = options.cursor || options.all;
-    const doGemini = options.gemini || options.all;
-    const doCopilot = options.copilot || options.all;
-
-    if (doAgents) {
-      try {
-        const agentsResult = await agentsExportCommand(projectDir);
-        if (agentsResult.success) {
-          result.filesChanged.push(path.join(projectDir, 'AGENTS.md'));
-        }
-      } catch {
-        // Non-fatal — the CLAUDE.md write already succeeded
-      }
-    }
-
-    if (doCursor) {
-      try {
-        const cursorResult = await cursorExportCommand(projectDir);
-        if (cursorResult.success) {
-          result.filesChanged.push(path.join(projectDir, '.cursorrules'));
-        }
-      } catch {
-        // Non-fatal
-      }
-    }
-
-    if (doGemini) {
-      try {
-        const geminiResult = await geminiExportCommand(projectDir);
-        if (geminiResult.success) {
-          result.filesChanged.push(path.join(projectDir, 'GEMINI.md'));
-        }
-      } catch {
-        // Non-fatal
-      }
-    }
-
-    if (doCopilot) {
-      try {
-        const copilotResult = await copilotExportCommand(projectDir);
-        if (copilotResult.success) {
-          result.filesChanged.push(path.join(projectDir, '.github', 'copilot-instructions.md'));
-        }
-      } catch {
-        // Non-fatal
+    // Each requested format is faf-cli's writer. A format that is not written
+    // is reported with its reason — never dropped from the reply.
+    const requested: FormatFile[] = [
+      ...(options.agents || options.all ? ['AGENTS.md' as const] : []),
+      ...(options.cursor || options.all ? ['.cursorrules' as const] : []),
+      ...(options.gemini || options.all ? ['GEMINI.md' as const] : []),
+      ...(options.copilot || options.all ? ['.github/copilot-instructions.md' as const] : []),
+    ];
+    for (const file of requested) {
+      const r = await exportFormat(projectDir, file);
+      if (r.success) {
+        result.filesChanged.push(path.join(projectDir, file));
+      } else {
+        result.filesFailed.push({ file: path.join(projectDir, file), reason: r.message });
       }
     }
 
     if (result.filesChanged.length > 1) {
       result.message += ` | Also synced: ${result.filesChanged.slice(1).map((f) => path.relative(projectDir, f)).join(', ')}`;
+    }
+    for (const failed of result.filesFailed) {
+      result.message += `\nNot written: ${path.relative(projectDir, failed.file)} — ${failed.reason}`;
     }
 
     result.duration = Date.now() - startTime;

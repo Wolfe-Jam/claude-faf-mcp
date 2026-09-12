@@ -259,20 +259,23 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     expect(mask(read(mdPath))).toBe(mask(fafCliBytes(v2, first)));
   });
 
-  test('manifest.json tool names == runtime tools/list names (FAF_TOOLS=all)', async () => {
-    const prev = process.env.FAF_TOOLS;
-    process.env.FAF_TOOLS = 'all';
+  test('manifest.json tool names == the default tools/list (the Core a .mcpb install lists; 6.0.0 #35)', async () => {
+    // The manifest sets no FAF_TOOLS, so a Desktop Extension lists the Core.
+    const prevTools = process.env.FAF_TOOLS;
+    const prevExt = process.env.FAF_EXTENDED;
+    delete process.env.FAF_TOOLS;
+    delete process.env.FAF_EXTENDED;
     let runtime: string[];
     try {
       runtime = (await client.listTools()).tools.map((t) => t.name).sort();
     } finally {
-      if (prev === undefined) {delete process.env.FAF_TOOLS;} else {process.env.FAF_TOOLS = prev;}
+      if (prevTools !== undefined) {process.env.FAF_TOOLS = prevTools;}
+      if (prevExt !== undefined) {process.env.FAF_EXTENDED = prevExt;}
     }
-    const manifest = (JSON.parse(read(path.join(ROOT, 'manifest.json'))).tools as Array<{ name: string }>)
-      .map((t) => t.name)
-      .sort();
-    expect(manifest).toEqual(runtime);
-    expect(manifest).not.toContain('faf_bi_sync');
+    const listed = (JSON.parse(read(path.join(ROOT, 'manifest.json'))).tools as Array<{ name: string }>).map((t) => t.name);
+    expect([...listed].sort()).toEqual(runtime);
+    expect(listed).not.toContain('faf_bi_sync');
+    expect(listed).not.toContain('faf');
   });
 
   test("the engine's 'claude' command writes CLAUDE.md from project.faf (faf-cli's bytes)", async () => {

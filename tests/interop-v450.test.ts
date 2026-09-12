@@ -71,72 +71,76 @@ describe('TIER 2: Export', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
+  // 6.0.0 (#33): the exports are faf-cli's renders, written by faf-cli's
+  // writers from project.faf (AGENTS.md and GEMINI.md enriched from the repo,
+  // as `faf export` does). The local renderers are gone.
+  const writeFaf = async (data: object): Promise<string> => {
+    const { stringify } = await import('yaml');
+    const p = path.join(tmpDir, 'project.faf');
+    await fs.writeFile(p, stringify(data));
+    return p;
+  };
+  const block = (text: string, start = '<!-- faf:start -->', end = '<!-- faf:end -->'): string =>
+    text.slice(text.indexOf(start) + start.length, text.indexOf(end)).trim();
+
   // --- Agents ---
   describe('Agents Export', () => {
-    it('should export FAF data to AGENTS.md', async () => {
-      const fafData = {
-        project: {
-          name: 'Export Test',
-          goal: 'Test the export',
-          main_language: 'TypeScript',
-        },
-        human_context: {
-          what: 'MCP tools',
-        },
-        stack: {
-          runtime: 'Node.js',
-        },
-      };
-
-      const { agentsExport } = await import('../src/faf-core/parsers/agents-parser');
-      const outPath = path.join(tmpDir, 'AGENTS.md');
-      const result = await agentsExport(fafData, outPath);
+    it('should export FAF data to AGENTS.md — faf-cli\'s render, enriched from the repo', async () => {
+      const fafPath = await writeFaf({
+        faf_version: '3.0',
+        project: { name: 'Export Test', goal: 'Test the export', main_language: 'TypeScript' },
+        human_context: { what: 'MCP tools', where: 'npm' },
+        stack: { runtime: 'Node.js', frontend: 'slotignored' },
+      });
+      const { agentsExportCommand } = await import('../src/faf-core/commands/agents');
+      const result = await agentsExportCommand(tmpDir);
       expect(result.success).toBe(true);
 
-      const content = await fs.readFile(outPath, 'utf-8');
+      const content = await fs.readFile(path.join(tmpDir, 'AGENTS.md'), 'utf-8');
+      const { renderAgentsMd, enrichFromRepo, readFaf } = await fafCli;
+      expect(block(content)).toBe(renderAgentsMd(enrichFromRepo(tmpDir, readFaf(fafPath))).trim());
       expect(content).toContain('Export Test');
+      expect(content).not.toContain('slotignored');
+      expect(content).not.toContain('Deployed:');
     });
   });
 
   // --- Cursor ---
   describe('Cursor Export', () => {
-    it('should export FAF data to .cursorrules', async () => {
-      const fafData = {
-        project: {
-          name: 'Cursor Test',
-          goal: 'Test cursor export',
-          main_language: 'TypeScript',
-        },
-      };
-
-      const { cursorExport } = await import('../src/faf-core/parsers/cursorrules-parser');
-      const outPath = path.join(tmpDir, '.cursorrules');
-      const result = await cursorExport(fafData, outPath);
+    it('should export FAF data to .cursorrules — faf-cli\'s render', async () => {
+      const fafPath = await writeFaf({
+        faf_version: '3.0',
+        project: { name: 'Cursor Test', goal: 'Test cursor export', main_language: 'TypeScript' },
+        stack: { backend: 'Express', frontend: 'slotignored' },
+      });
+      const { cursorExportCommand } = await import('../src/faf-core/commands/cursor');
+      const result = await cursorExportCommand(tmpDir);
       expect(result.success).toBe(true);
 
-      const content = await fs.readFile(outPath, 'utf-8');
+      const content = await fs.readFile(path.join(tmpDir, '.cursorrules'), 'utf-8');
+      const { renderCursorrules, readFaf } = await fafCli;
+      expect(block(content, '# faf:start', '# faf:end')).toBe(renderCursorrules(readFaf(fafPath)).trim());
       expect(content).toContain('Cursor Test');
+      expect(content).not.toContain('slotignored');
     });
   });
 
   // --- Gemini ---
   describe('Gemini Export', () => {
-    it('should export FAF data to GEMINI.md', async () => {
-      const fafData = {
-        project: {
-          name: 'Gemini Test',
-          goal: 'Test gemini export',
-          main_language: 'TypeScript',
-        },
-      };
-
-      const { geminiExport } = await import('../src/faf-core/parsers/gemini-parser');
-      const outPath = path.join(tmpDir, 'GEMINI.md');
-      const result = await geminiExport(fafData, outPath);
+    it('should export FAF data to GEMINI.md — faf-cli\'s render, not a one-line title', async () => {
+      const fafPath = await writeFaf({
+        faf_version: '3.0',
+        project: { name: 'Gemini Test', goal: 'Test gemini export', main_language: 'TypeScript' },
+      });
+      const { geminiExportCommand } = await import('../src/faf-core/commands/gemini');
+      const result = await geminiExportCommand(tmpDir);
       expect(result.success).toBe(true);
 
-      const content = await fs.readFile(outPath, 'utf-8');
+      const content = await fs.readFile(path.join(tmpDir, 'GEMINI.md'), 'utf-8');
+      const { renderGeminiMd, enrichFromRepo, readFaf } = await fafCli;
+      expect(block(content)).toBe(renderGeminiMd(enrichFromRepo(tmpDir, readFaf(fafPath))).trim());
       expect(content).toContain('Gemini Test');
+      expect(block(content).split('\n').length).toBeGreaterThan(3);
     });
   });
 });
@@ -258,9 +262,8 @@ describe('TIER 5: Security', () => {
       const fafPath = path.join(tmpDir, 'project.faf');
       await fs.writeFile(fafPath, 'project:\n  name: Safe Test\n');
 
-      const outPath = path.join(tmpDir, 'AGENTS.md');
-      const { agentsExport } = await import('../src/faf-core/parsers/agents-parser');
-      await agentsExport(fafPath, outPath);
+      const { agentsExportCommand } = await import('../src/faf-core/commands/agents');
+      expect((await agentsExportCommand(tmpDir)).success).toBe(true);
 
       // Verify only the expected file was created
       const files = await fs.readdir(tmpDir);

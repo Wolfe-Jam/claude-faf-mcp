@@ -1,23 +1,20 @@
 import { createHash } from 'crypto';
 
 /**
- * Determinism parity hash (The Trust Edition · Pillar 3).
+ * Determinism parity hash — faf-parity/v1 (The Trust Edition · Pillar 3).
  *
- * FAF's claim is that a .faf score is a single deterministic source: the same
- * file scored by faf-cli, the Rust kernel, or any conformant engine yields the
- * SAME number. This module turns that claim into a falsifiable artifact.
+ * What it is today: claude-faf-mcp's own spec. faf_score and faf_trust hash a
+ * canonical projection of the scoring facts faf-cli's scoreFafYaml returns
+ * (score, slot counts, tier, per-slot states), bound to the exact .faf bytes by
+ * their SHA-256. The projection string travels with the receipt, so anyone can
+ * check it without trusting this server: recompute sha256(projection) and
+ * compare it with parityHash, and sha256 of the file with sourceSha256.
  *
- * The parity hash is computed over an ENGINE-AGNOSTIC canonical projection of
- * the deterministic scoring facts (score, slot counts, tier, per-slot states)
- * bound to the input via its SHA-256. It deliberately contains NOTHING about
- * which wrapper produced it — so faf-cli, claude-faf-mcp, grok-faf-mcp and the
- * kernel all produce the IDENTICAL hash for the same file. A third party
- * verifies by recomputing, not by trusting: the exact `projection` string that
- * was hashed travels in the receipt, so anyone can rebuild and compare.
- *
- * `producedBy` / `scorer` are metadata (who emitted, what scored) and are NOT
- * part of the hash — putting them in would break portability, which is the
- * whole point.
+ * What it is not (yet): a cross-engine standard. No other engine — faf-cli,
+ * faf-mcp, grok-faf-mcp, the Rust FAFb binary — computes faf-parity/v1 today,
+ * so nothing else produces this hash. The projection names no wrapper
+ * (`producedBy` / `scorer` are metadata, outside the hash) so that another
+ * engine could adopt the spec later; the plan is to move it into faf-cli.
  */
 
 export const PARITY_SPEC = 'faf-parity/v1';
@@ -54,7 +51,7 @@ export interface ParityReceipt {
   total: number;
   /** The exact string that was hashed — makes the hash third-party verifiable. */
   projection: string;
-  /** sha256(projection) — identical across any conformant engine. */
+  /** sha256(projection) — recompute it from `projection` to check the receipt. */
   parityHash: string;
 }
 
@@ -63,7 +60,7 @@ function sha256(input: string): string {
 }
 
 /**
- * Build the canonical, engine-agnostic projection string. Slot lines are sorted
+ * Build the canonical projection string (no wrapper name in it). Slot lines are sorted
  * by slot name so the projection is byte-stable regardless of object key order.
  */
 export function buildProjection(facts: ScoreFacts, sourceSha256: string): string {

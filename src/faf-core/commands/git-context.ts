@@ -128,8 +128,8 @@ export async function gitContextCommand(url: string, outputDir?: string): Promis
     return {
       success: true,
       message: filePath
-        ? `Wrote ${filePath} for ${repoUrl} — faf score ${scoreText(score)} (${score.tier.name})`
-        : `Authored project.faf for ${repoUrl} (preview, nothing written) — faf score ${scoreText(score)} (${score.tier.name})`,
+        ? `Wrote ${filePath} for ${repoUrl} — faf-cli scores it ${scoreText(score)} (${score.tier.name})`
+        : `Authored project.faf for ${repoUrl} (preview, nothing written) — faf-cli scores it ${scoreText(score)} (${score.tier.name})`,
       data: { repoUrl, score: score.score, tier: score.tier.name, fafContent, filePath },
     };
   } finally {

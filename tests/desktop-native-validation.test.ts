@@ -80,7 +80,7 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       const text = getTextContent(result.content);
       expect(text).toContain('Working Directory');
       expect(text).toContain('Write Permissions');
-      expect(text).toContain('FAF Engine Path');
+      expect(text).toContain('FAF Engine: faf-cli'); // the bundled faf-cli, never a PATH binary
     });
   });
 

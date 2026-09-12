@@ -77,7 +77,7 @@ describe('faf_score MCP tool end-to-end', () => {
     expect(text).toContain('--- Slot breakdown ---');
     expect(text).toMatch(/Populated \(\d+\):/);
     expect(text).toMatch(/Empty \(\d+\):/);
-    expect(text).toMatch(/Ignored \(\d+\):/);
+    expect(text).toMatch(/Slotignored \(\d+\):/);
     expect(text).toMatch(/\d+\/\d+ slots populated/);
   });
 

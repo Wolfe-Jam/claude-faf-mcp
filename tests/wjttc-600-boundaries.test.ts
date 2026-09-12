@@ -312,7 +312,8 @@ describe('#6 — faf_go answers: allow-listed slot paths, own keys, text only', 
     fs.writeFileSync(path.join(dir, 'project.faf'), HAND_FAF);
     const r = await handler().callTool('faf_go', { path: dir, answers: { 'project.goal': 5 } });
     expect(r.isError).toBe(true);
-    expect(text(r)).toContain('project.goal: the answer must be text');
+    // 6.0.0: the schema check refuses it before the handler runs.
+    expect(text(r)).toContain('answers.project.goal must be string');
 
     const listDir = sandbox('go-list');
     const LIST = 'project:\n  name: list-app\nhuman_context:\n  - who\n';
@@ -552,7 +553,7 @@ describe('#5 / #21 — faf_git composes faf-cli\'s `faf git` helpers', () => {
       expect(data.stack.backend).toBe('Express');
       expect(written).not.toMatch(/# Generated|faf\.dev|4\.5\.0/);
       const score = scoreFafYaml(written);
-      expect(text(r)).toContain(`faf score ${score.score}%`);
+      expect(text(r)).toContain(`faf-cli scores it ${score.score}%`);
       expect(text(r)).not.toContain('Trophy');
     } finally {
       restore();

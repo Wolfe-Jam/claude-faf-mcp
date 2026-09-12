@@ -32,10 +32,10 @@
  */
 import * as path from 'path';
 import * as fs from 'fs';
-import { parse as parseYAML } from 'yaml';
 import { parse as parseFafYaml } from '../fix-once/yaml';
 import { sealForScore } from '../../trust/receipt';
 import { readFafData } from '../../utils/faf-read.js';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 import { writeClaudeFromFaf } from './claude.js';
 
 /** faf-cli's current CLAUDE.md footer. Not a substring of the old "STATUS: BI-SYNC ACTIVE". */
@@ -50,42 +50,26 @@ export interface SessionRefreshResult {
 }
 
 /**
- * The INTENT the code can't carry: project.goal + the populated human_context 6Ws.
- * This is the structural floor of what faf_bench measures live — the delta IS the
- * product. Surfacing it in the heartbeat makes the .faf's worth visible EVERY
- * session, passively: not a claimed model benchmark, just the count of intent
- * slots no manifest can derive (you can't grep "why this exists" from package.json).
- * Returns 0 when there's nothing to claim → the suffix is omitted (no nag, no lie).
+ * The heartbeat's numbers, both from faf-cli's scoreFafYaml — the score
+ * faf_score reports — never a count of its own:
+ *  - the score: the quiet-ladder seal (✪ only at 100) and the percentage, or
+ *    "unknown (—)" for an About repo with no about.source_score (never "-1%");
+ *  - the INTENT the code can't carry: the human slots (faf-cli's isHumanSlot:
+ *    project.goal and the 6Ws) the scorer counts as populated. A placeholder or
+ *    a typed "None" is an empty slot to the scorer, so it is never counted.
+ *    This is the structural floor of what faf_bench measures live: the count
+ *    of intent slots no manifest can derive. 0 → the suffix is omitted.
+ * Both are '' / 0 when the kernel cannot read the file (the heartbeat survives).
  */
-function intentCount(fafContent: string): number {
+async function heartbeat(fafContent: string): Promise<{ score: string; intent: number }> {
   try {
-    const doc = parseYAML(fafContent) as Record<string, unknown> | null;
-    if (!doc || typeof doc !== 'object') {return 0;}
-    const filled = (v: unknown): boolean =>
-      typeof v === 'string' && v.trim() !== '' && v.trim().toLowerCase() !== 'slotignored';
-    const project = doc.project as Record<string, unknown> | undefined;
-    let n = filled(project?.goal) ? 1 : 0;
-    const hc = doc.human_context as Record<string, unknown> | undefined;
-    if (hc && typeof hc === 'object') {
-      for (const k of ['who', 'what', 'why', 'where', 'when', 'how']) {
-        if (filled(hc[k])) {n++;}
-      }
-    }
-    return n;
-  } catch {
-    return 0; // a malformed .faf must never break the heartbeat
-  }
-}
-
-/** Score the .faf via the truthful single-source kernel; '' when unscorable (heartbeat survives). */
-async function scoreLine(fafContent: string): Promise<string> {
-  try {
-    const { scoreFafYaml } = await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
+    const { scoreFafYaml, scoreText, isHumanSlot } = await fafCli;
     const result = scoreFafYaml(fafContent);
-    const score = Math.round(result.score);
-    return `${sealForScore(score)} ${score}%`;
+    const intent = Object.entries(result.slots).filter(([slot, state]) => state === 'populated' && isHumanSlot(slot)).length;
+    const score = result.unknown ? scoreText(result) : `${sealForScore(result.score)} ${result.score}%`;
+    return { score, intent };
   } catch {
-    return ''; // no kernel, no score — the heartbeat still beats
+    return { score: '', intent: 0 }; // no kernel, no score — the heartbeat still beats
   }
 }
 
@@ -105,8 +89,7 @@ export async function sessionRefresh(projectDir: string = process.cwd()): Promis
     }
 
     // faf-cli's readers, block finder, guard and injector.
-    const { findFafBlock, readFafRaw, readClaudeMd, resolveInside, isNonProjectRoot } =
-      await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
+    const { findFafBlock, readFafRaw, readClaudeMd, resolveInside, isNonProjectRoot } = await fafCli;
 
     // Home or the filesystem root is no project: the CLAUDE.md there is global.
     if (isNonProjectRoot(projectDir)) {
@@ -122,8 +105,7 @@ export async function sessionRefresh(projectDir: string = process.cwd()): Promis
     const claudeContent = readClaudeMd(projectDir);
     const claudeStat = claudeContent === null ? null : fs.statSync(resolveInside(projectDir, claudeMdPath, { read: true }));
 
-    const seal = await scoreLine(fafContent);
-    const intent = intentCount(fafContent);
+    const { score: seal, intent } = await heartbeat(fafContent);
     const intentSuffix = intent > 0 ? ` · +${intent} intent the code can't carry` : '';
 
     // Freshness gate: a CURRENT faf block (faf-cli's footer) + CLAUDE.md at least

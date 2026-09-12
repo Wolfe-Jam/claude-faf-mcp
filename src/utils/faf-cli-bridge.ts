@@ -15,6 +15,10 @@
  * faf-cli 6.7's `bun` export condition, which faf-cli dropped in 6.8. The
  * walk could bind a different faf-cli than package.json names; the bare
  * specifier resolves the one npm installed for this package.
+ *
+ * Every tool runs on this faf-cli. claude-faf-mcp never runs a `faf` found on
+ * PATH (6.0.0 removed the PATH detector and its shell-out); faf_debug reports
+ * this faf-cli's version (utils/faf-cli-version.ts).
  */
 export const fafCli = import('faf-cli');
 

@@ -20,10 +20,7 @@ async function main() {
     process.exit(0);
   }
 
-  const server = new ClaudeFafMcpServer({
-    transport: 'stdio',
-    fafEnginePath: 'faf'
-  });
+  const server = new ClaudeFafMcpServer({ transport: 'stdio' });
 
   await server.start();
 }

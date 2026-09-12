@@ -328,13 +328,18 @@ describe('#4 / #18 — soul.fafm through faf-cli\'s Soul', () => {
 
 // ─────────────────────────────────────────────── #9 conductor
 describe('#9 — faf_conductor export: one managed block per file, never an overwrite', () => {
-  test('a hand-written conductor/product.md keeps every byte below the block (force is ignored)', async () => {
+  test('a hand-written conductor/product.md keeps every byte below the block (force is refused, never an overwrite)', async () => {
     const dir = sandbox('conductor');
     fs.writeFileSync(path.join(dir, 'project.faf'), 'faf_version: "3.0"\nproject:\n  name: cond\n  goal: Conduct widgets\n  main_language: Go\nstack:\n  backend: Gin\n');
     fs.mkdirSync(path.join(dir, 'conductor'));
     const HAND = '# My product\n\n- My rule\n';
     fs.writeFileSync(path.join(dir, 'conductor', 'product.md'), HAND);
-    const r = await handler().callTool('faf_conductor', { path: dir, action: 'export', force: true });
+    // 6.0.0: arguments are checked against the schema, which has no force.
+    const forced = await handler().callTool('faf_conductor', { path: dir, action: 'export', force: true });
+    expect(forced.isError).toBe(true);
+    expect(text(forced)).toContain('unknown argument force');
+    expect(read(path.join(dir, 'conductor', 'product.md'))).toBe(HAND);
+    const r = await handler().callTool('faf_conductor', { path: dir, action: 'export' });
     expect(r.isError).toBeFalsy();
     const product = read(path.join(dir, 'conductor', 'product.md'));
     expect(product.startsWith(FAF_START)).toBe(true);
@@ -362,7 +367,11 @@ describe('#10 — faf_readme apply fills only empty slots; a no-op writes nothin
     writeRepo(dir);
     const fafPath = path.join(dir, 'project.faf');
     fs.writeFileSync(fafPath, HAND_FAF);
-    const r = await handler().callTool('faf_readme', { path: dir, apply: true, force: true });
+    // 6.0.0: arguments are checked against the schema, which has no force.
+    const forced = await handler().callTool('faf_readme', { path: dir, apply: true, force: true });
+    expect(forced.isError).toBe(true);
+    expect(read(fafPath)).toBe(HAND_FAF);
+    const r = await handler().callTool('faf_readme', { path: dir, apply: true });
     expect(r.isError).toBeFalsy();
     const out = read(fafPath);
     expectHandBytesKept(out);
@@ -387,7 +396,10 @@ describe('#11 — faf_quick composes assembleFreshFaf and only creates', () => {
     const dir = sandbox('quick-exists');
     const fafPath = path.join(dir, 'project.faf');
     fs.writeFileSync(fafPath, HAND_FAF);
-    const r = await handler().callTool('faf_quick', { path: dir, input: 'other, a new goal, python', force: true });
+    const forced = await handler().callTool('faf_quick', { path: dir, input: 'other, a new goal, python', force: true });
+    expect(forced.isError).toBe(true); // 6.0.0: no force in the schema — refused, nothing run
+    expect(read(fafPath)).toBe(HAND_FAF);
+    const r = await handler().callTool('faf_quick', { path: dir, input: 'other, a new goal, python' });
     expect(r.isError).toBe(true);
     expect(text(r)).toContain('faf_auto');
     expect(read(fafPath)).toBe(HAND_FAF);
