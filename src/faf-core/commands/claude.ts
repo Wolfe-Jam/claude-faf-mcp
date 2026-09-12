@@ -12,7 +12,6 @@
 
 import { parse as parseYAML } from '../fix-once/yaml';
 import * as path from 'path';
-import { promises as fs } from 'fs';
 import { findFafFile, fileExists } from '../utils/file-utils';
 import { agentsExportCommand } from './agents.js';
 import { cursorExportCommand } from './cursor.js';
@@ -61,13 +60,13 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
     }
 
     const projectDir = path.dirname(fafPath);
-    const claudeMdExists = await fileExists(path.join(projectDir, 'CLAUDE.md'));
+    const { scoreFafYaml, readFaf, readFafRaw, readClaudeMd, renderClaudeMd, writeClaudeMd, legacyStampNoteAt } = await fafCli;
 
-    // Read .faf content — validate the YAML before anything is written.
-    const fafContent = await fs.readFile(fafPath, 'utf-8');
+    // Read .faf content through faf-cli's reader (a link out of the project is
+    // refused, never read) — validate the YAML before anything is written.
+    const fafContent = readFafRaw(fafPath);
     parseYAML(fafContent, { filepath: fafPath });
-
-    const { scoreFafYaml, readFaf, renderClaudeMd, writeClaudeMd } = await fafCli;
+    const claudeBefore = readClaudeMd(projectDir);
     // The score in the message is faf-cli's scorer on the bytes read, not a
     // `faf_score` key nothing writes. Unscorable → say so, never invent one.
     let currentScore = 'unknown';
@@ -80,14 +79,16 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
 
     // CLAUDE.md is faf-cli's render of project.faf, injected with faf-cli's
     // injector: only the faf-managed block changes, the rest of the file is kept.
+    const note = legacyStampNoteAt(path.join(projectDir, 'CLAUDE.md'), 'CLAUDE.md');
     writeClaudeMd(projectDir, renderClaudeMd(readFaf(fafPath)));
 
     result.success = true;
     result.direction = 'faf-to-claude';
     result.filesChanged.push('CLAUDE.md');
-    result.message = claudeMdExists
+    result.message = claudeBefore !== null
       ? `CLAUDE.md refreshed from project.faf. FAF Score: ${currentScore}`
       : `CLAUDE.md written from project.faf. FAF Score: ${currentScore}`;
+    if (note) {result.message += `\n${note}`;}
 
     // v4.5.0: Chain additional format exports if requested
     const doAgents = options.agents || options.all;
@@ -97,7 +98,7 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
 
     if (doAgents) {
       try {
-        const agentsResult = await agentsExportCommand(projectDir, { force: true });
+        const agentsResult = await agentsExportCommand(projectDir);
         if (agentsResult.success) {
           result.filesChanged.push('AGENTS.md');
         }
@@ -108,7 +109,7 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
 
     if (doCursor) {
       try {
-        const cursorResult = await cursorExportCommand(projectDir, { force: true });
+        const cursorResult = await cursorExportCommand(projectDir);
         if (cursorResult.success) {
           result.filesChanged.push('.cursorrules');
         }
@@ -119,7 +120,7 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
 
     if (doGemini) {
       try {
-        const geminiResult = await geminiExportCommand(projectDir, { force: true });
+        const geminiResult = await geminiExportCommand(projectDir);
         if (geminiResult.success) {
           result.filesChanged.push('GEMINI.md');
         }
@@ -130,7 +131,7 @@ export async function claudeExportCommand(projectPath?: string, options: ClaudeE
 
     if (doCopilot) {
       try {
-        const copilotResult = await copilotExportCommand(projectDir, { force: true });
+        const copilotResult = await copilotExportCommand(projectDir);
         if (copilotResult.success) {
           result.filesChanged.push('.github/copilot-instructions.md');
         }

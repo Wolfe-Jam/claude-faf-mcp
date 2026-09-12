@@ -11,6 +11,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Every read of project context and every write goes through faf-cli's safe path. A project.faf, CLAUDE.md, AGENTS.md, soul.fafm, .faf-dna, MEMORY.md or .claude/settings.json that is a link out of the project is refused: never read into a reply, never written through (faf_status, faf_dna, faf_sync, faf_auto, faf_etch, faf_tri_sync, faf_setup and the SessionStart hook).
+- The copilot and conductor exports make their folder inside the project, and a `.github` or `conductor` that links out of it is refused.
+- faf_debug no longer writes and deletes a probe file to test write access. It asks the OS, so a `.claude-faf-test` of yours, or a link by that name, is left alone.
+- Correction to the 5.x path-confinement note below: it covered only the `path` argument. A context file that was itself a link out of the project was still followed until this release.
+
+### Fixed
+
+- Every write is atomic. A full disk, a quota or a read-only file leaves the file exactly as it was, and the message says "not written; original kept".
+- faf_human_add, faf_go answers and faf_readme edit project.faf in place through faf-cli. Comments, key order, exact values (`1.10`, a 20-digit id, `0x1F90`), anchors and your own `_meta` survive, and a change that changes nothing writes nothing.
+- faf_auto names every value the file held that the fill changed (a typed None that a repo fact or the app-type filled) instead of saying "existing values kept". A hand-written None with no repo fact stays as typed.
+- faf_auto reports each file on its own ("project.faf updated; CLAUDE.md not written: …"), so a CLAUDE.md that cannot be written never hides a project.faf that was.
+- faf_agents, faf_cursor, faf_gemini and the copilot export no longer refuse an existing file or take `force`. They put faf's block on top (or update it in place) and keep every other byte.
+- faf_etch and faf_recall use faf-cli's soul. A hand-kept index, comments, the version, facts or sessions in another shape and unknown keys survive an etch; re-etching an id merges into that fact; faf_recall prints bare-string facts; faf_etch creates no folders. The local soul copy is gone.
+- faf_conductor writes one faf-managed block into each conductor/ file and keeps every line you wrote. `force` is gone. The content comes from project.faf's own keys: goal, language, stack, commands and the 6Ws.
+- faf_readme apply fills only empty human_context slots, never replaces a value you wrote, lists what it filled, and writes nothing when nothing changed. `force` is gone.
+- faf_quick builds on faf-cli's detection: no invented TypeScript or "cloud", no timestamp, server-version or `initialized_by` keys, and a framework goes in stack.frontend or stack.backend only when faf-cli knows which (otherwise it says so). It refuses a folder that already has a project.faf or .faf (use faf_auto) and your home folder. `force` is gone.
+- Advice points at the fix. A YAML error names the file:line:col to edit by hand, a comments-only file is called "no keys", and no message tells you to force or recreate a file you wrote (faf_score, faf_doctor, faf_init, faf_sync and the exports).
+- faf_init `force: true` replaces project.faf with a fresh one, after copying the old file to `project.faf.bak-<time>`. With faf-cli 7.13 it had started to merge instead. Without force an existing file is left alone.
+- faf_setup removes only the hook whose command is exactly faf's; a user hook that mentions `claude-faf-mcp --session-refresh` stays. It refuses a `hooks` or `SessionStart` of the wrong shape instead of replacing it, previews a removal unless `confirm: true`, and rewrites settings.json only when it is laid out the way faf writes JSON (otherwise it gives the entry to add by hand). It refuses the home folder, whose .claude/settings.json is your user settings, and every message names the project settings.
+- faf_tri_sync writes MEMORY.md through faf-cli's Claude-memory writer, at the path Claude Code reads: its id for the project's canonical git root (every character outside a-z, A-Z, 0-9 becomes "-"), under CLAUDE_CONFIG_DIR when set. Only faf's block changes, Claude's notes keep every byte (CRLF and a BOM included), and "kept" is reported only after the file is read back. The local MEMORY.md port is gone.
+- faf_git no longer writes over an existing project.faf. It refuses before fetching anything and points to faf_auto.
+
 ### Removed
 
 - `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` are retired: they are no longer listed, and a call by name returns an error with one line saying what to use instead.
@@ -239,7 +263,7 @@ Patch — inherits The Sourced Edition.
 ## [5.7.2] - 2026-06-11 — The Canonical Edition
 
 ### Security
-- **Path confinement on every caller-supplied `path` argument (CWE-22 / CWE-73 / CWE-200).** The shared `getProjectPath()` chokepoint (feeding the `.faf` tools) and the `faf_read` / `faf_write` file tools resolved a caller path straight into a filesystem read/write with no confinement — so an absolute path or `../` traversal could read any file the server process could read (e.g. `/etc/passwd`, `~/.ssh/id_rsa`) or write outside the project. New `safe-path.ts` confines reads to `.faf` / `.fafm` context files and general file ops to the project root (cwd + system temp; override with `FAF_ALLOWED_ROOTS`), canonicalizes through symlinks (closing the symlink bypass), and rejects traversal/absolute escapes; `callTool()` gains a central PATH-DENIED guard. Identified by the maintainers during a sibling-server audit prompted by the coordinated disclosure of the same class of issue in `grok-faf-mcp` by Zhihao Zhang (Worcester Polytechnic Institute). Adds a security regression suite (incl. symlink bypass).
+- **Path confinement on every caller-supplied `path` argument (CWE-22 / CWE-73 / CWE-200).** The shared `getProjectPath()` chokepoint (feeding the `.faf` tools) and the `faf_read` / `faf_write` file tools resolved a caller path straight into a filesystem read/write with no confinement — so an absolute path or `../` traversal could read any file the server process could read (e.g. `/etc/passwd`, `~/.ssh/id_rsa`) or write outside the project. New `safe-path.ts` confines reads to `.faf` / `.fafm` context files and general file ops to the project root (cwd + system temp; override with `FAF_ALLOWED_ROOTS`), canonicalizes through symlinks (closing the symlink bypass for the `path` argument; see the 6.0.0 correction: a context file that was itself a link was still followed), and rejects traversal/absolute escapes; `callTool()` gains a central PATH-DENIED guard. Identified by the maintainers during a sibling-server audit prompted by the coordinated disclosure of the same class of issue in `grok-faf-mcp` by Zhihao Zhang (Worcester Polytechnic Institute). Adds a security regression suite (incl. symlink bypass).
 
 ## [5.7.1] - 2026-06-10 — The Canonical Edition
 

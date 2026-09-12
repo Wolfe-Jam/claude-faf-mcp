@@ -199,7 +199,6 @@ export class FafEngineAdapter {
     const projectPath = pathArgs[0] || this.workingDirectory;
     const actionArg = args.find(arg => arg.startsWith('--action='));
     const action = actionArg ? actionArg.substring('--action='.length) : undefined;
-    const force = args.includes('--force');
     const importRetired = (tool: string): FafEngineResult => ({
       success: false,
       error: `${tool} import was retired in 6.0.0; export and sync remain.`,
@@ -224,7 +223,7 @@ export class FafEngineAdapter {
         case 'agents': {
           if (action === 'import') {return importRetired('AGENTS.md');}
           const result = action === 'export'
-            ? await agentsExportCommand(projectPath, { force })
+            ? await agentsExportCommand(projectPath)
             : await agentsSyncCommand(projectPath);
           return this.outcome(result, 'Agents command failed', startTime);
         }
@@ -232,7 +231,7 @@ export class FafEngineAdapter {
         case 'cursor': {
           if (action === 'import') {return importRetired('.cursorrules');}
           const result = action === 'export'
-            ? await cursorExportCommand(projectPath, { force })
+            ? await cursorExportCommand(projectPath)
             : await cursorSyncCommand(projectPath);
           return this.outcome(result, 'Cursor command failed', startTime);
         }
@@ -240,14 +239,14 @@ export class FafEngineAdapter {
         case 'gemini': {
           if (action === 'import') {return importRetired('GEMINI.md');}
           const result = action === 'export'
-            ? await geminiExportCommand(projectPath, { force })
+            ? await geminiExportCommand(projectPath)
             : await geminiSyncCommand(projectPath);
           return this.outcome(result, 'Gemini command failed', startTime);
         }
 
         case 'conductor': {
           if (action === 'import') {return importRetired('conductor/');}
-          const result = await conductorExportCommand(projectPath, { force });
+          const result = await conductorExportCommand(projectPath);
           return this.outcome(result, 'Conductor command failed', startTime);
         }
 

@@ -1,17 +1,19 @@
 /**
- * Gemini Command - v4.5.0 Interop Edition
- *
- * Export/Sync project.faf to GEMINI.md (the import into project.faf was retired in 6.0.0)
- * Bundled command — no CLI dependency required.
+ * Gemini command — writes project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed
+ * block. export and sync are the same write: faf-cli's injector changes only
+ * faf's block, and a GEMINI.md already there keeps every line outside it (faf
+ * never refuses, reclaims or replaces the file). The import into project.faf
+ * was retired in 6.0.0. Bundled command — no CLI dependency required.
  */
 
 import path from 'path';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
-import { parse as parseYAML } from '../fix-once/yaml.js';
+import { readFafMapping } from '../fix-once/yaml.js';
 import {
   geminiExport,
 } from '../parsers/gemini-parser.js';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 export interface GeminiCommandResult {
   success: boolean;
@@ -22,11 +24,10 @@ export interface GeminiCommandResult {
 }
 
 /**
- * Export project.faf to GEMINI.md
+ * Write project.faf into GEMINI.md as a faf-managed block.
  */
 export async function geminiExportCommand(
-  projectPath: string,
-  options: { force?: boolean } = {}
+  projectPath: string
 ): Promise<GeminiCommandResult> {
   const fafPath = await findFafFile(projectPath);
   if (!fafPath) {
@@ -38,40 +39,30 @@ export async function geminiExportCommand(
   }
 
   const outputPath = path.join(projectPath, 'GEMINI.md');
-  if (!options.force) {
-    try {
-      await fs.access(outputPath);
-      return {
-        success: false,
-        action: 'export',
-        message: 'GEMINI.md already exists. Use force: true to overwrite.',
-      };
-    } catch {
-      // File doesn't exist, proceed
-    }
-  }
-
-  const fafContent = await fs.readFile(fafPath, 'utf-8');
-  const fafData = parseYAML(fafContent);
+  const fafData = await readFafMapping(fafPath);
+  const existed = fs.existsSync(outputPath);
+  const { legacyStampNoteAt } = await fafCli;
+  const note = legacyStampNoteAt(outputPath, 'GEMINI.md');
 
   const result = await geminiExport(fafData, outputPath);
+  const warnings = [...result.warnings, ...(note ? [note] : [])];
 
   return {
     success: result.success,
     action: 'export',
-    message: result.success
-      ? `Exported project.faf to GEMINI.md`
-      : 'Export failed',
+    message: (existed
+      ? `Wrote faf's block into GEMINI.md from project.faf; every line outside the block is kept`
+      : `Wrote GEMINI.md from project.faf`) + (note ? `\n${note}` : ''),
     data: { filePath: result.filePath },
-    warnings: result.warnings,
+    warnings,
   };
 }
 
 /**
- * Sync project.faf → GEMINI.md — the same as export with force; project.faf is the source of truth.
+ * Sync project.faf → GEMINI.md: the same write as export (project.faf is the source of truth).
  */
 export async function geminiSyncCommand(
   projectPath: string
 ): Promise<GeminiCommandResult> {
-  return await geminiExportCommand(projectPath, { force: true });
+  return { ...(await geminiExportCommand(projectPath)), action: 'sync' };
 }

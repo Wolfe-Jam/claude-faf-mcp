@@ -18,9 +18,14 @@
  *
  * Nothing is written from a project.faf that is not a YAML mapping (empty,
  * scalar, list or malformed): the hook returns 'error' and CLAUDE.md is kept.
+ *
+ * Every read and write is faf-cli's: project.faf and CLAUDE.md are read with
+ * its link rules (a link out of the project is refused, never followed), and
+ * CLAUDE.md is written with its atomic injector. A write that fails leaves the
+ * file exactly as it was, and the diagnostic says "not written; original kept".
  */
 import * as path from 'path';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 import { parse as parseYAML } from 'yaml';
 import { parse as parseFafYaml } from '../fix-once/yaml';
 import { sealForScore } from '../../trust/receipt';
@@ -85,31 +90,25 @@ async function scoreLine(fafContent: string): Promise<string> {
 export async function sessionRefresh(projectDir: string = process.cwd()): Promise<SessionRefreshResult> {
   try {
     const fafPath = path.join(projectDir, 'project.faf');
-    let fafStat;
     try {
-      fafStat = await fs.stat(fafPath);
+      fs.statSync(fafPath);
     } catch {
       return { action: 'no-faf', message: '' }; // not a .faf project — silently not our session
     }
 
-    const claudeMdPath = path.join(projectDir, 'CLAUDE.md');
-    let claudeStat = null;
-    let claudeContent: string | null = null;
-    try {
-      claudeStat = await fs.stat(claudeMdPath);
-      claudeContent = await fs.readFile(claudeMdPath, 'utf-8');
-    } catch {
-      /* CLAUDE.md does not exist yet */
-    }
+    // faf-cli's readers, renderer, block finder and injector.
+    const { findFafBlock, readFaf, readFafRaw, readClaudeMd, renderClaudeMd, writeClaudeMd, resolveInside } =
+      await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
 
-    const fafContent = await fs.readFile(fafPath, 'utf-8');
+    const claudeMdPath = path.join(projectDir, 'CLAUDE.md');
+    const fafContent = readFafRaw(fafPath);
+    const fafStat = fs.statSync(resolveInside(projectDir, fafPath, { read: true }));
+    const claudeContent = readClaudeMd(projectDir);
+    const claudeStat = claudeContent === null ? null : fs.statSync(resolveInside(projectDir, claudeMdPath, { read: true }));
+
     const seal = await scoreLine(fafContent);
     const intent = intentCount(fafContent);
     const intentSuffix = intent > 0 ? ` · +${intent} intent the code can't carry` : '';
-
-    // CLAUDE.md is faf-cli's own bytes: its renderer, its block finder, its injector.
-    const { findFafBlock, readFaf, renderClaudeMd, writeClaudeMd } =
-      await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
 
     // Freshness gate: a CURRENT faf block (faf-cli's footer) + CLAUDE.md at least
     // as new as project.faf → no WRITE (no mtime churn), but the heartbeat still

@@ -1,18 +1,13 @@
 /**
- * Conductor Command - v4.5.0 Interop Edition
- *
- * Export project.faf to a conductor/ directory (the import into project.faf was retired in 6.0.0)
- * Bundled command — no CLI dependency required.
+ * Conductor command — writes project.faf into a conductor/ folder (Google
+ * Conductor) as one faf-managed block per file. A file already there keeps
+ * every line outside its block; there is no overwrite. The import into
+ * project.faf was retired in 6.0.0. Bundled command — no CLI dependency required.
  */
 
-import path from 'path';
-import { promises as fs } from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
-import { parse as parseYAML } from '../fix-once/yaml.js';
-import {
-  conductorExport,
-  type FafFromConductor,
-} from '../parsers/conductor-parser.js';
+import { readFafMapping } from '../fix-once/yaml.js';
+import { conductorExport } from '../parsers/conductor-parser.js';
 
 export interface ConductorCommandResult {
   success: boolean;
@@ -23,12 +18,9 @@ export interface ConductorCommandResult {
 }
 
 /**
- * Export project.faf to conductor/ directory
+ * Write project.faf into the conductor/ folder.
  */
-export async function conductorExportCommand(
-  projectPath: string,
-  options: { force?: boolean } = {}
-): Promise<ConductorCommandResult> {
+export async function conductorExportCommand(projectPath: string): Promise<ConductorCommandResult> {
   const fafPath = await findFafFile(projectPath);
   if (!fafPath) {
     return {
@@ -38,58 +30,16 @@ export async function conductorExportCommand(
     };
   }
 
-  const outputPath = path.join(projectPath, 'conductor');
-
-  // Check if conductor/ already exists
-  if (!options.force) {
-    try {
-      const stat = await fs.stat(outputPath);
-      if (stat.isDirectory()) {
-        return {
-          success: false,
-          action: 'export',
-          message: 'conductor/ directory already exists. Use force: true to overwrite.',
-        };
-      }
-    } catch {
-      // Doesn't exist, proceed
-    }
-  }
-
-  const fafContent = await fs.readFile(fafPath, 'utf-8');
-  const fafData = parseYAML(fafContent);
-
-  // Build the conductor-compatible structure
-  const conductorFaf: FafFromConductor = {
-    project: {
-      name: fafData.project?.name || 'Unknown',
-      description: fafData.project?.description || fafData.project?.goal || '',
-      type: fafData.project?.type || 'application',
-      goals: fafData.project?.goals || [],
-      stack: {
-        languages: fafData.stack?.languages || fafData.project?.stack?.languages || [],
-        frameworks: fafData.stack?.frameworks || fafData.project?.stack?.frameworks || [],
-        databases: fafData.stack?.databases || fafData.project?.stack?.databases || [],
-        infrastructure: fafData.stack?.infrastructure || fafData.project?.stack?.infrastructure || [],
-      },
-      rules: fafData.project?.rules || [],
-      guidelines: fafData.project?.guidelines || [],
-    },
-    metadata: {
-      source: 'faf',
-      imported: new Date().toISOString(),
-    },
-  };
-
-  const result = await conductorExport(conductorFaf, outputPath);
+  const fafData = await readFafMapping(fafPath);
+  const result = await conductorExport(fafData, projectPath);
 
   return {
     success: result.success,
     action: 'export',
-    message: result.success
-      ? `Exported project.faf to conductor/ (${result.filesGenerated.length} files)`
-      : 'Export failed',
-    data: { filesGenerated: result.filesGenerated },
+    message:
+      `Wrote faf's block into conductor/ (${result.filesWritten.join(', ')}); every line outside each block is kept` +
+      (result.warnings.length ? `\n${result.warnings.join('\n')}` : ''),
+    data: { filesWritten: result.filesWritten },
     warnings: result.warnings,
   };
 }

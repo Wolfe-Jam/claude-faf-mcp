@@ -1,17 +1,19 @@
 /**
- * Agents Command - v4.5.0 Interop Edition
- *
- * Export/Sync project.faf to AGENTS.md (the import into project.faf was retired in 6.0.0)
- * Bundled command — no CLI dependency required.
+ * Agents command — writes project.faf into AGENTS.md (OpenAI Codex and other agents) as a faf-managed
+ * block. export and sync are the same write: faf-cli's injector changes only
+ * faf's block, and a AGENTS.md already there keeps every line outside it (faf
+ * never refuses, reclaims or replaces the file). The import into project.faf
+ * was retired in 6.0.0. Bundled command — no CLI dependency required.
  */
 
 import path from 'path';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
-import { parse as parseYAML } from '../fix-once/yaml.js';
+import { readFafMapping } from '../fix-once/yaml.js';
 import {
   agentsExport,
 } from '../parsers/agents-parser.js';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 export interface AgentsCommandResult {
   success: boolean;
@@ -22,13 +24,11 @@ export interface AgentsCommandResult {
 }
 
 /**
- * Export project.faf to AGENTS.md
+ * Write project.faf into AGENTS.md as a faf-managed block.
  */
 export async function agentsExportCommand(
-  projectPath: string,
-  options: { force?: boolean } = {}
+  projectPath: string
 ): Promise<AgentsCommandResult> {
-  // Check for existing .faf
   const fafPath = await findFafFile(projectPath);
   if (!fafPath) {
     return {
@@ -38,45 +38,31 @@ export async function agentsExportCommand(
     };
   }
 
-  // Check if AGENTS.md already exists
   const outputPath = path.join(projectPath, 'AGENTS.md');
-  if (!options.force) {
-    try {
-      await fs.access(outputPath);
-      return {
-        success: false,
-        action: 'export',
-        message: 'AGENTS.md already exists. Use force: true to overwrite.',
-      };
-    } catch {
-      // File doesn't exist, proceed
-    }
-  }
+  const fafData = await readFafMapping(fafPath);
+  const existed = fs.existsSync(outputPath);
+  const { legacyStampNoteAt } = await fafCli;
+  const note = legacyStampNoteAt(outputPath, 'AGENTS.md');
 
-  // Read and parse .faf
-  const fafContent = await fs.readFile(fafPath, 'utf-8');
-  const fafData = parseYAML(fafContent);
-
-  // Export
   const result = await agentsExport(fafData, outputPath);
+  const warnings = [...result.warnings, ...(note ? [note] : [])];
 
   return {
     success: result.success,
     action: 'export',
-    message: result.success
-      ? `Exported project.faf to AGENTS.md`
-      : 'Export failed',
+    message: (existed
+      ? `Wrote faf's block into AGENTS.md from project.faf; every line outside the block is kept`
+      : `Wrote AGENTS.md from project.faf`) + (note ? `\n${note}` : ''),
     data: { filePath: result.filePath },
-    warnings: result.warnings,
+    warnings,
   };
 }
 
 /**
- * Sync project.faf → AGENTS.md — the same as export with force; project.faf is the source of truth.
+ * Sync project.faf → AGENTS.md: the same write as export (project.faf is the source of truth).
  */
 export async function agentsSyncCommand(
   projectPath: string
 ): Promise<AgentsCommandResult> {
-  // FAF is always source of truth in MCP context
-  return await agentsExportCommand(projectPath, { force: true });
+  return { ...(await agentsExportCommand(projectPath)), action: 'sync' };
 }

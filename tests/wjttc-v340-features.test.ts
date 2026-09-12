@@ -152,7 +152,7 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafQuick = tools.find(t => t.name === 'faf_quick');
         expect(fafQuick).toBeDefined();
-        expect(fafQuick?.description).toContain('Lightning-fast');
+        expect(fafQuick?.description).toContain('Create a new project.faf from one line');
       });
 
       it('should include faf_doctor in tool list', async () => {
@@ -504,7 +504,7 @@ human_context:
         const text = getTextContent(result.content);
 
         expect(text).toContain('Usage');
-        expect(text).toContain('project-name, description');
+        expect(text).toContain('project-name, goal');
       });
 
       it('should create .faf from quick input', async () => {
@@ -540,7 +540,7 @@ human_context:
         expect(result.isError).toBe(true);
       });
 
-      it('should not overwrite without force', async () => {
+      it('should not overwrite an existing project.faf', async () => {
         // Create first
         await toolHandler.callTool('faf_quick', {
           path: quickTestDir,

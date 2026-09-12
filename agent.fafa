@@ -38,7 +38,7 @@ capabilities:
       - faf
   - name: faf_init
     type: tool
-    description: Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won't overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.
+    description: "Create a new project.faf for a folder: faf-cli detects its name, language and stack, and the reply gives the file path and starting score. An existing project.faf is left as it is — use faf_auto to fill its empty slots from your manifests, or faf_go for the human 6Ws. force: true replaces an existing project.faf with a fresh one, after copying the old file to a backup beside it."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -50,7 +50,7 @@ capabilities:
       - faf
   - name: faf_setup
     type: tool
-    description: "Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook."
+    description: "Install the native SessionStart hook in the project settings (<project>/.claude/settings.json) — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings first (preview); writes only with confirm: true, install or remove. faf changes only its own hook entry; every other key and hook stays as written. remove: true takes out only the hook whose command is exactly the faf hook command. Never writes the user settings: the home folder is refused."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -80,7 +80,7 @@ capabilities:
       - faf
   - name: faf_readme
     type: tool
-    description: Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching
+    description: "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -134,7 +134,7 @@ capabilities:
       - faf
   - name: faf_quick
     type: tool
-    description: 'Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting"'
+    description: 'Create a new project.faf from one line: "name, goal, language, framework, hosting" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.'
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -146,25 +146,25 @@ capabilities:
       - faf
   - name: faf_agents
     type: tool
-    description: Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!
+    description: Write project.faf into AGENTS.md (OpenAI/Codex) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_cursor
     type: tool
-    description: Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!
+    description: Write project.faf into .cursorrules (Cursor IDE) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_gemini
     type: tool
-    description: Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!
+    description: Write project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_conductor
     type: tool
-    description: Export project.faf to a conductor/ directory (Google Conductor) - AI interop!
+    description: Write project.faf into Google Conductor's conductor/ folder — product.md, tech-stack.md, workflow.md and product-guidelines.md — as one faf-managed block per file. A file already there keeps every line outside the block.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -176,7 +176,7 @@ capabilities:
       - faf
   - name: faf_tri_sync
     type: tool
-    description: Write MEMORY.md from project.faf (tri-sync; faf_sync writes CLAUDE.md)
+    description: "Write project.faf as a faf-managed block into the MEMORY.md Claude Code loads for this project (~/.claude/projects/<project-id>/memory/MEMORY.md, or under CLAUDE_CONFIG_DIR). Only the block changes; every note of Claude's is kept, and the reply says so only after reading the file back. action: status reads only. faf_sync writes CLAUDE.md."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf

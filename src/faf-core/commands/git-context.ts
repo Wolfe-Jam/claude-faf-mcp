@@ -7,7 +7,9 @@
  */
 
 import path from 'path';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
+import { notWritten } from '../../utils/write-outcome.js';
 import {
   parseGitHubUrl,
   fetchGitHubMetadata,
@@ -49,6 +51,16 @@ export async function gitContextCommand(
 
   const { owner, repo } = parsed;
 
+  // faf_git writes only a new project.faf. One already there is the user's:
+  // refused before anything is fetched, and left exactly as it is.
+  const target = outputPath ? path.join(outputPath, 'project.faf') : undefined;
+  if (target && present(target)) {
+    return {
+      success: false,
+      message: `project.faf already exists at ${target}; faf_git writes only a new file, so it wrote nothing. faf_auto fills its empty slots from the repo (existing values kept).`,
+    };
+  }
+
   try {
     // Fetch metadata with file checks
     const metadata = await fetchGitHubMetadata(owner, repo, true);
@@ -60,11 +72,17 @@ export async function gitContextCommand(
     const { content, score } = await generateEnhancedFaf(metadata, files);
     const tier = getScoreTier(score);
 
-    // Write to file if output path provided
+    // Write to file if output path provided — faf-cli's safe write: inside the
+    // folder, atomic, and refused if a file appeared there meanwhile.
     let filePath: string | undefined;
-    if (outputPath) {
-      filePath = path.join(outputPath, 'project.faf');
-      await fs.writeFile(filePath, content, 'utf-8');
+    if (outputPath && target) {
+      const { safeWriteFile } = await fafCli;
+      try {
+        safeWriteFile(target, content, { root: outputPath, expect: null });
+      } catch (error) {
+        return { success: false, message: notWritten(target, error, false) };
+      }
+      filePath = target;
     }
 
     return {
@@ -87,5 +105,15 @@ export async function gitContextCommand(
       success: false,
       message: `Failed to fetch GitHub metadata: ${errorMessage}`,
     };
+  }
+}
+
+/** True when something is at `p` — a file, a folder or a link (dangling included). */
+function present(p: string): boolean {
+  try {
+    fs.lstatSync(p);
+    return true;
+  } catch {
+    return false;
   }
 }

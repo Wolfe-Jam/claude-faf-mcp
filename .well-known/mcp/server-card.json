@@ -64,7 +64,7 @@
   },
   {
    "name": "faf_init",
-   "description": "Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won't overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.",
+   "description": "Create a new project.faf for a folder: faf-cli detects its name, language and stack, and the reply gives the file path and starting score. An existing project.faf is left as it is — use faf_auto to fill its empty slots from your manifests, or faf_go for the human 6Ws. force: true replaces an existing project.faf with a fresh one, after copying the old file to a backup beside it.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -74,7 +74,7 @@
      },
      "force": {
       "type": "boolean",
-      "description": "Overwrite existing project.faf if it exists"
+      "description": "Replace an existing project.faf with a fresh one: every value and comment in it is replaced. The old file is copied to project.faf.bak-<time> first."
      }
     },
     "additionalProperties": false
@@ -96,7 +96,7 @@
   },
   {
    "name": "faf_setup",
-   "description": "Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook.",
+   "description": "Install the native SessionStart hook in the project settings (<project>/.claude/settings.json) — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings first (preview); writes only with confirm: true, install or remove. faf changes only its own hook entry; every other key and hook stays as written. remove: true takes out only the hook whose command is exactly the faf hook command. Never writes the user settings: the home folder is refused.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -106,11 +106,11 @@
      },
      "confirm": {
       "type": "boolean",
-      "description": "Actually write the hook into .claude/settings.json. Without it, faf_setup only previews."
+      "description": "Write the change to the project settings (.claude/settings.json). Without it, faf_setup only previews — install and remove alike."
      },
      "remove": {
       "type": "boolean",
-      "description": "Remove the faf SessionStart hook (and only it) from .claude/settings.json."
+      "description": "Remove the faf SessionStart hook (and only it) from the project settings. Previews unless confirm: true."
      }
     },
     "additionalProperties": false
@@ -216,17 +216,13 @@
   },
   {
    "name": "faf_readme",
-   "description": "Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching",
+   "description": "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "apply": {
       "type": "boolean",
-      "description": "Apply extracted content to project.faf (default: preview only)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Overwrite existing human_context values (default: only fill empty slots)"
+      "description": "Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written."
      },
      "path": {
       "type": "string",
@@ -415,7 +411,7 @@
   },
   {
    "name": "faf_quick",
-   "description": "Lightning-fast .faf creation - One-liner format: \"name, description, language, framework, hosting\"",
+   "description": "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -425,11 +421,7 @@
      },
      "input": {
       "type": "string",
-      "description": "Quick input: \"project-name, description, language, framework, hosting\" (minimum: name, description)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing .faf file"
+      "description": "Quick input: \"project-name, goal, language, framework, hosting\" (minimum: name, goal)"
      }
     },
     "required": [
@@ -454,7 +446,7 @@
   },
   {
    "name": "faf_agents",
-   "description": "Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!",
+   "description": "Write project.faf into AGENTS.md (OpenAI/Codex) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -465,10 +457,6 @@
        "sync"
       ],
       "description": "Action: export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
      },
      "path": {
       "type": "string",
@@ -483,7 +471,7 @@
   },
   {
    "name": "faf_cursor",
-   "description": "Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!",
+   "description": "Write project.faf into .cursorrules (Cursor IDE) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -494,10 +482,6 @@
        "sync"
       ],
       "description": "Action: export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
      },
      "path": {
       "type": "string",
@@ -512,7 +496,7 @@
   },
   {
    "name": "faf_gemini",
-   "description": "Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!",
+   "description": "Write project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -523,10 +507,6 @@
        "sync"
       ],
       "description": "Action: export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
      },
      "path": {
       "type": "string",
@@ -541,7 +521,7 @@
   },
   {
    "name": "faf_conductor",
-   "description": "Export project.faf to a conductor/ directory (Google Conductor) - AI interop!",
+   "description": "Write project.faf into Google Conductor's conductor/ folder — product.md, tech-stack.md, workflow.md and product-guidelines.md — as one faf-managed block per file. A file already there keeps every line outside the block.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -551,10 +531,6 @@
        "export"
       ],
       "description": "Action: export (.faf -> conductor/)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
      },
      "path": {
       "type": "string",
@@ -590,7 +566,7 @@
   },
   {
    "name": "faf_tri_sync",
-   "description": "Write MEMORY.md from project.faf (tri-sync; faf_sync writes CLAUDE.md)",
+   "description": "Write project.faf as a faf-managed block into the MEMORY.md Claude Code loads for this project (~/.claude/projects/<project-id>/memory/MEMORY.md, or under CLAUDE_CONFIG_DIR). Only the block changes; every note of Claude's is kept, and the reply says so only after reading the file back. action: status reads only. faf_sync writes CLAUDE.md.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -600,7 +576,7 @@
        "export",
        "status"
       ],
-      "description": "export = sync .faf to MEMORY.md, status = show MEMORY.md state"
+      "description": "export = write faf's block into MEMORY.md (default), status = show what MEMORY.md holds (reads only)"
      },
      "path": {
       "type": "string",

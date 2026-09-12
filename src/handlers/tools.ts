@@ -8,15 +8,15 @@ import { findFafFile } from '../utils/faf-file-finder.js';
 import { confinePath, PathConfinementError } from '../utils/safe-path';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
-import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
 // Truthful single-source FAF score wiring — faf-cli, loaded through
 // src/utils/faf-cli-bridge.ts (ESM from CommonJS via import()).
 import { fafCli } from '../utils/faf-cli-bridge.js';
-import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
 import { buildReceipt, renderReceipt } from '../trust/receipt.js';
 import { composedTurboCat, turboCatDisplay } from '../faf-core/extract/turbocat-bridge.js';
-import { setupSessionHook, HOOK_COMMAND } from '../faf-core/commands/setup-hook.js';
+import { setupSessionHook, HOOK_COMMAND, SETTINGS_SCOPE } from '../faf-core/commands/setup-hook.js';
+import { notWritten, oneLine } from '../utils/write-outcome.js';
+import { yamlFixHint, NO_KEYS_FIX } from '../faf-core/fix-once/yaml.js';
 
 /**
  * The Core tier — the 12 distinct, well-described tools advertised by default.
@@ -95,6 +95,49 @@ function liftLegacyProjectName(data: Record<string, unknown>): void {
   if (typeof data.project === 'string') {
     data.project = { name: data.project };
   }
+}
+
+/** Leaf values of .faf data by dotted path (lists compared whole). `_meta` is
+ *  faf's runtime hint, never a slot, and is skipped. */
+function leaves(data: unknown, prefix = '', out = new Map<string, unknown>()): Map<string, unknown> {
+  if (isMapping(data)) {
+    for (const [k, v] of Object.entries(data)) {
+      if (!prefix && k === '_meta') {continue;}
+      leaves(v, prefix ? `${prefix}.${k}` : k, out);
+    }
+  } else if (prefix) {
+    out.set(prefix, data);
+  }
+  return out;
+}
+
+function isBlank(v: unknown): boolean {
+  return v === undefined || v === null || (typeof v === 'string' && v.trim() === '') ||
+    (Array.isArray(v) && v.length === 0) || (isMapping(v) && Object.keys(v).length === 0);
+}
+
+/** What a fill did to .faf data: the empty slots it filled, and every value
+ *  the file already held that it changed ("path: old → new"). */
+function slotChanges(before: unknown, after: unknown): { filledPaths: string[]; ignoredPaths: string[]; changedValues: string[] } {
+  const was = leaves(before);
+  const filledPaths: string[] = [];
+  const ignoredPaths: string[] = [];
+  const changedValues: string[] = [];
+  for (const [p, v] of leaves(after)) {
+    const old = was.get(p);
+    if (JSON.stringify(old) === JSON.stringify(v)) {continue;}
+    if (isBlank(old)) {
+      if (v === 'slotignored') {ignoredPaths.push(p);} else if (!isBlank(v)) {filledPaths.push(p);}
+    } else {
+      changedValues.push(`${p}: ${JSON.stringify(old)} → ${JSON.stringify(v)}`);
+    }
+  }
+  return { filledPaths, ignoredPaths, changedValues };
+}
+
+/** A YAML mapping as JS: a plain object (not null, not a list). */
+function isMapping(v: unknown): v is Record<string, unknown> {
+  return v !== null && typeof v === 'object' && !Array.isArray(v);
 }
 
 export class FafToolHandler {
@@ -256,7 +299,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_init',
-          description: 'Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won\'t overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.',
+          description: 'Create a new project.faf for a folder: faf-cli detects its name, language and stack, and the reply gives the file path and starting score. An existing project.faf is left as it is — use faf_auto to fill its empty slots from your manifests, or faf_go for the human 6Ws. force: true replaces an existing project.faf with a fresh one, after copying the old file to a backup beside it.',
           annotations: {
             title: 'Initialize .faf',
             readOnlyHint: false,
@@ -270,7 +313,7 @@ export class FafToolHandler {
                 type: 'string',
                 description: 'Project path or name. Smart resolution: "my-app" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too. Omit to create ~/Projects/unnamed-project; pass the workspace path to init it.'
               },
-              force: { type: 'boolean', description: 'Overwrite existing project.faf if it exists' }
+              force: { type: 'boolean', description: 'Replace an existing project.faf with a fresh one: every value and comment in it is replaced. The old file is copied to project.faf.bak-<time> first.' }
             },
             additionalProperties: false
           }
@@ -337,7 +380,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_setup',
-          description: 'Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook.',
+          description: 'Install the native SessionStart hook in the project settings (<project>/.claude/settings.json) — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings first (preview); writes only with confirm: true, install or remove. faf changes only its own hook entry; every other key and hook stays as written. remove: true takes out only the hook whose command is exactly the faf hook command. Never writes the user settings: the home folder is refused.',
           annotations: {
             title: 'Native Session Hook Setup',
             readOnlyHint: false,
@@ -348,8 +391,8 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               path: { type: 'string', description: 'Project path. Defaults to the current project context.' },
-              confirm: { type: 'boolean', description: 'Actually write the hook into .claude/settings.json. Without it, faf_setup only previews.' },
-              remove: { type: 'boolean', description: 'Remove the faf SessionStart hook (and only it) from .claude/settings.json.' }
+              confirm: { type: 'boolean', description: 'Write the change to the project settings (.claude/settings.json). Without it, faf_setup only previews — install and remove alike.' },
+              remove: { type: 'boolean', description: 'Remove the faf SessionStart hook (and only it) from the project settings. Previews unless confirm: true.' }
             },
             additionalProperties: false
           },
@@ -488,7 +531,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_readme',
-          description: 'Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching',
+          description: 'Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli\'s sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.',
           annotations: {
             title: 'Extract from README',
             readOnlyHint: false,
@@ -498,8 +541,7 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              apply: { type: 'boolean', description: 'Apply extracted content to project.faf (default: preview only)' },
-              force: { type: 'boolean', description: 'Overwrite existing human_context values (default: only fill empty slots)' },
+              apply: { type: 'boolean', description: 'Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written.' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
@@ -819,7 +861,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_quick',
-          description: 'Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting"',
+          description: 'Create a new project.faf from one line: "name, goal, language, framework, hosting" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.',
           annotations: {
             title: 'Quick Create',
             readOnlyHint: false,
@@ -830,8 +872,7 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' },
-              input: { type: 'string', description: 'Quick input: "project-name, description, language, framework, hosting" (minimum: name, description)' },
-              force: { type: 'boolean', description: 'Force overwrite existing .faf file' }
+              input: { type: 'string', description: 'Quick input: "project-name, goal, language, framework, hosting" (minimum: name, goal)' }
             },
             required: ['input'],
             additionalProperties: false
@@ -884,7 +925,7 @@ export class FafToolHandler {
         // ============================================================================
         {
           name: 'faf_agents',
-          description: 'Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!',
+          description: 'Write project.faf into AGENTS.md (OpenAI/Codex) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.',
           annotations: {
             title: 'Sync AGENTS.md',
             readOnlyHint: false,
@@ -895,7 +936,6 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)' },
-              force: { type: 'boolean', description: 'Force overwrite existing files' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -904,7 +944,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_cursor',
-          description: 'Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!',
+          description: 'Write project.faf into .cursorrules (Cursor IDE) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.',
           annotations: {
             title: 'Sync .cursorrules',
             readOnlyHint: false,
@@ -915,7 +955,6 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)' },
-              force: { type: 'boolean', description: 'Force overwrite existing files' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -924,7 +963,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_gemini',
-          description: 'Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!',
+          description: 'Write project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed block. A file already there keeps every line outside the block; the block is updated in place on later runs.',
           annotations: {
             title: 'Sync GEMINI.md',
             readOnlyHint: false,
@@ -935,7 +974,6 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)' },
-              force: { type: 'boolean', description: 'Force overwrite existing files' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -944,7 +982,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_conductor',
-          description: 'Export project.faf to a conductor/ directory (Google Conductor) - AI interop!',
+          description: 'Write project.faf into Google Conductor\'s conductor/ folder — product.md, tech-stack.md, workflow.md and product-guidelines.md — as one faf-managed block per file. A file already there keeps every line outside the block.',
           annotations: {
             title: 'Sync Conductor',
             readOnlyHint: false,
@@ -955,7 +993,6 @@ export class FafToolHandler {
             type: 'object',
             properties: {
               action: { type: 'string', enum: ['export'], description: 'Action: export (.faf -> conductor/)' },
-              force: { type: 'boolean', description: 'Force overwrite existing files' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -983,7 +1020,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_tri_sync',
-          description: 'Write MEMORY.md from project.faf (tri-sync; faf_sync writes CLAUDE.md)',
+          description: 'Write project.faf as a faf-managed block into the MEMORY.md Claude Code loads for this project (~/.claude/projects/<project-id>/memory/MEMORY.md, or under CLAUDE_CONFIG_DIR). Only the block changes; every note of Claude\'s is kept, and the reply says so only after reading the file back. action: status reads only. faf_sync writes CLAUDE.md.',
           annotations: {
             title: 'Tri-Sync to MEMORY.md',
             readOnlyHint: false,
@@ -996,7 +1033,7 @@ export class FafToolHandler {
               action: {
                 type: 'string',
                 enum: ['export', 'status'],
-                description: 'export = sync .faf to MEMORY.md, status = show MEMORY.md state'
+                description: 'export = write faf\'s block into MEMORY.md (default), status = show what MEMORY.md holds (reads only)'
               },
               path: {
                 type: 'string',
@@ -1240,7 +1277,10 @@ Once confirmed, the sequence is:
         };
       }
 
-      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
+      // faf-cli's reader: a project.faf that is a link out of the project, or
+      // to a file that is not a .faf, is refused and never read into the reply.
+      const { readFafRaw } = await fafCli;
+      const fafContent = readFafRaw(fafResult.path);
       const lines = fafContent.split('\n').slice(0, 20);
 
       return {
@@ -1262,22 +1302,28 @@ Once confirmed, the sequence is:
     }
   }
 
-  // ── FAFm Memory layer ── etch/recall over the project soul (.fafm). Quiet + typed.
+  // ── FAFm Memory layer ── etch/recall over the project soul (.fafm), composed
+  // from faf-cli's Soul (the one `faf memory etch` uses). Loading and saving
+  // through it keeps what a soul carries beyond its facts: comments, key order,
+  // the version, a hand-kept index, facts or sessions in a shape faf does not
+  // model (a change that would rewrite one is refused), unknown keys. Re-etching
+  // an id merges into that fact (links, source, tags and extra fields kept; a
+  // priority is never lowered unless one is passed). The save is faf-cli's safe
+  // write: inside the project, atomic, never through a link out of it.
   private async handleFafEtch(args: any): Promise<CallToolResult> {
     const cwd = this.getProjectPath(args?.path);
     const soulPath = pathModule.join(cwd, 'soul.fafm');
     const namepoint = `@claude-code:${pathModule.basename(cwd)}`;
+    if (!fs.existsSync(cwd) || !fs.statSync(cwd).isDirectory()) {
+      return { content: [{ type: 'text', text: `faf_etch: ${cwd} is not a folder. soul.fafm was not written; faf_etch creates no folders.` }], isError: true };
+    }
+    const existed = fs.existsSync(soulPath);
     try {
-      // faf-cli's .fafm Soul — the one `faf memory etch` uses. Loading and saving
-      // through it keeps what a soul carries beyond its facts (index,
-      // memory.preferences / custom, unknown keys); before 5.23 the local Soul
-      // dropped them on every etch.
       const { FafmSoul } = await fafCli;
-      const soul = fs.existsSync(soulPath)
+      const soul = existed
         ? FafmSoul.load(soulPath)
         : new FafmSoul(namepoint, { profile: 'knowledge' });
       const fact = soul.etch(args.text, { id: args?.id, type: args?.type, priority: args?.priority, tags: args?.tags });
-      fs.mkdirSync(cwd, { recursive: true });
       soul.save(soulPath);
       const tagStr = fact.tags.length ? ', ' + fact.tags.join('/') : '';
       return {
@@ -1290,7 +1336,7 @@ Once confirmed, the sequence is:
         }
       };
     } catch (error: any) {
-      return { content: [{ type: 'text', text: `faf_etch failed: ${error?.message ?? String(error)}` }], isError: true };
+      return { content: [{ type: 'text', text: `faf_etch: ${notWritten(soulPath, error, existed)}` }], isError: true };
     }
   }
 
@@ -1304,7 +1350,9 @@ Once confirmed, the sequence is:
       };
     }
     try {
-      const soul = Soul.load(soulPath);
+      // faf-cli's Soul reads a bare-string fact as a fact with that text.
+      const { FafmSoul } = await fafCli;
+      const soul = FafmSoul.load(soulPath);
       const hits = soul.recall({ query: args?.query, tags: args?.tags, type: args?.type, minPriority: args?.minPriority, limit: args?.limit });
       const lines = hits.map((f) => `- [${f.priority}] ${f.text}${f.tags.length ? ` (${f.tags.join('/')})` : ''}${f.id ? ` {${f.id}}` : ''}`);
       return {
@@ -1395,7 +1443,7 @@ Once confirmed, the sequence is:
               `FAF SCORE: 0/100 (0%)  ○ INVALID\n\n` +
               `\`${fafPath}\` couldn't be parsed as a valid .faf YAML:\n` +
               `  ${error?.message ?? String(error)}\n\n` +
-              `Re-run \`faf_init\` with force: true to write a fresh project.faf.`,
+              `Fix: ${yamlFixHint(raw, fafPath)}`,
           },
         ],
         structuredContent: {
@@ -1513,7 +1561,10 @@ Once confirmed, the sequence is:
         fs.mkdirSync(targetDir, { recursive: true });
       }
 
-      // Check if any FAF file exists and force flag
+      // An existing file is the user's. writeFaf merges into a file that is
+      // there — the fresh render's values over the file's — so without force
+      // faf_init writes nothing. force is the explicit overwrite (`faf init
+      // --force`: writeFaf { replace: true }), after the old bytes are kept as a backup.
       const existingFaf = await findFafFile(targetDir);
       if (existingFaf && !args?.force) {
         // The user named this project: it becomes the session project, as on a write.
@@ -1521,13 +1572,19 @@ Once confirmed, the sequence is:
         return {
           content: [{
             type: 'text',
-            text: `🚀 Claude FAF Initialization:\n\n⚠️ ${existingFaf.filename} already exists in ${targetDir}\n💡 Use force: true to overwrite`
+            text: `🚀 Claude FAF Initialization:\n\n⚠️ ${existingFaf.filename} already exists in ${targetDir}; faf_init left it as it is.\n💡 faf_auto fills its empty slots from the repo (existing values kept); faf_go asks for the 6Ws.`
           }]
         };
       }
 
-      const { assembleFreshFaf, writeFaf, readFafRaw, scoreFafYaml } = await fafCli;
-      writeFaf(fafPath, assembleFreshFaf(targetDir) as any);
+      const { assembleFreshFaf, writeFaf, readFafRaw, scoreFafYaml, resolveInside, safeWriteFile } = await fafCli;
+      let backup: string | null = null;
+      if (args?.force === true && fs.existsSync(fafPath)) {
+        const original = fs.readFileSync(resolveInside(targetDir, fafPath, { read: true }));
+        backup = `${fafPath}.bak-${new Date().toISOString().replace(/[:.]/g, '-')}`;
+        safeWriteFile(backup, original, { root: targetDir, expect: null });
+      }
+      writeFaf(fafPath, assembleFreshFaf(targetDir) as any, { replace: args?.force === true });
       const score = scoreFafYaml(readFafRaw(fafPath));
 
       // The new project becomes the session project, so the next steps printed
@@ -1543,7 +1600,7 @@ Once confirmed, the sequence is:
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ Created project.faf\n📊 ${score.score}/100 (${score.populated}/${score.active} slots populated) — ${score.tier.name}\n\n${pathConfirmation}${sourceExplanation}\n\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_go for human 6Ws`
+          text: `🚀 Claude FAF Initialization:\n\n✅ ${backup ? `Replaced project.faf with a fresh one (force). The previous file is kept at ${backup}` : 'Created project.faf'}${existingFaf && existingFaf.filename !== 'project.faf' ? `\nℹ️ ${existingFaf.filename} is left as it was; faf reads project.faf first from now on.` : ''}\n📊 ${score.score}/100 (${score.populated}/${score.active} slots populated) — ${score.tier.name}\n\n${pathConfirmation}${sourceExplanation}\n\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_go for human 6Ws`
         }]
       };
     } catch (error: any) {
@@ -1654,11 +1711,12 @@ Once confirmed, the sequence is:
     });
 
     const lines: string[] = [`faf_setup — ${result.action}`, '', result.message];
-    if (result.settings && (result.action === 'preview' || result.action === 'installed')) {
-      lines.push('', `${result.settingsPath}:`, '```json', JSON.stringify(result.settings, null, 2), '```');
+    if (result.settings && (result.action === 'preview' || result.action === 'installed' || result.action === 'removed')) {
+      lines.push('', `${result.settingsPath} (${SETTINGS_SCOPE}):`, '```json', JSON.stringify(result.settings, null, 2), '```');
     }
     if (result.action === 'preview') {
-      lines.push('', `Hook command: ${HOOK_COMMAND}`, 'Nothing has been written. Confirm to install: faf_setup { confirm: true }');
+      const confirmCall = args?.remove === true ? 'faf_setup { remove: true, confirm: true }' : 'faf_setup { confirm: true }';
+      lines.push('', `Hook command: ${HOOK_COMMAND}`, `Nothing has been written. To write the ${SETTINGS_SCOPE}: ${confirmCall}`);
     }
 
     return {
@@ -1778,12 +1836,6 @@ HOW IT WORKS:
 
   private async handleFafDebug(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     try {
-      const fs = await import('fs');
-      const path = await import('path');
-      const { exec } = await import('child_process');
-      const { promisify } = await import('util');
-      const _execAsync = promisify(exec);
-
       const cwd = this.engineAdapter.getWorkingDirectory();
       const debugInfo = {
         workingDirectory: cwd,
@@ -1795,11 +1847,10 @@ HOW IT WORKS:
         pathEnv: process.env.PATH?.split(':') || []
       };
       
-      // Check write permissions
+      // Write permission, asked of the OS — faf_debug reads only: it never
+      // creates, writes or removes a file to find out (readOnlyHint is true).
       try {
-        const testFile = path.join(cwd, '.claude-faf-test');
-        fs.writeFileSync(testFile, 'test');
-        fs.unlinkSync(testFile);
+        fs.accessSync(cwd, fs.constants.W_OK);
         debugInfo.canWrite = true;
       } catch (error) {
         debugInfo.permissions.writeError = error instanceof Error ? error.message : String(error);
@@ -2044,32 +2095,40 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         return { content: [{ type: 'text', text: output }] };
       }
 
-      // Apply mode - update project.faf
-      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
-      const yaml = await import('yaml');
-      const fafData = yaml.parse(fafContent) || {};
-
-      if (!fafData.human_context) {
-        fafData.human_context = {};
-      }
-
-      let appliedCount = 0;
-      for (const [field, value] of Object.entries(extracted)) {
-        if (value) {
-          const existingValue = fafData.human_context[field];
-          if (!existingValue || args?.force) {
-            fafData.human_context[field] = value;
-            appliedCount++;
-          }
+      // Apply: faf-cli's fillEmpties — only an empty slot is filled; a value
+      // the file holds (a typed none in a 6W included: the person's words) is
+      // kept. writeFaf edits the file in place (comments, key order and exact
+      // scalars kept) and writes nothing when nothing changed.
+      const { readFaf, fillEmpties, writeFaf } = await fafCli;
+      const data = readFaf(fafResult.path) as Record<string, unknown>;
+      const filled = fillEmpties(data, { human_context: extracted } as Record<string, unknown>);
+      const hcBefore = isMapping(data.human_context) ? data.human_context : {};
+      const hcAfter = isMapping(filled.human_context) ? filled.human_context : {};
+      const changed = Object.keys(hcAfter).filter((k) => {
+        const v = hcAfter[k];
+        return typeof v === 'string' && v.trim() !== '' && v !== hcBefore[k];
+      });
+      let written = false;
+      if (changed.length > 0 && (isMapping(data.human_context) || data.human_context == null)) {
+        // Only the slots fillEmpties filled are added; `data` is the object
+        // readFaf returned, so a file edited meanwhile is refused, not written over.
+        data.human_context = { ...hcBefore, ...Object.fromEntries(changed.map((k) => [k, hcAfter[k]])) };
+        try {
+          written = writeFaf(fafResult.path, data as any);
+        } catch (error: any) {
+          return {
+            content: [{ type: 'text', text: `📖 FAF README Extraction:\n\n❌ ${notWritten(fafResult.path, error)}` }],
+            isError: true
+          };
         }
       }
-
-      fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
 
       return {
         content: [{
           type: 'text',
-          text: `📖 FAF README Extraction:\n\n✅ Applied ${appliedCount} field(s) to human_context\n📁 Updated: ${fafResult.filename}`
+          text: written
+            ? `📖 FAF README Extraction:\n\n✅ Filled ${changed.length} empty human_context slot(s): ${changed.join(', ')}\n📁 Updated: ${fafResult.filename} (every other line kept)`
+            : `📖 FAF README Extraction:\n\n✅ Nothing to fill: every slot the README answers already holds a value. ${fafResult.filename} was not changed.`
         }]
       };
     } catch (error: any) {
@@ -2118,16 +2177,25 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         };
       }
 
-      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
-      const yaml = await import('yaml');
-      const fafData = yaml.parse(fafContent) || {};
-
-      if (!fafData.human_context) {
-        fafData.human_context = {};
+      // faf-cli reads and writes: the one value changes in place; comments,
+      // key order and every other value stay as written.
+      const { readFaf, writeFaf } = await fafCli;
+      const fafData = readFaf(fafResult.path) as Record<string, unknown>;
+      if (fafData.human_context != null && !isMapping(fafData.human_context)) {
+        return {
+          content: [{
+            type: 'text',
+            text: `🧡 FAF Human Set:\n\n❌ human_context in ${fafResult.filename} is not a mapping, so faf will not replace it to set ${field}. ${fafResult.filename} was not changed; edit human_context by hand first.`
+          }],
+          isError: true
+        };
       }
-
-      fafData.human_context[field] = value;
-      fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+      fafData.human_context = { ...(fafData.human_context as Record<string, unknown> | undefined), [field]: value };
+      try {
+        writeFaf(fafResult.path, fafData as any);
+      } catch (error: any) {
+        return { content: [{ type: 'text', text: `🧡 FAF Human Set:\n\n❌ ${notWritten(fafResult.path, error)}` }], isError: true };
+      }
 
       return {
         content: [{
@@ -2169,9 +2237,9 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         };
       }
 
-      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
-      const yaml = await import('yaml');
-      const fafData = yaml.parse(fafContent) || {};
+      // faf-cli's reader: link rules, UTF-8, and a mapping (a list or scalar is refused).
+      const { readFaf } = await fafCli;
+      const fafData = readFaf(fafResult.path) as Record<string, any>;
       const humanContext = fafData.human_context || {};
 
       const fields = ['who', 'what', 'why', 'where', 'when', 'how'];
@@ -2286,7 +2354,6 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
    * 2. With answers: Applies answers to .faf file and returns new score
    */
   private async handleFafGo(args: any): Promise<CallToolResult> {
-    const yaml = await import('yaml');
     const cwd = this.getProjectPath(args?.path);
 
     try {
@@ -2307,16 +2374,15 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         const refusal = refuseHomeOrRoot(cwd);
         if (refusal) {return refusal;}
 
-        const { scoreFafYaml } = await fafCli;
+        const { scoreFafYaml, readFafRaw, readClaudeMd } = await fafCli;
         const scoreOf = (p: { path: string } | null | undefined): number | undefined => {
           if (!p) return undefined;
-          try { return scoreFafYaml(fs.readFileSync(p.path, 'utf-8')).score; } catch { return undefined; }
+          try { return scoreFafYaml(readFafRaw(p.path)).score; } catch { return undefined; }
         };
         // faf_auto also writes CLAUDE.md: compare its bytes so the report says
-        // what was actually written.
-        const claudePath = pathModule.join(cwd, 'CLAUDE.md');
+        // what was actually written. faf-cli's reader never follows a link out.
         const readClaude = (): string | null => {
-          try { return fs.readFileSync(claudePath, 'utf-8'); } catch { return null; }
+          try { return readClaudeMd(cwd); } catch { return null; }
         };
         const claudeBefore = readClaude();
 
@@ -2348,8 +2414,8 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         }
       }
 
-      const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
-      const fafData = yaml.parse(fafContent) || {};
+      const { readFaf, writeFaf } = await fafCli;
+      const fafData = readFaf(fafResult.path) as Record<string, any>;
       liftLegacyProjectName(fafData); // CFM ≤5.22.1 wrote `project: <name>`
 
       // Single-source the HUMAN interview from faf-cli's canonical SIX_WS_INTERVIEW
@@ -2414,8 +2480,13 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
           }
         }
 
-        // Write updated file
-        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
+        // faf-cli writes the answers into the file in place: comments, key
+        // order and every value not answered stay as written.
+        try {
+          writeFaf(fafResult.path, fafData as any);
+        } catch (error: any) {
+          return { content: [{ type: 'text', text: `🎯 FAF Go:\n\n❌ ${notWritten(fafResult.path, error)}` }], isError: true };
+        }
 
         // Calculate new score (simple count-based)
         const totalFields = Object.keys(QUESTION_REGISTRY).length;
@@ -2655,9 +2726,18 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
   }
 
   /**
-   * faf_auto - ONE COMMAND TO RULE THEM ALL
-   * Zero to Championship in one command
-   * Runs: init + formats + CLAUDE.md + score
+   * faf_auto — faf-cli's `faf auto` chain, then CLAUDE.md.
+   *
+   * project.faf: a new file is assembled with assembleFreshFaf; an existing one
+   * is filled with updateExistingFaf (existing values win; interrogated →
+   * detected → Turbo-Cat → Relentless fill only the empties; a typed none in a
+   * tech slot takes a repo fact) and written in place by writeFaf, which keeps
+   * comments, key order and exact scalars and writes nothing on a no-op. Every
+   * value the file held that the fill changed is listed.
+   *
+   * CLAUDE.md: faf-cli's render of the project.faf just written, through the
+   * block injector. Each file's outcome is reported on its own: a CLAUDE.md
+   * that cannot be written never hides a project.faf that was.
    */
   private async handleFafAuto(args: any): Promise<CallToolResult> {
     const startTime = Date.now();
@@ -2667,101 +2747,120 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
     const refusal = refuseHomeOrRoot(cwd);
     if (refusal) {return refusal;}
 
+    const steps: string[] = [];
+    const {
+      readFaf,
+      readFafRaw,
+      scoreFafYaml,
+      assembleFreshFaf,
+      updateExistingFaf,
+      writeFaf,
+      renderClaudeMd,
+      writeClaudeMd,
+      readClaudeMd,
+      legacyStampNoteAt,
+    } = await fafCli;
+
+    // Step 1: project.faf.
+    let fafPath: string;
+    let fafLabel = 'project.faf';
+    let fafExisted = false;
+    let beforeScore = 0;
+    let fafOutcome: string;
     try {
-      const steps: string[] = [];
-      const {
-        readFaf,
-        readFafRaw,
-        scoreFafYaml,
-        assembleFreshFaf,
-        updateExistingFaf,
-        writeFaf,
-        renderClaudeMd,
-        writeClaudeMd,
-      } = await fafCli;
-
-      // Step 1: project.faf — faf-cli's own `faf auto` chain. A new file is
-      // assembled with assembleFreshFaf; an existing one is updated with
-      // updateExistingFaf (existing values win; interrogated → detected →
-      // Turbo-Cat → Relentless fill only the empties). faf-cli's writeFaf writes
-      // the bytes. Before 5.23 this was a local template plus local merges.
       const fafResult = await findFafFile(cwd);
-
-      let fafPath: string;
-      let beforeScore = 0;
-
+      fafExisted = fafResult !== null;
       if (!fafResult) {
         fafPath = path.join(cwd, 'project.faf');
         writeFaf(fafPath, assembleFreshFaf(cwd) as any);
+        fafOutcome = 'project.faf created';
         steps.push('✅ Created project.faf');
       } else {
         fafPath = fafResult.path;
-        const existing = readFaf(fafPath) as unknown; // malformed YAML throws here, with the parser's message
-        if (existing !== null && existing !== undefined && (typeof existing !== 'object' || Array.isArray(existing))) {
-          throw new Error(`${fafResult.filename} is not a YAML mapping — nothing was changed. Fix it (or move it aside) and run faf_auto again.`);
-        }
+        fafLabel = fafResult.filename;
+        const data = readFaf(fafPath) as Record<string, unknown>; // not a mapping / not YAML → refused here, nothing written
         beforeScore = scoreFafYaml(readFafRaw(fafPath)).score;
-        const data = (existing ?? {}) as Record<string, unknown>;
         liftLegacyProjectName(data); // CFM ≤5.22.1 wrote `project: <name>`
-        writeFaf(fafPath, updateExistingFaf(cwd, data) as any);
-        steps.push(`✅ Found ${fafResult.filename}`);
-        steps.push('✅ Filled empty slots from the repo (existing values kept)');
+        const before = structuredClone(data);
+        const filled = updateExistingFaf(cwd, data);
+        const kept: string[] = [];
+        const written = writeFaf(fafPath, filled as any, { onAliasKept: (k) => kept.push(k.path) });
+        const { filledPaths, ignoredPaths, changedValues } = slotChanges(before, filled);
+        steps.push(`✅ Found ${fafLabel}`);
+        if (!written) {
+          fafOutcome = `${fafLabel} unchanged`;
+          steps.push('✅ Nothing to fill: every slot the repo answers already holds a value (file not rewritten)');
+        } else {
+          fafOutcome = `${fafLabel} updated`;
+          steps.push(`✅ Filled ${filledPaths.length} empty slot(s) from the repo${filledPaths.length ? `: ${filledPaths.join(', ')}` : ''}`);
+          if (ignoredPaths.length) {steps.push(`✅ Marked ${ignoredPaths.length} empty slot(s) slotignored (the app-type leaves them out): ${ignoredPaths.join(', ')}`);}
+          if (changedValues.length === 0) {
+            steps.push('✅ Every value already in the file was kept');
+          } else {
+            steps.push(`⚠️ Changed ${changedValues.length} value(s) the file held (faf-cli fills typed words from a repo fact or the app-type):`);
+            for (const c of changedValues) {steps.push(`   • ${c}`);}
+          }
+        }
+        if (kept.length) {steps.push(`✅ Left ${kept.length} alias(es) as written: ${kept.join(', ')}`);}
       }
-
-      // Step 2: report what TURBO-CAT found (faf-cli's engine; its slot fills
-      // are already in the file written above).
-      const formatsResult = await composedTurboCat(cwd);
-      if (formatsResult && formatsResult.discoveredFormats.length > 0) {
-        steps.push(`✅ TURBO-CAT discovered ${formatsResult.discoveredFormats.length} formats`);
-      } else {
-        steps.push('⚠️ No additional formats detected');
-      }
-
-      // Step 3: CLAUDE.md — faf-cli's render of the project.faf just written (the
-      // same bytes `faf sync` writes), injected with faf-cli's injector: a new file
-      // gets the block, an existing one has only its faf-managed block changed.
-      const claudeExisted = fs.existsSync(path.join(cwd, 'CLAUDE.md'));
-      writeClaudeMd(cwd, renderClaudeMd(readFaf(fafPath)));
-      steps.push(claudeExisted ? '✅ Updated CLAUDE.md (faf-managed block)' : '✅ Created CLAUDE.md');
-
-      // Step 4: final score — faf-cli's scorer, the same number faf_score reports.
-      const newScore = scoreFafYaml(readFafRaw(fafPath)).score;
-      const scoreDelta = newScore - beforeScore;
-
-      // Calculate elapsed time
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-
-      // Format output
-      const deltaDisplay = scoreDelta > 0 ? `(+${scoreDelta}%)` : scoreDelta < 0 ? `(${scoreDelta}%)` : '(no change)';
-
-      let output = `🏎️⚡️ FAF AUTO - CHAMPIONSHIP MODE!\n`;
-      output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-      output += steps.join('\n') + '\n\n';
-      output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      output += `⏱️ Completed in ${elapsed}s\n`;
-      output += `📊 Before: ${beforeScore}% | After: ${newScore}% ${deltaDisplay}\n`;
-      output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-
-      if (newScore >= 100) {
-        output += `🏆 CHAMPIONSHIP ACHIEVED! Your AI has complete context.\n`;
-      } else if (newScore >= 85) {
-        output += `🥇 Elite level! ${100 - newScore}% to perfection.\n`;
-      } else if (newScore >= 70) {
-        output += `🥈 Great progress! Run faf_go to reach championship.\n`;
-      } else {
-        output += `🚀 Good start! Run faf_go for guided improvement.\n`;
-      }
-
-      output += `\n💡 Next: faf_score --details | faf_go`;
-
-      return { content: [{ type: 'text', text: output }] };
-
     } catch (error: any) {
       return {
-        content: [{ type: 'text', text: `🏎️ FAF Auto:\n\n❌ Error: ${error?.message ?? String(error)}` }],
+        content: [{ type: 'text', text: `🏎️ FAF Auto:\n\n❌ Error: ${notWritten(fafLabel, error, fafExisted)}. Nothing was written.` }],
         isError: true
       };
     }
+
+    // Step 2: report what TURBO-CAT found (faf-cli's engine; its slot fills
+    // are already in the file written above).
+    try {
+      const formatsResult = await composedTurboCat(cwd);
+      steps.push(formatsResult && formatsResult.discoveredFormats.length > 0
+        ? `✅ TURBO-CAT discovered ${formatsResult.discoveredFormats.length} formats`
+        : '⚠️ No additional formats detected');
+    } catch {
+      steps.push('⚠️ TURBO-CAT could not scan the folder');
+    }
+
+    // Step 3: CLAUDE.md — faf-cli's render of the project.faf just written,
+    // injected with faf-cli's injector (only the faf-managed block changes).
+    let claudeOutcome: string;
+    let claudeFailed = false;
+    try {
+      const claudeBefore = readClaudeMd(cwd);
+      const note = legacyStampNoteAt(path.join(cwd, 'CLAUDE.md'), 'CLAUDE.md');
+      writeClaudeMd(cwd, renderClaudeMd(readFaf(fafPath)));
+      const claudeAfter = readClaudeMd(cwd);
+      claudeOutcome = claudeBefore === null ? 'CLAUDE.md created'
+        : claudeAfter === claudeBefore ? 'CLAUDE.md unchanged' : 'CLAUDE.md updated (faf-managed block)';
+      steps.push(`✅ ${claudeBefore === null ? 'Created CLAUDE.md' : claudeAfter === claudeBefore ? 'CLAUDE.md already current' : 'Updated CLAUDE.md (faf-managed block)'}`);
+      if (note) {steps.push(`   ${note}`);}
+    } catch (error: any) {
+      claudeFailed = true;
+      claudeOutcome = `CLAUDE.md not written: ${notWritten('CLAUDE.md', error)}`;
+      steps.push(`❌ ${claudeOutcome}`);
+    }
+
+    // Step 4: final score — faf-cli's scorer, the same number faf_score reports.
+    let newScore = beforeScore;
+    try { newScore = scoreFafYaml(readFafRaw(fafPath)).score; } catch { /* reported by faf_score */ }
+    const scoreDelta = newScore - beforeScore;
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    const deltaDisplay = scoreDelta > 0 ? `(+${scoreDelta}%)` : scoreDelta < 0 ? `(${scoreDelta}%)` : '(no change)';
+
+    let output = `${fafOutcome}; ${claudeOutcome}\n\n`;
+    output += `FAF AUTO\n`;
+    output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    output += steps.join('\n') + '\n\n';
+    output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    output += `⏱️ Completed in ${elapsed}s\n`;
+    output += `📊 Before: ${beforeScore}% | After: ${newScore}% ${deltaDisplay}\n`;
+    output += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+    output += newScore >= 100
+      ? `✪ 100% — your AI has the complete context.\n`
+      : `${100 - newScore}% to go: faf_go asks for what the repo cannot tell.\n`;
+    output += `\n💡 Next: faf_score (details: true) | faf_go`;
+
+    return { content: [{ type: 'text', text: output }], ...(claudeFailed ? { isError: true } : {}) };
   }
 
   /**
@@ -2774,9 +2873,14 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
 
     try {
       const dnaPath = path.join(cwd, '.faf-dna');
+      // faf-cli's safe path: a .faf-dna link out of the project (or a dangling
+      // one) is refused, never read or written through.
+      const { readFaf, resolveInside, readUtf8, safeWriteFile } = await fafCli;
 
-      // Check if DNA file exists
-      if (!fs.existsSync(dnaPath)) {
+      // Check if DNA file exists (a link counts: faf never writes through it)
+      let dnaThere = true;
+      try { fs.lstatSync(dnaPath); } catch { dnaThere = false; }
+      if (!dnaThere) {
         // No DNA yet - check if .faf exists
         const fafResult = await findFafFile(cwd);
 
@@ -2791,9 +2895,7 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         }
 
         // .faf exists but no DNA - create initial DNA
-        const yaml = await import('yaml');
-        const fafContent = fs.readFileSync(fafResult.path, 'utf-8');
-        const fafData = yaml.parse(fafContent) || {};
+        const fafData = readFaf(fafResult.path);
         const currentScore = this.calculateSimpleScore(fafData);
 
         const dna = {
@@ -2815,7 +2917,15 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
           format: 'faf-dna-v1'
         };
 
-        fs.writeFileSync(dnaPath, JSON.stringify(dna, null, 2));
+        try {
+          safeWriteFile(dnaPath, JSON.stringify(dna, null, 2), { root: cwd, expect: null });
+        } catch (error: any) {
+          return {
+            content: [{ type: 'text', text: `🧬 FAF DNA:\n\n❌ ${notWritten(dnaPath, error, false)}` }],
+            structuredContent: { hasFaf: true, hasDna: false },
+            isError: true
+          };
+        }
 
         return {
           content: [{
@@ -2837,7 +2947,7 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
       }
 
       // Load existing DNA
-      const dnaContent = fs.readFileSync(dnaPath, 'utf-8');
+      const dnaContent = readUtf8(resolveInside(cwd, dnaPath));
       const dna = JSON.parse(dnaContent);
 
       // Build journey string
@@ -3037,13 +3147,16 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
   }
 
   /**
-   * faf_quick - Lightning-fast .faf creation
-   * One-liner format: "name, description, language, framework, hosting"
+   * faf_quick — a new project.faf from one line, composed from faf-cli:
+   * assembleFreshFaf detects the folder, and the words the user gave (name,
+   * goal, language, framework, hosting) take their slots over the detected
+   * ones. A framework goes to stack.frontend or stack.backend only when faf-cli's
+   * stack interview lists it there; otherwise it is reported, never guessed.
+   * It only creates: an existing project.faf (or legacy .faf) is left alone.
    */
   private async handleFafQuick(args: any): Promise<CallToolResult> {
     const cwd = this.getProjectPath(args?.path);
     const path = await import('path');
-    const yaml = await import('yaml');
     const startTime = Date.now();
 
     try {
@@ -3056,14 +3169,14 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
             text: `⚡ FAF Quick
 
 Usage: Provide a comma-separated string:
-  "project-name, description, language, framework, hosting"
+  "project-name, goal, language, framework, hosting"
 
 Examples:
   "my-app, e-commerce platform, typescript, react, vercel"
   "api-service, REST API for mobile app, python, fastapi, aws"
   "cli-tool, developer productivity tool, go"
 
-Minimum: name and description. Rest is auto-detected!`
+Minimum: name and goal. faf-cli detects the rest from the folder.`
           }]
         };
       }
@@ -3071,11 +3184,11 @@ Minimum: name and description. Rest is auto-detected!`
       // Parse the quick input
       const parts = input.split(',').map((s: string) => s.trim());
 
-      if (parts.length < 2) {
+      if (parts.length < 2 || !parts[0] || !parts[1]) {
         return {
           content: [{
             type: 'text',
-            text: `⚡ FAF Quick: Need at least: project-name, description
+            text: `⚡ FAF Quick: Need at least: project-name, goal
 
 Got: "${input}"
 
@@ -3085,67 +3198,80 @@ Example: "my-app, e-commerce platform"`
         };
       }
 
-      const projectName = parts[0] || 'my-project';
-      const projectGoal = parts[1] || 'Build amazing software';
-      const mainLanguage = parts[2] || 'TypeScript';
-      const framework = parts[3] || 'none';
-      const hosting = parts[4] || 'cloud';
+      const [projectName, projectGoal, language = '', framework = '', hosting = ''] = parts;
 
-      // Check if .faf exists
-      const fafPath = path.join(cwd, 'project.faf');
-      if (fs.existsSync(fafPath) && !args?.force) {
+      const refusal = refuseHomeOrRoot(cwd);
+      if (refusal) {return refusal;}
+
+      const existing = await findFafFile(cwd);
+      if (existing) {
         return {
           content: [{
             type: 'text',
             text: `⚡ FAF Quick
 
-⚠️ project.faf already exists at: ${fafPath}
-
-Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
-          }]
+⚠️ ${existing.filename} already exists at: ${existing.path}
+faf_quick only creates a new file, so it wrote nothing. faf_auto fills its empty slots from the repo (existing values kept); faf_go asks for the 6Ws.`
+          }],
+          isError: true
         };
       }
 
-      // Detect project type from inputs
-      const projectType = this.detectProjectTypeFromQuick(projectGoal, framework, mainLanguage);
+      const { assembleFreshFaf, fillEmpties, writeFaf, readFafRaw, scoreFafYaml, STACK_INTERVIEW } = await fafCli;
 
-      // Build .faf content
-      const fafData: any = {
-        project: {
-          name: projectName,
-          goal: projectGoal,
-          main_language: mainLanguage
-        },
-        type: projectType,
-        generated: new Date().toISOString(),
-        version: VERSION,
-        initialized_by: 'claude-faf-mcp-quick'
+      // faf-cli's own vocabulary for a slot (its stack interview's choices),
+      // without None / Other.
+      const norm = (w: string): string => w.toLowerCase().replace(/[^a-z0-9]/g, '');
+      const choice = (slot: string, word: string): string | null => {
+        const q = STACK_INTERVIEW.find((i) => i.path === slot);
+        const hit = (q?.options ?? []).find((o) =>
+          !['none', 'other'].includes(norm(o.value)) && (norm(o.value) === norm(word) || norm(o.label) === norm(word)));
+        return hit ? hit.value : null;
       };
 
-      if (framework && framework !== 'none') {
-        fafData.stack = { frontend: framework };
+      const project: Record<string, string> = { name: projectName, goal: projectGoal };
+      if (language && language.toLowerCase() !== 'none') {project.main_language = choice('project.main_language', language) ?? language;}
+      const stack: Record<string, string> = {};
+      let frameworkNote = '';
+      if (framework && framework.toLowerCase() !== 'none') {
+        const front = choice('stack.frontend', framework);
+        const back = choice('stack.backend', framework);
+        if (front) {stack.frontend = front; frameworkNote = `${front} → stack.frontend`;}
+        else if (back) {stack.backend = back; frameworkNote = `${back} → stack.backend`;}
+        else {frameworkNote = `"${framework}" was not placed: faf cannot tell whether it is a frontend or a backend framework. Add it to stack.frontend or stack.backend in project.faf.`;}
       }
+      if (hosting && hosting.toLowerCase() !== 'none') {stack.hosting = hosting;}
 
-      if (hosting && hosting !== 'cloud') {
-        if (!fafData.stack) fafData.stack = {};
-        fafData.stack.hosting = hosting;
+      // The user's words win; faf-cli's detection fills every other slot.
+      const fresh = assembleFreshFaf(cwd);
+      const given: Record<string, unknown> = { project, ...(Object.keys(stack).length ? { stack } : {}) };
+      const merged = fillEmpties(given, fresh);
+      const data: Record<string, unknown> = {};
+      for (const k of Object.keys(fresh)) {data[k] = merged[k];}
+      for (const k of Object.keys(merged)) {if (!(k in data)) {data[k] = merged[k];}}
+
+      const fafPath = path.join(cwd, 'project.faf');
+      try {
+        writeFaf(fafPath, data as any);
+      } catch (error: any) {
+        return { content: [{ type: 'text', text: `⚡ FAF Quick:\n\n❌ ${notWritten(fafPath, error, false)}` }], isError: true };
       }
-
-      // Write the file
-      fs.writeFileSync(fafPath, yaml.stringify(fafData), 'utf-8');
+      const score = scoreFafYaml(readFafRaw(fafPath));
+      const lang = (data.project as Record<string, unknown> | undefined)?.main_language;
 
       const elapsed = Date.now() - startTime;
 
-      let output = `⚡ FAF Quick - Created in ${elapsed}ms!\n\n`;
-      output += `📦 Project: ${projectName}\n`;
-      output += `🎯 Purpose: ${projectGoal}\n`;
-      output += `💻 Stack: ${mainLanguage}${framework !== 'none' ? ` + ${framework}` : ''}\n`;
-      output += `📍 Type: ${projectType}\n\n`;
-      output += `✅ Created: ${fafPath}\n\n`;
+      let output = `FAF Quick — created project.faf in ${elapsed}ms\n\n`;
+      output += `Project: ${projectName}\n`;
+      output += `Goal: ${projectGoal}\n`;
+      output += `Language: ${typeof lang === 'string' && lang.trim() ? lang : '(not given, none detected)'}\n`;
+      if (frameworkNote) {output += `Framework: ${frameworkNote}\n`;}
+      if (stack.hosting) {output += `Hosting: ${stack.hosting} → stack.hosting\n`;}
+      output += `Score: ${score.score}/100 (${score.populated}/${score.active} slots populated) — ${score.tier.name}\n\n`;
+      output += `Created: ${fafPath}\n\n`;
       output += `Next steps:\n`;
-      output += `  • faf_score - Check AI-readiness\n`;
-      output += ``;
-      output += `  • faf_go - Guided interview to 100%`;
+      output += `  • faf_auto — fill more slots from the repo as it grows\n`;
+      output += `  • faf_go — guided interview to 100%`;
 
       return { content: [{ type: 'text', text: output }] };
 
@@ -3155,40 +3281,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
         isError: true
       };
     }
-  }
-
-  /**
-   * Helper: Detect project type from quick input
-   */
-  private detectProjectTypeFromQuick(goal: string, framework: string, language: string): string {
-    const fw = framework?.toLowerCase() || '';
-    const lang = language?.toLowerCase() || '';
-    const g = goal?.toLowerCase() || '';
-
-    // Framework-based detection
-    if (fw.includes('react') || fw.includes('next')) return 'react';
-    if (fw.includes('vue') || fw.includes('nuxt')) return 'vue';
-    if (fw.includes('svelte') || fw.includes('kit')) return 'svelte';
-    if (fw.includes('angular')) return 'angular';
-    if (fw.includes('fastapi')) return 'python-fastapi';
-    if (fw.includes('django')) return 'python-django';
-    if (fw.includes('flask')) return 'python-flask';
-    if (fw.includes('express')) return 'node-api';
-
-    // Goal-based detection
-    if (g.includes('chrome extension') || g.includes('browser extension')) return 'chrome-extension';
-    if (g.includes('api') || g.includes('backend')) return 'node-api';
-    if (g.includes('cli') || g.includes('command')) return 'cli-tool';
-    if (g.includes('library') || g.includes('package')) return 'library';
-    if (g.includes('mcp') || g.includes('model context')) return 'mcp-server';
-
-    // Language-based fallback
-    if (lang.includes('python')) return 'python';
-    if (lang.includes('go')) return 'golang';
-    if (lang.includes('rust')) return 'rust';
-    if (lang.includes('typescript')) return 'typescript';
-
-    return 'general';
   }
 
   /**
@@ -3230,64 +3322,84 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
           message: `Found .faf at: ${fafResult.path}`
         });
 
-        // Check 3: .faf file validity
+        // Check 3: .faf file validity. faf-cli's reader applies the link rules
+        // (a project.faf linked out of the project is refused, never read).
+        let content: string | null = null;
         try {
-          const content = fs.readFileSync(fafResult.path, 'utf-8');
-          const fafData = yaml.parse(content);
-
-          if (!fafData) {
-            results.push({
-              status: 'error',
-              message: '.faf file is empty',
-              fix: 'Re-run faf_init with force: true to write a fresh project.faf.'
-            });
-          } else {
-            // Check for required fields
-            const missingFields: string[] = [];
-            if (!fafData.project?.name && !fafData.project) missingFields.push('project.name');
-            if (!fafData.project?.goal) missingFields.push('project.goal');
-
-            if (missingFields.length > 0) {
-              results.push({
-                status: 'warning',
-                message: `Missing important fields: ${missingFields.join(', ')}`,
-                fix: 'Run: faf_go to add missing human context'
-              });
-            } else {
-              results.push({
-                status: 'ok',
-                message: '.faf structure is valid'
-              });
-            }
-
-            // Check 4: Score
-            const score = this.calculateSimpleScore(fafData);
-
-            if (score < 30) {
-              results.push({
-                status: 'error',
-                message: `Score too low: ${score}%`,
-                fix: 'Run: faf_go to improve human context'
-              });
-            } else if (score < 70) {
-              results.push({
-                status: 'warning',
-                message: `Score could be better: ${score}%`,
-                fix: 'Target 70%+ for championship AI context'
-              });
-            } else {
-              results.push({
-                status: 'ok',
-                message: `Great score: ${score}%`
-              });
-            }
-          }
-        } catch {
+          const { readFafRaw } = await fafCli;
+          content = readFafRaw(fafResult.path);
+        } catch (error) {
           results.push({
             status: 'error',
-            message: '.faf file is corrupted or invalid YAML',
-            fix: 'Re-run faf_init with force: true to write a fresh project.faf.'
+            message: `${fafResult.filename} could not be read: ${oneLine(error)}`,
+            fix: 'faf reads project.faf only inside the project and as UTF-8; replace the link or re-save the file as UTF-8 by hand.'
           });
+        }
+        if (content !== null) {
+          const raw = content;
+          try {
+            const fafData = yaml.parse(raw);
+
+            if (fafData === null || fafData === undefined) {
+              results.push({
+                status: 'error',
+                message: `${fafResult.filename} has no keys (it is empty, blank or comments only)`,
+                fix: `${NO_KEYS_FIX.charAt(0).toUpperCase()}${NO_KEYS_FIX.slice(1)}`
+              });
+            } else if (typeof fafData !== 'object' || Array.isArray(fafData)) {
+              results.push({
+                status: 'error',
+                message: `${fafResult.filename} is a YAML ${Array.isArray(fafData) ? 'list' : 'scalar'}, not a mapping of keys`,
+                fix: `Edit ${fafResult.path} by hand into key: value pairs; faf changes nothing until it is a mapping.`
+              });
+            } else {
+              // Check for required fields
+              const missingFields: string[] = [];
+              if (!fafData.project?.name && !fafData.project) missingFields.push('project.name');
+              if (!fafData.project?.goal) missingFields.push('project.goal');
+
+              if (missingFields.length > 0) {
+                results.push({
+                  status: 'warning',
+                  message: `Missing important fields: ${missingFields.join(', ')}`,
+                  fix: 'Run: faf_go to add missing human context'
+                });
+              } else {
+                results.push({
+                  status: 'ok',
+                  message: '.faf structure is valid'
+                });
+              }
+
+              // Check 4: Score
+              const score = this.calculateSimpleScore(fafData);
+
+              if (score < 30) {
+                results.push({
+                  status: 'error',
+                  message: `Score too low: ${score}%`,
+                  fix: 'Run: faf_go to improve human context'
+                });
+              } else if (score < 70) {
+                results.push({
+                  status: 'warning',
+                  message: `Score could be better: ${score}%`,
+                  fix: 'Target 70%+ for championship AI context'
+                });
+              } else {
+                results.push({
+                  status: 'ok',
+                  message: `Great score: ${score}%`
+                });
+              }
+            }
+          } catch {
+            results.push({
+              status: 'error',
+              message: `${fafResult.filename} is not valid YAML`,
+              fix: `${yamlFixHint(raw, fafResult.path).replace(/^edit/, 'Edit').replace(/ faf_doctor runs the other checks\.$/, '')}`
+            });
+          }
         }
       }
 
@@ -3407,7 +3519,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
       const result = await this.engineAdapter.callEngine('agents', [
         cwd,
         `--action=${action}`,
-        ...(args?.force ? ['--force'] : []),
       ]);
 
       if (!result.success) {
@@ -3440,7 +3551,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
       const result = await this.engineAdapter.callEngine('cursor', [
         cwd,
         `--action=${action}`,
-        ...(args?.force ? ['--force'] : []),
       ]);
 
       if (!result.success) {
@@ -3473,7 +3583,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
       const result = await this.engineAdapter.callEngine('gemini', [
         cwd,
         `--action=${action}`,
-        ...(args?.force ? ['--force'] : []),
       ]);
 
       if (!result.success) {
@@ -3506,7 +3615,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
       const result = await this.engineAdapter.callEngine('conductor', [
         cwd,
         `--action=${action}`,
-        ...(args?.force ? ['--force'] : []),
       ]);
 
       if (!result.success) {
@@ -3571,6 +3679,16 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
     }
   }
 
+  /**
+   * faf_tri_sync — faf's block in the MEMORY.md Claude Code loads for this
+   * project: <config>/projects/<id>/memory/MEMORY.md, where <config> is
+   * CLAUDE_CONFIG_DIR or ~/.claude and <id> is Claude Code's own id for the
+   * project's canonical git root. Composed from faf-cli: its resolver finds the
+   * file, its writer changes only faf's block (and replaces claude-faf-mcp's
+   * earlier tri-sync section once, when that section is whole). Every other
+   * byte is Claude's and is kept; the writer reads the file back and says
+   * whether it was — this tool says "kept" only when it was.
+   */
   private async handleFafTriSync(args: any): Promise<CallToolResult> {
     const cwd = this.getProjectPath(args?.path);
 
@@ -3586,50 +3704,60 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
     }
 
     const action = args?.action || 'export';
+    const { readFaf, writeClaudeMemory, claudeMemoryStatus, resolveClaudeMemoryPath } = await fafCli;
 
     if (action === 'status') {
-      const status = await getMemoryStatus(cwd);
-      const statusText = [
-        '🧠 MEMORY.md Status:',
-        '',
-        `  Path: ${status.path}`,
-        `  Exists: ${status.exists ? 'Yes' : 'No'}`,
-        status.exists ? `  Total lines: ${status.totalLines}` : '',
-        status.exists ? `  FAF section: ${status.hasFafSection ? `Yes (${status.fafSectionLines} lines)` : 'No'}` : '',
-        status.exists ? `  Claude notes: ${status.claudeNotesLines} lines` : '',
-        status.totalLines > 200 ? `  ⚠️ Over 200-line ceiling (${status.totalLines} lines)` : '',
-      ].filter(Boolean).join('\n');
-
-      return {
-        content: [{ type: 'text', text: statusText }]
-      };
+      try {
+        const status = claudeMemoryStatus(cwd);
+        const statusText = [
+          '🧠 MEMORY.md Status:',
+          '',
+          `  Path: ${status.path}`,
+          `  Exists: ${status.exists ? 'Yes' : 'No'}`,
+          status.exists ? `  Total lines: ${status.lines}` : '',
+          status.exists ? `  faf block: ${status.hasBlock ? `Yes (${status.blockLines} lines)` : 'No'}` : '',
+          status.exists && status.hasLegacySection ? '  Earlier tri-sync section: Yes (the next export replaces it with the faf block)' : '',
+          status.exists ? `  Claude's own notes: ${status.otherLines} lines` : '',
+          ...status.warnings.map((w) => `  ⚠️ ${w}`),
+        ].filter(Boolean).join('\n');
+        return { content: [{ type: 'text', text: statusText }] };
+      } catch (error: any) {
+        return { content: [{ type: 'text', text: `🧠 MEMORY.md status: ${oneLine(error)}` }], isError: true };
+      }
     }
 
     // Export: .faf → MEMORY.md
-    const yaml = await import('yaml');
-    const fafRaw = fs.readFileSync(fafResult.path, 'utf-8');
-    const fafContent = yaml.parse(fafRaw) || {};
-    const memoryPath = resolveMemoryPath(cwd);
-    const result = await memoryExport(fafContent, memoryPath);
-
-    if (!result.success) {
+    let memoryPath = '';
+    try {
+      memoryPath = resolveClaudeMemoryPath(cwd);
+      const result = writeClaudeMemory(cwd, readFaf(fafResult.path));
+      const mode: Record<typeof result.action, string> = {
+        created: 'Created (there was no MEMORY.md)',
+        updated: 'faf block updated in place',
+        migrated: 'The earlier tri-sync section was replaced by the faf block',
+        added: 'faf block added on top',
+        unchanged: 'Already current; nothing written',
+      };
+      const exportText = [
+        '🧠 tri-sync: .faf → MEMORY.md',
+        '',
+        `  Written to: ${result.path}`,
+        `  Lines: ${result.lines}`,
+        `  Mode: ${mode[result.action]}`,
+        result.preserved
+          ? `  Claude's own notes: kept byte for byte (read back and checked)`
+          : `  ⚠️ Claude's own notes: the read-back did not match what faf wrote around its block — check ${result.path}`,
+        ...result.warnings.map((w) => `  ⚠️ ${w}`),
+      ].join('\n');
       return {
-        content: [{ type: 'text', text: `🔄 tri-sync export failed.` }],
+        content: [{ type: 'text', text: exportText }],
+        ...(result.preserved ? {} : { isError: true }),
+      };
+    } catch (error: any) {
+      return {
+        content: [{ type: 'text', text: `🔄 tri-sync export: ${notWritten(memoryPath || 'MEMORY.md', error)}` }],
         isError: true
       };
     }
-
-    const exportText = [
-      '🧠 tri-sync: .faf → MEMORY.md',
-      '',
-      `  Written to: ${result.filePath}`,
-      `  Lines: ${result.linesWritten}`,
-      `  Mode: ${result.merged ? 'Merged (Claude notes preserved)' : 'Fresh write'}`,
-      ...result.warnings.map(w => `  ⚠️ ${w}`),
-    ].join('\n');
-
-    return {
-      content: [{ type: 'text', text: exportText }]
-    };
   }
 }

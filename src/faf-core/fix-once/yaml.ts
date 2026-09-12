@@ -17,6 +17,32 @@
 
 import * as yaml from 'yaml';
 import { chalk } from './colors';
+import { fafCli } from '../../utils/faf-cli-bridge.js';
+
+/** The fix for a .faf with no keys (empty, blank, or comments only). */
+export const NO_KEYS_FIX = 'it has no keys yet. Run faf_auto to fill it from the repo (its comments are kept).';
+
+/** Where the YAML parser first stopped in `text` — 1-based line and column —
+ *  or null when it parses. */
+export function yamlErrorAt(text: string): { line: number; col: number; reason: string } | null {
+  const doc = yaml.parseDocument(text);
+  const err = doc.errors[0];
+  if (!err) {return null;}
+  const at = err.linePos?.[0];
+  const reason = err.message.split('\n')[0].replace(/ at line \d+, column \d+:?$/, '').trim();
+  return { line: at?.line ?? 1, col: at?.col ?? 1, reason };
+}
+
+/**
+ * The fix line for a .faf the parser refused: the exact place to edit by hand
+ * (file:line:col and the parser's reason). Never "recreate" or "force" — the
+ * file is the user's, and one typo is fixed where it is.
+ */
+export function yamlFixHint(text: string, file: string): string {
+  const at = yamlErrorAt(text);
+  const where = at ? `${file}:${at.line}:${at.col} (${at.reason})` : file;
+  return `edit ${where} by hand; faf changes nothing until it parses. faf_doctor runs the other checks.`;
+}
 
 /**
  * Safe YAML parse - handles ALL edge cases
@@ -49,7 +75,7 @@ export function parse(content: string | null | undefined, options?: { filepath?:
     throw new Error(
       `${chalk.red('Empty .faf file detected')}\n` +
       `File: ${filepath}\n` +
-      `Fix: Run ${chalk.cyan('faf init')} to recreate the file`
+      `Fix: ${NO_KEYS_FIX}`
     );
   }
 
@@ -63,17 +89,17 @@ export function parse(content: string | null | undefined, options?: { filepath?:
       `${chalk.red('Invalid YAML syntax')}\n` +
       `File: ${filepath}\n` +
       `Error: ${error.message}\n` +
-      `Fix: Check file syntax or run ${chalk.cyan('faf init --force')} to recreate`
+      `Fix: ${yamlFixHint(content, filepath)}`
     );
   }
 
   // Edge case 5: Parsed successfully but result is null/undefined
-  // (valid YAML like "null" or "~" or empty documents)
+  // (valid YAML like "null" or "~", an empty document, or comments only)
   if (result === null || result === undefined) {
     throw new Error(
       `${chalk.red('YAML file parsed but contains no data')}\n` +
       `File: ${filepath}\n` +
-      `Fix: Ensure file has valid YAML content or run ${chalk.cyan('faf init')}`
+      `Fix: ${NO_KEYS_FIX}`
     );
   }
 
@@ -89,6 +115,16 @@ export function parse(content: string | null | undefined, options?: { filepath?:
   }
 
   return result;
+}
+
+/**
+ * Read a .faf through faf-cli's reader — a project.faf that is a link out of
+ * its folder, or to a file that is not a .faf, is refused and never read; the
+ * text must be UTF-8 — then parse it as a mapping with the messages above.
+ */
+export async function readFafMapping(fafPath: string): Promise<any> {
+  const { readFafRaw } = await fafCli;
+  return parse(readFafRaw(fafPath), { filepath: fafPath });
 }
 
 /**

@@ -13,9 +13,9 @@
  */
 
 import path from 'path';
-import { promises as fs } from 'fs';
+import * as fs from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
-import { parse as parseYAML } from '../fix-once/yaml.js';
+import { readFafMapping } from '../fix-once/yaml.js';
 import { fafCli } from '../../utils/faf-cli-bridge.js';
 
 export interface CopilotCommandResult {
@@ -100,11 +100,14 @@ export function generateCopilotInstructions(fafContent: any): string {
 }
 
 /**
- * Export project.faf to .github/copilot-instructions.md
+ * Write project.faf into .github/copilot-instructions.md as a faf-managed
+ * block. A file already there keeps every line outside the block. The .github
+ * folder is made inside the project (a .github that is a link out of it is
+ * refused), and the write is resolved against the project folder, so it can
+ * never land outside it.
  */
 export async function copilotExportCommand(
-  projectPath: string,
-  options: { force?: boolean } = {}
+  projectPath: string
 ): Promise<CopilotCommandResult> {
   // Check for existing .faf
   const fafPath = await findFafFile(projectPath);
@@ -116,40 +119,25 @@ export async function copilotExportCommand(
     };
   }
 
-  const githubDir = path.join(projectPath, '.github');
-  const outputPath = path.join(githubDir, 'copilot-instructions.md');
-
-  // Respect existing file unless force
-  if (!options.force) {
-    try {
-      await fs.access(outputPath);
-      return {
-        success: false,
-        action: 'export',
-        message: '.github/copilot-instructions.md already exists. Use force: true to overwrite.',
-      };
-    } catch {
-      // File doesn't exist, proceed
-    }
-  }
-
-  // Copilot's instruction file is nested under .github/ — ensure it exists
-  await fs.mkdir(githubDir, { recursive: true });
-
-  // Read and parse .faf
-  const fafContent = await fs.readFile(fafPath, 'utf-8');
-  const fafData = parseYAML(fafContent);
+  const fafData = await readFafMapping(fafPath);
+  const { injectFafBlock, makeDirInside, legacyStampNoteAt } = await fafCli;
+  const outputPath = path.join(projectPath, '.github', 'copilot-instructions.md');
+  makeDirInside(projectPath, path.join(projectPath, '.github'));
+  const existed = fs.existsSync(outputPath);
+  const note = legacyStampNoteAt(outputPath, '.github/copilot-instructions.md', undefined, undefined, { root: projectPath });
 
   // Copilot-grade content — distinct from AGENTS.md, injected non-destructively.
   const content = generateCopilotInstructions(fafData);
-  const { injectFafBlock } = await fafCli;
-  injectFafBlock(outputPath, content);
+  injectFafBlock(outputPath, content, undefined, undefined, { root: projectPath });
 
   return {
     success: true,
     action: 'export',
-    message: `Exported project.faf to .github/copilot-instructions.md`,
+    message: (existed
+      ? `Wrote faf's block into .github/copilot-instructions.md from project.faf; every line outside the block is kept`
+      : `Wrote .github/copilot-instructions.md from project.faf`) + (note ? `\n${note}` : ''),
     data: { filePath: outputPath },
+    ...(note ? { warnings: [note] } : {}),
   };
 }
 
@@ -159,5 +147,5 @@ export async function copilotExportCommand(
 export async function copilotSyncCommand(
   projectPath: string
 ): Promise<CopilotCommandResult> {
-  return await copilotExportCommand(projectPath, { force: true });
+  return await copilotExportCommand(projectPath);
 }
