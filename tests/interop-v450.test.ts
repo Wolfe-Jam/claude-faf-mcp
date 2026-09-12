@@ -5,7 +5,9 @@
  * Tiers: Parser Units → Export → Engine Adapter → Security → Performance →
  *        Roundtrip. 6.0.0 retired the AGENTS.md / .cursorrules / GEMINI.md /
  *        conductor imports into project.faf and the dead tool-visibility
- *        registry, and their tests with them.
+ *        registry, and their tests with them. faf_git composes faf-cli's
+ *        `faf git` helpers now: the v4.5 GitHub-API port (github-extractor,
+ *        faf-git-generator, slot-counter) and its tests are gone.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
@@ -13,23 +15,10 @@ import * as os from 'os';
 import * as path from 'path';
 import { promises as fs } from 'fs';
 
-// Parser imports
-import {
-  parseGitHubUrl,
-  detectStackFromMetadata,
-  calculateRepoQualityScore,
-  GitHubMetadata,
-} from '../src/faf-core/parsers/github-extractor';
-import {
-  isIgnored,
-  isFilled,
-  countSlots,
-} from '../src/faf-core/parsers/slot-counter';
-import {
-  extract6WsFromReadme,
-  extractFromLanguages,
-  getScoreTier,
-} from '../src/faf-core/parsers/faf-git-generator';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
+import { cloneArgs } from '../src/faf-core/commands/git-context';
+
+const { normalizeGitUrl, repoNameFromUrl } = await fafCli;
 
 // ============================================================================
 // TIER 1: Parser Unit Tests (~20 tests)
@@ -41,115 +30,28 @@ describe('TIER 1: Parser Units', () => {
   // --- GEMINI.md Parser ---
   // --- Conductor Parser ---
   // --- GitHub URL Parser ---
-  describe('parseGitHubUrl', () => {
-    it('should parse full HTTPS URL', () => {
-      const result = parseGitHubUrl('https://github.com/Wolfe-Jam/claude-faf-mcp');
-      expect(result).toEqual({ owner: 'Wolfe-Jam', repo: 'claude-faf-mcp' });
+  // --- Repo URL (faf-cli's normalizeGitUrl, the gate faf_git composes) ---
+  describe('normalizeGitUrl', () => {
+    it('should normalise the forms faf_git accepts to one clone URL', () => {
+      for (const input of [
+        'https://github.com/Wolfe-Jam/claude-faf-mcp',
+        'github.com/Wolfe-Jam/claude-faf-mcp',
+        'Wolfe-Jam/claude-faf-mcp',
+        'https://github.com/Wolfe-Jam/claude-faf-mcp.git',
+      ]) {
+        expect(normalizeGitUrl(input)).toBe('https://github.com/Wolfe-Jam/claude-faf-mcp.git');
+      }
     });
 
-    it('should parse URL without protocol', () => {
-      const result = parseGitHubUrl('github.com/Wolfe-Jam/claude-faf-mcp');
-      expect(result).toEqual({ owner: 'Wolfe-Jam', repo: 'claude-faf-mcp' });
+    it('repoNameFromUrl names the repo', () => {
+      expect(repoNameFromUrl(normalizeGitUrl('Wolfe-Jam/claude-faf-mcp'))).toBe('claude-faf-mcp');
     });
 
-    it('should parse owner/repo shorthand', () => {
-      const result = parseGitHubUrl('Wolfe-Jam/claude-faf-mcp');
-      expect(result).toEqual({ owner: 'Wolfe-Jam', repo: 'claude-faf-mcp' });
-    });
-
-    it('should strip .git extension', () => {
-      const result = parseGitHubUrl('https://github.com/Wolfe-Jam/claude-faf-mcp.git');
-      expect(result).toEqual({ owner: 'Wolfe-Jam', repo: 'claude-faf-mcp' });
-    });
-
-    it('should strip query parameters and hash fragments', () => {
-      const result = parseGitHubUrl('https://github.com/owner/repo?tab=readme#section');
-      expect(result).toEqual({ owner: 'owner', repo: 'repo' });
-    });
-
-    it('should return null for non-GitHub URLs', () => {
-      const result = parseGitHubUrl('https://gitlab.com/owner/repo');
-      expect(result).toBeNull();
-    });
-
-    it('should return null for invalid input', () => {
-      expect(parseGitHubUrl('')).toBeNull();
-      expect(parseGitHubUrl('just-a-word')).toBeNull();
-    });
-
-    it('should handle www prefix', () => {
-      const result = parseGitHubUrl('https://www.github.com/owner/repo');
-      expect(result).toEqual({ owner: 'owner', repo: 'repo' });
-    });
-  });
-
-  // --- Slot Counter ---
-  describe('Slot Counter', () => {
-    it('isIgnored should detect ignored values', () => {
-      expect(isIgnored('SlotIgnored')).toBe(true);
-      expect(isIgnored('none')).toBe(true);
-      expect(isIgnored('unknown')).toBe(true);
-      expect(isIgnored('not specified')).toBe(true);
-      expect(isIgnored('n/a')).toBe(true);
-      expect(isIgnored('N/A')).toBe(true);
-    });
-
-    it('isIgnored should return false for normal values', () => {
-      expect(isIgnored('TypeScript')).toBe(false);
-      expect(isIgnored(null)).toBe(false);
-      expect(isIgnored(undefined)).toBe(false);
-    });
-
-    it('isFilled should detect filled values', () => {
-      expect(isFilled('TypeScript')).toBe(true);
-      expect(isFilled('React')).toBe(true);
-    });
-
-    it('isFilled should return false for empty/null values', () => {
-      expect(isFilled(null)).toBe(false);
-      expect(isFilled(undefined)).toBe(false);
-      expect(isFilled('')).toBe(false);
-    });
-
-    it('isFilled should return false for ignored values', () => {
-      expect(isFilled('SlotIgnored')).toBe(false);
-      expect(isFilled('n/a')).toBe(false);
-    });
-
-    it('countSlots should calculate score correctly', () => {
-      const result = countSlots({
-        projectName: 'Test',
-        projectGoal: 'Build stuff',
-        mainLanguage: 'TypeScript',
-        projectType: 'MCP Server',
-        who: 'Developer',
-        what: 'MCP tools',
-        why: 'Automation',
-        where: 'Cloud',
-        when: '2026',
-        how: 'CI/CD',
-        frontend: 'React',
-        uiLibrary: 'n/a',
-        backend: 'Node.js',
-        runtime: 'Node 20',
-        database: 'none',
-        build: 'tsc',
-        packageManager: 'npm',
-        apiType: 'MCP',
-        hosting: 'Vercel',
-        cicd: 'GitHub Actions',
-        cssFramework: 'Tailwind',
-      });
-      // 19 filled + 2 ignored = 21 / 21 * 100 = 100%
-      expect(result.score).toBe(100);
-      expect(result.filled + result.ignored).toBe(21);
-      expect(result.missing).toBe(0);
-    });
-
-    it('countSlots should handle empty slots', () => {
-      const result = countSlots({});
-      expect(result.score).toBe(0);
-      expect(result.missing).toBe(21);
+    it('should refuse empty input, a bare word and shell characters', () => {
+      expect(() => normalizeGitUrl('')).toThrow();
+      expect(() => normalizeGitUrl('just-a-word')).toThrow();
+      expect(() => normalizeGitUrl('owner/repo; rm -rf /')).toThrow();
+      expect(() => normalizeGitUrl('https://github.com/owner/repo?tab=readme#section')).toThrow();
     });
   });
 });
@@ -237,114 +139,6 @@ describe('TIER 2: Export', () => {
       expect(content).toContain('Gemini Test');
     });
   });
-
-  // --- GitHub Metadata ---
-  describe('GitHub Metadata Helpers', () => {
-    it('detectStackFromMetadata should detect stacks from topics', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        topics: ['react', 'typescript', 'nodejs'],
-        languages: [],
-      };
-      const stacks = detectStackFromMetadata(metadata);
-      expect(stacks).toContain('React');
-      expect(stacks).toContain('TypeScript');
-      expect(stacks).toContain('Node.js');
-    });
-
-    it('detectStackFromMetadata should detect from languages', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        languages: ['TypeScript (85%)', 'JavaScript (15%)'],
-      };
-      const stacks = detectStackFromMetadata(metadata);
-      expect(stacks).toContain('TypeScript');
-      expect(stacks).toContain('JavaScript');
-    });
-
-    it('detectStackFromMetadata should detect from file presence', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        hasPackageJson: true,
-        hasTsConfig: true,
-        hasDockerfile: true,
-      };
-      const stacks = detectStackFromMetadata(metadata);
-      expect(stacks).toContain('Node.js');
-      expect(stacks).toContain('TypeScript');
-      expect(stacks).toContain('Docker');
-    });
-
-    it('calculateRepoQualityScore should score popular repos high', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        stars: '10.5K',
-        description: 'A popular and well-documented repository',
-        topics: ['typescript'],
-        license: 'MIT',
-        readme: true,
-        lastUpdated: new Date().toISOString(),
-        hasPackageJson: true,
-        hasTsConfig: true,
-        languages: ['TypeScript (80%)', 'JavaScript (15%)', 'CSS (5%)'],
-      };
-      const score = calculateRepoQualityScore(metadata);
-      expect(score).toBeGreaterThanOrEqual(80);
-    });
-
-    it('calculateRepoQualityScore should score empty repos low', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        stars: '0',
-      };
-      const score = calculateRepoQualityScore(metadata);
-      expect(score).toBeLessThan(20);
-    });
-  });
-
-  // --- FAF Git Generator ---
-  describe('FAF Git Generator', () => {
-    it('extract6WsFromReadme should extract context from README', () => {
-      const readme = `# My Project\n\nA CLI tool for developers to build faster.\n\nBuilt with TypeScript and Node.js.\n\n## Installation\n\nnpm install my-project`;
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'my-project',
-        url: 'https://github.com/test/my-project',
-        description: 'A CLI tool for developers',
-      };
-      const result = extract6WsFromReadme(readme, metadata);
-      expect(result.what).toBeDefined();
-    });
-
-    it('extractFromLanguages should extract stack from metadata', () => {
-      const metadata: GitHubMetadata = {
-        owner: 'test',
-        repo: 'test',
-        url: 'https://github.com/test/test',
-        languages: ['TypeScript (80%)', 'JavaScript (20%)'],
-        hasPackageJson: true,
-        hasTsConfig: true,
-      };
-      const result = extractFromLanguages(metadata);
-      expect(result.language).toBeDefined();
-    });
-
-    it('getScoreTier should return correct tier', () => {
-      expect(getScoreTier(100)).toBeDefined();
-      expect(getScoreTier(50)).toBeDefined();
-      expect(getScoreTier(0)).toBeDefined();
-    });
-  });
 });
 
 // ============================================================================
@@ -430,27 +224,22 @@ describe('TIER 4: Engine Adapter', () => {
 // ============================================================================
 
 describe('TIER 5: Security', () => {
-  describe('GitHub URL validation', () => {
-    it('should reject non-GitHub domains', () => {
-      expect(parseGitHubUrl('https://evil.com/owner/repo')).toBeNull();
-      expect(parseGitHubUrl('https://gitlab.com/owner/repo')).toBeNull();
-      expect(parseGitHubUrl('https://bitbucket.org/owner/repo')).toBeNull();
+  describe('faf_git clone argv', () => {
+    it('never lets the URL be read as an option, and checks links out as plain files', () => {
+      const args = cloneArgs('https://github.com/owner/repo.git', '/tmp/x/repo');
+      expect(args.slice(-3)).toEqual(['--', 'https://github.com/owner/repo.git', '/tmp/x/repo']);
+      expect(args).toContain('core.symlinks=false');
+      expect(args).toContain('--depth');
     });
 
-    it('should reject URLs with path traversal', () => {
-      const result = parseGitHubUrl('https://github.com/../../../etc/passwd');
-      // If it parses, the owner should be ".." not a path traversal
-      if (result) {
-        expect(result.owner).not.toContain('/');
-        expect(result.repo).not.toContain('/');
-      }
+    it('faf-cli refuses a URL that would reach git as an option or a command', () => {
+      expect(() => normalizeGitUrl('--upload-pack=touch /tmp/pwned')).toThrow();
+      expect(() => normalizeGitUrl('$(whoami)/repo')).toThrow();
     });
 
     it('should handle extremely long URLs without crashing', () => {
       const longUrl = 'https://github.com/' + 'a'.repeat(10000) + '/' + 'b'.repeat(10000);
-      // Should not throw
-      const result = parseGitHubUrl(longUrl);
-      expect(result).toBeDefined();
+      expect(normalizeGitUrl(longUrl)).toBe(`${longUrl}.git`);
     });
   });
 
@@ -487,24 +276,10 @@ describe('TIER 5: Security', () => {
 
 describe('TIER 6: Performance', () => {
   describe('Parser speed', () => {
-    it('parseGitHubUrl should complete in < 10ms', () => {
+    it('normalizeGitUrl should complete 100 URLs in < 50ms', () => {
       const start = performance.now();
       for (let i = 0; i < 100; i++) {
-        parseGitHubUrl(`https://github.com/owner-${i}/repo-${i}`);
-      }
-      const duration = performance.now() - start;
-      // 100 parses in < 10ms (relaxed for CI shared runners)
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('countSlots should complete in < 50ms', () => {
-      const start = performance.now();
-      for (let i = 0; i < 100; i++) {
-        countSlots({
-          projectName: 'Test',
-          projectGoal: 'Goal',
-          mainLanguage: 'TS',
-        });
+        normalizeGitUrl(`https://github.com/owner-${i}/repo-${i}`);
       }
       const duration = performance.now() - start;
       expect(duration).toBeLessThan(50);

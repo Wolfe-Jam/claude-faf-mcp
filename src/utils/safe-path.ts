@@ -27,6 +27,12 @@
  * Layer 1 is the security boundary; layer 2 is defense-in-depth for locked-down
  * deployments. Either way, `..` traversal and absolute paths can never reach a
  * non-context file.
+ *
+ * The file tools (faf_read, faf_list) read any file type, so they get a hard
+ * boundary of their own: the active session project plus FAF_ALLOWED_ROOTS —
+ * never the home folder or the filesystem root, and no temp folders. The
+ * caller works out those roots (it knows the session project) and passes them
+ * in; relative paths resolve against the active project.
  */
 
 import * as path from 'path';
@@ -48,7 +54,7 @@ export function isFafContextFile(p: string): boolean {
 
 /** Expand a leading `~` / `~/` for the CURRENT user only. `~otheruser` is left
  *  literal (it will then fail the root check rather than reaching another home). */
-function expandTilde(p: string): string {
+export function expandTilde(p: string): string {
   if (p === '~') return os.homedir();
   if (p.startsWith('~/') || p.startsWith('~\\')) {
     return path.join(os.homedir(), p.slice(2));
@@ -70,8 +76,13 @@ export function allowedRoots(): string[] {
   return [];
 }
 
+/** True when `resolved` is `root` or inside it. Works for a root that ends in a
+ *  separator (`/`, `C:\\`) too: the check is on the relative path, not a prefix. */
 function withinRoots(resolved: string, roots: string[]): boolean {
-  return roots.some((root) => resolved === root || resolved.startsWith(root + path.sep));
+  return roots.some((root) => {
+    const rel = path.relative(root, resolved);
+    return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+  });
 }
 
 /**
@@ -97,32 +108,24 @@ function canonicalize(input: string): string {
 }
 
 /**
- * Roots for the general-purpose file tool (`faf_read`). Unlike
- * the `.faf` tools, these legitimately handle any file *type* — but they must
- * still be confined to the project. Default root = the process cwd; override /
- * extend with `FAF_ALLOWED_ROOTS`.
+ * Confine a path for the file tools (faf_read, faf_list): any file type, but it
+ * must stay within `roots` — the active session project plus FAF_ALLOWED_ROOTS,
+ * never the home folder or the filesystem root (the caller filters those out).
+ * A relative path resolves against `base`, the active project. With no roots
+ * at all nothing is allowed. Throws PathConfinementError on violation; returns
+ * the symlink-canonical path.
  */
-export function fileOpRoots(): string[] {
-  const opt = allowedRoots();
-  if (opt.length) return opt;
-  // Default: the project (cwd) plus the OS temp dir(s) — legitimate scratch
-  // space for tools. Still blocks the high-value targets — $HOME secrets
-  // (~/.ssh, ~/.aws), /etc, and anything reached via ../ traversal.
-  const roots = [path.resolve(process.cwd()), os.tmpdir()];
-  // On macOS the canonical system temp (/tmp → /private/tmp) differs from
-  // os.tmpdir() (/var/folders/...); include it (roots are canonicalized later).
-  if (process.platform !== 'win32') roots.push('/tmp');
-  return roots;
-}
-
-/**
- * Confine a general-purpose file read path: any file type, but it must
- * stay within fileOpRoots(). Closes absolute-path escapes (`~/.ssh/id_rsa`)
- * and `..` traversal. Throws PathConfinementError on violation. Returns the
- * safe (symlink-canonical) path.
- */
-export function confineFileOp(input: unknown): string {
-  return confinePath(input, { requireFafFile: false, roots: fileOpRoots() });
+export function confineFileOp(input: unknown, opts: { roots: string[]; base: string }): string {
+  if (opts.roots.length === 0) {
+    throw new PathConfinementError(
+      'the file tools read only inside the active project (and FAF_ALLOWED_ROOTS), and there is none: ' +
+        'the active project is your home folder or the filesystem root. Set the project with faf_context, or list a folder in FAF_ALLOWED_ROOTS.',
+    );
+  }
+  if (typeof input !== 'string' || input.length === 0) {
+    throw new PathConfinementError('path must be a non-empty string');
+  }
+  return confinePath(path.resolve(opts.base, expandTilde(input)), { requireFafFile: false, roots: opts.roots });
 }
 
 export interface ConfineOptions {
@@ -164,7 +167,11 @@ export function confinePath(input: unknown, opts: ConfineOptions = {}): string {
 
   // Layer 2 (opt-in): enforce root confinement only when roots are configured.
   if (roots.length > 0 && !withinRoots(resolved, roots)) {
-    throw new PathConfinementError(`path escapes FAF_ALLOWED_ROOTS: "${input}".`);
+    throw new PathConfinementError(
+      opts.roots
+        ? `path is outside the active project and FAF_ALLOWED_ROOTS: "${input}".`
+        : `path escapes FAF_ALLOWED_ROOTS: "${input}".`,
+    );
   }
 
   // Layer 1 (always on): a resolved *file* must be a `.faf`/`.fafm` context file.

@@ -1,13 +1,20 @@
 /**
- * 🎯 Projects Convention Path Resolver
+ * 🎯 Projects Convention Path Resolver (faf_init)
  *
  * Default: ~/Projects/[project-name]/project.faf
  *
  * Project name inference order:
- * 1. User explicit path (always wins)
- * 2. User project name statement
+ * 1. User explicit path (always wins). A path is anything absolute, anything
+ *    that starts with `~`, `.` or `..`, or anything with a separator in it. A
+ *    relative one (`.`, `..`, `./x`, `../x`, `x/y`) resolves against `base`,
+ *    the active session project — never against ~/Projects.
+ * 2. User project name statement (`my-app` → ~/Projects/my-app, or an existing
+ *    folder of that name in the usual places). A name with no letters or
+ *    digits is refused: it would name the container itself.
  * 3. AI inference from README, files, conversation context
  * 4. Fallback to 'unnamed-project'
+ *
+ * Nothing here creates a folder.
  */
 
 import * as path from 'path';
@@ -105,12 +112,14 @@ export function getProjectsDirectory(): string {
 function findExistingProject(shortName: string): string | null {
   const home = getHomeDirectory();
   const slugified = slugify(shortName);
+  // An empty slug would name the search location itself (~/Projects).
+  if (!slugified) {return null;}
 
   // Search locations in priority order
   const searchLocations = [
     path.join(home, 'Projects', slugified),
     path.join(home, 'projects', slugified),
-    path.join(home, 'FAF', slugified),          // F1 projects location
+    path.join(home, 'FAF', slugified),          // the FAF projects folder
     path.join(home, 'Code', slugified),
     path.join(home, 'code', slugified),
     path.join(home, 'Development', slugified),
@@ -127,25 +136,35 @@ function findExistingProject(shortName: string): string | null {
   return null;
 }
 
+/** True when `input` names a path rather than a project name. */
+function isExplicitPath(input: string): boolean {
+  return path.isAbsolute(input) || input.startsWith('~') || input === '.' || input === '..' ||
+    input.startsWith('./') || input.startsWith('../') || input.startsWith('.\\') || input.startsWith('..\\') ||
+    input.includes('/') || input.includes('\\');
+}
+
 /**
  * Resolve project path using Projects convention
  *
  * @param userInput - User-provided path or project name
  * @param context - Context for AI inference (README, files, etc.)
+ * @param base - The folder a relative path resolves against (the active session project)
  * @returns Path resolution with project directory and .faf file path
  */
 export function resolveProjectPath(
   userInput?: string,
-  context?: ProjectContext
+  context?: ProjectContext,
+  base: string = process.cwd()
 ): PathResolution {
-  // USER EXPLICIT PATH ALWAYS WINS
-  if (userInput && (userInput.includes('/') || userInput.includes('\\'))) {
-    // Handle tilde expansion
+  // USER EXPLICIT PATH ALWAYS WINS — a relative one resolves against `base`
+  // (the active session project).
+  if (userInput && isExplicitPath(userInput)) {
+    // Handle tilde expansion (the current user's home only)
     let normalized = userInput;
-    if (userInput.startsWith('~')) {
+    if (userInput === '~' || userInput.startsWith('~/') || userInput.startsWith('~\\')) {
       normalized = path.join(getHomeDirectory(), userInput.slice(1));
     }
-    normalized = path.resolve(normalized);
+    normalized = path.resolve(base, normalized);
 
     const projectName = path.basename(normalized);
     const fafFilePath = path.join(normalized, 'project.faf');
@@ -175,6 +194,9 @@ export function resolveProjectPath(
 
     // Not found - default to ~/Projects/[name] for creation
     const projectName = slugify(userInput);
+    if (!projectName) {
+      throw new Error(`"${userInput}" is not a folder name faf can use: pass a path (".", "./app", "/full/path") or a name with letters or digits.`);
+    }
     const projectPath = path.join(getProjectsDirectory(), projectName);
     const fafFilePath = path.join(projectPath, 'project.faf');
 
@@ -225,16 +247,6 @@ export function resolveProjectPath(
     projectName,
     source: 'fallback'
   };
-}
-
-/**
- * Ensure Projects directory exists
- */
-export function ensureProjectsDirectory(): void {
-  const projectsDir = getProjectsDirectory();
-  if (!fs.existsSync(projectsDir)) {
-    fs.mkdirSync(projectsDir, { recursive: true });
-  }
 }
 
 /**

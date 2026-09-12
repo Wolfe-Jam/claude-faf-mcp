@@ -70,7 +70,7 @@
     "properties": {
      "path": {
       "type": "string",
-      "description": "Project path or name. Smart resolution: \"my-app\" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too. Omit to create ~/Projects/unnamed-project; pass the workspace path to init it."
+      "description": "Project path or name. Smart resolution: \"my-app\" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too; \".\", \"..\", \"./app\" are relative to the active project. Omit to create ~/Projects/unnamed-project; pass the workspace path to init it. Your home folder and the filesystem root are refused."
      },
      "force": {
       "type": "boolean",
@@ -161,13 +161,13 @@
   },
   {
    "name": "faf_read",
-   "description": "Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.",
+   "description": "Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Absolute or relative file path to read"
+      "description": "File to read: absolute, or relative to the active project"
      }
     },
     "required": [
@@ -178,13 +178,13 @@
   },
   {
    "name": "faf_list",
-   "description": "List directories and discover projects with project.faf files - Essential for FAF discovery workflow",
+   "description": "List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Directory path to list (e.g., ~/Projects, /Users/username/Projects)"
+      "description": "Folder to list, inside the active project or FAF_ALLOWED_ROOTS; a relative path resolves against the active project"
      },
      "filter": {
       "type": "string",
@@ -306,7 +306,7 @@
      },
      "answers": {
       "type": "object",
-      "description": "Answers to apply. Keys are field paths (e.g., \"project.goal\", \"human_context.why\"), values are the answers. If provided, applies answers and returns new score.",
+      "description": "Answers to apply: a slot path (e.g. \"project.goal\", \"human_context.why\", \"stack.database\") → the answer text. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.",
       "additionalProperties": {
        "type": "string"
       }
@@ -379,7 +379,7 @@
   },
   {
    "name": "faf_dna",
-   "description": "Show the project FAF DNA — score history and progression over time.",
+   "description": "Show the project's .faf-dna lineage, read with faf-cli: the birth score faf_init recorded, every score since (faf_auto and faf_go add them) and the journey line. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -393,7 +393,7 @@
   },
   {
    "name": "faf_formats",
-   "description": "Discover all formats in the project (154+ validated types) and fill stack slots.",
+   "description": "Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -545,17 +545,17 @@
   },
   {
    "name": "faf_git",
-   "description": "Author project.faf from any GitHub repo URL — 1-click context extraction.",
+   "description": "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto fills an existing one); without path, writes nothing and returns the .faf.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "url": {
       "type": "string",
-      "description": "GitHub repository URL (e.g., https://github.com/owner/repo or owner/repo)"
+      "description": "Repository URL: owner/repo (GitHub) or https://github.com/owner/repo"
      },
      "path": {
       "type": "string",
-      "description": "Output directory for the authored project.faf. If omitted, returns content without writing."
+      "description": "An existing project folder to write project.faf into (a new file only). If omitted, returns the content without writing."
      }
     },
     "required": [

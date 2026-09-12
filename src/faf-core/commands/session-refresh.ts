@@ -18,6 +18,12 @@
  *
  * Nothing is written from a project.faf that is not a YAML mapping (empty,
  * scalar, list or malformed): the hook returns 'error' and CLAUDE.md is kept.
+ * Nothing is written in the home folder or the filesystem root either (faf-cli's
+ * isNonProjectRoot, by device and inode): a project.faf there belongs to no
+ * project, and the CLAUDE.md there is your global one.
+ *
+ * The older `project: <name>` shape is lifted at the read boundary
+ * (utils/faf-read.ts), so the block is titled with the project's name.
  *
  * Every read and write is faf-cli's: project.faf and CLAUDE.md are read with
  * its link rules (a link out of the project is refused, never followed), and
@@ -29,6 +35,8 @@ import * as fs from 'fs';
 import { parse as parseYAML } from 'yaml';
 import { parse as parseFafYaml } from '../fix-once/yaml';
 import { sealForScore } from '../../trust/receipt';
+import { readFafData } from '../../utils/faf-read.js';
+import { writeClaudeFromFaf } from './claude.js';
 
 /** faf-cli's current CLAUDE.md footer. Not a substring of the old "STATUS: BI-SYNC ACTIVE". */
 const CURRENT_FOOTER = 'STATUS: SYNC ACTIVE';
@@ -96,9 +104,17 @@ export async function sessionRefresh(projectDir: string = process.cwd()): Promis
       return { action: 'no-faf', message: '' }; // not a .faf project — silently not our session
     }
 
-    // faf-cli's readers, renderer, block finder and injector.
-    const { findFafBlock, readFaf, readFafRaw, readClaudeMd, renderClaudeMd, writeClaudeMd, resolveInside } =
+    // faf-cli's readers, block finder, guard and injector.
+    const { findFafBlock, readFafRaw, readClaudeMd, resolveInside, isNonProjectRoot } =
       await import('../../utils/faf-cli-bridge.js').then((m) => m.fafCli);
+
+    // Home or the filesystem root is no project: the CLAUDE.md there is global.
+    if (isNonProjectRoot(projectDir)) {
+      return {
+        action: 'error',
+        message: `faf: session refresh skipped (${projectDir} is your home folder or the filesystem root, not a project; CLAUDE.md was not written)`,
+      };
+    }
 
     const claudeMdPath = path.join(projectDir, 'CLAUDE.md');
     const fafContent = readFafRaw(fafPath);
@@ -124,7 +140,8 @@ export async function sessionRefresh(projectDir: string = process.cwd()): Promis
     // malformed throws here → 'error', and CLAUDE.md is left exactly as it was.
     parseFafYaml(fafContent, { filepath: fafPath });
 
-    writeClaudeMd(projectDir, renderClaudeMd(readFaf(fafPath)));
+    const { data, legacyProject } = await readFafData(fafPath);
+    await writeClaudeFromFaf(projectDir, data, legacyProject);
 
     return claudeStat === null
       ? { action: 'created', message: `faf: CLAUDE.md created${seal ? ` — ${seal}` : ''}${intentSuffix}` }

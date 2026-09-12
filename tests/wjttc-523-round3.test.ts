@@ -32,7 +32,9 @@ const { scoreFafYaml, FAF_START } = await fafCli;
 
 const ROOT = path.resolve(import.meta.dir, '..');
 const REPO_GUARDED = ['CLAUDE.md', 'project.faf'].map((f) => path.join(ROOT, f));
-const REFUSAL = 'is your home directory (or the filesystem root), not a project. Pass the project path, or open the project folder.';
+// 6.0.0: one resolver refuses home and '/' for every writer (faf-cli's
+// isNonProjectRoot, by device and inode) before the session moves.
+const REFUSAL = 'is your home folder (or the filesystem root), not a project';
 
 const read = (p: string): string => fs.readFileSync(p, 'utf-8');
 
@@ -168,11 +170,11 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     expect(Object.keys(out)).toHaveLength(4);
     for (const [key, r] of Object.entries(out)) {
       expect(`${key}: ${r.isError}`).toBe(`${key}: true`);
-      expect(r.text.endsWith(` ${REFUSAL}`)).toBe(true);
       // The refusal names the directory as the tool resolved it: HOME itself, or
       // the server cwd, which the OS may report through a different spelling
       // (macOS: /var → /private/var). Either way it is this home.
-      const named = r.text.slice(0, -(REFUSAL.length + 1));
+      const named = /(\S+) is your home folder/.exec(r.text)?.[1] ?? '';
+      expect(r.text).toContain(REFUSAL);
       expect(fs.realpathSync(named)).toBe(fs.realpathSync(home));
     }
     expect(snapshot(home)).toEqual(before); // no project.faf, CLAUDE.md byte-identical, no new dirs
@@ -187,7 +189,7 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     for (const name of ['faf_init', 'faf_auto', 'faf_go']) {
       const r = await handler.callTool(name, { path: '/' });
       expect(`${name}: ${r.isError}`).toBe(`${name}: true`);
-      expect(toolText(r)).toBe(`/ ${REFUSAL}`);
+      expect(toolText(r)).toContain(`${name}: / ${REFUSAL}`);
     }
     expect(fs.existsSync('/project.faf')).toBe(hadRootFaf);
     expect(fs.existsSync('/CLAUDE.md')).toBe(hadRootClaude);
@@ -230,16 +232,16 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     expect(data.human_context.who).toBe('Acme developers');
   });
 
-  test('faf_go answers through a non-mapping step replace it with a mapping (faf-cli `faf go` setter)', async () => {
+  test('faf_go answers never step through a value: `human_context: TBD` is refused and kept (6.0.0, #6)', async () => {
     const dir = sandbox('go-scalar-step');
-    fs.writeFileSync(path.join(dir, 'project.faf'), 'project:\n  name: step-app\nhuman_context: TBD\n');
+    const FAF = 'project:\n  name: step-app\nhuman_context: TBD\n';
+    fs.writeFileSync(path.join(dir, 'project.faf'), FAF);
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
 
     const r = await handler.callTool('faf_go', { path: dir, answers: { 'human_context.who': 'Platform team' } });
-    expect(r.isError).toBeFalsy();
-    const data = parseYaml(read(path.join(dir, 'project.faf')));
-    expect(data.human_context).toEqual({ who: 'Platform team' });
-    expect(data.project.name).toBe('step-app');
+    expect(r.isError).toBe(true);
+    expect(toolText(r)).toContain('human_context holds the value "TBD", not a mapping');
+    expect(read(path.join(dir, 'project.faf'))).toBe(FAF);
   });
 
   // ── 7. faf_auto: description, schema, error text ──
@@ -282,7 +284,7 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     const r = await handler.callTool('faf_init', { path: dir });
     expect(r.isError).toBeFalsy();
     expect(toolText(r)).toContain('already exists');
-    expect(engine.getWorkingDirectory()).toBe(dir); // a bare faf_sync next acts on the project just named
+    expect(engine.getWorkingDirectory()).toBe(fs.realpathSync(dir)); // a bare faf_sync next acts on the project just named
     expect(read(path.join(dir, 'project.faf'))).toBe(FAF);
   });
 
@@ -318,12 +320,13 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
 
     const c = await handler.callTool('faf_conductor', { path: dir, action: 'export' });
     expect(c.isError).toBe(true);
-    expect(toolText(c)).toContain('No .faf file found');
+    expect(toolText(c)).toContain('No project.faf (or .faf) in');
     expect(toolText(c)).not.toContain('undefined');
 
     const g = await handler.callTool('faf_git', { url: 'not a github url' });
     expect(g.isError).toBe(true);
-    expect(toolText(g)).toContain('Invalid GitHub URL: not a github url');
+    expect(toolText(g)).toContain('"not a github url"'); // faf-cli's normalizeGitUrl names it
+    expect(toolText(g)).toContain('Expected owner/repo or https://github.com/owner/repo.');
     expect(toolText(g)).not.toContain('undefined');
   });
 
@@ -366,7 +369,8 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
       if (prev === undefined) {delete process.env.FAF_TOOLS;} else {process.env.FAF_TOOLS = prev;}
     }
     const git = tools.find((t) => t.name === 'faf_git')!;
-    expect(git.description).toBe('Author project.faf from any GitHub repo URL — 1-click context extraction.');
+    expect(git.description!.startsWith('Author a project.faf for a repository by URL. Uses the network:')).toBe(true);
+    expect(git.annotations?.openWorldHint).toBe(true);
     expect(JSON.stringify(git.inputSchema)).not.toMatch(/generat/i);
 
     const handler = new FafToolHandler(new FafEngineAdapter('native'));

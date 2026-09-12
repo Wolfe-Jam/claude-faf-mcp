@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import {
-  composedTurboCat, composedTurboCatSlots, turboCatDisplay, normalizeTurboCatKeys,
+  composedTurboCat, composedTurboCatSlots,
 } from '../src/faf-core/extract/turbocat-bridge.js';
 
 // WJTTC — composed Turbo-Cat consumer (single source via faf-cli >= 6.10.1).
@@ -43,7 +43,7 @@ describe('BRAKE — composes faf-cli, detects correctly (no-guess)', () => {
 
   test('B3 — never throws on a bogus path', async () => {
     let threw = false;
-    try { await composedTurboCat('/no/such/dir/xyz'); await turboCatDisplay('/no/such/dir/xyz'); } catch { threw = true; }
+    try { await composedTurboCat('/no/such/dir/xyz'); await composedTurboCatSlots('/no/such/dir/xyz'); } catch { threw = true; }
     expect(threw).toBe(false);
   });
 });
@@ -58,14 +58,12 @@ describe('ENGINE — the display + fill shapes consumers need', () => {
   });
   afterEach(() => { try { fs.rmSync(dir, { recursive: true, force: true }); } catch { /* */ } });
 
-  test('E1 — turboCatDisplay returns the faf_formats shape, populated', async () => {
-    const d = await turboCatDisplay(dir);
-    expect(Array.isArray(d.discoveredFormats)).toBe(true);
-    expect(d.discoveredFormats.length).toBeGreaterThan(0);
-    expect(typeof d.totalIntelligenceScore).toBe('number');
-    expect(d.totalIntelligenceScore).toBeGreaterThan(0);
-    expect(typeof d.stackSignature).toBe('string');
-    expect(d.slotFillRecommendations.mainLanguage).toBe('TypeScript');
+  test('E1 — composedTurboCat returns faf-cli\'s own shape: each format with its file, no summed score', async () => {
+    const r = await composedTurboCat(dir);
+    expect(Array.isArray(r!.discoveredFormats)).toBe(true);
+    expect(r!.discoveredFormats.map((f) => f.fileName)).toContain('package.json');
+    expect(typeof r!.stackSignature).toBe('string');
+    expect((r as unknown as Record<string, unknown>).totalIntelligenceScore).toBeUndefined();
   });
 
   test('E2 — composedTurboCatSlots routes into {project, stack} (main_language → project)', async () => {
@@ -74,20 +72,6 @@ describe('ENGINE — the display + fill shapes consumers need', () => {
     expect(s!.project?.main_language).toBe('TypeScript');
     // stack section carries no project-level keys
     expect(s!.stack?.main_language).toBeUndefined();
-  });
-
-  test('E3 — totalIntelligenceScore is the sum of discovered-format priorities', async () => {
-    const r = await composedTurboCat(dir);
-    const d = await turboCatDisplay(dir);
-    const expected = r!.discoveredFormats.reduce((acc, f) => acc + f.priority, 0);
-    expect(d.totalIntelligenceScore).toBe(expected);
-  });
-});
-
-describe('ENGINE — key mapping (faf-cli keys → CFM display keys)', () => {
-  test('E4 — maps the keys that differ; passes through the rest; drops empties', () => {
-    expect(normalizeTurboCatKeys({ main_language: 'TypeScript', framework: 'SvelteKit', buildTool: 'Vite', backend: 'Express', testing: '' }))
-      .toEqual({ mainLanguage: 'TypeScript', frontend: 'SvelteKit', build: 'Vite', backend: 'Express' });
   });
 });
 

@@ -37,6 +37,13 @@ export const HOOK_COMMAND = `npx -y ${HOOK_FINGERPRINT}`;
 /** The one settings scope faf_setup writes, as every message names it. */
 export const SETTINGS_SCOPE = 'project settings';
 
+/** faf_setup's refusal of the home folder (or the filesystem root): the
+ *  .claude/settings.json there is the user settings, which apply to every project. */
+export function homeRefusal(projectDir: string): string {
+  return `${projectDir} is your home folder (or the filesystem root), not a project: its .claude/settings.json is your user settings, ` +
+    `which apply to every project. faf_setup writes only ${SETTINGS_SCOPE}. Pass the project path.`;
+}
+
 /** The exact entry faf appends to settings.hooks.SessionStart. */
 export function buildHookEntry(): { hooks: Array<{ type: 'command'; command: string }> } {
   return { hooks: [{ type: 'command', command: HOOK_COMMAND }] };
@@ -160,10 +167,7 @@ export async function setupSessionHook(
     const { isNonProjectRoot, resolveInside, readUtf8, safeWriteFile, makeDirInside } = await fafCli;
 
     if (isNonProjectRoot(projectDir)) {
-      return error(
-        `${projectDir} is your home folder (or the filesystem root), not a project: its .claude/settings.json is your user settings, ` +
-        `which apply to every project. faf_setup writes only ${SETTINGS_SCOPE}. Pass the project path.`,
-      );
+      return error(homeRefusal(projectDir));
     }
 
     // Read the settings through faf-cli's resolver: a .claude folder or a

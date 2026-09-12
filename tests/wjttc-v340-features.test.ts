@@ -138,7 +138,8 @@ For developers who care about quality.
         const { tools } = await toolHandler.listTools();
         const fafDna = tools.find(t => t.name === 'faf_dna');
         expect(fafDna).toBeDefined();
-        expect(fafDna?.description).toContain('DNA');
+        expect(fafDna?.description).toContain('.faf-dna');
+        expect(fafDna?.annotations?.readOnlyHint).toBe(true);
       });
 
       it('should include faf_formats in tool list', async () => {
@@ -203,7 +204,8 @@ For developers who care about quality.
         const result = await toolHandler.callTool('faf_dna', { path: emptyDir });
         expect(result).toBeDefined();
         const text = getTextContent(result.content);
-        expect(text).toContain('No FAF DNA found');
+        expect(text).toContain('No .faf-dna');
+        expect(fs.readdirSync(emptyDir)).toEqual([]); // faf_dna reads only
       });
 
       it('faf_formats should not crash on empty directory', async () => {
@@ -356,61 +358,44 @@ generated: ${new Date().toISOString()}
     });
 
     describe('faf_dna - DNA Journey', () => {
+      // 6.0.0 (#20): faf_dna only reads, with faf-cli's FafDNAManager. faf_init
+      // writes the birth certificate; faf_auto and faf_go add to it.
       let dnaTestDir: string;
 
       beforeEach(() => {
-        dnaTestDir = path.join(testDir, `dna-test-${Date.now()}`);
+        dnaTestDir = path.join(testDir, `dna-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
         fs.mkdirSync(dnaTestDir, { recursive: true });
-
-        // Create .faf file
-        fs.writeFileSync(
-          path.join(dnaTestDir, 'project.faf'),
-          `project: dna-test
-type: test
-generated: ${new Date().toISOString()}
-human_context:
-  why: Testing DNA tracking
-`
-        );
+        fs.writeFileSync(path.join(dnaTestDir, 'package.json'), JSON.stringify({ name: 'dna-test', dependencies: { express: '^4.0.0' } }));
       });
 
-      it('should create birth certificate on first run', async () => {
+      it('faf_dna writes nothing on a project with no .faf-dna', async () => {
+        fs.writeFileSync(path.join(dnaTestDir, 'project.faf'), 'project:\n  name: dna-test\n');
         const result = await toolHandler.callTool('faf_dna', { path: dnaTestDir });
-        const text = getTextContent(result.content);
+        expect(getTextContent(result.content)).toContain('No .faf-dna');
+        expect(fs.existsSync(path.join(dnaTestDir, '.faf-dna'))).toBe(false);
+      });
 
-        expect(text).toContain('Birth');
+      it('faf_init writes the birth certificate; faf_dna shows the journey', async () => {
+        await toolHandler.callTool('faf_init', { path: dnaTestDir });
         expect(fs.existsSync(path.join(dnaTestDir, '.faf-dna'))).toBe(true);
-      });
-
-      it('should show journey on subsequent runs', async () => {
-        // First run creates DNA
-        await toolHandler.callTool('faf_dna', { path: dnaTestDir });
-
-        // Second run shows journey
         const result = await toolHandler.callTool('faf_dna', { path: dnaTestDir });
         const text = getTextContent(result.content);
-
         expect(text).toContain('DNA');
         expect(text).toContain('%');
+        expect((result.structuredContent as any).hasDna).toBe(true);
       });
 
-      it('should track milestones', async () => {
-        await toolHandler.callTool('faf_dna', { path: dnaTestDir });
-
-        const dnaPath = path.join(dnaTestDir, '.faf-dna');
-        const dnaContent = JSON.parse(fs.readFileSync(dnaPath, 'utf-8'));
-
-        expect(dnaContent.milestones).toBeDefined();
-        expect(Array.isArray(dnaContent.milestones)).toBe(true);
-        expect(dnaContent.milestones.length).toBeGreaterThan(0);
+      it('the .faf-dna is faf-cli\'s own shape: versions and growth.milestones', async () => {
+        await toolHandler.callTool('faf_init', { path: dnaTestDir });
+        const dnaContent = JSON.parse(fs.readFileSync(path.join(dnaTestDir, '.faf-dna'), 'utf-8'));
+        expect(Array.isArray(dnaContent.versions)).toBe(true);
+        expect(dnaContent.growth.milestones.length).toBeGreaterThan(0);
+        expect(dnaContent.milestones).toBeUndefined();
       });
 
       it('should include birth certificate', async () => {
-        await toolHandler.callTool('faf_dna', { path: dnaTestDir });
-
-        const dnaPath = path.join(dnaTestDir, '.faf-dna');
-        const dnaContent = JSON.parse(fs.readFileSync(dnaPath, 'utf-8'));
-
+        await toolHandler.callTool('faf_init', { path: dnaTestDir });
+        const dnaContent = JSON.parse(fs.readFileSync(path.join(dnaTestDir, '.faf-dna'), 'utf-8'));
         expect(dnaContent.birthCertificate).toBeDefined();
         expect(dnaContent.birthCertificate.born).toBeDefined();
         expect(dnaContent.birthCertificate.birthDNA).toBeDefined();
@@ -448,11 +433,11 @@ human_context:
         const text = getTextContent(result.content);
 
         const data = JSON.parse(text);
-        expect(data.discoveredFormats).toBeDefined();
-        expect(Array.isArray(data.discoveredFormats)).toBe(true);
+        expect(data.formats).toBeDefined();
+        expect(Array.isArray(data.formats)).toBe(true);
       });
 
-      it('should provide slot fill recommendations', async () => {
+      it('shows what faf_auto would write (a dry run), not recommendations of its own', async () => {
         const result = await toolHandler.callTool('faf_formats', {
           path: testProjectDir,
           json: true
@@ -460,9 +445,10 @@ human_context:
         const text = getTextContent(result.content);
         const data = JSON.parse(text);
 
-        expect(data.slotFillRecommendations).toBeDefined();
+        expect(data.slotFillRecommendations).toBeUndefined();
         // Should detect TypeScript from package.json deps
-        expect(data.slotFillRecommendations.mainLanguage).toBe('TypeScript');
+        expect(data.wouldFill['project.main_language']).toBe('TypeScript');
+        expect(fs.existsSync(path.join(testProjectDir, 'project.faf'))).toBe(false); // nothing written
       });
 
       it('should generate stack signature', async () => {
@@ -477,7 +463,7 @@ human_context:
         expect(typeof data.stackSignature).toBe('string');
       });
 
-      it('should calculate intelligence score', async () => {
+      it('has no score of its own (the one score is faf_score)', async () => {
         const result = await toolHandler.callTool('faf_formats', {
           path: testProjectDir,
           json: true
@@ -485,9 +471,9 @@ human_context:
         const text = getTextContent(result.content);
         const data = JSON.parse(text);
 
-        expect(data.totalIntelligenceScore).toBeDefined();
-        expect(typeof data.totalIntelligenceScore).toBe('number');
-        expect(data.totalIntelligenceScore).toBeGreaterThan(0);
+        expect(data.totalIntelligenceScore).toBeUndefined();
+        expect(data.intelligenceScore).toBeUndefined();
+        expect(text).not.toContain('Intelligence Score');
       });
     });
 
@@ -688,20 +674,34 @@ stack_signature: typescript-react
         expect(afterContent.match(/^<!-- faf:start -->$/gm)?.length).toBe(1);
       });
 
-      it('faf_formats should handle project with no known formats', async () => {
-        const unknownDir = path.join(testDir, 'unknown-formats');
-        fs.mkdirSync(unknownDir, { recursive: true });
-        fs.writeFileSync(path.join(unknownDir, 'random.xyz'), 'unknown format');
+      it('faf_formats should handle project with no known formats (controlled fixture: a repo root with .git and manifests above it)', async () => {
+        // #19: the result must not depend on where the checkout sits. The
+        // fixture owns every folder above the scanned one up to a .git root
+        // holding a package.json, tsconfig.json and Cargo.toml; faf-cli 7.13
+        // reads only the scanned folder's own files.
+        const repo = fs.mkdtempSync(path.join(os.tmpdir(), 'wjttc-v340-mono-'));
+        try {
+          fs.mkdirSync(path.join(repo, '.git'));
+          fs.writeFileSync(path.join(repo, 'package.json'), JSON.stringify({ name: 'mono-root', devDependencies: { typescript: '^5' } }));
+          fs.writeFileSync(path.join(repo, 'tsconfig.json'), '{}');
+          fs.writeFileSync(path.join(repo, 'Cargo.toml'), '[package]\nname = "root"\n');
+          const unknownDir = path.join(repo, 'packages', 'unknown-formats');
+          fs.mkdirSync(unknownDir, { recursive: true });
+          fs.writeFileSync(path.join(unknownDir, 'random.xyz'), 'unknown format');
 
-        const result = await toolHandler.callTool('faf_formats', {
-          path: unknownDir,
-          json: true
-        });
-        const text = getTextContent(result.content);
-        const data = JSON.parse(text);
+          const result = await toolHandler.callTool('faf_formats', {
+            path: unknownDir,
+            json: true
+          });
+          const text = getTextContent(result.content);
+          const data = JSON.parse(text);
 
-        expect(data.discoveredFormats).toEqual([]);
-        expect(data.stackSignature).toBe('unknown-stack');
+          expect(data.formats).toEqual([]);
+          expect(data.stackSignature).toBe('unknown-stack');
+          expect(text).not.toMatch(/TypeScript|Rust|cargo/);
+        } finally {
+          fs.rmSync(repo, { recursive: true, force: true });
+        }
       });
     });
 
@@ -717,7 +717,7 @@ stack_signature: typescript-react
         expect(text).toMatch(/\d+\.\d+s/); // e.g., "0.5s"
       });
 
-      it('faf_dna should show motivational message', async () => {
+      it('faf_dna says where a lineage comes from when there is none', async () => {
         const motivDir = path.join(testDir, 'motiv-test');
         fs.mkdirSync(motivDir, { recursive: true });
         fs.writeFileSync(path.join(motivDir, 'project.faf'), 'project: motiv\n');
@@ -725,16 +725,17 @@ stack_signature: typescript-react
         const result = await toolHandler.callTool('faf_dna', { path: motivDir });
         const text = getTextContent(result.content);
 
-        // Should have some motivational content
-        expect(text.length).toBeGreaterThan(100);
+        expect(text).toContain('faf_init writes the birth certificate');
       });
 
-      it('faf_formats should include TURBO-CAT branding', async () => {
+      it('faf_formats says it reads only and names each format\'s file', async () => {
         const result = await toolHandler.callTool('faf_formats', { path: testProjectDir });
         const text = getTextContent(result.content);
 
-        expect(text).toContain('TURBO-CAT');
-        expect(text).toContain('😽');
+        expect(text).toContain('reads only; nothing is written');
+        expect(text).toContain('package.json');
+        const formats = (result.structuredContent as any).formats as Array<{ path: string }>;
+        expect(formats.every((f) => f.path.startsWith(fs.realpathSync(testProjectDir)))).toBe(true);
       });
     });
   });

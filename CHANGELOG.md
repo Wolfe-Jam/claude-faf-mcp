@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The copilot and conductor exports make their folder inside the project, and a `.github` or `conductor` that links out of it is refused.
 - faf_debug no longer writes and deletes a probe file to test write access. It asks the OS, so a `.claude-faf-test` of yours, or a link by that name, is left alone.
 - Correction to the 5.x path-confinement note below: it covered only the `path` argument. A context file that was itself a link out of the project was still followed until this release.
+- One path resolver for every tool. Your home folder and the filesystem root are refused by faf-cli's device-and-inode check, so no other spelling of home (upper case, a link) gets past it. It covers every writer and the SessionStart hook, and it refuses before the active project moves: a refused call leaves the active project where it was.
+- faf_go answers take only slot paths faf-cli knows (its interview and its slot table), the caller's own keys, and text. `__proto__`, `constructor` and `prototype` are refused at any depth, so an answer can no longer turn on another tool's `force` or change its path. One bad key refuses the whole call, and nothing is written.
+- Tool arguments are read as the caller's own keys only: a flag or a path the caller did not send is never read from Object.prototype.
+- faf_read and faf_list reach only the active project and FAF_ALLOWED_ROOTS: no temp folders, never your home folder or the filesystem root. A relative path resolves against the active project. faf_list is confined like faf_read and lists a link without following it. (The 5.x note below said cwd plus the system temp folders.)
+- faf_git checks out a repo's links as plain files, so a link in a repo can never make faf read a file outside the clone.
 
 ### Fixed
 
@@ -34,6 +39,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - faf_setup removes only the hook whose command is exactly faf's; a user hook that mentions `claude-faf-mcp --session-refresh` stays. It refuses a `hooks` or `SessionStart` of the wrong shape instead of replacing it, previews a removal unless `confirm: true`, and rewrites settings.json only when it is laid out the way faf writes JSON (otherwise it gives the entry to add by hand). It refuses the home folder, whose .claude/settings.json is your user settings, and every message names the project settings.
 - faf_tri_sync writes MEMORY.md through faf-cli's Claude-memory writer, at the path Claude Code reads: its id for the project's canonical git root (every character outside a-z, A-Z, 0-9 becomes "-"), under CLAUDE_CONFIG_DIR when set. Only faf's block changes, Claude's notes keep every byte (CRLF and a BOM included), and "kept" is reported only after the file is read back. The local MEMORY.md port is gone.
 - faf_git no longer writes over an existing project.faf. It refuses before fetching anything and points to faf_auto.
+- A relative path (".", "..", "./app") resolves against the active project, never against ~/Projects. faf_init refuses a name with no letters or digits.
+- A path that does not exist is an error ("path not found") in faf_context and every other tool, and the active project stays where it was. faf_etch creates no folders.
+- Starting the server creates no folder. A host that starts it at "/" gets an existing ~/Projects, or the home folder, and the writers ask for a path.
+- The older `project: <name>` (a string, a number or a boolean) is lifted to project.name once, where project.faf is read. faf_go keeps the name, and faf_sync, the SessionStart hook, the exports and faf_tri_sync title everything with it.
+- faf_init, faf_score, faf_sync and faf_doctor name the older `project: <name>` shape and point to faf_auto, which moves it to project.name.
+- The CLAUDE.md that claude-faf-mcp 4.5.0–5.22.1 wrote with no markers ("AI Telemetry Link … STATUS: BI-SYNC ACTIVE") is taken out from below faf's block only when faf can prove it wrote every line of it. A file with any line of yours is left as it is, and the reply says so.
+- One .faf finder, faf-cli's: project.faf, else .faf, in the folder and then one level up. Every reader uses it and names the file it read, and the exports write next to that file. The writers write <folder>/project.faf exactly, and name the .faf above it they did not fill. The two local finders are gone, one of which walked up ten folders.
+- faf_auto in a folder with only the older .faf writes project.faf from it, keeps every value, fills the empty slots and leaves the .faf as it was.
+- faf_git composes faf-cli's `faf git`. faf-cli checks the URL, a shallow git clone fetches the repo into a temp folder, and faf-cli authors the .faf and scores it. The score in the reply is faf-cli's, where it used to claim 100% for a file faf-cli scored 14–24%. It writes only a new project.faf, never in your home folder.
+- faf_dna reads the .faf-dna with faf-cli's FafDNAManager and writes nothing. faf_init and faf_quick write the birth certificate and faf_auto and faf_go add each new score, in faf-cli's own shape, so `faf auto` and `faf dna` keep working on the file.
+- faf_formats shows the formats faf-cli finds in the project folder, each with its file, and a dry run of what faf_auto would write. The canned recommendations and the "Intelligence Score" are gone. With faf-cli 7.13 a parent folder's package.json or tsconfig.json no longer shows up in a subfolder.
+- faf_go answers report faf-cli's score of the file just written.
 
 ### Removed
 
@@ -45,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `bi-sync` / `bisync` engine aliases, which no tool called.
 - esbuild, @upstash/redis and faf-scoring-kernel are no longer dependencies, so installs are smaller and no longer run esbuild's install script.
 - mcp-registry-entry.json, faf-mcp-config.json, .npmignore and .mcpbignore are out of the tree (the tag `archive/cfm-v5-surface` keeps them).
+- The GitHub-API port behind faf_git — its GitHub extractor, its own .faf writer and its slot counter, about 1,050 lines — and its own scorer. faf_git no longer reads GITHUB_TOKEN or GH_TOKEN.
 
 ### Changed
 
@@ -55,6 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - scripts/verify-fafa.js checks the A2A card with faf-cli's `buildA2ACard`; the local copy is gone.
 - `npm run dev` works: it runs the server from source with bun.
 - `npm run lint` quotes its glob, so ESLint checks every file under src/, not just the first level.
+- faf_git needs git on PATH, because it clones the repo. Its description says it uses the network.
 
 ## [5.22.1] - 2026-08-19
 

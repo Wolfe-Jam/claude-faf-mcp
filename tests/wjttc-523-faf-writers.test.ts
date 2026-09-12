@@ -110,7 +110,7 @@ describe('WJTTC 5.23 — project.faf and soul.fafm compose faf-cli', () => {
     expect(written).toBe(fafCliFresh());
     const score = scoreFafYaml(written);
     expect(toolText(r)).toContain(`${score.score}/100 (${score.populated}/${score.active} slots populated)`);
-    expect(engine.getWorkingDirectory()).toBe(dir); // the next steps act on the new project
+    expect(engine.getWorkingDirectory()).toBe(fs.realpathSync(dir)); // the next steps act on the new project
   });
 
   test('faf_go applies answers to the file faf_init wrote', async () => {

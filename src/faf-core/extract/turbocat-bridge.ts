@@ -15,6 +15,10 @@
  * Language Editions (Go · C# · JVM · Ruby · Swift · Dart/Flutter) live ONLY in
  * faf-cli. CFM never forks classifiers — bump the dep, retest, ship. Sibling
  * MCPs (faf-mcp, grok-faf-mcp, …) follow the same compose floor.
+ *
+ * faf_formats shows faf-cli's scan as it is (each format with its file) and a
+ * dry run of faf_auto's fill; 6.0.0 removed the display layer that renamed
+ * faf-cli's keys and summed format priorities into an "Intelligence Score".
  */
 import { fafCli } from '../../utils/faf-cli-bridge.js';
 
@@ -64,51 +68,4 @@ export async function composedTurboCatSlots(dir: string): Promise<TurboCatSlots 
     /* unavailable */
   }
   return null;
-}
-
-/**
- * Map faf-cli's slotFills keys onto CFM's slotFillRecommendations keys for the
- * faf_formats display. faf-cli uses `framework`/`buildTool`; CFM's display uses
- * `frontend`/`build`. Unknown keys pass through.
- */
-const KEY_MAP: Record<string, string> = {
-  main_language: 'mainLanguage',
-  framework: 'frontend',
-  build_tool: 'build',
-  buildTool: 'build',
-  pkg_manager: 'packageManager',
-};
-
-export function normalizeTurboCatKeys(slotFills: Record<string, string>): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [k, v] of Object.entries(slotFills)) {
-    if (!v) continue;
-    out[KEY_MAP[k] ?? k] = v;
-  }
-  return out;
-}
-
-export interface TurboCatDisplay {
-  discoveredFormats: DiscoveredFormat[];
-  totalIntelligenceScore: number;
-  stackSignature: string;
-  slotFillRecommendations: Record<string, string>;
-}
-
-/**
- * Display-shaped result for faf_formats — what the old `discoverFormatsInternal`
- * returned, now sourced from faf-cli. Empty (not crashing) when unavailable.
- */
-export async function turboCatDisplay(dir: string): Promise<TurboCatDisplay> {
-  const r = await composedTurboCat(dir);
-  if (!r) {
-    return { discoveredFormats: [], totalIntelligenceScore: 0, stackSignature: 'unknown-stack', slotFillRecommendations: {} };
-  }
-  const discoveredFormats = r.discoveredFormats ?? [];
-  return {
-    discoveredFormats,
-    totalIntelligenceScore: discoveredFormats.reduce((s, f) => s + (f.priority || 0), 0),
-    stackSignature: r.stackSignature ?? 'unknown-stack',
-    slotFillRecommendations: normalizeTurboCatKeys(r.slotFills),
-  };
 }

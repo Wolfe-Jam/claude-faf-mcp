@@ -136,7 +136,7 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
 
     const r = await client.callTool({ name: 'faf_sync', arguments: { path: dir } });
     expect(r.isError).toBeFalsy();
-    expect(toolText(r)).toContain('CLAUDE.md written from project.faf.');
+    expect(toolText(r)).toContain(`CLAUDE.md written from ${path.join(fs.realpathSync(dir), 'project.faf')}.`);
 
     expect(mask(read(path.join(dir, 'CLAUDE.md')))).toBe(mask(fafCliBytes(FIXTURE)));
   });
@@ -168,7 +168,7 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     for (let run = 0; run < 2; run++) {
       const r = await client.callTool({ name: 'faf_sync', arguments: { path: dir } });
       expect(r.isError).toBeFalsy();
-      expect(toolText(r)).toContain('CLAUDE.md refreshed from project.faf.');
+      expect(toolText(r)).toContain(`CLAUDE.md refreshed from ${path.join(fs.realpathSync(dir), 'project.faf')}.`);
     }
 
     const out = read(mdPath);
@@ -299,7 +299,7 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     const missing = path.join(a, 'nope-does-not-exist');
     const r = await client.callTool({ name: 'faf_sync', arguments: { path: missing } });
     expect(r.isError).toBe(true);
-    expect(toolText(r)).toBe(`faf_sync: path not found: ${missing}`);
+    expect(toolText(r)).toContain(`faf_sync: path not found: ${missing}`);
     expect(read(path.join(a, 'CLAUDE.md'))).toBe(before); // byte-identical — no write into the previous project
     expect(fs.existsSync(missing)).toBe(false);
   });
@@ -310,15 +310,16 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     const ok = await client.callTool({ name: 'faf_sync', arguments: { path: dir, agents: true } });
     expect(ok.isError).toBeFalsy();
     const text = toolText(ok);
-    expect(text).toContain('CLAUDE.md written from project.faf. FAF Score:');
-    expect(text).toContain('Files written:\n• CLAUDE.md\n• AGENTS.md');
+    expect(text).toContain(`CLAUDE.md written from ${path.join(fs.realpathSync(dir), 'project.faf')}. FAF Score:`);
+    const real = fs.realpathSync(dir);
+    expect(text).toContain(`Files written:\n• ${path.join(real, 'CLAUDE.md')}\n• ${path.join(real, 'AGENTS.md')}`);
     expect(text).not.toContain('"filesChanged"'); // not the raw result object
     expect(text).not.toContain('"direction"');
 
     const empty = sandbox('sync-nofaf'); // exists, has no project.faf
     const bad = await client.callTool({ name: 'faf_sync', arguments: { path: empty } });
     expect(bad.isError).toBe(true);
-    expect(toolText(bad)).toContain('No project.faf file found');
+    expect(toolText(bad)).toContain('No project.faf (or .faf) in');
     expect(toolText(bad)).not.toContain('undefined');
     expect(fs.existsSync(path.join(empty, 'CLAUDE.md'))).toBe(false);
   });
@@ -367,29 +368,64 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     }
   });
 
-  test('legacy CFM CLAUDE.md is never removed: unedited or hand-filled, every old byte stays below the new block (faf_sync, faf_auto, session refresh; LF and CRLF)', async () => {
+  test('legacy CFM CLAUDE.md: the exact file faf wrote is taken out; hand-filled or CRLF stays byte-for-byte with a note (faf_sync, faf_auto, session refresh)', async () => {
     // 5.23 round 2 deleted an "unedited" template to write a clean file; its
     // matcher also matched templates whose placeholder lines the user had filled
-    // in by hand, and that text was lost. Now nothing unlinks CLAUDE.md: faf-cli's
-    // injector prefixes its block and the old file is kept as it was.
+    // in by hand, and that text was lost. 6.0.0 (#39, the owner rule): faf takes
+    // the old text out only when it can prove it wrote every line — the whole
+    // file outside faf's block is the 4.5.0–5.22.1 faf_auto template and each
+    // value in it is one the old writer took from this project.faf (or the
+    // template's own default). Anything else keeps every byte, and the reply says so.
     const UNEDITED = legacyFafAutoTemplate('compose-fixture', 'AI-ready project context', 'Auto-detected stack');
+    const FROM_FAF = legacyFafAutoTemplate('compose-fixture', 'Define once, never re-explain', 'Auto-detected stack');
     const HAND_FILLED = legacyFafAutoTemplate(
       'Billing Platform (payments team)',
       'Ship the billing API before Q4; the payments team owns /billing.',
       'Next.js 14 app router + Supabase',
     );
-    const cases: Array<[string, string]> = [
-      ['unedited-lf', UNEDITED],
-      ['unedited-crlf', UNEDITED.replace(/\n/g, '\r\n')],
-      ['hand-filled', HAND_FILLED],
-    ];
     const kept = (out: string, legacy: string): void => {
       expect(out.endsWith(legacy)).toBe(true); // byte-for-byte, at the end
       expect(out.startsWith(`${FAF_START}\n`)).toBe(true);
       expect(out.split(FAF_START).length - 1).toBe(1);
     };
+    const taken = (out: string, fafText: string): void => {
+      expect(out).not.toContain('AI Telemetry Link');
+      expect(out).not.toContain('BI-SYNC');
+      expect(mask(out)).toBe(mask(fafCliBytes(fafText))); // exactly faf-cli's file for a folder with no CLAUDE.md
+    };
+
+    // Proven: faf wrote every line — taken out (faf_sync, SessionStart hook).
+    for (const [tag, legacy] of [['unedited', UNEDITED], ['from-faf', FROM_FAF]] as const) {
+      const s = sandbox(`legacy-sync-${tag}`);
+      fs.writeFileSync(path.join(s, 'project.faf'), FIXTURE);
+      fs.writeFileSync(path.join(s, 'CLAUDE.md'), legacy);
+      const r = await client.callTool({ name: 'faf_sync', arguments: { path: s } });
+      expect(r.isError).toBeFalsy();
+      expect(toolText(r)).toContain('faf wrote every line of it');
+      taken(read(path.join(s, 'CLAUDE.md')), FIXTURE);
+
+      const h = sandbox(`legacy-hook-${tag}`);
+      fs.writeFileSync(path.join(h, 'project.faf'), FIXTURE);
+      fs.writeFileSync(path.join(h, 'CLAUDE.md'), legacy);
+      expect((await sessionRefresh(h)).action).toBe('refreshed');
+      taken(read(path.join(h, 'CLAUDE.md')), FIXTURE);
+    }
+
+    // faf_auto: the template names the folder, as 5.22.1 did with no project name.
+    const a = sandbox('legacy-auto-unedited');
+    const ownTemplate = legacyFafAutoTemplate(path.basename(a), 'AI-ready project context', 'Auto-detected stack');
+    fs.writeFileSync(path.join(a, 'CLAUDE.md'), ownTemplate);
+    const ra = await client.callTool({ name: 'faf_auto', arguments: { path: a } });
+    expect(ra.isError).toBeFalsy();
+    expect(toolText(ra)).toContain('Updated CLAUDE.md (faf-managed block)');
+    taken(read(path.join(a, 'CLAUDE.md')), read(path.join(a, 'project.faf')));
+
+    // Not proven: hand-filled values, CRLF endings — every byte kept, and said.
+    const cases: Array<[string, string]> = [
+      ['hand-filled', HAND_FILLED],
+      ['unedited-crlf', UNEDITED.replace(/\n/g, '\r\n')],
+    ];
     for (const [tag, legacy] of cases) {
-      // faf_sync
       const s = sandbox(`legacy-sync-${tag}`);
       fs.writeFileSync(path.join(s, 'project.faf'), FIXTURE);
       fs.writeFileSync(path.join(s, 'CLAUDE.md'), legacy);
@@ -398,18 +434,16 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
       const synced = read(path.join(s, 'CLAUDE.md'));
       kept(synced, legacy);
       expect(mask(synced)).toBe(mask(fafCliBytes(FIXTURE, legacy)));
+      expect(toolText(r)).toContain('faf cannot prove it wrote, so it is left as you have it');
 
-      // faf_auto
-      const a = sandbox(`legacy-auto-${tag}`);
-      fs.writeFileSync(path.join(a, 'CLAUDE.md'), legacy);
-      const ra = await client.callTool({ name: 'faf_auto', arguments: { path: a } });
-      expect(ra.isError).toBeFalsy();
-      expect(toolText(ra)).toContain('Updated CLAUDE.md (faf-managed block)');
-      const auto = read(path.join(a, 'CLAUDE.md'));
+      const a2 = sandbox(`legacy-auto-${tag}`);
+      fs.writeFileSync(path.join(a2, 'CLAUDE.md'), legacy);
+      const ra2 = await client.callTool({ name: 'faf_auto', arguments: { path: a2 } });
+      expect(ra2.isError).toBeFalsy();
+      const auto = read(path.join(a2, 'CLAUDE.md'));
       kept(auto, legacy);
-      expect(mask(auto)).toBe(mask(fafCliBytes(read(path.join(a, 'project.faf')), legacy)));
+      expect(mask(auto)).toBe(mask(fafCliBytes(read(path.join(a2, 'project.faf')), legacy)));
 
-      // SessionStart hook
       const h = sandbox(`legacy-hook-${tag}`);
       fs.writeFileSync(path.join(h, 'project.faf'), FIXTURE);
       fs.writeFileSync(path.join(h, 'CLAUDE.md'), legacy);

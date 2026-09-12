@@ -8,7 +8,7 @@
 
 import path from 'path';
 import * as fs from 'fs';
-import { findFafFile } from '../utils/file-utils.js';
+import { exportSource } from '../utils/export-source.js';
 import { readFafMapping } from '../fix-once/yaml.js';
 import {
   cursorExport,
@@ -29,16 +29,15 @@ export interface CursorCommandResult {
 export async function cursorExportCommand(
   projectPath: string
 ): Promise<CursorCommandResult> {
-  const fafPath = await findFafFile(projectPath);
-  if (!fafPath) {
-    return {
-      success: false,
-      action: 'export',
-      message: 'No .faf file found. Run faf init first.',
-    };
+  // faf-cli's finder (the folder, then one level up); .cursorrules goes next to
+  // the .faf it renders, never in the home folder or the filesystem root.
+  const source = await exportSource(projectPath, '.cursorrules');
+  if (!source.ok) {
+    return { success: false, action: 'export', message: source.message };
   }
+  const { fafPath, dir } = source;
 
-  const outputPath = path.join(projectPath, '.cursorrules');
+  const outputPath = path.join(dir, '.cursorrules');
   const fafData = await readFafMapping(fafPath);
   const existed = fs.existsSync(outputPath);
   const { legacyStampNoteAt } = await fafCli;
@@ -51,8 +50,8 @@ export async function cursorExportCommand(
     success: result.success,
     action: 'export',
     message: (existed
-      ? `Wrote faf's block into .cursorrules from project.faf; every line outside the block is kept`
-      : `Wrote .cursorrules from project.faf`) + (note ? `\n${note}` : ''),
+      ? `Wrote faf's block into ${outputPath} from ${fafPath}; every line outside the block is kept`
+      : `Wrote ${outputPath} from ${fafPath}`) + (note ? `\n${note}` : ''),
     data: { filePath: result.filePath },
     warnings,
   };

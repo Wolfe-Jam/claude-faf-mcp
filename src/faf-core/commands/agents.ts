@@ -8,7 +8,7 @@
 
 import path from 'path';
 import * as fs from 'fs';
-import { findFafFile } from '../utils/file-utils.js';
+import { exportSource } from '../utils/export-source.js';
 import { readFafMapping } from '../fix-once/yaml.js';
 import {
   agentsExport,
@@ -29,16 +29,15 @@ export interface AgentsCommandResult {
 export async function agentsExportCommand(
   projectPath: string
 ): Promise<AgentsCommandResult> {
-  const fafPath = await findFafFile(projectPath);
-  if (!fafPath) {
-    return {
-      success: false,
-      action: 'export',
-      message: 'No .faf file found. Run faf init first.',
-    };
+  // faf-cli's finder (the folder, then one level up); AGENTS.md goes next to
+  // the .faf it renders, never in the home folder or the filesystem root.
+  const source = await exportSource(projectPath, 'AGENTS.md');
+  if (!source.ok) {
+    return { success: false, action: 'export', message: source.message };
   }
+  const { fafPath, dir } = source;
 
-  const outputPath = path.join(projectPath, 'AGENTS.md');
+  const outputPath = path.join(dir, 'AGENTS.md');
   const fafData = await readFafMapping(fafPath);
   const existed = fs.existsSync(outputPath);
   const { legacyStampNoteAt } = await fafCli;
@@ -51,8 +50,8 @@ export async function agentsExportCommand(
     success: result.success,
     action: 'export',
     message: (existed
-      ? `Wrote faf's block into AGENTS.md from project.faf; every line outside the block is kept`
-      : `Wrote AGENTS.md from project.faf`) + (note ? `\n${note}` : ''),
+      ? `Wrote faf's block into ${outputPath} from ${fafPath}; every line outside the block is kept`
+      : `Wrote ${outputPath} from ${fafPath}`) + (note ? `\n${note}` : ''),
     data: { filePath: result.filePath },
     warnings,
   };

@@ -18,6 +18,7 @@
 import * as yaml from 'yaml';
 import { chalk } from './colors';
 import { fafCli } from '../../utils/faf-cli-bridge.js';
+import { liftScalarProject } from '../../utils/faf-read.js';
 
 /** The fix for a .faf with no keys (empty, blank, or comments only). */
 export const NO_KEYS_FIX = 'it has no keys yet. Run faf_auto to fill it from the repo (its comments are kept).';
@@ -120,11 +121,15 @@ export function parse(content: string | null | undefined, options?: { filepath?:
 /**
  * Read a .faf through faf-cli's reader — a project.faf that is a link out of
  * its folder, or to a file that is not a .faf, is refused and never read; the
- * text must be UTF-8 — then parse it as a mapping with the messages above.
+ * text must be UTF-8 — then parse it as a mapping with the messages above, and
+ * lift the older `project: <name>` shape to `project.name` (the read boundary,
+ * utils/faf-read.ts).
  */
 export async function readFafMapping(fafPath: string): Promise<any> {
   const { readFafRaw } = await fafCli;
-  return parse(readFafRaw(fafPath), { filepath: fafPath });
+  const data = parse(readFafRaw(fafPath), { filepath: fafPath });
+  liftScalarProject(data);
+  return data;
 }
 
 /**

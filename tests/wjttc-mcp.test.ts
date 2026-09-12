@@ -470,9 +470,12 @@ describe('🏎️ TIER 4: Resource Management', () => {
   let testDir: string;
 
   beforeAll(() => {
-    handler = new FafToolHandler(new FafEngineAdapter('native'));
+    // 6.0.0: faf_read / faf_list read inside the active project only — set it.
     testDir = path.join(os.tmpdir(), `wjttc-resource-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
+    const engine = new FafEngineAdapter('native');
+    engine.setWorkingDirectory(testDir);
+    handler = new FafToolHandler(engine);
   });
 
   afterAll(() => {
@@ -676,9 +679,12 @@ describe('🏎️ TIER 6: Performance Benchmarks', () => {
   let testDir: string;
 
   beforeAll(() => {
-    handler = new FafToolHandler(new FafEngineAdapter('native'));
     testDir = path.join(os.tmpdir(), `wjttc-perf-test-${Date.now()}`);
     fs.mkdirSync(testDir, { recursive: true });
+    // 6.0.0: faf_read reads inside the active project only — set it.
+    const engine = new FafEngineAdapter('native');
+    engine.setWorkingDirectory(testDir);
+    handler = new FafToolHandler(engine);
 
     // Create test files
     fs.writeFileSync(path.join(testDir, 'perf.txt'), 'Performance test content');

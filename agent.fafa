@@ -68,13 +68,13 @@ capabilities:
       - faf
   - name: faf_read
     type: tool
-    description: Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
+    description: "Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_list
     type: tool
-    description: List directories and discover projects with project.faf files - Essential for FAF discovery workflow
+    description: "List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -122,13 +122,13 @@ capabilities:
       - faf
   - name: faf_dna
     type: tool
-    description: Show the project FAF DNA — score history and progression over time.
+    description: "Show the project's .faf-dna lineage, read with faf-cli: the birth score faf_init recorded, every score since (faf_auto and faf_go add them) and the journey line. Reads only; writes nothing."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_formats
     type: tool
-    description: Discover all formats in the project (154+ validated types) and fill stack slots.
+    description: "Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -170,7 +170,7 @@ capabilities:
       - faf
   - name: faf_git
     type: tool
-    description: Author project.faf from any GitHub repo URL — 1-click context extraction.
+    description: "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto fills an existing one); without path, writes nothing and returns the .faf."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf

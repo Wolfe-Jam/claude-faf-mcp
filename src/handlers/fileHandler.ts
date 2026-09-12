@@ -1,5 +1,6 @@
 // claude-faf-mcp/src/handlers/fileHandler.ts
-// faf_read — read a file inside the project root(s). faf_write was retired in 6.0.0.
+// faf_read — read a file inside the active project (plus FAF_ALLOWED_ROOTS).
+// faf_write was retired in 6.0.0.
 
 import * as fs from 'fs/promises';
 import * as path from 'path';
@@ -29,20 +30,29 @@ export class PathValidator {
   }
 }
 
+/** Where faf_read may read: the roots (the active project plus FAF_ALLOWED_ROOTS,
+ *  never home or '/') and the folder a relative path resolves against. */
+export interface FileOpContext {
+  roots: string[];
+  base: string;
+}
+
 /**
  * Handle faf_read tool execution
  */
-export async function handleFafRead(args: any): Promise<CallToolResult> {
+export async function handleFafRead(args: any, ctx: FileOpContext): Promise<CallToolResult> {
   const startTime = Date.now();
 
   try {
-    const { path: rawPath } = args;
+    const rawPath = args?.path;
 
-    // Confine to the project root(s) — any file type, no escape to /etc, ~/.ssh,
-    // or via ../ traversal (CWE-22). Returns symlink-canonical path.
+    // Confine to the active project (and FAF_ALLOWED_ROOTS) — any file type, no
+    // escape to /etc, ~/.ssh, a temp folder or via ../ traversal (CWE-22). A
+    // relative path resolves against the active project. Returns the
+    // symlink-canonical path.
     let filePath: string;
     try {
-      filePath = confineFileOp(rawPath);
+      filePath = confineFileOp(rawPath, ctx);
     } catch (err) {
       if (err instanceof PathConfinementError) {
         return {

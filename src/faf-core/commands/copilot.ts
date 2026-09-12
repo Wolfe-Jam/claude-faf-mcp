@@ -14,7 +14,7 @@
 
 import path from 'path';
 import * as fs from 'fs';
-import { findFafFile } from '../utils/file-utils.js';
+import { exportSource } from '../utils/export-source.js';
 import { readFafMapping } from '../fix-once/yaml.js';
 import { fafCli } from '../../utils/faf-cli-bridge.js';
 
@@ -109,33 +109,31 @@ export function generateCopilotInstructions(fafContent: any): string {
 export async function copilotExportCommand(
   projectPath: string
 ): Promise<CopilotCommandResult> {
-  // Check for existing .faf
-  const fafPath = await findFafFile(projectPath);
-  if (!fafPath) {
-    return {
-      success: false,
-      action: 'export',
-      message: 'No .faf file found. Run faf init first.',
-    };
+  // faf-cli's finder (the folder, then one level up); the file goes next to
+  // the .faf it renders, never in the home folder or the filesystem root.
+  const source = await exportSource(projectPath, '.github/copilot-instructions.md');
+  if (!source.ok) {
+    return { success: false, action: 'export', message: source.message };
   }
+  const { fafPath, dir } = source;
 
   const fafData = await readFafMapping(fafPath);
   const { injectFafBlock, makeDirInside, legacyStampNoteAt } = await fafCli;
-  const outputPath = path.join(projectPath, '.github', 'copilot-instructions.md');
-  makeDirInside(projectPath, path.join(projectPath, '.github'));
+  const outputPath = path.join(dir, '.github', 'copilot-instructions.md');
+  makeDirInside(dir, path.join(dir, '.github'));
   const existed = fs.existsSync(outputPath);
-  const note = legacyStampNoteAt(outputPath, '.github/copilot-instructions.md', undefined, undefined, { root: projectPath });
+  const note = legacyStampNoteAt(outputPath, '.github/copilot-instructions.md', undefined, undefined, { root: dir });
 
   // Copilot-grade content — distinct from AGENTS.md, injected non-destructively.
   const content = generateCopilotInstructions(fafData);
-  injectFafBlock(outputPath, content, undefined, undefined, { root: projectPath });
+  injectFafBlock(outputPath, content, undefined, undefined, { root: dir });
 
   return {
     success: true,
     action: 'export',
     message: (existed
-      ? `Wrote faf's block into .github/copilot-instructions.md from project.faf; every line outside the block is kept`
-      : `Wrote .github/copilot-instructions.md from project.faf`) + (note ? `\n${note}` : ''),
+      ? `Wrote faf's block into ${outputPath} from ${fafPath}; every line outside the block is kept`
+      : `Wrote ${outputPath} from ${fafPath}`) + (note ? `\n${note}` : ''),
     data: { filePath: outputPath },
     ...(note ? { warnings: [note] } : {}),
   };
