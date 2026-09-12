@@ -162,11 +162,12 @@ For developers who care about quality.
         expect(fafDoctor?.description).toContain('Diagnose');
       });
 
-      it('should have at least 32 total tools', async () => {
+      it('should have at least 30 total tools', async () => {
         const { tools } = await toolHandler.listTools();
         // Lower bound only — don't block releases every time a new tool is added.
         // Catches regressions where tools go missing, without forcing a test edit per new tool.
-        expect(tools.length).toBeGreaterThanOrEqual(32);
+        // 6.0.0 retired faf_clear, faf_friday, faf_guide and faf_write (34 → 30).
+        expect(tools.length).toBeGreaterThanOrEqual(30);
       });
     });
 

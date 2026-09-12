@@ -138,15 +138,17 @@ export class ClaudeFafMcpServer {
   async stop(): Promise<void> {
     // stdio transport requires no teardown beyond process exit.
   }
+}
 
-  getServerInfo() {
-    return {
-      name: 'claude-faf-mcp',
-      version: VERSION,
-      transport: this.config.transport,
-      port: this.config.port,
-      host: this.config.host,
-      championship: `v${VERSION} - 32 tools + faf prompt`
-    };
-  }
+/**
+ * Smithery sandbox support — lets Smithery scan the server's capabilities.
+ * Builds the server without starting a transport. This module is the
+ * package's `main`: importing it has no side effects.
+ */
+export function createSandboxServer(): Server {
+  const wrapper = new ClaudeFafMcpServer({
+    transport: 'stdio',
+    fafEnginePath: 'faf'
+  });
+  return wrapper.getServer();
 }

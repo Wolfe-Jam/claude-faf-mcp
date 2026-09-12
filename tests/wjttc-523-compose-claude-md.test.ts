@@ -2,8 +2,8 @@
  * WJTTC 5.23 — CLAUDE.md is faf-cli's own bytes.
  *
  * Every CLAUDE.md writer in this server (faf_sync, faf_auto, the SessionStart
- * hook, the engine's 'claude' command and its pre-5.23 'bi-sync' / 'bisync'
- * aliases) composes faf-cli: renderClaudeMd for the content, writeClaudeMd /
+ * hook and the engine's 'claude' command; its pre-5.23 'bi-sync' / 'bisync'
+ * aliases went in 6.0.0) composes faf-cli: renderClaudeMd for the content, writeClaudeMd /
  * injectFafBlock for the write. The reference for every assertion is faf-cli
  * itself, run on a copy of the same fixture — so these tests pin "no local
  * port", not a template.
@@ -275,19 +275,15 @@ describe('WJTTC 5.23 — CLAUDE.md composes faf-cli', () => {
     expect(manifest).not.toContain('faf_bi_sync');
   });
 
-  test("the engine's 'bi-sync' / 'bisync' aliases route to the same write as 'claude'", async () => {
+  test("the engine's 'claude' command writes CLAUDE.md from project.faf (faf-cli's bytes)", async () => {
+    // 'bi-sync' / 'bisync' were pre-5.23 aliases no tool called; 6.0.0 removed them.
     const engine = new FafEngineAdapter('native');
-    const reference = mask(fafCliBytes(FIXTURE));
-    // Aliases first: on a build without the 'claude' command they fail here,
-    // before an unknown command could reach the CLI fallback.
-    for (const command of ['bi-sync', 'bisync', 'claude']) {
-      const dir = sandbox(`engine-${command}`);
-      fs.writeFileSync(path.join(dir, 'project.faf'), FIXTURE);
-      const r = await engine.callEngine(command, [dir]);
-      expect(r.success).toBe(true);
-      expect(r.data?.direction).toBe('faf-to-claude');
-      expect(mask(read(path.join(dir, 'CLAUDE.md')))).toBe(reference);
-    }
+    const dir = sandbox('engine-claude');
+    fs.writeFileSync(path.join(dir, 'project.faf'), FIXTURE);
+    const r = await engine.callEngine('claude', [dir]);
+    expect(r.success).toBe(true);
+    expect(r.data?.direction).toBe('faf-to-claude');
+    expect(mask(read(path.join(dir, 'CLAUDE.md')))).toBe(mask(fafCliBytes(FIXTURE)));
   });
 
   // ── 5.23 round 2: regressions the first pass introduced, and the upgrade path ──

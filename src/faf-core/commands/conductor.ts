@@ -1,113 +1,25 @@
 /**
  * Conductor Command - v4.5.0 Interop Edition
  *
- * Import/Export between conductor/ directory and project.faf
+ * Export project.faf to a conductor/ directory (the import into project.faf was retired in 6.0.0)
  * Bundled command — no CLI dependency required.
  */
 
 import path from 'path';
 import { promises as fs } from 'fs';
 import { findFafFile } from '../utils/file-utils.js';
-import { parse as parseYAML, stringify as stringifyYAML } from '../fix-once/yaml.js';
+import { parse as parseYAML } from '../fix-once/yaml.js';
 import {
-  conductorImport,
   conductorExport,
-  detectConductor,
   type FafFromConductor,
 } from '../parsers/conductor-parser.js';
 
 export interface ConductorCommandResult {
   success: boolean;
-  action: 'import' | 'export';
+  action: 'export';
   message: string;
   data?: any;
   warnings?: string[];
-}
-
-/**
- * Import conductor/ directory into project.faf
- */
-export async function conductorImportCommand(
-  projectPath: string,
-  options: { merge?: boolean } = {}
-): Promise<ConductorCommandResult> {
-  const hasConductor = await detectConductor(projectPath);
-
-  if (!hasConductor) {
-    return {
-      success: false,
-      action: 'import',
-      message: 'No conductor/ directory found in project',
-    };
-  }
-
-  const conductorPath = path.join(projectPath, 'conductor');
-  const result = await conductorImport(conductorPath);
-
-  if (!result.success) {
-    return {
-      success: false,
-      action: 'import',
-      message: result.warnings.join(', '),
-      warnings: result.warnings,
-    };
-  }
-
-  if (options.merge) {
-    const fafPath = await findFafFile(projectPath);
-    if (fafPath) {
-      try {
-        const existingContent = await fs.readFile(fafPath, 'utf-8');
-        const existingFaf = parseYAML(existingContent);
-
-        const merged = {
-          ...existingFaf,
-          project: {
-            ...(existingFaf.project || {}),
-            name: result.faf.project.name || existingFaf.project?.name,
-            description: result.faf.project.description || existingFaf.project?.description,
-            goals: [
-              ...(existingFaf.project?.goals || []),
-              ...result.faf.project.goals,
-            ],
-            stack: {
-              ...(existingFaf.project?.stack || {}),
-              ...result.faf.project.stack,
-            },
-            rules: [
-              ...(existingFaf.project?.rules || []),
-              ...result.faf.project.rules,
-            ],
-            guidelines: [
-              ...(existingFaf.project?.guidelines || []),
-              ...result.faf.project.guidelines,
-            ],
-          },
-        };
-
-        const yamlContent = stringifyYAML(merged);
-        await fs.writeFile(fafPath, yamlContent);
-
-        return {
-          success: true,
-          action: 'import',
-          message: `Merged conductor/ into existing .faf (${result.filesProcessed.length} files)`,
-          data: { filesProcessed: result.filesProcessed, merged: true },
-          warnings: result.warnings,
-        };
-      } catch {
-        // Fall through
-      }
-    }
-  }
-
-  return {
-    success: true,
-    action: 'import',
-    message: `Imported conductor/ (${result.filesProcessed.length} files processed)`,
-    data: { faf: result.faf, filesProcessed: result.filesProcessed },
-    warnings: result.warnings,
-  };
 }
 
 /**

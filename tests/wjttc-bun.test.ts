@@ -20,14 +20,11 @@ import * as path from 'path';
 import { ClaudeFafMcpServer } from '../src/server.js';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
-// faf-cli's "exports" map sets a `bun` condition that points at a non-shipped
-// `src/index.ts`. Bun's resolver picks that condition first and fails. The
-// published dist works fine via the relative path — same module the production
-// server uses through tsc's CommonJS require. Cast to any to keep tsc happy.
-// (Tradeoff documented in the AERO report; once faf-cli ships src/ or drops
-// the bun condition, this can become a bare specifier.)
+// faf-cli by its package name — the same import('faf-cli') the server's bridge
+// (src/utils/faf-cli-bridge.ts) makes. faf-cli dropped the `bun` export
+// condition that once forced a relative dist path here.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const fafCliPromise: Promise<any> = import('../node_modules/faf-cli/dist/index.js');
+const fafCliPromise: Promise<any> = import('faf-cli');
 
 const ROOT = path.resolve(__dirname, '..');
 const readJson = (p: string) => JSON.parse(fs.readFileSync(path.join(ROOT, p), 'utf8'));
@@ -225,14 +222,12 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
       // Curated read-only set: every tool here returns plain text without
       // touching the filesystem when invoked with no args. Verified by
       // reading src/handlers/tools.ts (the active FafToolHandler):
-      //   - faf_about / faf_guide: pure string returns
-      //   - faf_friday: branches on optional `test` arg; no-args returns the
-      //     blurb without invoking FuzzyDetector
-      // Excluded: anything that mkdirs / writes (faf_init, faf_write,
-      // faf_clear, faf_human_add, faf_go, faf_quick, faf_dna), anything that
-      // shells out to the FAF engine subprocess (faf_chat, faf_agents,
-      // faf_cursor, faf_gemini, faf_git, faf_conductor, faf_tri_sync,
-      // faf_sync, faf_trust, faf_status, faf_auto,
+      //   - faf_about: pure string return
+      // (faf_friday and faf_guide were here; both were retired in 6.0.0.)
+      // Excluded: anything that mkdirs / writes (faf_init, faf_human_add,
+      // faf_go, faf_quick, faf_dna), anything that runs an engine command
+      // (faf_agents, faf_cursor, faf_gemini, faf_git, faf_conductor,
+      // faf_tri_sync, faf_sync, faf_trust, faf_status, faf_auto,
       // faf_doctor, faf_readme), anything that uses cwd state via
       // getProjectPath (faf_score, faf_debug, faf_list, faf_read, faf_check,
       // faf_context, faf_formats), and the top-level `faf` entry tool
@@ -240,8 +235,6 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
       // faf_what (sibling faf-mcp/grok do).
       const READ_ONLY_TOOLS = [
         'faf_about',
-        'faf_friday',
-        'faf_guide',
       ] as const;
 
       for (const toolName of READ_ONLY_TOOLS) {

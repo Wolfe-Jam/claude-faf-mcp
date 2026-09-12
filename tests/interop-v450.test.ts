@@ -2,8 +2,10 @@
  * Interop v4.5.0 Test Suite
  * WJTTC-certified tests for AI format interoperability features
  *
- * 7 Tiers: Parser Units → Import/Export → MCP Integration →
- *          Engine Adapter → Security → Performance → Roundtrip
+ * Tiers: Parser Units → Export → Engine Adapter → Security → Performance →
+ *        Roundtrip. 6.0.0 retired the AGENTS.md / .cursorrules / GEMINI.md /
+ *        conductor imports into project.faf and the dead tool-visibility
+ *        registry, and their tests with them.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
@@ -12,26 +14,6 @@ import * as path from 'path';
 import { promises as fs } from 'fs';
 
 // Parser imports
-import {
-  parseAgentsMd,
-  AgentsMdFile,
-} from '../src/faf-core/parsers/agents-parser';
-import {
-  parseCursorRules,
-  CursorRulesFile,
-} from '../src/faf-core/parsers/cursorrules-parser';
-import {
-  parseGeminiMd,
-  GeminiMdFile,
-} from '../src/faf-core/parsers/gemini-parser';
-import {
-  parseMarkdownSections,
-  extractBulletPoints,
-  parseProductMd,
-  parseTechStackMd,
-  parseWorkflowMd,
-  parseGuidelinesMd,
-} from '../src/faf-core/parsers/conductor-parser';
 import {
   parseGitHubUrl,
   detectStackFromMetadata,
@@ -49,182 +31,15 @@ import {
   getScoreTier,
 } from '../src/faf-core/parsers/faf-git-generator';
 
-// Visibility / registry imports
-import {
-  TOOL_REGISTRY,
-  getCoreTools,
-  getAdvancedTools,
-  getAllTools,
-  isCoreTool,
-  isAdvancedTool,
-  validateToolCounts,
-} from '../src/types/tool-visibility';
-
 // ============================================================================
 // TIER 1: Parser Unit Tests (~20 tests)
 // ============================================================================
 
 describe('TIER 1: Parser Units', () => {
   // --- AGENTS.md Parser ---
-  describe('parseAgentsMd', () => {
-    it('should parse well-formed AGENTS.md', () => {
-      const content = `# My Project
-
-## Project Overview
-- A web application
-- Built with React
-
-## Tech Stack
-- TypeScript
-- Node.js
-`;
-      const result: AgentsMdFile = parseAgentsMd(content);
-      expect(result.projectName).toBe('My Project');
-      expect(result.sections.length).toBe(2);
-      expect(result.sections[0].title).toBe('Project Overview');
-      expect(result.sections[0].content).toContain('A web application');
-      expect(result.sections[1].title).toBe('Tech Stack');
-    });
-
-    it('should handle empty content', () => {
-      const result = parseAgentsMd('');
-      expect(result.projectName).toBe('Unknown Project');
-      expect(result.sections.length).toBe(0);
-    });
-
-    it('should strip UTF-8 BOM', () => {
-      const bom = '\uFEFF';
-      const content = `${bom}# BOM Project\n\n## Rules\n- Rule one`;
-      const result = parseAgentsMd(content);
-      expect(result.projectName).toBe('BOM Project');
-    });
-
-    it('should normalize Windows CRLF line endings', () => {
-      const content = '# CRLF Project\r\n\r\n## Rules\r\n- Rule one\r\n- Rule two';
-      const result = parseAgentsMd(content);
-      expect(result.projectName).toBe('CRLF Project');
-      expect(result.sections[0].content.length).toBe(2);
-    });
-
-    it('should normalize old Mac CR line endings', () => {
-      const content = '# CR Project\r\r## Rules\r- Rule one';
-      const result = parseAgentsMd(content);
-      expect(result.projectName).toBe('CR Project');
-    });
-
-    it('should handle "Project: Name" H1 format', () => {
-      const content = '# Project: My App\n\n## Stack\n- TypeScript';
-      const result = parseAgentsMd(content);
-      expect(result.projectName).toBe('My App');
-    });
-  });
-
   // --- .cursorrules Parser ---
-  describe('parseCursorRules', () => {
-    it('should parse well-formed .cursorrules', () => {
-      const content = `# My Cursor Project
-
-## Coding Style
-- Use TypeScript strict mode
-- Prefer const over let
-
-## Guidelines
-- Write tests
-`;
-      const result: CursorRulesFile = parseCursorRules(content);
-      expect(result.projectName).toBe('My Cursor Project');
-      expect(result.sections.length).toBe(2);
-      expect(result.sections[0].content).toContain('Use TypeScript strict mode');
-    });
-
-    it('should handle sectionless content (all lines as guidelines)', () => {
-      const content = 'Use strict mode\nPrefer const\nWrite tests';
-      const result = parseCursorRules(content);
-      // Sectionless files should preserve raw lines
-      expect(result.rawLines.length).toBeGreaterThan(0);
-    });
-
-    it('should handle empty content', () => {
-      const result = parseCursorRules('');
-      expect(result.projectName).toBe('Unknown Project');
-    });
-
-    it('should strip BOM and normalize CRLF', () => {
-      const content = '\uFEFF# BOM Cursor\r\n## Rules\r\n- Rule A';
-      const result = parseCursorRules(content);
-      expect(result.projectName).toBe('BOM Cursor');
-    });
-  });
-
   // --- GEMINI.md Parser ---
-  describe('parseGeminiMd', () => {
-    it('should parse well-formed GEMINI.md', () => {
-      const content = `# My Gemini Project
-
-## General Instructions
-- Follow best practices
-- Use TypeScript
-
-## Coding Style
-- Strict mode always
-`;
-      const result: GeminiMdFile = parseGeminiMd(content);
-      expect(result.projectName).toBe('My Gemini Project');
-      expect(result.sections.length).toBe(2);
-      expect(result.sections[0].title).toBe('General Instructions');
-    });
-
-    it('should handle empty content', () => {
-      const result = parseGeminiMd('');
-      expect(result.projectName).toBe('Unknown Project');
-      expect(result.sections.length).toBe(0);
-    });
-  });
-
   // --- Conductor Parser ---
-  describe('Conductor Parser', () => {
-    it('parseMarkdownSections should extract H2 sections', () => {
-      const content = `# Title\n\n## Section One\nContent A\n\n## Section Two\nContent B`;
-      const sections = parseMarkdownSections(content);
-      // Keys are lowercased and space → underscore
-      expect(sections['section_one']).toContain('Content A');
-      expect(sections['section_two']).toContain('Content B');
-    });
-
-    it('extractBulletPoints should extract bullet items', () => {
-      const content = '- Item 1\n- Item 2\n* Item 3\nNot a bullet';
-      const bullets = extractBulletPoints(content);
-      expect(bullets).toContain('Item 1');
-      expect(bullets).toContain('Item 2');
-      expect(bullets).toContain('Item 3');
-      expect(bullets).not.toContain('Not a bullet');
-    });
-
-    it('parseProductMd should extract product info', () => {
-      const content = `## Product Name\nMy Product\n\n## Description\nA great product\n\n## Goals\n- Goal 1`;
-      const product = parseProductMd(content);
-      expect(product).toBeDefined();
-    });
-
-    it('parseTechStackMd should extract stack info', () => {
-      const content = `## Languages\n- TypeScript\n\n## Frameworks\n- React`;
-      const stack = parseTechStackMd(content);
-      expect(stack).toBeDefined();
-    });
-
-    it('parseWorkflowMd should extract workflow steps', () => {
-      const content = `## Steps\n- Step 1\n- Step 2`;
-      const workflow = parseWorkflowMd(content);
-      expect(workflow).toBeDefined();
-    });
-
-    it('parseGuidelinesMd should extract guidelines', () => {
-      const content = `## Coding Style\n- Use strict mode\n\n## Testing\n- Write unit tests`;
-      const guidelines = parseGuidelinesMd(content);
-      expect(guidelines).toBeDefined();
-    });
-  });
-
   // --- GitHub URL Parser ---
   describe('parseGitHubUrl', () => {
     it('should parse full HTTPS URL', () => {
@@ -340,10 +155,10 @@ describe('TIER 1: Parser Units', () => {
 });
 
 // ============================================================================
-// TIER 2: Import/Export Logic (~20 tests)
+// TIER 2: Export
 // ============================================================================
 
-describe('TIER 2: Import/Export', () => {
+describe('TIER 2: Export', () => {
   let tmpDir: string;
 
   beforeEach(async () => {
@@ -354,40 +169,7 @@ describe('TIER 2: Import/Export', () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
-  // --- Agents Import/Export ---
-  describe('Agents Import', () => {
-    it('should import AGENTS.md to FafFromAgents structure', async () => {
-      const agentsContent = `# Test Project
-
-## Project Overview
-- A TypeScript MCP server
-- Uses strict mode
-
-## Coding Style
-- Always use const
-- Prefer functional style
-
-## Architecture
-- Modular design
-`;
-      const agentsPath = path.join(tmpDir, 'AGENTS.md');
-      await fs.writeFile(agentsPath, agentsContent);
-
-      const { agentsImport } = await import('../src/faf-core/parsers/agents-parser');
-      const result = await agentsImport(agentsPath);
-      expect(result.success).toBe(true);
-      expect(result.faf.project.name).toBe('Test Project');
-      expect(result.faf.project.guidelines.length).toBeGreaterThan(0);
-      expect(result.faf.metadata.source).toBe('agents');
-    });
-
-    it('should handle missing file gracefully', async () => {
-      const { agentsImport } = await import('../src/faf-core/parsers/agents-parser');
-      const result = await agentsImport(path.join(tmpDir, 'nonexistent.md'));
-      expect(result.success).toBe(false);
-    });
-  });
-
+  // --- Agents ---
   describe('Agents Export', () => {
     it('should export FAF data to AGENTS.md', async () => {
       const fafData = {
@@ -414,29 +196,7 @@ describe('TIER 2: Import/Export', () => {
     });
   });
 
-  // --- Cursor Import/Export ---
-  describe('Cursor Import', () => {
-    it('should import .cursorrules to FafFromCursor structure', async () => {
-      const cursorContent = `# Cursor Project
-
-## Coding Style
-- Use TypeScript strict
-- No any types
-
-## Testing
-- Write unit tests
-`;
-      const cursorPath = path.join(tmpDir, '.cursorrules');
-      await fs.writeFile(cursorPath, cursorContent);
-
-      const { cursorImport } = await import('../src/faf-core/parsers/cursorrules-parser');
-      const result = await cursorImport(cursorPath);
-      expect(result.success).toBe(true);
-      expect(result.faf.project.name).toBe('Cursor Project');
-      expect(result.faf.metadata.source).toBe('cursor');
-    });
-  });
-
+  // --- Cursor ---
   describe('Cursor Export', () => {
     it('should export FAF data to .cursorrules', async () => {
       const fafData = {
@@ -457,29 +217,7 @@ describe('TIER 2: Import/Export', () => {
     });
   });
 
-  // --- Gemini Import/Export ---
-  describe('Gemini Import', () => {
-    it('should import GEMINI.md to FafFromGemini structure', async () => {
-      const geminiContent = `# Gemini Project
-
-## General Instructions
-- Follow best practices
-- Use TypeScript
-
-## Coding Style
-- Strict mode always
-`;
-      const geminiPath = path.join(tmpDir, 'GEMINI.md');
-      await fs.writeFile(geminiPath, geminiContent);
-
-      const { geminiImport } = await import('../src/faf-core/parsers/gemini-parser');
-      const result = await geminiImport(geminiPath);
-      expect(result.success).toBe(true);
-      expect(result.faf.project.name).toBe('Gemini Project');
-      expect(result.faf.metadata.source).toBe('gemini');
-    });
-  });
-
+  // --- Gemini ---
   describe('Gemini Export', () => {
     it('should export FAF data to GEMINI.md', async () => {
       const fafData = {
@@ -497,23 +235,6 @@ describe('TIER 2: Import/Export', () => {
 
       const content = await fs.readFile(outPath, 'utf-8');
       expect(content).toContain('Gemini Test');
-    });
-  });
-
-  // --- Conductor Import ---
-  describe('Conductor Import', () => {
-    it('should import conductor directory structure', async () => {
-      const conductorDir = path.join(tmpDir, 'conductor');
-      await fs.mkdir(conductorDir);
-
-      await fs.writeFile(path.join(conductorDir, 'product.md'), `## Product Name\nTest Product\n\n## Description\nA test product`);
-      await fs.writeFile(path.join(conductorDir, 'tech-stack.md'), `## Languages\n- TypeScript\n\n## Frameworks\n- Express`);
-      await fs.writeFile(path.join(conductorDir, 'workflow.md'), `## Steps\n- Build\n- Test\n- Deploy`);
-      await fs.writeFile(path.join(conductorDir, 'guidelines.md'), `## Coding Style\n- Use strict mode`);
-
-      const { conductorImport } = await import('../src/faf-core/parsers/conductor-parser');
-      const result = await conductorImport(conductorDir);
-      expect(result.success).toBe(true);
     });
   });
 
@@ -627,132 +348,36 @@ describe('TIER 2: Import/Export', () => {
 });
 
 // ============================================================================
-// TIER 3: MCP Integration (~15 tests)
-// ============================================================================
-
-describe('TIER 3: MCP Integration', () => {
-  describe('New tool registration', () => {
-    it('faf_agents should be registered as core', () => {
-      expect(TOOL_REGISTRY['faf_agents']).toBeDefined();
-      expect(TOOL_REGISTRY['faf_agents'].visibility).toBe('core');
-      expect(TOOL_REGISTRY['faf_agents'].category).toBe('sync');
-    });
-
-    it('faf_cursor should be registered as core', () => {
-      expect(TOOL_REGISTRY['faf_cursor']).toBeDefined();
-      expect(TOOL_REGISTRY['faf_cursor'].visibility).toBe('core');
-      expect(TOOL_REGISTRY['faf_cursor'].category).toBe('sync');
-    });
-
-    it('faf_gemini should be registered as core', () => {
-      expect(TOOL_REGISTRY['faf_gemini']).toBeDefined();
-      expect(TOOL_REGISTRY['faf_gemini'].visibility).toBe('core');
-      expect(TOOL_REGISTRY['faf_gemini'].category).toBe('sync');
-    });
-
-    it('faf_git should be registered as core', () => {
-      expect(TOOL_REGISTRY['faf_git']).toBeDefined();
-      expect(TOOL_REGISTRY['faf_git'].visibility).toBe('core');
-      expect(TOOL_REGISTRY['faf_git'].category).toBe('workflow');
-    });
-
-    it('faf_conductor should be registered as advanced', () => {
-      expect(TOOL_REGISTRY['faf_conductor']).toBeDefined();
-      expect(TOOL_REGISTRY['faf_conductor'].visibility).toBe('advanced');
-      expect(TOOL_REGISTRY['faf_conductor'].category).toBe('sync');
-    });
-  });
-
-  describe('Tool count integrity', () => {
-    it('should have 24 core tools (26 at 5.8.0, −bi_sync@5.14.1, −faf_enhance)', () => {
-      const counts = validateToolCounts();
-      expect(counts.core).toBe(24);
-    });
-
-    it('should have 36 advanced tools after v4.5.0', () => {
-      const counts = validateToolCounts();
-      expect(counts.advanced).toBe(36);
-    });
-
-    it('should have 60 total tools (62 at 5.8.0, −bi_sync@5.14.1, −faf_enhance)', () => {
-      const counts = validateToolCounts();
-      expect(counts.total).toBe(60);
-    });
-  });
-
-  describe('New tools appear in correct lists', () => {
-    it('faf_agents should appear in core tools list', () => {
-      const coreTools = getCoreTools();
-      expect(coreTools.find(t => t.name === 'faf_agents')).toBeDefined();
-    });
-
-    it('faf_cursor should appear in core tools list', () => {
-      const coreTools = getCoreTools();
-      expect(coreTools.find(t => t.name === 'faf_cursor')).toBeDefined();
-    });
-
-    it('faf_gemini should appear in core tools list', () => {
-      const coreTools = getCoreTools();
-      expect(coreTools.find(t => t.name === 'faf_gemini')).toBeDefined();
-    });
-
-    it('faf_git should appear in core tools list', () => {
-      const coreTools = getCoreTools();
-      expect(coreTools.find(t => t.name === 'faf_git')).toBeDefined();
-    });
-
-    it('faf_conductor should appear in advanced tools list', () => {
-      const advancedTools = getAdvancedTools();
-      expect(advancedTools.find(t => t.name === 'faf_conductor')).toBeDefined();
-    });
-
-    it('new tools should all have descriptions', () => {
-      const newTools = ['faf_agents', 'faf_cursor', 'faf_gemini', 'faf_git', 'faf_conductor'];
-      for (const name of newTools) {
-        expect(TOOL_REGISTRY[name].description).toBeDefined();
-        expect(TOOL_REGISTRY[name].description.length).toBeGreaterThan(0);
-      }
-    });
-
-    it('no duplicate tools should exist', () => {
-      const allTools = getAllTools();
-      const names = allTools.map(t => t.name);
-      const unique = new Set(names);
-      expect(names.length).toBe(unique.size);
-    });
-  });
-});
-
-// ============================================================================
 // TIER 4: Engine Adapter (~10 tests)
 // ============================================================================
 
 describe('TIER 4: Engine Adapter', () => {
   describe('Command modules load successfully', () => {
-    it('agents command module should export agentsImportCommand', async () => {
-      const mod = await import('../src/faf-core/commands/agents');
-      expect(typeof mod.agentsImportCommand).toBe('function');
+    // 6.0.0 retired the imports into project.faf: only export / sync remain.
+    it('agents command module exports export + sync, no import', async () => {
+      const mod: any = await import('../src/faf-core/commands/agents');
+      expect(mod.agentsImportCommand).toBeUndefined();
       expect(typeof mod.agentsExportCommand).toBe('function');
       expect(typeof mod.agentsSyncCommand).toBe('function');
     });
 
-    it('cursor command module should export cursorImportCommand', async () => {
-      const mod = await import('../src/faf-core/commands/cursor');
-      expect(typeof mod.cursorImportCommand).toBe('function');
+    it('cursor command module exports export + sync, no import', async () => {
+      const mod: any = await import('../src/faf-core/commands/cursor');
+      expect(mod.cursorImportCommand).toBeUndefined();
       expect(typeof mod.cursorExportCommand).toBe('function');
       expect(typeof mod.cursorSyncCommand).toBe('function');
     });
 
-    it('gemini command module should export geminiImportCommand', async () => {
-      const mod = await import('../src/faf-core/commands/gemini');
-      expect(typeof mod.geminiImportCommand).toBe('function');
+    it('gemini command module exports export + sync, no import', async () => {
+      const mod: any = await import('../src/faf-core/commands/gemini');
+      expect(mod.geminiImportCommand).toBeUndefined();
       expect(typeof mod.geminiExportCommand).toBe('function');
       expect(typeof mod.geminiSyncCommand).toBe('function');
     });
 
-    it('conductor command module should export conductorImportCommand', async () => {
-      const mod = await import('../src/faf-core/commands/conductor');
-      expect(typeof mod.conductorImportCommand).toBe('function');
+    it('conductor command module exports export, no import', async () => {
+      const mod: any = await import('../src/faf-core/commands/conductor');
+      expect(mod.conductorImportCommand).toBeUndefined();
       expect(typeof mod.conductorExportCommand).toBe('function');
     });
 
@@ -829,32 +454,6 @@ describe('TIER 5: Security', () => {
     });
   });
 
-  describe('Parser input sanitization', () => {
-    it('parseAgentsMd should handle null bytes gracefully', () => {
-      const content = '# Project\x00Name\n## Rules\n- Rule\x00one';
-      // Should not throw
-      const result = parseAgentsMd(content);
-      expect(result).toBeDefined();
-    });
-
-    it('parseCursorRules should handle script injection attempts', () => {
-      const content = '# <script>alert("xss")</script>\n## Rules\n- Rule one';
-      const result = parseCursorRules(content);
-      // Should parse without executing anything
-      expect(result).toBeDefined();
-      expect(result.projectName).toContain('script');
-    });
-
-    it('parseGeminiMd should handle extremely large input', () => {
-      // 100KB of repeated content
-      const largeLine = '- ' + 'x'.repeat(1000) + '\n';
-      const content = '# Large Project\n## Rules\n' + largeLine.repeat(100);
-      const result = parseGeminiMd(content);
-      expect(result).toBeDefined();
-      expect(result.sections.length).toBeGreaterThan(0);
-    });
-  });
-
   describe('File path safety', () => {
     let tmpDir: string;
 
@@ -864,12 +463,6 @@ describe('TIER 5: Security', () => {
 
     afterEach(async () => {
       await fs.rm(tmpDir, { recursive: true, force: true });
-    });
-
-    it('import functions should fail on nonexistent paths', async () => {
-      const { agentsImport } = await import('../src/faf-core/parsers/agents-parser');
-      const result = await agentsImport('/nonexistent/path/AGENTS.md');
-      expect(result.success).toBe(false);
     });
 
     it('export should write only to specified path', async () => {
@@ -894,30 +487,6 @@ describe('TIER 5: Security', () => {
 
 describe('TIER 6: Performance', () => {
   describe('Parser speed', () => {
-    it('parseAgentsMd should complete in < 50ms', () => {
-      const content = `# Test Project\n\n${'## Section\n- Item\n'.repeat(50)}`;
-      const start = performance.now();
-      parseAgentsMd(content);
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('parseCursorRules should complete in < 50ms', () => {
-      const content = `# Test Project\n\n${'## Section\n- Item\n'.repeat(50)}`;
-      const start = performance.now();
-      parseCursorRules(content);
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('parseGeminiMd should complete in < 50ms', () => {
-      const content = `# Test Project\n\n${'## Section\n- Item\n'.repeat(50)}`;
-      const start = performance.now();
-      parseGeminiMd(content);
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
     it('parseGitHubUrl should complete in < 10ms', () => {
       const start = performance.now();
       for (let i = 0; i < 100; i++) {
@@ -942,38 +511,6 @@ describe('TIER 6: Performance', () => {
     });
   });
 
-  describe('Registry speed', () => {
-    it('getCoreTools should complete in < 10ms', () => {
-      const start = performance.now();
-      getCoreTools();
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('getAdvancedTools should complete in < 10ms', () => {
-      const start = performance.now();
-      getAdvancedTools();
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('validateToolCounts should complete in < 10ms', () => {
-      const start = performance.now();
-      validateToolCounts();
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-
-    it('isCoreTool/isAdvancedTool should be fast lookups', () => {
-      const start = performance.now();
-      for (let i = 0; i < 1000; i++) {
-        isCoreTool('faf_agents');
-        isAdvancedTool('faf_conductor');
-      }
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-  });
 });
 
 // ============================================================================
@@ -989,73 +526,6 @@ describe('TIER 7: Roundtrip', () => {
 
   afterEach(async () => {
     await fs.rm(tmpDir, { recursive: true, force: true });
-  });
-
-  it('Agents export → import should preserve project name', async () => {
-    const fafData = {
-      project: {
-        name: 'Roundtrip Test',
-        goal: 'Test roundtrip',
-        main_language: 'TypeScript',
-      },
-      human_context: { what: 'MCP server', why: 'Testing' },
-      stack: { runtime: 'Node.js' },
-    };
-
-    const agentsPath = path.join(tmpDir, 'AGENTS.md');
-
-    const { agentsExport, agentsImport } = await import('../src/faf-core/parsers/agents-parser');
-
-    // Export
-    const exportResult = await agentsExport(fafData, agentsPath);
-    expect(exportResult.success).toBe(true);
-
-    // Import
-    const importResult = await agentsImport(agentsPath);
-    expect(importResult.success).toBe(true);
-    expect(importResult.faf.project.name).toBe('Roundtrip Test');
-  });
-
-  it('Cursor export → import should preserve project name', async () => {
-    const fafData = {
-      project: {
-        name: 'Cursor Roundtrip',
-        goal: 'Test cursor roundtrip',
-        main_language: 'TypeScript',
-      },
-    };
-
-    const cursorPath = path.join(tmpDir, '.cursorrules');
-
-    const { cursorExport, cursorImport } = await import('../src/faf-core/parsers/cursorrules-parser');
-
-    const exportResult = await cursorExport(fafData, cursorPath);
-    expect(exportResult.success).toBe(true);
-
-    const importResult = await cursorImport(cursorPath);
-    expect(importResult.success).toBe(true);
-    expect(importResult.faf.project.name).toBe('Cursor Roundtrip');
-  });
-
-  it('Gemini export → import should preserve project name', async () => {
-    const fafData = {
-      project: {
-        name: 'Gemini Roundtrip',
-        goal: 'Test gemini roundtrip',
-        main_language: 'TypeScript',
-      },
-    };
-
-    const geminiPath = path.join(tmpDir, 'GEMINI.md');
-
-    const { geminiExport, geminiImport } = await import('../src/faf-core/parsers/gemini-parser');
-
-    const exportResult = await geminiExport(fafData, geminiPath);
-    expect(exportResult.success).toBe(true);
-
-    const importResult = await geminiImport(geminiPath);
-    expect(importResult.success).toBe(true);
-    expect(importResult.faf.project.name).toBe('Gemini Roundtrip');
   });
 
   it('claudeExportCommand should write valid CLAUDE.md from project.faf', async () => {
@@ -1079,20 +549,4 @@ describe('TIER 7: Roundtrip', () => {
     expect(claudeMd.length).toBeGreaterThan(100);
   });
 
-  it('All parser outputs should be deterministic', () => {
-    const agentsContent = '# Determinism Test\n## Rules\n- Rule 1\n- Rule 2';
-    const result1 = parseAgentsMd(agentsContent);
-    const result2 = parseAgentsMd(agentsContent);
-    expect(result1).toEqual(result2);
-
-    const cursorContent = '# Determinism Test\n## Rules\n- Rule 1';
-    const cr1 = parseCursorRules(cursorContent);
-    const cr2 = parseCursorRules(cursorContent);
-    expect(cr1).toEqual(cr2);
-
-    const geminiContent = '# Determinism Test\n## Rules\n- Rule 1';
-    const gr1 = parseGeminiMd(geminiContent);
-    const gr2 = parseGeminiMd(geminiContent);
-    expect(gr1).toEqual(gr2);
-  });
 });

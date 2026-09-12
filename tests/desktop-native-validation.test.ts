@@ -58,20 +58,6 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       expect(getTextContent(result.content)).toBe(testContent);
     });
     
-    test('faf_write - Native file writing', async () => {
-      const testFile = path.join(testDir, 'output.md');
-      const content = '# Championship Mode\n100% Trophy';
-      
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      await handler.callTool('faf_write', { 
-        path: testFile,
-        content 
-      });
-      
-      expect(fs.existsSync(testFile)).toBe(true);
-      expect(fs.readFileSync(testFile, 'utf-8')).toBe(content);
-    });
-    
     test('faf_score - Native scoring without CLI', async () => {
       // Setup perfect project structure
       fs.writeFileSync(path.join(testDir, '.faf'), '## FAF Context\nProject: Championship');
@@ -116,15 +102,10 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
     test('File operations continue working', async () => {
       const handler = new FafToolHandler(new FafEngineAdapter('faf'));
       
-      // File ops should still work
+      // File reads should still work (faf_write was retired in 6.0.0)
       const testFile = path.join(testDir, 'fallback.txt');
-      await handler.callTool('faf_write', {
-        path: testFile,
-        content: 'Works without CLI!'
-      });
-      
-      expect(fs.existsSync(testFile)).toBe(true);
-      
+      fs.writeFileSync(testFile, 'Works without CLI!');
+
       const readResult = await handler.callTool('faf_read', { path: testFile });
       expect(getTextContent(readResult.content)).toBe('Works without CLI!');
     });
@@ -162,7 +143,6 @@ describe('🏁 Desktop-Native MCP Championship Tests', () => {
       
       const operations = [
         { name: 'faf_read', args: { path: __filename }},
-        { name: 'faf_write', args: { path: '/tmp/perf.txt', content: 'test' }},
         { name: 'faf_score', args: {}},
         { name: 'faf_debug', args: {}}
       ];

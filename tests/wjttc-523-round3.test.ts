@@ -316,9 +316,9 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     const dir = sandbox('refusals');
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
 
-    const c = await handler.callTool('faf_conductor', { path: dir, action: 'import' });
+    const c = await handler.callTool('faf_conductor', { path: dir, action: 'export' });
     expect(c.isError).toBe(true);
-    expect(toolText(c)).toContain('No conductor/ directory found in project');
+    expect(toolText(c)).toContain('No .faf file found');
     expect(toolText(c)).not.toContain('undefined');
 
     const g = await handler.callTool('faf_git', { url: 'not a github url' });
@@ -356,7 +356,7 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
 
   // ── 5 / 6 / 10. served wording ──
 
-  test('served wording: faf_git authors, faf_about / faf_friday / faf_guide carry no banned or reversed markers', async () => {
+  test('served wording: faf_git authors, faf_about carries no banned or reversed markers', async () => {
     const prev = process.env.FAF_TOOLS;
     process.env.FAF_TOOLS = 'all';
     let tools;
@@ -373,12 +373,6 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     const about = toolText(await handler.callTool('faf_about', {}));
     expect(about).toContain('authored in <29ms');
     expect(about).not.toMatch(/Generated/);
-    expect(toolText(await handler.callTool('faf_friday', {}))).not.toContain('Universal');
-
-    const guide = toolText(await handler.callTool('faf_guide', {}));
-    expect(guide).not.toMatch(/[✅❌]/u);
-    expect(guide).not.toContain('/Users/');
-    expect(guide).toContain("- Do: `~/Projects/my-app/`");
-    expect(guide).toContain("Don't: \"Option 1, Option 2, Option 3...\" (option menus)");
+    expect(about).not.toContain('Universal');
   });
 });

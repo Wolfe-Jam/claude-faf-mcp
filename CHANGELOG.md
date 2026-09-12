@@ -11,6 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` are retired: they are no longer listed, and a call by name returns an error with one line saying what to use instead.
+- `faf_chat` (retired in 5.7.0) now answers the same way: an error with one line.
+- `faf_check` has no `protect` / `unlock` any more and never writes `_protected_fields` into project.faf. No writer ever read that key, so nothing was ever locked.
+- The AGENTS.md, .cursorrules, GEMINI.md and conductor/ imports into project.faf are gone. `action: "import"` returns an error, so these tools can no longer rewrite a project.faf, or a parent folder's, from those files. Export and sync stay.
+- 41 source modules that no tool could reach (the old Mk3 commands, the Mk3 FafCompiler scorer, the tool registry, the visibility config, the unused licensing gate, the fuzzy detector), and the tests and scripts that only exercised them. The engine adapter keeps only the commands a tool calls.
+- The `bi-sync` / `bisync` engine aliases, which no tool called.
+- esbuild, @upstash/redis and faf-scoring-kernel are no longer dependencies, so installs are smaller and no longer run esbuild's install script.
+- mcp-registry-entry.json, faf-mcp-config.json, .npmignore and .mcpbignore are out of the tree (the tag `archive/cfm-v5-surface` keeps them).
+
+### Changed
+
+- faf-cli `^7.13.0`. A file with no faf markers always gets the faf block on top with every original byte kept below it, an old stamp-led faf file included.
+- The npm package ships only dist (no source maps), the icons, scripts/postinstall.js, project.faf and the listed docs. Dev scripts no longer ship.
+- The package `main` is now dist/src/server.js, which starts nothing when imported. The `claude-faf-mcp` bin still starts the server.
+- faf-cli loads through a plain `import('faf-cli')`; the loader that walked up directories to find it is gone.
+- scripts/verify-fafa.js checks the A2A card with faf-cli's `buildA2ACard`; the local copy is gone.
+- `npm run dev` works: it runs the server from source with bun.
+- `npm run lint` quotes its glob, so ESLint checks every file under src/, not just the first level.
+
 ## [5.22.1] - 2026-08-19
 
 Patch — inherits The Projector Floor.

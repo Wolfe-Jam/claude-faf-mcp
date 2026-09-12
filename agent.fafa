@@ -60,12 +60,6 @@ capabilities:
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-  - name: faf_clear
-    type: tool
-    description: Clear caches, temporary files, and reset FAF state for a fresh start
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
   - name: faf_debug
     type: tool
     description: Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status
@@ -78,27 +72,9 @@ capabilities:
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
-  - name: faf_write
-    type: tool
-    description: Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
   - name: faf_list
     type: tool
     description: List directories and discover projects with project.faf files - Essential for FAF discovery workflow
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_friday
-    type: tool
-    description: Detect the FAF Chrome extension and run fuzzy-matching helpers.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_guide
-    type: tool
-    description: FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -116,7 +92,7 @@ capabilities:
       - faf
   - name: faf_check
     type: tool
-    description: Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings
+    description: Quality inspection for human_context fields - Shows empty/generic/good/excellent ratings. Reads only; writes nothing.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -170,25 +146,25 @@ capabilities:
       - faf
   - name: faf_agents
     type: tool
-    description: Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!
+    description: Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_cursor
     type: tool
-    description: Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!
+    description: Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_gemini
     type: tool
-    description: Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!
+    description: Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_conductor
     type: tool
-    description: Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!
+    description: Export project.faf to a conductor/ directory (Google Conductor) - AI interop!
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf

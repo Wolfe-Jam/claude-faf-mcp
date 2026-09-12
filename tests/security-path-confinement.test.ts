@@ -4,7 +4,7 @@
  * Mirrors the disclosure reproduced against the grok-faf-mcp sibling (Zhihao
  * Zhang, WPI): caller `path` arguments flowed through path.resolve() into
  * fs read/write with no confinement (here via the shared getProjectPath()
- * chokepoint + the faf_read/faf_write file tools). CWE-22 / CWE-73 / CWE-200.
+ * chokepoint + the faf_read file tool). CWE-22 / CWE-73 / CWE-200.
  *
  * Boundary under test (utils/safe-path.ts): the `.faf` tools only ever read
  * `.faf`/`.fafm` context files; the general file tools are confined to the
@@ -82,10 +82,11 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
       expect(textOf(res)).not.toContain('root:');
     });
 
-    test('faf_write outside the project root is refused', async () => {
+    test('faf_write (retired in 6.0.0) writes nothing, anywhere', async () => {
       const target = path.join(os.homedir(), '.claudefaf_should_not_be_written');
       const res: any = await handler.callTool('faf_write', { path: target, content: 'pwned' });
       expect(res.isError).toBeTruthy();
+      expect(textOf(res)).toContain('retired in 6.0.0');
       expect(fs.existsSync(target)).toBe(false);
     });
   });

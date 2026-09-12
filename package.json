@@ -2,23 +2,22 @@
   "name": "claude-faf-mcp",
   "version": "5.22.1",
   "mcpName": "one.faf/claude-faf-mcp",
-  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 34 MCP tools, 594 tests.",
+  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 30 MCP tools, 594 tests.",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
   "displayName": ".faf 🐘",
-  "main": "dist/src/index.js",
+  "main": "dist/src/server.js",
   "bin": {
     "claude-faf-mcp": "dist/src/index.js"
   },
   "scripts": {
     "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "tsc",
-    "dev": "ts-node src/server.ts",
-    "dev:stdio": "bun src/index.ts",
+    "dev": "bun src/index.ts",
     "test": "bun test --isolate --timeout=120000 --path-ignore-patterns=\"**/performance.test.ts\"",
     "test:performance": "bun test tests/performance.test.ts",
-    "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix",
+    "lint": "eslint \"src/**/*.ts\"",
+    "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "type-check": "tsc --noEmit",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -28,7 +27,7 @@
     "prepublishOnly": "npm run build",
     "postinstall": "node scripts/postinstall.js",
     "debug": "bun --inspect-brk=127.0.0.1:9229 src/index.ts",
-    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/@esbuild node_modules/esbuild node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
+    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
     "gen:server-card": "node scripts/gen-server-card.js",
     "verify:fafa": "node scripts/verify-fafa.js"
   },
@@ -108,16 +107,15 @@
     "node": ">=18.0.0"
   },
   "files": [
-    "dist/**/*",
+    "dist/**",
     "!dist/**/*.map",
-    "assets/**/*",
-    "scripts/**/*",
-    "skill/SKILL.md",
+    "assets/icons/**",
+    "scripts/postinstall.js",
+    "project.faf",
     "README.md",
     "CLAUDE.md",
     "PRIVACY.md",
     "manifest.json",
-    ".faf",
     "LICENSE",
     "CHANGELOG.md"
   ],
@@ -126,10 +124,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "@upstash/redis": "^1.38.2",
-    "esbuild": "^0.28.1",
-    "faf-cli": "^7.12.1",
-    "faf-scoring-kernel": "^2.0.3",
+    "faf-cli": "^7.13.0",
     "yaml": "^2.4.1"
   },
   "devDependencies": {
@@ -138,7 +133,6 @@
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.56.0",
-    "ts-node": "^10.9.2",
     "typescript": "^5.3.0"
   },
   "overrides": {

@@ -9,7 +9,7 @@ claude-faf-mcp runs on your machine and sends nothing to FAF. Its one network ca
 ## What FAF Does
 
 - Reads and writes `project.faf` files in your project directories
-- Writes `CLAUDE.md`'s faf-managed block from `project.faf` — and, on request, `AGENTS.md`, `.cursorrules`, `GEMINI.md`, `.github/copilot-instructions.md` and `MEMORY.md`; imports `AGENTS.md`/`.cursorrules`/`GEMINI.md` into `project.faf` only on request
+- Writes `CLAUDE.md`'s faf-managed block from `project.faf` — and, on request, `AGENTS.md`, `.cursorrules`, `GEMINI.md`, `.github/copilot-instructions.md` and `MEMORY.md`
 - Scores your project's AI-readiness based on local file content
 - Detects frameworks and languages by scanning local files
 
@@ -52,4 +52,4 @@ Questions about privacy: team@faf.one
 
 ---
 
-*Last updated: 2026-09-11*
+*Last updated: 2026-09-12*

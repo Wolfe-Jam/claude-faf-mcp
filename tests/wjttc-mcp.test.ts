@@ -330,27 +330,6 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
     });
   });
 
-  describe('Core Tools - faf_write', () => {
-    it('MUST: Write files correctly', async () => {
-      const testFile = path.join(testDir, 'write-test.txt');
-      const content = 'Written by WJTTC 🏎️';
-
-      await handler.callTool('faf_write', { path: testFile, content });
-
-      expect(fs.existsSync(testFile)).toBe(true);
-      expect(fs.readFileSync(testFile, 'utf-8')).toBe(content);
-    });
-
-    it('MUST: Create parent directories if needed', async () => {
-      const nestedFile = path.join(testDir, 'nested', 'deep', 'file.txt');
-      const content = 'Nested content';
-
-      await handler.callTool('faf_write', { path: nestedFile, content });
-
-      expect(fs.existsSync(nestedFile)).toBe(true);
-    });
-  });
-
   describe('Core Tools - faf_score', () => {
     it('MUST: Return scoring information', async () => {
       fs.writeFileSync(path.join(testDir, 'project.faf'), 'project: test');
@@ -738,18 +717,6 @@ describe('🏎️ TIER 6: Performance Benchmarks', () => {
 
       expect(time).toBeLessThan(PERFORMANCE_TARGETS.fileRead);
       console.log(`File read: ${time.toFixed(2)}ms (target: ${PERFORMANCE_TARGETS.fileRead}ms)`);
-    });
-
-    it('MUST: Write file in <100ms', async () => {
-      const time = await measureTime(async () => {
-        await handler.callTool('faf_write', {
-          path: path.join(testDir, 'perf-write.txt'),
-          content: 'Performance write test'
-        });
-      });
-
-      expect(time).toBeLessThan(PERFORMANCE_TARGETS.fileWrite);
-      console.log(`File write: ${time.toFixed(2)}ms (target: ${PERFORMANCE_TARGETS.fileWrite}ms)`);
     });
   });
 

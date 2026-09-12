@@ -2,7 +2,7 @@
   "$schema": "https://glama.ai/mcp/schemas/server.json",
   "maintainers": ["Wolfe-Jam"],
   "name": "claude-faf-mcp",
-  "description": "Persistent project context for AI. MCP tools (Core 12, 34 with FAF_TOOLS=all) for creating, scoring, and syncing project DNA via IANA-registered .faf format. 391 tests across 6 platforms.",
+  "description": "Persistent project context for AI. MCP tools (Core 12, 30 with FAF_TOOLS=all) for creating, scoring, and syncing project DNA via IANA-registered .faf format. 391 tests across 6 platforms.",
   "author": "Wolfe-Jam",
   "homepage": "https://claude.faf.one",
   "repository": "https://github.com/Wolfe-Jam/claude-faf-mcp",

@@ -76,7 +76,7 @@ function withinRoots(resolved: string, roots: string[]): boolean {
 
 /**
  * Symlink-canonical absolute path, tolerant of a not-yet-existing target
- * (a `faf_write` to a new file). Resolves the nearest EXISTING ancestor through
+ * (a path that does not exist yet). Resolves the nearest EXISTING ancestor through
  * symlinks, then re-appends the missing tail — so a new file under /tmp matches
  * a /private/tmp root on macOS instead of slipping past the confinement check.
  */
@@ -97,7 +97,7 @@ function canonicalize(input: string): string {
 }
 
 /**
- * Roots for the general-purpose file tools (`faf_read` / `faf_write`). Unlike
+ * Roots for the general-purpose file tool (`faf_read`). Unlike
  * the `.faf` tools, these legitimately handle any file *type* — but they must
  * still be confined to the project. Default root = the process cwd; override /
  * extend with `FAF_ALLOWED_ROOTS`.
@@ -116,10 +116,10 @@ export function fileOpRoots(): string[] {
 }
 
 /**
- * Confine a general-purpose file read/write path: any file type, but it must
- * stay within fileOpRoots(). Closes absolute-path escapes (`~/.ssh/id_rsa`),
- * `..` traversal, and arbitrary writes outside the project. Throws
- * PathConfinementError on violation. Returns the safe (symlink-canonical) path.
+ * Confine a general-purpose file read path: any file type, but it must
+ * stay within fileOpRoots(). Closes absolute-path escapes (`~/.ssh/id_rsa`)
+ * and `..` traversal. Throws PathConfinementError on violation. Returns the
+ * safe (symlink-canonical) path.
  */
 export function confineFileOp(input: unknown): string {
   return confinePath(input, { requireFafFile: false, roots: fileOpRoots() });

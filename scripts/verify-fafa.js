@@ -5,11 +5,12 @@
  * Five layers (strongest first):
  *   L1 accuracy    — declared capabilities == the server's LIVE tools/list
  *   L2 shape       — valid YAML + required fields + complete capabilities
- *   L4 A2A conform — maps to a valid A2A AgentCard (src/fafa/a2a-card)
+ *   L4 A2A conform — maps to a valid A2A AgentCard (faf-cli buildA2ACard)
  *   L5 trust       — cites_spec are real FAF media types; agent.id is a did:web
  *
  * Usage:  node scripts/verify-fafa.js [path/to/card.fafa]   (default: ./agent.fafa)
- * Exit 0 = all pass, 1 = a check failed. Requires `npm run build` (uses dist/).
+ * Exit 0 = all pass, 1 = a check failed. Requires `npm run build` (L1 spawns
+ * the built bin, dist/src/index.js).
  */
 const { spawnSync } = require('child_process');
 const fs = require('fs');
@@ -48,12 +49,17 @@ const a = card.capabilities.map((c) => c.name).sort();
 const b = live.slice().sort();
 ok('L1 accuracy: capabilities == live tools/list', a.length > 0 && JSON.stringify(a) === JSON.stringify(b), `card ${a.length} / live ${b.length}`);
 
-// L4 A2A conformance — must map to a valid A2A AgentCard
-try {
-  const { fafaToA2ACard } = require(path.join(root, 'dist/src/fafa/a2a-card.js'));
-  const c = fafaToA2ACard(card, { url: 'https://faf.one/.well-known/' + path.basename(cardPath) });
-  ok('L4 A2A conformance (maps to a valid A2A AgentCard)', !!(c && c.name && Array.isArray(c.skills) && c.skills.length === card.capabilities.length), (c.skills ? c.skills.length : 0) + ' skills');
-} catch (e) { ok('L4 A2A conformance', false, e.message); }
+// L4 A2A conformance — must map to a valid A2A AgentCard. faf-cli is ESM, so
+// it is loaded with import(); buildA2ACard is the projector every FAF door uses.
+(async () => {
+  try {
+    const { buildA2ACard, readFaf } = await import('faf-cli');
+    const fafPath = path.join(root, 'project.faf');
+    const faf = fs.existsSync(fafPath) ? readFaf(fafPath) : {};
+    const c = buildA2ACard(card, faf, { doorUrl: 'https://faf.one/.well-known/' + path.basename(cardPath) });
+    ok('L4 A2A conformance (maps to a valid A2A AgentCard)', !!(c && c.name && Array.isArray(c.skills) && c.skills.length === card.capabilities.length), (c.skills ? c.skills.length : 0) + ' skills');
+  } catch (e) { ok('L4 A2A conformance', false, e.message); }
 
-console.log(`\n${fail === 0 ? 'ALL PASS' : fail + ' FAILED'} — ${pass} passed, ${fail} failed`);
-process.exit(fail === 0 ? 0 : 1);
+  console.log(`\n${fail === 0 ? 'ALL PASS' : fail + ' FAILED'} — ${pass} passed, ${fail} failed`);
+  process.exit(fail === 0 ? 0 : 1);
+})();

@@ -41,10 +41,10 @@ describe('Core tier — Glama-facing default surface', () => {
     }
   });
 
-  test('FAF_TOOLS=all exposes the full set (>30 tools, Core ⊂ all)', async () => {
+  test('FAF_TOOLS=all exposes the full set (more than Core, Core ⊂ all)', async () => {
     process.env.FAF_TOOLS = 'all';
     const { tools } = await handler().listTools();
-    expect(tools.length).toBeGreaterThan(30);
+    expect(tools.length).toBeGreaterThan(CORE.length);
     const names = tools.map((t: any) => t.name);
     for (const c of CORE) expect(names).toContain(c);
   });

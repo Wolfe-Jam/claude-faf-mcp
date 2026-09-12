@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, tools: Core 12, 34 with FAF_TOOLS=all -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, tools: Core 12, 30 with FAF_TOOLS=all -->
 <!-- faf: doc=contributing | canonical=project.faf | family=FAF -->
 
 # Contributing to claude-faf-mcp

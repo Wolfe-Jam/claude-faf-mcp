@@ -151,32 +151,6 @@
    }
   },
   {
-   "name": "faf_clear",
-   "description": "Clear caches, temporary files, and reset FAF state for a fresh start",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "cache": {
-      "type": "boolean",
-      "description": "Clear trust cache only"
-     },
-     "todos": {
-      "type": "boolean",
-      "description": "Clear todo lists only"
-     },
-     "backups": {
-      "type": "boolean",
-      "description": "Clear backup files only"
-     },
-     "all": {
-      "type": "boolean",
-      "description": "Clear everything (default)"
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
    "name": "faf_debug",
    "description": "Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status",
    "inputSchema": {
@@ -198,28 +172,6 @@
     },
     "required": [
      "path"
-    ],
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_write",
-   "description": "Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "path": {
-      "type": "string",
-      "description": "Absolute or relative file path to write"
-     },
-     "content": {
-      "type": "string",
-      "description": "Content to write to the file"
-     }
-    },
-    "required": [
-     "path",
-     "content"
     ],
     "additionalProperties": false
    }
@@ -259,29 +211,6 @@
     "required": [
      "path"
     ],
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_friday",
-   "description": "Detect the FAF Chrome extension and run fuzzy-matching helpers.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "test": {
-      "type": "string",
-      "description": "Test fuzzy matching with typos like \"raect\" or \"chr ext\""
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_guide",
-   "description": "FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns",
-   "inputSchema": {
-    "type": "object",
-    "properties": {},
     "additionalProperties": false
    }
   },
@@ -343,18 +272,10 @@
   },
   {
    "name": "faf_check",
-   "description": "Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings",
+   "description": "Quality inspection for human_context fields - Shows empty/generic/good/excellent ratings. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
-     "protect": {
-      "type": "boolean",
-      "description": "Lock good/excellent fields from being overwritten"
-     },
-     "unlock": {
-      "type": "boolean",
-      "description": "Remove all field protections"
-     },
      "path": {
       "type": "string",
       "description": "Project path. Sets session context for subsequent calls."
@@ -533,26 +454,21 @@
   },
   {
    "name": "faf_agents",
-   "description": "Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!",
+   "description": "Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (AGENTS.md -> .faf), export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)"
+      "description": "Action: export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)"
      },
      "force": {
       "type": "boolean",
       "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
      },
      "path": {
       "type": "string",
@@ -567,26 +483,21 @@
   },
   {
    "name": "faf_cursor",
-   "description": "Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!",
+   "description": "Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (.cursorrules -> .faf), export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)"
+      "description": "Action: export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)"
      },
      "force": {
       "type": "boolean",
       "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
      },
      "path": {
       "type": "string",
@@ -601,26 +512,21 @@
   },
   {
    "name": "faf_gemini",
-   "description": "Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!",
+   "description": "Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (GEMINI.md -> .faf), export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)"
+      "description": "Action: export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)"
      },
      "force": {
       "type": "boolean",
       "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
      },
      "path": {
       "type": "string",
@@ -635,25 +541,20 @@
   },
   {
    "name": "faf_conductor",
-   "description": "Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!",
+   "description": "Export project.faf to a conductor/ directory (Google Conductor) - AI interop!",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export"
       ],
-      "description": "Action: import (conductor/ -> .faf), export (.faf -> conductor/)"
+      "description": "Action: export (.faf -> conductor/)"
      },
      "force": {
       "type": "boolean",
       "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
      },
      "path": {
       "type": "string",

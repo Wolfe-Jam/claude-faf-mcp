@@ -13,7 +13,7 @@ import { cursorExport } from '../src/faf-core/parsers/cursorrules-parser';
 import { fafCli } from '../src/utils/faf-cli-bridge.js';
 
 // The block writer is faf-cli's own injector (the local port was retired in 5.23).
-const { injectFafBlock } = await fafCli;
+const { injectFafBlock, legacyStampNoteAt } = await fafCli;
 
 const DATA: any = {
   project: { name: 'Demo', goal: 'a small api', main_language: 'TypeScript' },
@@ -38,13 +38,25 @@ describe('injectFafBlock — non-destructive', () => {
     expect(blocks(out)).toBe(1);
   });
 
-  test('legacy faf file (metastamp, no markers) reclaimed in place — no duplication', async () => {
+  // faf-cli 7.13: a file with no marker lines is never reclaimed, whatever it
+  // starts with — faf cannot prove it wrote an old metastamp-led file, so the
+  // block goes on top and every original byte stays below it.
+  test('legacy faf file (metastamp, no markers) is prefixed — every original byte kept, one block', async () => {
     const p = join(tmp(), 'F.md');
-    await fs.writeFile(p, '<!-- faf: demo | TS | lib | x -->\n\n# Old\nOLD FAF BODY\n');
+    const original = '<!-- faf: demo | TS | lib | x -->\n\n# Old\nOLD FAF BODY\n';
+    await fs.writeFile(p, original);
+    expect(legacyStampNoteAt(p, 'F.md')).not.toBeNull(); // the one-line hint faf prints for it
     await injectFafBlock(p, 'fresh');
-    const out = await fs.readFile(p, 'utf-8');
+    let out = await fs.readFile(p, 'utf-8');
+    expect(out.startsWith('<!-- faf:start -->')).toBe(true);
     expect(out).toContain('fresh');
-    expect(out).not.toContain('OLD FAF BODY');
+    expect(out.endsWith(original)).toBe(true); // byte-for-byte, below the block
+    expect(blocks(out)).toBe(1);
+    await injectFafBlock(p, 'fresh-2'); // the next run updates the block in place
+    out = await fs.readFile(p, 'utf-8');
+    expect(out).toContain('fresh-2');
+    expect(out).not.toContain('fresh\n');
+    expect(out.endsWith(original)).toBe(true);
     expect(blocks(out)).toBe(1);
   });
 });

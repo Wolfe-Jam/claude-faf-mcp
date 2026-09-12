@@ -4,14 +4,13 @@ import { fileHandlers } from './fileHandler';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as pathModule from 'path';
-import { FuzzyDetector } from '../utils/fuzzy-detector';
 import { findFafFile } from '../utils/faf-file-finder.js';
 import { confinePath, PathConfinementError } from '../utils/safe-path';
 import { VERSION } from '../version';
 import { resolveProjectPath, formatPathConfirmation } from '../utils/path-resolver';
 import { resolveMemoryPath, memoryExport, getMemoryStatus } from '../utils/memory-parser';
-// Truthful single-source FAF score wiring — see src/utils/faf-cli-bridge.ts
-// for why this exists (faf-cli's bun exports condition + Node 18 ESM-from-CJS).
+// Truthful single-source FAF score wiring — faf-cli, loaded through
+// src/utils/faf-cli-bridge.ts (ESM from CommonJS via import()).
 import { fafCli } from '../utils/faf-cli-bridge.js';
 import { Soul } from '../fafm/faf-memory.js';
 import { computeParity } from '../trust/parity.js';
@@ -36,6 +35,30 @@ const CORE_TOOLS = new Set<string>([
   'faf_score', 'faf_doctor', 'faf_sync', 'faf_context',
   'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
 ]);
+
+/**
+ * Retired tools. None is listed in tools/list; a call by name gets isError and
+ * one plain line: when it was retired and what to use instead. Their code is
+ * gone from the tree (tag archive/cfm-v5-surface keeps it).
+ */
+const RETIRED_TOOLS = new Map<string, string>([
+  ['faf_clear', 'faf_clear was retired in 6.0.0: claude-faf-mcp keeps no cache or state, so there is nothing to clear.'],
+  ['faf_friday', 'faf_friday was retired in 6.0.0: use faf_auto to detect the stack from your files.'],
+  ['faf_guide', 'faf_guide was retired in 6.0.0: every tool describes itself in tools/list; start with faf_context, then faf_score.'],
+  ['faf_write', 'faf_write was retired in 6.0.0: claude-faf-mcp writes only its own context files (faf_init, faf_auto, faf_go, faf_sync); write other files with your host\'s own tools.'],
+  ['faf_chat', 'faf_chat was retired in 5.7.0: your host is the chat. Use faf_go to build context by question and answer.'],
+]);
+
+/** The one-line refusal for an interop import action (retired in 6.0.0). */
+function importRetired(tool: string, file: string, actions = 'export or sync'): CallToolResult {
+  return {
+    content: [{
+      type: 'text',
+      text: `${tool} import was retired in 6.0.0: claude-faf-mcp no longer merges ${file} into project.faf. Use ${actions}; faf_auto and faf_go fill project.faf.`,
+    }],
+    isError: true,
+  };
+}
 
 /**
  * faf-cli's `faf init` / `faf auto` / `faf go` refuse to write in the home
@@ -83,7 +106,7 @@ export class FafToolHandler {
    *
    * ⚠️ Sticky cwd is intentional for MCP sessions ("set path once, then omit").
    * process.chdir() does NOT rebind this. Callers that write project.faf
-   * (faf_human_add, faf_readme apply, faf_check protect, faf_go answers, …)
+   * (faf_human_add, faf_readme apply, faf_go answers, …)
    * MUST pass `path` (or setWorkingDirectory) when not operating on the session
    * project — otherwise they can clobber the construct-time project.faf.
    * Tests: always path: testDir; never rely on chdir alone.
@@ -367,26 +390,6 @@ export class FafToolHandler {
           }
         },
         {
-          name: 'faf_clear',
-          description: 'Clear caches, temporary files, and reset FAF state for a fresh start',
-          annotations: {
-            title: 'Clear .faf Data',
-            readOnlyHint: false,
-            destructiveHint: true,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {
-              cache: { type: 'boolean', description: 'Clear trust cache only' },
-              todos: { type: 'boolean', description: 'Clear todo lists only' },
-              backups: { type: 'boolean', description: 'Clear backup files only' },
-              all: { type: 'boolean', description: 'Clear everything (default)' }
-            },
-            additionalProperties: false
-          }
-        },
-        {
           name: 'faf_debug',
           description: 'Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status',
           annotations: {
@@ -419,31 +422,6 @@ export class FafToolHandler {
               }
             },
             required: ['path'],
-            additionalProperties: false
-          }
-        },
-        {
-          name: 'faf_write',
-          description: 'Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.',
-          annotations: {
-            title: 'Write .faf File',
-            readOnlyHint: false,
-            destructiveHint: false,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {
-              path: {
-                type: 'string',
-                description: 'Absolute or relative file path to write'
-              },
-              content: {
-                type: 'string',
-                description: 'Content to write to the file'
-              }
-            },
-            required: ['path', 'content'],
             additionalProperties: false
           }
         },
@@ -508,44 +486,6 @@ export class FafToolHandler {
             additionalProperties: true
           }
         },
-        // faf_chat — DEPRECATED, un-advertised. The host IS the chat (Claude Desktop /
-        // Claude Code); a chat-shim tool is redundant. Dispatch keeps a deprecation
-        // stub (below). Fleet sweep — mirrors grok-faf-mcp's retire.
-        {
-          name: 'faf_friday',
-          description: 'Detect the FAF Chrome extension and run fuzzy-matching helpers.',
-          annotations: {
-            title: 'Fun FAF Facts',
-            readOnlyHint: true,
-            destructiveHint: false,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {
-              test: {
-                type: 'string',
-                description: 'Test fuzzy matching with typos like "raect" or "chr ext"'
-              }
-            },
-            additionalProperties: false
-          }
-        },
-        {
-          name: 'faf_guide',
-          description: 'FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns',
-          annotations: {
-            title: 'Usage Guide',
-            readOnlyHint: true,
-            destructiveHint: false,
-            openWorldHint: false
-          },
-          inputSchema: {
-            type: 'object',
-            properties: {},
-            additionalProperties: false
-          }
-        },
         {
           name: 'faf_readme',
           description: 'Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching',
@@ -591,7 +531,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_check',
-          description: 'Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings',
+          description: 'Quality inspection for human_context fields - Shows empty/generic/good/excellent ratings. Reads only; writes nothing.',
           annotations: {
             title: 'Check .faf Health',
             readOnlyHint: true,
@@ -601,36 +541,25 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              protect: { type: 'boolean', description: 'Lock good/excellent fields from being overwritten' },
-              unlock: { type: 'boolean', description: 'Remove all field protections' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             additionalProperties: false
           },
           outputSchema: {
             type: 'object',
-            description: 'Human-context quality report, or the result of a protect/unlock action.',
+            description: 'Human-context quality report.',
             properties: {
-              mode: { type: 'string', description: 'report | protect | unlock' },
-              qualityPercent: { type: 'number', description: 'Share of fields rated good/excellent (report mode)' },
+              mode: { type: 'string', description: 'report' },
+              qualityPercent: { type: 'number', description: 'Share of fields rated good/excellent' },
               goodCount: { type: 'number', description: 'Fields rated good or excellent' },
               emptyCount: { type: 'number', description: 'Fields that are empty' },
-              protected: {
-                type: 'array', items: { type: 'string' },
-                description: 'Field names currently protected'
-              },
-              protectedNow: {
-                type: 'array', items: { type: 'string' },
-                description: 'Fields newly protected by this call (protect mode)'
-              },
               fields: {
                 type: 'object',
-                description: 'Per-field quality + protection (report mode)',
+                description: 'Per-field quality',
                 additionalProperties: {
                   type: 'object',
                   properties: {
-                    quality: { type: 'string', description: 'empty | generic | good | excellent' },
-                    protected: { type: 'boolean' }
+                    quality: { type: 'string', description: 'empty | generic | good | excellent' }
                   }
                 }
               }
@@ -955,7 +884,7 @@ export class FafToolHandler {
         // ============================================================================
         {
           name: 'faf_agents',
-          description: 'Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!',
+          description: 'Export/Sync project.faf to AGENTS.md (OpenAI/Codex) - AI interop!',
           annotations: {
             title: 'Sync AGENTS.md',
             readOnlyHint: false,
@@ -965,9 +894,8 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (AGENTS.md -> .faf), export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)' },
+              action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)' },
               force: { type: 'boolean', description: 'Force overwrite existing files' },
-              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -976,7 +904,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_cursor',
-          description: 'Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!',
+          description: 'Export/Sync project.faf to .cursorrules (Cursor IDE) - AI interop!',
           annotations: {
             title: 'Sync .cursorrules',
             readOnlyHint: false,
@@ -986,9 +914,8 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (.cursorrules -> .faf), export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)' },
+              action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)' },
               force: { type: 'boolean', description: 'Force overwrite existing files' },
-              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -997,7 +924,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_gemini',
-          description: 'Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!',
+          description: 'Export/Sync project.faf to GEMINI.md (Google Gemini CLI) - AI interop!',
           annotations: {
             title: 'Sync GEMINI.md',
             readOnlyHint: false,
@@ -1007,9 +934,8 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              action: { type: 'string', enum: ['import', 'export', 'sync'], description: 'Action: import (GEMINI.md -> .faf), export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)' },
+              action: { type: 'string', enum: ['export', 'sync'], description: 'Action: export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)' },
               force: { type: 'boolean', description: 'Force overwrite existing files' },
-              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -1018,7 +944,7 @@ export class FafToolHandler {
         },
         {
           name: 'faf_conductor',
-          description: 'Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!',
+          description: 'Export project.faf to a conductor/ directory (Google Conductor) - AI interop!',
           annotations: {
             title: 'Sync Conductor',
             readOnlyHint: false,
@@ -1028,9 +954,8 @@ export class FafToolHandler {
           inputSchema: {
             type: 'object',
             properties: {
-              action: { type: 'string', enum: ['import', 'export'], description: 'Action: import (conductor/ -> .faf), export (.faf -> conductor/)' },
+              action: { type: 'string', enum: ['export'], description: 'Action: export (.faf -> conductor/)' },
               force: { type: 'boolean', description: 'Force overwrite existing files' },
-              merge: { type: 'boolean', description: 'Merge imported data with existing .faf instead of replacing' },
               path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
             },
             required: ['action'],
@@ -1170,6 +1095,11 @@ export class FafToolHandler {
       throw new Error('Tool name must be a non-empty string');
     }
     
+    const retired = RETIRED_TOOLS.get(name);
+    if (retired) {
+      return { content: [{ type: 'text', text: retired }], isError: true };
+    }
+
     try {
     switch (name) {
       case 'faf': {
@@ -1226,8 +1156,6 @@ Once confirmed, the sequence is:
         return await this.handleFafSetup(args);
       case 'faf_sync':
         return await this.handleFafSync(args);
-      case 'faf_clear':
-        return await this.handleFafClear(args);
       case 'faf_debug':
         return await this.handleFafDebug(args);
       case 'faf_about':
@@ -1241,16 +1169,8 @@ Once confirmed, the sequence is:
         }
         return readResult;
       }
-      case 'faf_chat':
-        return await this.handleFafChat(args);
-      case 'faf_friday':
-        return await this.handleFafFriday(args);
-      case 'faf_write':
-        return await fileHandlers.faf_write(args);
       case 'faf_list':
         return await this.handleFafList(args);
-      case 'faf_guide':
-        return await this.handleFafGuide(args);
       case 'faf_readme':
         return await this.handleFafReadme(args);
       case 'faf_human_add':
@@ -1805,46 +1725,6 @@ Once confirmed, the sequence is:
     };
   }
 
-  private async handleFafClear(args: any): Promise<CallToolResult> {
-    const clearArgs: string[] = [];
-    
-    if (args?.cache) {
-      clearArgs.push('--cache');
-    }
-    if (args?.todos) {
-      clearArgs.push('--todos');
-    }
-    if (args?.backups) {
-      clearArgs.push('--backups');
-    }
-    if (args?.all || (!args?.cache && !args?.todos && !args?.backups)) {
-      clearArgs.push('--all');
-    }
-
-    const result = await this.engineAdapter.callEngine('clear', clearArgs);
-
-    if (!result.success) {
-      return {
-        content: [{
-          type: 'text',
-          text: `🧹 Claude FAF Clear:\n\nFailed to clear: ${result.error}`
-        }],
-        isError: true
-      };
-    }
-
-    const output = typeof result.data === 'string'
-      ? result.data
-      : result.data?.output || JSON.stringify(result.data, null, 2);
-
-    return {
-      content: [{
-        type: 'text',
-        text: `🧹 Claude FAF Clear:\n\n${output}`
-      }]
-    };
-  }
-
   private async handleFafAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
     // Stop FAFfing about and get the facts!
     const packageInfo = {
@@ -1975,148 +1855,6 @@ ${debugInfo.permissions.fafError ? `   FAF Error: ${debugInfo.permissions.fafErr
         isError: true
       };
     }
-  }
-
-  private async handleFafChat(_args: any): Promise<CallToolResult> {
-    // DEPRECATED: the host (Claude Desktop / Claude Code) IS the chat — a chat-shim
-    // MCP tool is redundant. Un-advertised in listTools; this stub stays so anyone
-    // still wired gets a clear signal, not a crash. The old body shelled `faf chat`
-    // via the engine subprocess (a command faf-cli no longer ships) — removing it
-    // ends that dead shell too.
-    return {
-      content: [{
-        type: 'text',
-        text:
-          'faf_chat is retired — the host is your chat, just talk here. ' +
-          'For FAF: faf_init / faf_score / faf_sync, or "ask questions" to build context.',
-      }],
-    };
-  }
-
-  private async handleFafFriday(args: any): Promise<CallToolResult> {
-    const { test } = args || {};
-
-    let response = `🎉 **Friday Features in FAF MCP!**\n\n`;
-    response += `**Chrome Extension Auto-Detection** | Boosts scores to 90%+ automatically\n`;
-    response += `**Fuzzy Matching** | Typo-tolerant: "raect"→"react", "chr ext"→"chrome extension"\n`;
-    response += `**Intel-Friday™** | Smart IF statements that add massive value\n\n`;
-
-    if (test) {
-      // Test fuzzy matching
-      const suggestion = FuzzyDetector.getSuggestion(test);
-      const projectType = FuzzyDetector.detectProjectType(test);
-      const chromeDetection = FuzzyDetector.detectChromeExtension(test);
-
-      response += `\n**Testing: "${test}"**\n`;
-
-      if (suggestion) {
-        response += `✅ Fuzzy Match: "${test}" → "${suggestion}"\n`;
-      }
-
-      response += `📦 Project Type Detected: ${projectType}\n`;
-
-      if (chromeDetection.detected) {
-        response += `🎯 Chrome Extension Detected! (Confidence: ${chromeDetection.confidence})\n`;
-        if (chromeDetection.corrected) {
-          response += `   Corrected from: "${test}" → "${chromeDetection.corrected}"\n`;
-        }
-      }
-
-      // Show what would be auto-filled
-      if (chromeDetection.detected && chromeDetection.confidence === 'high') {
-        response += `\n**Auto-fill Preview (7 slots for 90%+ score):**\n`;
-        const slots = FuzzyDetector.getChromeExtensionSlots();
-        for (const [key, value] of Object.entries(slots)) {
-          response += `• ${key}: ${value}\n`;
-        }
-      }
-    } else {
-      response += `\n💡 Try: \`faf_friday test:"raect"\` or \`faf_friday test:"chr ext"\``;
-    }
-
-    return {
-      content: [{
-        type: 'text',
-        text: response
-      }]
-    };
-  }
-
-  private async handleFafGuide(_args: any): Promise<CallToolResult> {
-    const guide = `# FAF MCP - Claude Desktop Guide
-
-## Path Convention (CRITICAL)
-**Default**: \`~/Projects/[project-name]/project.faf\`
-
-**Project name from:**
-1. AI inference (README, files, context)
-2. User statement
-3. User custom path (always wins)
-
-**Example Flow:**
-- User uploads README for "Heritage Club Dubai"
-- Infer: \`~/Projects/heritage-club-dubai/project.faf\`
-- Confirm: "Creating at ~/Projects/heritage-club-dubai/"
-
-## Real Filesystem Only
-- Do: \`~/Projects/my-app/\`
-- Don't: \`/mnt/user-data/\` (container paths)
-- Don't: \`/home/claude/\` (container paths)
-
-## Commands
-All work: \`faf init\`, \`faf init new\`, \`faf init --new\`, \`faf init -new\`
-
-**Core:**
-- \`faf init\` - create FAF (infer path from context)
-- \`faf score\` - show AI-readiness
-- \`faf sync\` - synchronize files
-- \`faf quick\` - rapid FAF creation
-
-**Extensions:**
-- \`new\` - force overwrite existing
-- \`full\` - detailed output
-
-## UX Rules
-1. **Don't offer option menus** - just solve it
-2. **Infer project name** from context
-3. **Suggest Projects path** if ambiguous
-4. **User path always wins**
-5. **No CLI talk** - you ARE the FAF system
-
-## Quick Patterns
-
-**User uploads README:**
-→ Infer project name
-→ Create at \`~/Projects/[name]/project.faf\`
-→ Confirm location
-
-**User gives path:**
-→ Use exactly as provided
-→ No validation needed
-
-**No context available:**
-→ Ask once: "Project name or path?"
-→ Use Projects convention with answer
-
-## Username Detection
-- Check \`$HOME\` environment
-- Default to \`~/Projects/\` structure
-- Works across macOS/Linux/Windows
-
-## Test Your Understanding
-Don't: "I need more information" (when README uploaded)
-Don't: "Option 1, Option 2, Option 3..." (option menus)
-Don't: Creating files in \`/mnt/user-data/\`
-Do: "Creating FAF for [project] at ~/Projects/[name]/"
-Do: Using context to infer and act
-Do: Real filesystem paths only`;
-
-    return {
-      content: [{
-        type: 'text',
-        text: guide
-      }]
-    };
   }
 
   private async handleFafList(args: any): Promise<CallToolResult> {
@@ -2406,6 +2144,17 @@ Do: Real filesystem paths only`;
   }
 
   private async handleFafCheck(args: any): Promise<CallToolResult> {
+    // protect / unlock wrote a `_protected_fields` key that no writer ever
+    // read, so nothing was locked. Retired in 6.0.0: faf_check only reports.
+    if (args?.protect || args?.unlock) {
+      return {
+        content: [{
+          type: 'text',
+          text: 'faf_check protect/unlock was retired in 6.0.0: faf has no field lock, so nothing was locked or unlocked. faf_check only reports.',
+        }],
+        isError: true,
+      };
+    }
     try {
       const cwd = this.getProjectPath(args?.path);
       const fafResult = await findFafFile(cwd);
@@ -2424,22 +2173,8 @@ Do: Real filesystem paths only`;
       const yaml = await import('yaml');
       const fafData = yaml.parse(fafContent) || {};
       const humanContext = fafData.human_context || {};
-      const protectedFields: string[] = fafData._protected_fields || [];
 
       const fields = ['who', 'what', 'why', 'where', 'when', 'how'];
-
-      // Handle --unlock
-      if (args?.unlock) {
-        fafData._protected_fields = [];
-        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
-        return {
-          content: [{
-            type: 'text',
-            text: `🔓 FAF Check:\n\n✅ All fields unlocked\n📁 Updated: ${fafResult.filename}`
-          }],
-          structuredContent: { mode: 'unlock', protected: [] }
-        };
-      }
 
       // Assess quality
       const assessField = (value: string | null): string => {
@@ -2454,32 +2189,7 @@ Do: Real filesystem paths only`;
         qualities[field] = assessField(humanContext[field]);
       }
 
-      // Handle --protect
-      if (args?.protect) {
-        const toProtect = fields.filter(f =>
-          qualities[f] === 'good' || qualities[f] === 'excellent'
-        );
-        if (toProtect.length === 0) {
-          return {
-            content: [{
-              type: 'text',
-              text: `🔒 FAF Check:\n\n⚠️ No fields qualify for protection (need good or excellent quality)`
-            }],
-            structuredContent: { mode: 'protect', protectedNow: [], protected: protectedFields }
-          };
-        }
-        fafData._protected_fields = [...new Set([...protectedFields, ...toProtect])];
-        fs.writeFileSync(fafResult.path, yaml.stringify(fafData), 'utf-8');
-        return {
-          content: [{
-            type: 'text',
-            text: `🔒 FAF Check:\n\n✅ Protected ${toProtect.length} field(s): ${toProtect.join(', ')}\n📁 Updated: ${fafResult.filename}`
-          }],
-          structuredContent: { mode: 'protect', protectedNow: toProtect, protected: fafData._protected_fields }
-        };
-      }
-
-      // Default: show quality report
+      // Quality report
       const icons: Record<string, string> = {
         empty: '⬜', generic: '🟡', good: '🟢', excellent: '💎'
       };
@@ -2487,26 +2197,22 @@ Do: Real filesystem paths only`;
       let output = `🔍 FAF Human Context Quality\n\n`;
       for (const field of fields) {
         const q = qualities[field];
-        const locked = protectedFields.includes(field) ? '🔒' : '  ';
         const value = humanContext[field] || '(empty)';
         const displayValue = value.length > 40 ? value.substring(0, 37) + '...' : value;
-        output += `${icons[q]} ${locked} ${field.toUpperCase().padEnd(6)} ${displayValue}\n`;
+        output += `${icons[q]} ${field.toUpperCase().padEnd(6)} ${displayValue}\n`;
       }
 
       const goodCount = fields.filter(f => qualities[f] === 'good' || qualities[f] === 'excellent').length;
       const emptyCount = fields.filter(f => qualities[f] === 'empty').length;
 
       output += `\n📊 Quality: ${Math.round((goodCount / fields.length) * 100)}%\n`;
-      if (protectedFields.length > 0) {
-        output += `🔒 Protected: ${protectedFields.join(', ')}\n`;
-      }
       if (emptyCount > 0) {
         output += `\n💡 Use faf_readme or faf_human_add to fill empty slots`;
       }
 
-      const fieldReport: Record<string, { quality: string; protected: boolean }> = {};
+      const fieldReport: Record<string, { quality: string }> = {};
       for (const field of fields) {
-        fieldReport[field] = { quality: qualities[field], protected: protectedFields.includes(field) };
+        fieldReport[field] = { quality: qualities[field] };
       }
 
       return {
@@ -2516,7 +2222,6 @@ Do: Real filesystem paths only`;
           qualityPercent: Math.round((goodCount / fields.length) * 100),
           goodCount,
           emptyCount,
-          protected: protectedFields,
           fields: fieldReport
         }
       };
@@ -3692,6 +3397,9 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
   // ============================================================================
 
   private async handleFafAgents(args: any): Promise<CallToolResult> {
+    if (args?.action === 'import') {
+      return importRetired('faf_agents', 'AGENTS.md');
+    }
     const cwd = this.getProjectPath(args?.path);
     const action = args?.action || 'sync';
 
@@ -3700,7 +3408,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
         cwd,
         `--action=${action}`,
         ...(args?.force ? ['--force'] : []),
-        ...(args?.merge ? ['--merge'] : []),
       ]);
 
       if (!result.success) {
@@ -3723,6 +3430,9 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
   }
 
   private async handleFafCursor(args: any): Promise<CallToolResult> {
+    if (args?.action === 'import') {
+      return importRetired('faf_cursor', '.cursorrules');
+    }
     const cwd = this.getProjectPath(args?.path);
     const action = args?.action || 'sync';
 
@@ -3731,7 +3441,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
         cwd,
         `--action=${action}`,
         ...(args?.force ? ['--force'] : []),
-        ...(args?.merge ? ['--merge'] : []),
       ]);
 
       if (!result.success) {
@@ -3754,6 +3463,9 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
   }
 
   private async handleFafGemini(args: any): Promise<CallToolResult> {
+    if (args?.action === 'import') {
+      return importRetired('faf_gemini', 'GEMINI.md');
+    }
     const cwd = this.getProjectPath(args?.path);
     const action = args?.action || 'sync';
 
@@ -3762,7 +3474,6 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
         cwd,
         `--action=${action}`,
         ...(args?.force ? ['--force'] : []),
-        ...(args?.merge ? ['--merge'] : []),
       ]);
 
       if (!result.success) {
@@ -3785,15 +3496,17 @@ Use force: true to overwrite, or use faf_go / faf_human_add for human slots.`
   }
 
   private async handleFafConductor(args: any): Promise<CallToolResult> {
+    if (args?.action === 'import') {
+      return importRetired('faf_conductor', 'conductor/', 'export');
+    }
     const cwd = this.getProjectPath(args?.path);
-    const action = args?.action || 'import';
+    const action = args?.action || 'export';
 
     try {
       const result = await this.engineAdapter.callEngine('conductor', [
         cwd,
         `--action=${action}`,
         ...(args?.force ? ['--force'] : []),
-        ...(args?.merge ? ['--merge'] : []),
       ]);
 
       if (!result.success) {
