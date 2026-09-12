@@ -5,7 +5,6 @@ on:
     branches: [ main, develop ]
     paths-ignore:
       - '**.md'
-      - 'docs/**'
       - 'LICENSE*'
       - '.gitignore'
   pull_request:
@@ -14,7 +13,9 @@ on:
     types: [ created ]
 
 env:
-  NODE_VERSION: '20.x'
+  # The lowest Node in the matrices below — scripts/check-engines.mjs holds
+  # package.json engines.node and manifest.json to it.
+  NODE_VERSION: '22.x'
 
 jobs:
   # 🔒 Security Check
@@ -37,21 +38,22 @@ jobs:
         run: npm audit --audit-level=high
 
       - name: Check for secrets
-        uses: trufflesecurity/trufflehog@main
+        uses: trufflesecurity/trufflehog@363923b901c911a9164f50b6c423f47c15372b1c # v3.97.4
         with:
           path: ./
           base: ${{ github.event.repository.default_branch }}
 
   # 🧪 Test Suite (bun) — runs on the bun runtime; one runtime, no Node matrix.
-  # Windows IS included to verify bun-test works on Windows CI.
+  # scripts/run-tests.sh runs it through scripts/hermetic-test.mjs: a temp HOME,
+  # and the run fails if a test writes into the checkout.
   test:
     name: 🧪 Test Suite
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30   # backstop: bound the job so an --isolate epoll hang can't run unbounded → cancelled (red badge)
+    timeout-minutes: 30   # backstop: bound the job so an --isolate epoll hang can't run unbounded
     permissions:
       contents: write  # Required for faf-taf-git auto-commit to taf-receipts branch
     strategy:
-      fail-fast: false  # Let all platforms run — don't cancel 5 jobs because 1 tripped
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
@@ -76,9 +78,10 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          # via the wrapper (bounds the Linux --isolate epoll hang + retries); package.json
-          # `test` stays `bun test …` so the bun-migration meta-test passes.
-          sh scripts/run-tests.sh --coverage --coverage-reporter=lcov 2>&1 | tee /tmp/test-output.txt
+          sh scripts/run-tests.sh --coverage --coverage-reporter=text --coverage-reporter=lcov 2>&1 | tee /tmp/test-output.txt
+
+      - name: Coverage floor (totals over src/; it only rises)
+        run: node scripts/check-coverage.mjs
 
       - name: Upload coverage
         if: matrix.os == 'ubuntu-latest'
@@ -88,7 +91,7 @@ jobs:
           flags: unittests
           name: codecov-umbrella
 
-      - name: Generate TAF Receipt
+      - name: Write TAF Receipt
         if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
         uses: Wolfe-Jam/faf-taf-git@v2.2.2
         with:
@@ -97,16 +100,16 @@ jobs:
           commit-message: 'chore(taf): update .taf receipt [skip ci]'
           target-branch: taf-receipts
 
-  # 🟢 Node Smoke — the server SHIPS to Node/npx users, so verify the built
-  # artifact loads on the Node versions we support (incl. Windows).
+  # 🟢 Node Smoke — the server ships to Node users: build it and start the bin
+  # on every Node the engines field names, on all three platforms.
   node-smoke:
     name: 🟢 Node Smoke
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        node: [18.x, 20.x]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [22.x, 24.x]
 
     steps:
       - uses: actions/checkout@v7
@@ -123,10 +126,43 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Smoke - server module loads on Node
+      - name: Smoke - the main module loads and starts nothing
         run: node -e "require('./dist/src/server.js'); console.log('claude-faf-mcp loads on Node ' + process.version)"
 
-  # 💎 Code Quality
+  # 📦 Release verify — what ships: the npm tarball installed and started, and
+  # the .mcpb unpacked and started with its own bundled code. The registry
+  # publish workflow repeats the .mcpb check on the release asset itself.
+  release-verify:
+    name: 📦 Release Verify
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: [22.x, 24.x]
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js ${{ matrix.node }}
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: npm pack → install → initialize + tools/list + faf_score
+        run: node scripts/smoke-package.mjs
+
+      # pack:mcpb is a POSIX shell chain (cp/rm/find); the bundle it builds is
+      # plain JavaScript, so building it on ubuntu and macOS covers every host.
+      - name: .mcpb pack → unpack → start the bundled server → tools/list + faf_score
+        if: runner.os != 'Windows'
+        run: node scripts/verify-mcpb.mjs
+
+  # 💎 Code Quality — every step is a gate.
   quality:
     name: 💎 Code Quality
     runs-on: ubuntu-latest
@@ -142,17 +178,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: 🧱 Engine floor gate
+        run: npm run check:engines  # engines.node == the lowest Node in every matrix == manifest runtimes
+
       - name: Lint
-        run: npm run lint
-        continue-on-error: true  # Don't block on linting errors
+        run: npm run lint  # fails on any error, and on more warnings than the ratchet in package.json
 
       - name: Type Check
         run: npm run type-check
-        continue-on-error: true  # Don't block on type errors
 
-      - name: Format Check
-        run: npm run format:check
-        continue-on-error: true  # Don't block on format errors
+      - name: Derived surfaces are current
+        run: node scripts/build-landing.mjs --check
 
   # 🏗️ Build
   build:
@@ -177,9 +213,11 @@ jobs:
 
       - name: Check build output
         run: |
-          test -f dist/src/server.js
+          test -f dist/src/index.js            # the bin (package.json "bin")
+          test -f dist/src/server.js           # package.json "main"
           test -f dist/src/handlers/tools.js
-          test -f dist/src/utils/visual-style.js
+          test -f dist/src/handlers/resources.js
+          test ! -e dist/src/utils/cli-detector.js   # retired in 6.0.0; prebuild keeps dist clean
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v6
@@ -187,14 +225,12 @@ jobs:
           name: dist
           path: dist/
 
-  # ⚡ Performance — observability, not a gate.
-  # Hard absolute-time perf assertions on shared CI runners are inherently
-  # flaky; red here was poisoning the signal (see jest.config.js + 5dbf388).
+  # ⚡ Performance — observability, not a gate: timing on shared runners is
+  # noise, so the step may fail without failing the job.
   performance:
     name: ⚡ Performance Check
     runs-on: ubuntu-latest
     needs: build
-    continue-on-error: true
 
     steps:
       - uses: actions/checkout@v7
@@ -213,38 +249,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Download build
-        uses: actions/download-artifact@v6
-        with:
-          name: dist
-          path: dist/
-
-      - name: Run performance tests
+      - name: Run performance tests (observability)
         run: npm run test:performance
+        continue-on-error: true
 
-      - name: Check performance benchmarks
-        run: |
-          echo "🏁 Performance Targets:"
-          echo "File operations: <50ms ✅"
-          echo "Directory operations: <30ms ✅"
-          echo "Format operations: <1ms ✅"
-
-  # 🏆 Championship Status
+  # Status — the real result of every job, and a failure when a gate failed.
   status:
-    name: 🏆 Championship Status
+    name: Status
     runs-on: ubuntu-latest
-    needs: [security, test, node-smoke, quality, build, performance]
+    needs: [security, test, node-smoke, release-verify, quality, build, performance]
     if: always()
 
     steps:
-      - name: Check Status
+      - name: Report every job's result
+        env:
+          NEEDS: ${{ toJSON(needs) }}
         run: |
-          echo "🏁 FAF MCP Championship CI/CD Complete!"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "✅ Security: Passed"
-          echo "✅ Tests: All platforms"
-          echo "✅ Quality: Championship level"
-          echo "✅ Build: Ready to ship"
-          echo "✅ Performance: F1-grade"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "🏆 PODIUM READY!"
+          node -e '
+            const needs = JSON.parse(process.env.NEEDS);
+            let failed = 0;
+            for (const [job, v] of Object.entries(needs)) {
+              const ok = v.result === "success";
+              if (!ok) failed++;
+              console.log(`${ok ? "PASS" : "FAIL"}  ${job}: ${v.result}`);
+            }
+            if (failed) { console.log(`\n${failed} job(s) did not succeed.`); process.exit(1); }
+            console.log("\nEvery job succeeded.");
+          '

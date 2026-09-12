@@ -1,204 +1,151 @@
 /**
  * Desktop-Native MCP Validation Test Suite
- * 🏎️ Formula 1 Testing Philosophy: Telemetry, Performance, Reliability
- * 
- * Testing Desktop MCP WITHOUT CLI dependency
+ *
+ * Claude Desktop starts the server with no terminal and no `faf` on its PATH.
+ * Every tool here runs on the faf-cli the package depends on, so each test
+ * checks what the tool actually did with a temp project — never "it answered".
+ *
+ * 6.0.0 (audit #90 #92): hermetic — every folder is a mkdtemp, no chdir, no
+ * fixed /tmp path, faf_init always gets an explicit path (never the host's
+ * HOME or ~/Projects), and the timing checks live in tests/performance.test.ts.
  */
 
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
-import { ClaudeFafMcpServer } from '../src/server';
 import { FafToolHandler } from '../src/handlers/tools';
 import { FafEngineAdapter } from '../src/handlers/engine-adapter';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
-// Type helper for MCP content extraction (SDK 1.26+ uses union types)
 type TextContent = { type: 'text'; text: string };
-const getTextContent = (content: unknown[]): string =>
-  (content[0] as TextContent).text;
+const getTextContent = (content: unknown[]): string => (content[0] as TextContent).text;
 
-describe('🏁 Desktop-Native MCP Championship Tests', () => {
+/** A .faf faf-cli scores 100 (every slot the app-type counts is filled). */
+const TROPHY = `faf_version: "3.0"
+project:
+  name: desktop-trophy
+  goal: Prove the desktop path end to end
+  main_language: TypeScript
+human_context:
+  who: Developers
+  what: A CLI fixture
+  why: Testing the 100% case
+  where: Local testing
+  when: v1.0.0
+  how: Via WJTTC
+stack:
+  frontend: slotignored
+  css_framework: slotignored
+  ui_library: slotignored
+  state_management: slotignored
+  backend: Node.js
+  api_type: cli
+  runtime: Node.js
+  database: slotignored
+  connection: slotignored
+  hosting: local
+  build: tsc
+  cicd: GitHub Actions
+`;
+
+describe('🏁 Desktop-Native MCP Tests', () => {
   let testDir: string;
-  let originalCwd: string;
+  let handler: FafToolHandler;
+  const fresh = (name: string): string => fs.mkdtempSync(path.join(testDir, `${name}-`));
 
-  beforeAll(async () => {
-    // Create isolated test environment
-    testDir = path.join('/tmp', `faf-desktop-test-${Date.now()}`);
-    fs.mkdirSync(testDir, { recursive: true });
-    originalCwd = process.cwd();
-    process.chdir(testDir);
-
-    // Initialize server WITHOUT CLI (for validation but not used in tests)
-    new ClaudeFafMcpServer({
-      transport: 'stdio',
-      fafEnginePath: 'native', // Signal for native mode
-      debug: true
-    });
+  beforeAll(() => {
+    testDir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'faf-desktop-test-')));
+    const engine = new FafEngineAdapter();
+    engine.setWorkingDirectory(testDir);
+    handler = new FafToolHandler(engine);
   });
-  
-  afterAll(async () => {
-    // Restore the original cwd — chdir('/') here polluted cwd for later
-    // suites in single-process runs (in-band / bun), breaking cwd-relative
-    // tests (human-context, readme-extraction) and the security path check.
-    process.chdir(originalCwd);
+
+  afterAll(() => {
     fs.rmSync(testDir, { recursive: true, force: true });
   });
 
-  describe('🧡 Core Native Functions (No CLI Required)', () => {
-    test('faf_read - Native file reading', async () => {
-      // Create test file
+  describe('🧡 Core native functions (the bundled faf-cli, no CLI on PATH)', () => {
+    test('faf_read returns the file byte for byte', async () => {
+      await handler.callTool('faf_context', { path: testDir });
       const testContent = '# Big Orange Test\n🧡 Native Desktop Mode';
       const testFile = path.join(testDir, 'test.md');
       fs.writeFileSync(testFile, testContent);
-      
-      // Test native file read
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
       const result = await handler.callTool('faf_read', { path: testFile });
-      
+      expect(result.isError).toBeFalsy();
       expect(getTextContent(result.content)).toBe(testContent);
     });
-    
-    test('faf_score - Native scoring without CLI', async () => {
-      // Setup perfect project structure
-      fs.writeFileSync(path.join(testDir, '.faf'), '## FAF Context\nProject: Championship');
-      fs.writeFileSync(path.join(testDir, 'CLAUDE.md'), '## Claude Instructions\nBe excellent');
-      fs.writeFileSync(path.join(testDir, 'README.md'), '# Project\nFormula 1 Philosophy');
-      fs.writeFileSync(path.join(testDir, 'package.json'), '{"name":"test"}');
-      
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      const result = await handler.callTool('faf_score', { details: true });
-      
-      const text = getTextContent(result.content);
-      expect(text).toContain('FAF SCORE');
-      expect(text).toMatch(/\d+%/); // Contains percentage
+
+    test('faf_score reports faf-cli\'s score for the project\'s .faf', async () => {
+      const dir = fresh('score');
+      const faf = 'faf_version: "3.0"\nproject:\n  name: desktop\n  goal: Score on the desktop\n  main_language: TypeScript\n';
+      fs.writeFileSync(path.join(dir, 'project.faf'), faf);
+      const result = await handler.callTool('faf_score', { path: dir, details: true });
+      const { scoreFafYaml } = await fafCli;
+      const expected = scoreFafYaml(faf).score;
+      expect(result.isError).toBeFalsy();
+      expect(getTextContent(result.content)).toContain(`FAF SCORE: ${expected}/100 (${expected}%)`);
     });
-    
-    test('faf_debug - Native environment inspection', async () => {
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      const result = await handler.callTool('faf_debug', {});
-      
-      const text = getTextContent(result.content);
-      expect(text).toContain('Working Directory');
+
+    test('faf_debug names the working directory, write access and the bundled engine', async () => {
+      const text = getTextContent((await handler.callTool('faf_debug', {})).content);
+      expect(text).toContain(`Working Directory: ${testDir}`);
       expect(text).toContain('Write Permissions');
       expect(text).toContain('FAF Engine: faf-cli'); // the bundled faf-cli, never a PATH binary
     });
   });
 
-  describe('⚡ CLI Fallback Behavior Tests', () => {
-    test('Graceful handling when CLI absent', async () => {
-      const handler = new FafToolHandler(new FafEngineAdapter('faf'));
+  describe('⚡ A fresh folder, no CLI anywhere', () => {
+    test('faf_status says there is no .faf; faf_init creates one where it was asked to', async () => {
+      const dir = fresh('init');
+      fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'desktop-init', version: '1.0.0' }));
+      const status = await handler.callTool('faf_status', { path: dir });
+      expect(getTextContent(status.content)).toMatch(/no \.faf|No project\.faf|not found/i);
 
-      // Status should work with or without CLI (reads .faf files directly)
-      const statusResult = await handler.callTool('faf_status', {});
-      expect(statusResult.content).toBeDefined();
-      expect(getTextContent(statusResult.content)).toBeDefined();
-
-      // Init might work or fail depending on CLI availability
-      const initResult = await handler.callTool('faf_init', {});
-      expect(initResult.content).toBeDefined();
-      expect(getTextContent(initResult.content)).toBeDefined();
-    });
-    
-    test('File operations continue working', async () => {
-      const handler = new FafToolHandler(new FafEngineAdapter('faf'));
-      
-      // File reads should still work (faf_write was retired in 6.0.0)
-      const testFile = path.join(testDir, 'fallback.txt');
-      fs.writeFileSync(testFile, 'Works without CLI!');
-
-      const readResult = await handler.callTool('faf_read', { path: testFile });
-      expect(getTextContent(readResult.content)).toBe('Works without CLI!');
+      const init = await handler.callTool('faf_init', { path: dir });
+      expect(init.isError).toBeFalsy();
+      expect(fs.existsSync(path.join(dir, 'project.faf'))).toBe(true);
+      expect(fs.readFileSync(path.join(dir, 'project.faf'), 'utf-8')).toContain('desktop-init');
     });
   });
 
-  describe('🏆 Easter Egg Detection', () => {
-    test('100% Trophy achievement', async () => {
-      // Create championship-quality files
-      const fafContent = `## Project Context\n${'='.repeat(100)}\nRich content here`;
-      const claudeContent = `## AI Instructions\n${'='.repeat(100)}\nExcellent guidance`;
+  describe('✪ The 100% case', () => {
+    test('a .faf faf-cli scores 100 reads 100% with the ✪ mark; one below does not', async () => {
+      const dir = fresh('trophy');
+      fs.writeFileSync(path.join(dir, 'project.faf'), TROPHY);
+      const { scoreFafYaml } = await fafCli;
+      expect(scoreFafYaml(TROPHY).score).toBe(100);
+      const text = getTextContent((await handler.callTool('faf_score', { path: dir, details: true })).content);
+      expect(text).toContain('FAF SCORE: 100/100');
+      expect(text).toContain('✪');
 
-      fs.writeFileSync(path.join(testDir, '.faf'), fafContent);
-      fs.writeFileSync(path.join(testDir, 'CLAUDE.md'), claudeContent);
-      fs.writeFileSync(path.join(testDir, 'README.md'), '# Champion');
-
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      const result = await handler.callTool('faf_score', { details: true });
-
-      const text = getTextContent(result.content) as string;
-      // Compiler scores based on slot analysis — markdown .faf won't score 100%
-      // Check that score output is valid and uses the tier system
-      expect(text).toContain('FAF SCORE:');
-      expect(text).toMatch(/\d+%/);
-      // If overall score line shows 100%, Trophy must be present
-      if (text.match(/FAF SCORE: 100%/)) {
-        expect(text).toContain('Trophy');
-        expect(text).toContain('Championship');
-      }
+      const below = fresh('below');
+      fs.writeFileSync(path.join(below, 'project.faf'), TROPHY.replace('  cicd: GitHub Actions\n', ''));
+      const belowText = getTextContent((await handler.callTool('faf_score', { path: below, details: true })).content);
+      expect(belowText).not.toContain('FAF SCORE: 100/100');
+      expect(belowText).not.toContain('✪');
     });
   });
 
-  describe('📊 Performance Benchmarks', () => {
-    test('Response time for native operations', async () => {
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      
-      const operations = [
-        { name: 'faf_read', args: { path: __filename }},
-        { name: 'faf_score', args: {}},
-        { name: 'faf_debug', args: {}}
-      ];
-      
-      for (const op of operations) {
-        const start = Date.now();
-        await handler.callTool(op.name, op.args);
-        const duration = Date.now() - start;
-        
-        // Native operations should be FAST (< 100ms)
-        expect(duration).toBeLessThan(100);
-        console.log(`${op.name}: ${duration}ms`);
+  describe('🔒 Security & validation', () => {
+    test('paths out of the active project are refused and read nothing', async () => {
+      await handler.callTool('faf_context', { path: testDir }); // a tool with a path moves the active project
+      const outside = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'faf-desktop-outside-')));
+      fs.writeFileSync(path.join(outside, 'id_rsa'), 'DESKTOP-SECRET\n');
+      for (const badPath of [path.join(outside, 'id_rsa'), path.relative(testDir, path.join(outside, 'id_rsa')), '/etc/passwd', '~/.ssh/id_rsa']) {
+        const result = await handler.callTool('faf_read', { path: badPath });
+        expect(result.isError).toBe(true);
+        expect(getTextContent(result.content)).not.toMatch(/DESKTOP-SECRET|root:/);
       }
+      fs.rmSync(outside, { recursive: true, force: true });
     });
-  });
 
-  describe('🔒 Security & Validation', () => {
-    test('Path traversal protection', async () => {
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
-      
-      // Attempt dangerous paths
-      const dangerousPaths = [
-        '../../../etc/passwd',
-        '/etc/passwd',
-        '~/.ssh/id_rsa'
-      ];
-      
-      for (const badPath of dangerousPaths) {
-        try {
-          await handler.callTool('faf_read', { path: badPath });
-          // Should handle gracefully, not crash
-        } catch (error) {
-          // Expected to fail safely
-          expect(error).toBeDefined();
-        }
-      }
-    });
-    
-    test('Large file handling', async () => {
-      // Create a 1MB test file
+    test('a 1MB file reads back whole', async () => {
+      await handler.callTool('faf_context', { path: testDir });
       const largeFile = path.join(testDir, 'large.txt');
-      const size = 1024 * 1024; // 1MB
-      fs.writeFileSync(largeFile, 'X'.repeat(size));
-      
-      const handler = new FafToolHandler(new FafEngineAdapter('native'));
+      fs.writeFileSync(largeFile, 'X'.repeat(1024 * 1024));
       const result = await handler.callTool('faf_read', { path: largeFile });
-
-      expect(getTextContent(result.content).length).toBe(size);
+      expect(getTextContent(result.content).length).toBe(1024 * 1024);
     });
   });
 });
-
-// Run telemetry report
-console.log('🏎️ Desktop-Native MCP Test Suite');
-console.log('================================');
-console.log('Testing WITHOUT CLI dependency');
-console.log('Validating fallback mechanisms');
-console.log('Ensuring graceful degradation');
-console.log('🏁 Begin Championship Testing...');

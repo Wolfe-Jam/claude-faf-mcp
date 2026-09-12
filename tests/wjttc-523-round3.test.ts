@@ -376,7 +376,10 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
 
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
     const about = toolText(await handler.callTool('faf_about', {}));
-    expect(about).toContain('authored in <29ms');
+    // 6.0.0 (W4 #84): facts only — the media type and the versions, no speed or reach claims.
+    expect(about).toContain('application/vnd.faf+yaml');
+    expect(about).not.toContain('<29ms');
+    expect(about).not.toContain('any AI tool');
     expect(about).not.toMatch(/Generated/);
     expect(about).not.toContain('Universal');
   });

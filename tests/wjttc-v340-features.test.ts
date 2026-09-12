@@ -229,7 +229,7 @@ For developers who care about quality.
       let autoTestDir: string;
 
       beforeEach(() => {
-        autoTestDir = path.join(testDir, `auto-test-${Date.now()}`);
+        autoTestDir = fs.mkdtempSync(path.join(testDir, 'auto-test-'));
         fs.mkdirSync(autoTestDir, { recursive: true });
 
         // Create package.json
@@ -282,20 +282,13 @@ For developers who care about quality.
         expect(text).toContain('%');
       });
 
-      it('should complete in reasonable time', async () => {
-        const start = Date.now();
-        await toolHandler.callTool('faf_auto', { path: autoTestDir });
-        const elapsed = Date.now() - start;
-
-        expect(elapsed).toBeLessThan(5000); // 5 seconds max
-      });
     });
 
     describe('faf_go - Guided Interview', () => {
       let goTestDir: string;
 
       beforeEach(() => {
-        goTestDir = path.join(testDir, `go-test-${Date.now()}`);
+        goTestDir = fs.mkdtempSync(path.join(testDir, 'go-test-'));
         fs.mkdirSync(goTestDir, { recursive: true });
 
         // Create minimal .faf file with proper nested structure
@@ -363,7 +356,7 @@ generated: ${new Date().toISOString()}
       let dnaTestDir: string;
 
       beforeEach(() => {
-        dnaTestDir = path.join(testDir, `dna-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+        dnaTestDir = fs.mkdtempSync(path.join(testDir, 'dna-test-'));
         fs.mkdirSync(dnaTestDir, { recursive: true });
         fs.writeFileSync(path.join(dnaTestDir, 'package.json'), JSON.stringify({ name: 'dna-test', dependencies: { express: '^4.0.0' } }));
       });
@@ -481,7 +474,7 @@ generated: ${new Date().toISOString()}
       let quickTestDir: string;
 
       beforeEach(() => {
-        quickTestDir = path.join(testDir, `quick-test-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+        quickTestDir = fs.mkdtempSync(path.join(testDir, 'quick-test-'));
         fs.mkdirSync(quickTestDir, { recursive: true });
       });
 
@@ -555,7 +548,7 @@ generated: ${new Date().toISOString()}
 
     describe('faf_doctor - Health Check', () => {
       it('should detect missing .faf file', async () => {
-        const emptyDir = path.join(testDir, `doctor-empty-${Date.now()}`);
+        const emptyDir = fs.mkdtempSync(path.join(testDir, 'doctor-empty-'));
         fs.mkdirSync(emptyDir, { recursive: true });
 
         const result = await toolHandler.callTool('faf_doctor', { path: emptyDir });
@@ -573,7 +566,7 @@ generated: ${new Date().toISOString()}
       });
 
       it('should check for CLAUDE.md', async () => {
-        const doctorDir = path.join(testDir, `doctor-test-${Date.now()}`);
+        const doctorDir = fs.mkdtempSync(path.join(testDir, 'doctor-test-'));
         fs.mkdirSync(doctorDir, { recursive: true });
         fs.writeFileSync(path.join(doctorDir, 'project.faf'), 'project:\n  name: test\n  goal: testing');
 
@@ -606,28 +599,9 @@ generated: ${new Date().toISOString()}
 
   describe('TIER 3: AERODYNAMICS 🏁', () => {
 
-    describe('Performance Benchmarks', () => {
-      it('faf_formats should complete in <100ms', async () => {
-        const start = Date.now();
-        await toolHandler.callTool('faf_formats', { path: testProjectDir });
-        const elapsed = Date.now() - start;
-
-        expect(elapsed).toBeLessThan(100);
-      });
-
-      it('faf_go should complete in <200ms', async () => {
-        // Create temp .faf
-        const perfDir = path.join(testDir, 'perf-test');
-        fs.mkdirSync(perfDir, { recursive: true });
-        fs.writeFileSync(path.join(perfDir, 'project.faf'), 'project: perf\n');
-
-        const start = Date.now();
-        await toolHandler.callTool('faf_go', { path: perfDir });
-        const elapsed = Date.now() - start;
-
-        expect(elapsed).toBeLessThan(200);
-      });
-    });
+    // The timing checks (faf_formats, faf_go, faf_auto) live in
+    // tests/performance.test.ts: wall-clock limits on shared runners are
+    // observability, not a gate.
 
     describe('Edge Cases', () => {
       it('faf_go should handle 100% complete project', async () => {

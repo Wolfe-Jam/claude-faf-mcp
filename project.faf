@@ -14,7 +14,7 @@ stack:
   ui_library: slotignored
   state_management: slotignored
   backend: MCP SDK (TS)
-  api_type: MCP (stdio + Streamable HTTP)
+  api_type: MCP (stdio)
   runtime: Node.js
   database: slotignored
   connection: slotignored
@@ -43,11 +43,11 @@ monorepo:
   remote_cache: slotignored
 surfaces:
   # Distribution map — the machine-checkable form of human_context.where. Score-neutral.
-  auto:                      # derived from manifests; regenerate with `faf surface --sync`
+  auto:                      # read from the manifests named in each source
     - { type: npm,          id: claude-faf-mcp,           source: "package.json#name" }
     - { type: github,       id: Wolfe-Jam/claude-faf-mcp, source: "package.json#repository" }
     - { type: mcp-registry, id: one.faf/claude-faf-mcp,   state: active, source: "server.json#name" }
-  declared:                  # hand-authored: surfaces the manifests don't carry + targets
+  declared:                  # hand-kept: surfaces the manifests don't carry (the hosted endpoint) + targets
     - { type: mcpaas,       id: claude, url: "https://mcpaas.live/claude/mcp/v1", transport: streamable-http, status: live }
     - { type: homebrew,     id: claude-faf-mcp, status: live }
     - { type: mcp-registry, id: io.github.Wolfe-Jam/claude-faf-mcp, state: deprecated, superseded_by: one.faf/claude-faf-mcp }

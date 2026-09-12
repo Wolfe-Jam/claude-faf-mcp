@@ -45,7 +45,11 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
       expect(() => confinePath('/etc/passwd')).toThrow(PathConfinementError);
     });
     test.skipIf(process.platform === 'win32')('refuses ../ traversal to a non-.faf file', () => {
-      expect(() => confinePath('../../../../../../etc/passwd')).toThrow(PathConfinementError);
+      // Built from where the test runs, so it reaches /etc/passwd at any checkout depth.
+      const traversal = path.relative(process.cwd(), '/etc/passwd');
+      expect(traversal.startsWith('..')).toBe(true);
+      expect(path.resolve(traversal)).toBe('/etc/passwd');
+      expect(() => confinePath(traversal)).toThrow(PathConfinementError);
     });
     test('refuses a real existing secret file (any directory)', () => {
       expect(() => confinePath(secretFile)).toThrow(PathConfinementError);
@@ -67,7 +71,12 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
   });
 
   describe('handler — PoC must NOT leak', () => {
-    const handler = new FafToolHandler(new FafEngineAdapter('native'));
+    // The active project is a temp folder of its own, never the checkout.
+    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'claudefaf-sec-project-'));
+    const engine = new FafEngineAdapter();
+    engine.setWorkingDirectory(projectDir);
+    const handler = new FafToolHandler(engine);
+    afterAll(() => { fs.rmSync(projectDir, { recursive: true, force: true }); });
     const textOf = (res: any): string =>
       (res?.content ?? []).map((c: any) => c.text ?? '').join('\n');
 

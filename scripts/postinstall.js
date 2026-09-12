@@ -15,7 +15,7 @@ const fs = require('fs');
 
 const message = `
 \x1b[32m✓\x1b[0m claude-faf-mcp@${packageJson.version} installed successfully
-  12 Core MCP tools ready (30 with FAF_TOOLS=all)
+  14 Core MCP tools ready (30 with FAF_TOOLS=all)
 
 Test in Claude Desktop:
   "What's my AI-readiness score?"

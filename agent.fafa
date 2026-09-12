@@ -1,5 +1,6 @@
 # claude-faf-mcp — FAF Agent Card (.fafa)
-# Authored from package.json + manifest.json + server.json. Capabilities = the live MCP tools.
+# agent.version, capabilities and tool_tiers are written by scripts/sync-version.js from package.json
+# and the server's live tools/list; tests/wjttc-600-ship-copy.test.ts checks them.
 # Provenance is the canonical FAF context block (one context, every door).
 
 version: "0.1"
@@ -7,7 +8,7 @@ agent:
   name: claude-faf-mcp
   id: did:web:faf.one:claude-faf-mcp
   vendor: WolfeJAM
-  version: 5.20.0
+  version: 5.22.1
   description: Persistent project context for Claude — define once, never re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
   homepage: https://faf.one
   license: MIT
@@ -68,13 +69,13 @@ capabilities:
       - faf
   - name: faf_read
     type: tool
-    description: "Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS, and return its text. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused."
+    description: Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS, and return its text. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_list
     type: tool
-    description: "List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only."
+    description: List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -128,13 +129,13 @@ capabilities:
       - faf
   - name: faf_formats
     type: tool
-    description: "Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing."
+    description: Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_quick
     type: tool
-    description: 'Create a new project.faf from one line: "name, goal, language, framework, hosting" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli''s score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.'
+    description: "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli's score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -209,11 +210,26 @@ provenance:
   generated: 2026-07-01T04:35:37Z
 metadata:
   repository: https://github.com/Wolfe-Jam/claude-faf-mcp
-  privacy: Runs locally. No telemetry, no analytics, no data leaves the machine.
+  privacy: Runs locally. No telemetry, no analytics, nothing sent to FAF. The one network use is faf_git, which clones a repo you name with git. https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/PRIVACY.md
   tool_tiers:
-    status: planned
-    model: Essentials (~17 core) + Extended specialist kit
-    note: Capabilities declared flat for now; tier-based surfacing is a planned dimension (per the tool-surface curation design), not yet finalized — no fabricated split.
+    status: live
+    default: "Core 14: the tools/list a host sees without FAF_TOOLS"
+    core:
+      - faf_about
+      - faf_score
+      - faf_init
+      - faf_trust
+      - faf_setup
+      - faf_sync
+      - faf_context
+      - faf_go
+      - faf_auto
+      - faf_bench
+      - faf_doctor
+      - faf_tri_sync
+      - faf_etch
+      - faf_recall
+    all: 30 with FAF_TOOLS=all; every tool is callable by name either way
   trinity:
     context: ./project.faf (live)
     memory: soul.fafm (live)

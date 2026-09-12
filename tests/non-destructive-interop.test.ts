@@ -4,8 +4,8 @@
  * (and CLAUDE.md via faf_sync) and add faf's block, never replace them.
  * Since 6.0.0 the exports are faf-cli's writers (the local renderers are gone).
  */
-import { describe, test, expect } from 'bun:test';
-import { mkdtempSync, promises as fs } from 'fs';
+import { describe, test, expect, afterAll } from 'bun:test';
+import { mkdtempSync, rmSync, promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { stringify } from 'yaml';
@@ -24,7 +24,9 @@ const DATA: any = {
 };
 const MARK = '## HAND-WRITTEN — MUST SURVIVE';
 const blocks = (s: string) => (s.match(/faf:start/g) || []).length;
-function tmp(): string { return mkdtempSync(join(tmpdir(), 'nd-interop-')); }
+const made: string[] = [];
+function tmp(): string { const d = mkdtempSync(join(tmpdir(), 'nd-interop-')); made.push(d); return d; }
+afterAll(() => { for (const d of made) {rmSync(d, { recursive: true, force: true });} });
 
 describe('injectFafBlock — non-destructive', () => {
   test('prefix preserves user content; markers update in place; idempotent', async () => {

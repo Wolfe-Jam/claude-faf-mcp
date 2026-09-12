@@ -32,7 +32,7 @@ updates:
           - minor
           - patch
     ignore:
-      # Align @types/node with engines + CI (Node 18/20), not latest Node.
+      # Align @types/node with engines + CI (Node 22/24), not latest Node.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
       - dependency-name: "typescript"

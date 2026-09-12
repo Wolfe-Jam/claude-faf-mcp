@@ -520,24 +520,7 @@ describe('🏁 WJTTC — bun migration + MCP integrity (claude-faf-mcp)', () => 
     });
   });
 
-  // ───────────────────────────────────────────────────────────────────────
-  describe('🛞 TYRE (4) — live test [pass-through]', () => {
-    test('pass-through: no live cred-costing roundtrips in this suite', () => {
-      // Conformance + canary use an in-memory transport (no network/account).
-      // Live TYRE tests (real MCP-over-HTTP / registry roundtrips that cost
-      // creds) are out of scope for a migration-proof suite.
-      // Recorded pass-through: considered, N/A this stage → pass.
-      expect(true).toBe(true);
-    });
-  });
-
-  // ───────────────────────────────────────────────────────────────────────
-  describe('🔧 PIT (5) — evaluation / EVAL [pass-through]', () => {
-    test('pass-through: quality/behavioural eval is the faf-score Trophy gate', () => {
-      // PIT (eval) for this server is the project.faf Trophy gate, enforced in
-      // the /pubpro FAF gate — not duplicated here.
-      // Recorded pass-through: considered, N/A this stage → pass.
-      expect(true).toBe(true);
-    });
-  });
+  // TYRE (live, cred-costing roundtrips) and PIT (the project.faf Trophy gate,
+  // enforced by /pubpro) are out of scope for this suite; they had only
+  // expect(true) placeholders, which could not fail, and were removed in 6.0.0.
 });

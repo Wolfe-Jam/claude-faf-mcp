@@ -16,6 +16,10 @@
 # macOS/Windows run bare (no flake, no portable `timeout`).
 #
 # Doctrine: targeted retry, not blind retry. Real test failures still fail.
+#
+# Every run goes through scripts/hermetic-test.mjs (the same wrapper `npm test`
+# uses): bun starts with a temp HOME, and the run fails if a test wrote into
+# the checkout or left files in that HOME.
 
 set -u
 
@@ -30,7 +34,7 @@ fi
 
 # Capture exit via file + $? (not `| tee` + PIPESTATUS, a bashism that masks the
 # real exit under sh/dash → a timeout-killed hang would read as a false green).
-$TIMEOUT bun test --isolate --timeout=120000 --path-ignore-patterns="**/performance.test.ts" "$@" > "$TMP" 2>&1
+$TIMEOUT node scripts/hermetic-test.mjs bun test --isolate --timeout=120000 --path-ignore-patterns="**/performance.test.ts" "$@" > "$TMP" 2>&1
 RC=$?
 cat "$TMP"
 
@@ -46,7 +50,7 @@ if grep -q "epoll_ctl" "$TMP" || [ "$RC" -eq 124 ]; then
   echo "Detected Linux bun --isolate epoll flake (fail or hang) — retrying ONCE."
   echo "============================================================"
   echo ""
-  $TIMEOUT bun test --isolate --timeout=120000 --path-ignore-patterns="**/performance.test.ts" "$@"
+  $TIMEOUT node scripts/hermetic-test.mjs bun test --isolate --timeout=120000 --path-ignore-patterns="**/performance.test.ts" "$@"
   exit $?
 fi
 

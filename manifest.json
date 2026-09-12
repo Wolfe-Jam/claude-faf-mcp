@@ -3,8 +3,8 @@
   "name": "claude-faf-mcp",
   "display_name": "FAF - Persistent Project Context for AI",
   "version": "5.22.1",
-  "description": "Zero-Config. Persistent project context that survives sessions, works across AI tools, and eliminates re-explaining. IANA-registered format. 30 MCP tools. Desktop Extension.",
-  "long_description": "Persistent project context for AI. Tell Claude what you're building, who it's for, and why it matters. 30 seconds. It never forgets.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — persistent context that survives every session\n- Writes CLAUDE.md from project.faf (faf-managed block; your content kept), plus AGENTS.md, .cursorrules, GEMINI.md and copilot-instructions.md on request\n- Auto-detects your stack, frameworks, and architecture\n- Extracts context from README or any GitHub repo\n\n**Zero-Config. No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**Example prompts:**\n- \"Set up project context for this codebase\" → creates project.faf, scores AI-readiness\n- \"What's my AI-readiness score?\" → calculates 0-100% with tier (Bronze/Silver/Gold/Trophy)\n- \"Sync my .faf to CLAUDE.md\" → CLAUDE.md written from project.faf\n- \"Create a .faf from this GitHub repo: https://github.com/user/repo\" → instant context from any public repo\n- \"Improve my score to Gold\" → guided interview, adds missing context, re-scores\n\n**IANA-registered format (application/vnd.faf+yaml). Merged in Anthropic MCP ecosystem (PR #2759). 20,000+ downloads.**",
+  "description": "Zero-Config. Persistent project context that survives sessions, works across AI tools, and eliminates re-explaining. IANA-registered format. Core 14 tools (30 with FAF_TOOLS=all). Desktop Extension.",
+  "long_description": "Persistent project context for AI. Tell Claude what you're building, who it's for, and why it matters. 30 seconds. It never forgets.\n\n**What it does:**\n- Scores your project's AI-readiness (0-100%)\n- Creates project.faf — persistent context that survives every session\n- Writes CLAUDE.md from project.faf (faf-managed block; your content kept), plus AGENTS.md, .cursorrules, GEMINI.md and copilot-instructions.md on request\n- Auto-detects your stack, frameworks, and architecture\n- Reads the 6Ws from your README, and authors a .faf from a GitHub repo you name (faf_git clones it)\n\n**Zero-Config. No terminal required.** Tell Claude about your project and FAF handles the rest.\n\n**Example prompts:**\n- \"Set up project context for this codebase\" → creates project.faf, scores AI-readiness\n- \"What's my AI-readiness score?\" → calculates 0-100% with tier (Bronze/Silver/Gold/Trophy)\n- \"Sync my .faf to CLAUDE.md\" → CLAUDE.md written from project.faf\n- \"Create a .faf from this GitHub repo: https://github.com/user/repo\" → faf_git clones it and authors the .faf\n- \"Improve my score to Gold\" → guided interview, adds missing context, re-scores\n\n**IANA-registered format (application/vnd.faf+yaml). MCP Registry: one.faf/claude-faf-mcp. This extension runs the server bundled inside it; it needs Node 22 or later.**",
   "author": {
     "name": "Wolfejam",
     "email": "team@faf.one",
@@ -38,10 +38,9 @@
     "type": "node",
     "entry_point": "dist/src/index.js",
     "mcp_config": {
-      "command": "npx",
+      "command": "node",
       "args": [
-        "-y",
-        "claude-faf-mcp"
+        "${__dirname}/dist/src/index.js"
       ]
     }
   },
@@ -131,7 +130,7 @@
       "linux"
     ],
     "runtimes": {
-      "node": ">=18.0.0"
+      "node": ">=22.0.0"
     }
   }
 }

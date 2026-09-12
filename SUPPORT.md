@@ -6,18 +6,17 @@ Thank you for using claude-faf-mcp. This document explains how to get help with 
 
 Before seeking help, please check our documentation:
 
-- **README.md** - Installation, quick start, and basic usage
-- **GitHub Wiki** - Detailed guides and tutorials (coming soon)
+- **README.md** - Installation, quick start, and the tool tables
 - **CHANGELOG.md** - Version history and release notes
-- **API Documentation** - Tool reference and parameters
+- **tools/list** - Every tool describes itself: its purpose, its arguments and what it returns
 
 ## Common Issues
 
 ### Installation Problems
 
-**Issue**: `command not found: claude-faf-mcp`
+**Issue**: `command not found: claude-faf-mcp`, or a server that does not start
 
-**Solution**: Ensure global install completed:
+**Solution**: claude-faf-mcp needs Node 22 or later (`node --version`). Ensure the global install completed:
 ```bash
 npm install -g claude-faf-mcp
 which claude-faf-mcp  # Should show installation path
@@ -33,10 +32,9 @@ Verify JSON syntax and restart Claude Desktop.
 
 **Issue**: `Cannot find module` errors
 
-**Solution**: Rebuild after updates:
+**Solution**: Reinstall the package (`npm install -g claude-faf-mcp`), or with the npx config run `npx -y claude-faf-mcp@latest` once. From a source checkout:
 ```bash
-cd /path/to/claude-faf-mcp
-npm install
+npm ci
 npm run build
 ```
 
@@ -94,7 +92,7 @@ For bugs and feature requests:
 
 For questions, ideas, and community support:
 
-[github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
+[github.com/Wolfe-Jam/claude-faf-mcp/discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
 
 **Use discussions for**:
 - "How do I...?" questions
@@ -130,12 +128,13 @@ Please allow 1-3 business days for response. For faster help, use GitHub issues 
 
 ## Self-Help Resources
 
-### Debug Mode
+### Debugging
 
-Enable verbose logging:
+- Ask Claude to run `faf_debug`: it shows the active project, whether it can be written, and the faf-cli version every tool runs on.
+- Claude Desktop writes each MCP server's stderr to its logs (macOS: `~/Library/Logs/Claude/mcp-server-*.log`; Windows: `%APPDATA%\Claude\logs`).
+- Talk to the server directly with the MCP Inspector (a debugging tool, not an install step):
 ```bash
-export DEBUG=claude-faf-mcp:*
-claude-faf-mcp
+npx @modelcontextprotocol/inspector npx -y claude-faf-mcp
 ```
 
 ### Check Installation Health
@@ -157,8 +156,7 @@ If experiencing slow performance:
 
 1. Check project size (very large projects may take longer)
 2. Verify filesystem permissions
-3. Run with profiling: `NODE_ENV=production claude-faf-mcp`
-4. Check system resources (CPU, memory)
+3. Check system resources (CPU, memory)
 
 ## Community Guidelines
 
@@ -172,9 +170,9 @@ When seeking help:
 
 ## Version Support
 
-- **Current version (5.x)**: Full support
-- **Previous major version (4.x)**: Security fixes only
-- **Versions < 4.0**: No longer supported
+- **Current major (6.x)**: Full support
+- **Previous major (5.x)**: Security fixes only
+- **Versions < 5.0**: No longer supported
 
 Always update to the latest version:
 ```bash

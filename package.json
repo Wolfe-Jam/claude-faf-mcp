@@ -2,7 +2,7 @@
   "name": "claude-faf-mcp",
   "version": "5.22.1",
   "mcpName": "one.faf/claude-faf-mcp",
-  "description": "Persistent Project Context for Claude. IANA-registered .faf format, 30 MCP tools, 594 tests.",
+  "description": "Persistent project context for Claude. IANA-registered .faf format. Core 14 MCP tools (30 with FAF_TOOLS=all).",
   "icon": "./assets/icons/faf-icon-256.png",
   "logo": "./assets/icons/faf-icon-256.png",
   "displayName": ".faf 🐘",
@@ -14,20 +14,20 @@
     "prebuild": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "tsc",
     "dev": "bun src/index.ts",
-    "test": "bun test --isolate --timeout=120000 --path-ignore-patterns=\"**/performance.test.ts\"",
-    "test:performance": "bun test tests/performance.test.ts",
-    "lint": "eslint \"src/**/*.ts\"",
+    "test": "node scripts/hermetic-test.mjs bun test --isolate --timeout=120000 --path-ignore-patterns=\"**/performance.test.ts\"",
+    "test:performance": "node scripts/hermetic-test.mjs bun test tests/performance.test.ts",
+    "lint": "eslint \"src/**/*.ts\" --max-warnings 272",
     "lint:fix": "eslint \"src/**/*.ts\" --fix",
     "type-check": "tsc --noEmit",
-    "format:check": "prettier --check \"src/**/*.ts\"",
-    "format": "prettier --write \"src/**/*.ts\"",
+    "check:engines": "node scripts/check-engines.mjs",
     "prepare": "npm run build",
     "sync-version": "node scripts/sync-version.js",
-    "version": "npm run sync-version && git add project.faf",
-    "prepublishOnly": "npm run build",
+    "version": "npm run sync-version && git add project.faf manifest.json agent.fafa .well-known/mcp/server-card.json server.json README.md public/index.html package.json glama.json smithery.yaml scripts/postinstall.js CONTRIBUTING.md",
+    "prepublishOnly": "npm run build && npm test && npm run check:engines",
     "postinstall": "node scripts/postinstall.js",
     "debug": "bun --inspect-brk=127.0.0.1:9229 src/index.ts",
-    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -r dist manifest.json package.json package-lock.json assets scripts PRIVACY.md README.md LICENSE CHANGELOG.md skill .faf .mcpb-staging/ 2>/dev/null; cd .mcpb-staging && npm install --omit=dev --ignore-scripts && rm -rf node_modules/rxjs node_modules/@types node_modules/lodash node_modules/ajv-formats && npx @anthropic-ai/mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
+    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -R dist manifest.json package.json package-lock.json PRIVACY.md README.md LICENSE CHANGELOG.md .mcpb-staging/ && find .mcpb-staging/dist -name '*.map' -delete && mkdir .mcpb-staging/assets && cp -R assets/icons .mcpb-staging/assets/ && cd .mcpb-staging && npm ci --omit=dev --ignore-scripts --no-audit --no-fund && mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
+    "verify:mcpb": "node scripts/verify-mcpb.mjs",
     "gen:server-card": "node scripts/gen-server-card.js",
     "verify:fafa": "node scripts/verify-fafa.js"
   },
@@ -65,7 +65,6 @@
     "championship",
     "championship-scoring",
     "orange-smiley",
-    "f1-inspired",
     "podium-system",
     "gold-standard",
     "production-ready",
@@ -104,7 +103,7 @@
   },
   "homepage": "https://faf.one",
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.0.0"
   },
   "files": [
     "dist/**",
@@ -128,8 +127,9 @@
     "yaml": "^2.4.1"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
     "@types/jsonwebtoken": "^9.0.5",
-    "@types/node": "^20.11.0",
+    "@types/node": "^22.0.0",
     "@typescript-eslint/eslint-plugin": "^7.0.0",
     "@typescript-eslint/parser": "^7.0.0",
     "eslint": "^8.56.0",
@@ -137,10 +137,11 @@
   },
   "overrides": {
     "@hono/node-server": ">=2.0.5",
-    "hono": ">=4.12.34",
+    "hono": ">=4.13.5",
     "fast-uri": ">=4.1.2",
     "ip-address": ">=10.3.1",
     "brace-expansion@1": "1.1.18",
-    "brace-expansion@2": "2.1.4"
+    "brace-expansion@2": "2.1.4",
+    "tmp": ">=0.2.6"
   }
 }

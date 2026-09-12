@@ -2,27 +2,42 @@ name: 📡 MCP Registry Publish (DNS)
 
 # DNS-authenticated registry publish for the one.faf/* namespace. GitHub-OIDC
 # only authorises io.github.<owner>/* — DNS auth proves ownership of faf.one →
-# authorises one.faf/*. Fires on every release so the registry stays current
-# automatically; no manual `mcp-publisher login dns` step in /pubpro.
+# authorises one.faf/*. Fires on every release so the registry stays current.
+#
+# Registry versions are immutable, so nothing is published until the release
+# asset itself is checked: its sha256 must be server.json's fileSha256, the
+# manifest inside it must be server.json's version, and the server bundled in
+# it must start and list its tools (scripts/verify-mcpb.mjs).
 #
 # Requires repo secret FAF_ONE_MCP_PRIVATE_KEY = the ed25519 private key (64-hex)
-# whose public key is the `v=MCPv1; k=ed25519; p=...` TXT record at the faf.one apex.
+# whose public key is the `v=MCPv1; k=ed25519; p=...` TXT record at the faf.one
+# apex. The key reaches scripts/registry-login.mjs through the environment,
+# never a command line.
 
 on:
   release:
     types: [published]
   workflow_dispatch: {}
 
+env:
+  MCP_PUBLISHER_VERSION: v1.8.1
+  # sha256 of mcp-publisher_linux_amd64.tar.gz at v1.8.1 (registry_1.8.1_checksums.txt)
+  MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+
 jobs:
-  publish:
+  verify:
+    name: Verify the release asset
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install mcp-publisher
-        run: |
-          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
-          tar -xzf mcp-publisher.tar.gz && chmod +x ./mcp-publisher
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies (the mcpb unpacker)
+        run: npm ci
 
       - name: Verify server.json version == release tag
         if: github.event_name == 'release'
@@ -31,19 +46,60 @@ jobs:
           MV=$(node -p "require('./server.json').version")
           [ "$TAG" = "$MV" ] || { echo "::error::server.json $MV != tag $TAG"; exit 1; }
 
-      - name: Wait for the .mcpb release asset to resolve (registry validates HTTP 200)
+      - name: Wait for the .mcpb release asset to resolve, then download it
         run: |
-          URL=$(node -e "const s=require('./server.json');const m=(s.packages||[]).find(p=>(p.registryType||p.registry_type)==='mcpb')||{};console.log((m.transport&&m.transport.url)||m.identifier||'')")
-          if [ -z "$URL" ]; then echo "no mcpb package — skipping asset check"; exit 0; fi
+          URL=$(node -e "const s=require('./server.json');const m=(s.packages||[]).find(p=>(p.registryType||p.registry_type)==='mcpb')||{};console.log(m.identifier||'')")
+          if [ -z "$URL" ]; then echo "::error::server.json has no mcpb package"; exit 1; fi
           for i in $(seq 1 10); do
             code=$(curl -sIL -o /dev/null -w '%{http_code}' "$URL")
-            if [ "$code" = "200" ]; then echo "✅ mcpb asset live: $URL"; exit 0; fi
+            if [ "$code" = "200" ]; then break; fi
             echo "⏳ mcpb HTTP $code (attempt $i/10) — $URL"; sleep 6
           done
-          echo "::error::mcpb asset never resolved to HTTP 200: $URL"; exit 1
+          curl -sSfL "$URL" -o "$RUNNER_TEMP/release.mcpb"
 
-      - name: Login via DNS (one.faf namespace)
-        run: ./mcp-publisher login dns --domain faf.one --private-key "${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}"
+      - name: sha256 == fileSha256, manifest version == server.json, bundled server starts and lists its tools
+        run: |
+          SHA=$(node -p "((require('./server.json').packages||[]).find(p=>p.registryType==='mcpb')||{}).fileSha256")
+          VER=$(node -p "require('./server.json').version")
+          echo "$SHA  $RUNNER_TEMP/release.mcpb" | sha256sum -c -
+          node scripts/verify-mcpb.mjs --file "$RUNNER_TEMP/release.mcpb" --expect-sha "$SHA" --expect-version "$VER"
+
+  publish:
+    name: Publish to the MCP Registry
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+
+      - name: Install mcp-publisher (pinned, checksum verified)
+        run: |
+          curl -sSfL "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum -c -
+          tar -xzf mcp-publisher.tar.gz mcp-publisher && chmod +x ./mcp-publisher
+
+      - name: Login via DNS (one.faf namespace; the key from the environment)
+        env:
+          MCP_PRIVATE_KEY: ${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}
+        run: node scripts/registry-login.mjs --domain faf.one
 
       - name: Publish to MCP Registry
         run: ./mcp-publisher publish server.json
+
+      - name: Round-trip verify (version-detail endpoint, publisher-provided receipt lives in server._meta)
+        run: |
+          ENC=$(node -p "encodeURIComponent(require('./server.json').name)")
+          VER=$(node -p "require('./server.json').version")
+          for i in 1 2 3 4 5; do
+            OUT=$(curl -s --max-time 20 "https://registry.modelcontextprotocol.io/v0.1/servers/${ENC}/versions/${VER}" | node -e '
+              let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const j=JSON.parse(d);const s=j.server||{};const pp=(s._meta||{})["io.modelcontextprotocol.registry/publisher-provided"]||{};console.log((pp["one.faf/context"]?"ok":"no-ctx")+" "+(s.version||""))}catch{console.log("lag")}})')
+            case "$OUT" in
+              ok\ *) echo "✅ live + serves one.faf/context — $OUT"; exit 0;;
+              no-ctx\ *) echo "⚠️ live but no one.faf/context receipt — $OUT"; exit 0;;
+              *) echo "⏳ not consistent yet ($i/5)"; sleep 8;;
+            esac
+          done
+          echo "::warning::registry detail endpoint not consistent after retries — verify manually"

@@ -2112,47 +2112,28 @@ export class FafToolHandler {
     };
   }
 
-  private async handleFafAbout(_args: any): Promise<CallToolResult> {  // ✅ FIXED: Prefixed unused args
-    // Stop FAFfing about and get the facts!
-    const packageInfo = {
-      name: 'claude-faf-mcp',
-      version: VERSION,
-      description: 'We ARE the C in MCP. I⚡🍊 - The formula that changes everything.',
-      author: 'FAF Team (team@faf.one)',
-      website: 'https://faf.one',
-      npm: 'https://www.npmjs.com/package/claude-faf-mcp'
-    };
-
-    const aboutText = `well seeing as you clearly have time to burn, faf is about saving your AI time, how is that working out...
+  private async handleFafAbout(_args: any): Promise<CallToolResult> {
+    // Facts only: what the format is, what this server does with it, the
+    // versions it runs, and where to start. No speed or reach claims.
+    const aboutText = `FAF stops AI Faffing about.
 
 faff about (v., Brit.) — what your AI does for 20 minutes relearning your project, every session.
 .faf (n.) — what stops it. Same four letters, opposite outcomes.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🤖 .faf = project DNA for AI
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 WHAT IS .FAF?
-• .faf = Foundational AI-context Format
-• One file captures your project DNA for any AI
-• The dot (.) means it's a file format!
+- .faf = Foundational AI-context Format: one YAML file with your project's DNA — its name, goal, stack and the 6Ws (who, what, why, where, when, how).
+- IANA-registered as application/vnd.faf+yaml. Memory lives beside it in soul.fafm (application/vnd.fafm+yaml).
+- The same project.faf is read by faf-cli and by the FAF servers for other hosts, so every tool sees the same context and the same score.
 
-🧡 Trust: IANA-registered format (application/vnd.faf+yaml)
-⚡️ Speed: authored in <29ms
+THIS SERVER
+claude-faf-mcp ${VERSION} · faf-cli ${bundledFafCliVersion() ?? '(not found)'} (bundled; every tool runs on it)
+Core ${CORE_TOOL_NAMES.length} tools by default; FAF_TOOLS=all lists the rest.
 
-claude-faf-mcp ${packageInfo.version} · faf-cli ${bundledFafCliVersion() ?? '(not found)'} (bundled)
-
-Your project's DNA — persistent context
-that works across Claude, Gemini, Grok, Cursor, and any AI tool.
-
-HOW IT WORKS:
-1. Drop a file or paste the path
-2. Create .faf (Foundational AI-context Format)
-3. Ask Claude to run faf_sync
-4. You're done⚡
-
-🩵 You just made Claude Happy
-🧡⚡️ Persistent context. Zero drift.`;
+HOW IT WORKS
+1. faf_auto creates project.faf from your repo's own files (or fills the one you have).
+2. faf_go asks for the goal and the 6Ws — the part only you can give.
+3. faf_score reports faf-cli's score; faf_trust returns a receipt for it.
+4. faf_sync writes CLAUDE.md's faf-managed block; faf_tri_sync writes the one in MEMORY.md.`;
 
     return {
       content: [{

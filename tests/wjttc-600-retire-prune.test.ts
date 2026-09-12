@@ -221,7 +221,7 @@ function localImports(file: string): string[] {
 }
 
 describe('#78 — no dead modules ship', () => {
-  test('every src module is reachable from the bin (src/index.ts); only the Worker (src/index.js) is not', () => {
+  test('every src module is reachable from the bin (src/index.ts); the Worker lives outside src/ (worker/index.js)', () => {
     const seen = new Set<string>();
     const stack = [path.join(ROOT, 'src', 'index.ts')];
     while (stack.length) {
@@ -240,7 +240,8 @@ describe('#78 — no dead modules ship', () => {
     };
     walk(path.join(ROOT, 'src'));
     const unreachable = all.filter((f) => !seen.has(f)).map((f) => path.relative(ROOT, f)).sort();
-    expect(unreachable).toEqual(['src/index.js']);
+    expect(unreachable).toEqual([]);
+    expect(fs.existsSync(path.join(ROOT, 'worker', 'index.js'))).toBe(true); // 6.0.0 W4 #80
   });
 
   test("the audit's named dead modules, getServerInfo, TOOL_REGISTRY and tests/scripts are gone", () => {
@@ -400,8 +401,9 @@ describe('#89 — npm run lint hands eslint the whole glob', () => {
     const lint: string = pkg().scripts.lint;
     expect(lint.startsWith('eslint ')).toBe(true);
     // Run the script's arguments through sh exactly as npm would, and print them.
+    // (6.0.0 W4 #89: a --max-warnings ratchet follows the glob.)
     const r = spawnSync('sh', ['-c', `printf '%s\\n' ${lint.slice('eslint '.length)}`], { cwd: ROOT, encoding: 'utf-8' });
-    expect(r.stdout.trim().split('\n')).toEqual(['src/**/*.ts']);
+    expect(r.stdout.trim().split('\n')[0]).toBe('src/**/*.ts');
   });
 });
 

@@ -1,20 +1,20 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, 12 Core tools (30 total) -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude — persistent project context, Core 14 tools (30 with FAF_TOOLS=all) -->
 <!-- faf: doc=readme | canonical=project.faf | score=100 | family=FAF -->
 
-# claude-faf-mcp — The Projector Floor
+# claude-faf-mcp
 
 [![npm version](https://img.shields.io/npm/v/claude-faf-mcp?color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![Smithery](https://img.shields.io/badge/Smithery-listed-00CCFF)](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp)
-[![FAF Trophy 100%](https://img.shields.io/badge/FAF-%F0%9F%8F%86%20100%25-000000?labelColor=FF6B35)](https://faf.one)
+[![FAF ✪ 100%](https://img.shields.io/badge/FAF-%E2%9C%AA%20100%25-000000?labelColor=FF6B35)](https://faf.one)
 [![IANA: vnd.faf+yaml](https://img.shields.io/badge/IANA-vnd.faf%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)[![IANA: vnd.fafm+yaml](https://img.shields.io/badge/IANA-vnd.fafm%2Byaml-008B8B)](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)
 [![DOI: Context paper](https://img.shields.io/badge/DOI-Context%20paper-FF6B35)](https://doi.org/10.5281/zenodo.18251362)[![DOI: Memory paper](https://img.shields.io/badge/DOI-Memory%20paper-FF6B35)](https://doi.org/10.5281/zenodo.20348942)
 
 **Home:** [faf.one/mcp](https://faf.one/mcp)
-**Live demo:** [claude.faf.one](https://claude.faf.one)
+**Site:** [claude.faf.one](https://claude.faf.one)
 
 **Persistent Project Context with Memory, looped for you.** One-click setup. 30 seconds. 🐘 Nelly Never Forgets.
 
-[![Anthropic MCP](https://img.shields.io/badge/Anthropic_MCP-merged_%232759-blueviolet)](https://github.com/modelcontextprotocol/servers/pull/2759)
+[![MCP Registry: one.faf/claude-faf-mcp](https://img.shields.io/badge/MCP_Registry-one.faf%2Fclaude--faf--mcp-blueviolet)](https://registry.modelcontextprotocol.io/v0.1/servers?search=one.faf%2Fclaude-faf-mcp)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
 [![NPM Downloads](https://img.shields.io/npm/dt/claude-faf-mcp?label=downloads&color=00CCFF)](https://www.npmjs.com/package/claude-faf-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -28,35 +28,15 @@
 
 > 🐘 **tri-sync** | `.faf` → `MEMORY.md` (`faf_tri_sync`), alongside `.faf` → `CLAUDE.md` (`faf_sync`).
 
-> ⚡ **New: `/faf` prompt** — type `/faf` in Claude Desktop. It checks your project, scores it, drives it to 100%, and syncs. Relentlessly. One command.
+> ⚡ **The `faf` prompt** — pick it from your host's prompt list (Claude Code shows it as `/mcp__<server name>__faf`). It scores your project, fills what the repo can, asks you only what only you can answer, verifies, and syncs.
 
-> **v5.22.0 — The Projector Floor.** A2A mapper uses faf cards — https://faf.one/context, same fafContextBlock() as MCP. Not raw provenance. Pin `faf-cli ^7.8.0`. Core 12 tools. Language rail still arrives by composition.
+> **6.0.0 is a major release.** It needs Node 22 or later. `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` are retired, and so are the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf. The `.mcpb` now runs the server bundled inside it. The npx config and the SessionStart hook are not pinned to a version, so an install that runs `npx -y claude-faf-mcp` moves to 6.x on its next start: check your Node before you upgrade. Every change is in the [CHANGELOG](./CHANGELOG.md).
 
-> **v5.21.0 — The Compose Edition.** Language Editions arrive by composition — pin faf-cli ^7.7.0 so Core `faf_auto` inherits the CLI rail (Dart · Go · C# · JVM · Ruby · Swift); Core 12 tools; `faf_enhance` removed. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Permanent E2E: `tests/wjttc-edition-compose.test.ts`. Sibling MCP precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
+**Context for Claude:** faf-cli writes this repo's CLAUDE.md from its scored `project.faf` — `faf_sync` here, `faf sync` in faf-cli. See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
 
-> **v5.20.0 — The GitHub Registry Edition.** claude-faf-mcp joins GitHub's MCP Registry — discoverable in VS Code — as **Claude FAF**, its display title now emitted from `project.faf`, single-sourced and idempotent. The registry derives a display name from the server-card `title`; CFM now provides it through the emitter (`name` + `_meta` + `title`, all composed from `project.faf`, never hand-authored — the BRAKE B1 test enforces emitted == live).
+**Composes faf-cli** (the version is pinned in package.json). Detection, scoring, the renders and every writer are faf-cli's own functions, loaded as a dependency; claude-faf-mcp does not fork them and never runs a `faf` found on your PATH.
 
-> **v5.15.0 — The Instructions Edition.** CFM writes the file Copilot reads — done right. `.github/copilot-instructions.md` is now genuine, distinct Copilot *instructions*: a prose overview, a `## Build & run` command section, and "every request" framing — not the AGENTS.md content reused. The file Copilot actually reads, done to GitHub's spec.
-
-> **v5.14.1 — The Copilot Edition.** FAF now writes the file GitHub Copilot reads — from inside Claude. The Core `faf_sync` gains a `copilot` flag (`all` includes it), syncing `.github/copilot-instructions.md` — Copilot's **widest-surface** instruction file, read by default across web chat, code review, VS Code, JetBrains, the CLI, and the coding agent — straight from your scored `.faf`. `faf_sync` now emits every format (`agents`/`cursor`/`gemini`/`copilot`/`all`) from the default surface; the redundant `faf_bi_sync` is retired. Non-destructive, idempotent.
-
-> 🧡 **v5.13.0 — The Heartbeat Edition.** Persistent Project Context with Memory, looped for you. Every Claude Code session now opens with a one-line heartbeat that carries the intent the code can't: `faf: context ✪ 100% — fresh · +7 intent the code can't carry`. The `+N` is the goal and 6Ws only you can **give or confirm** — so Claude starts each session grounded in what your project *means*, not just what it contains.
-
-> 🏆 **v5.12.0 — The Proof Edition.** `faf_bench` proves FAF's grounding lift in-session — it asks Claude about your repo cold (no context) and with the `.faf`, grades mechanically (no judge), and emits a `✪` receipt showing the delta. Promoted to lead the Core tier (13 tools, 36 total). `faf_go` now bootstraps a cold repo (init → auto → 6Ws), and you can still just **type `faf` to start**. Proof, not pitch.
-
-> 🏆 **v5.11.0 — The Distilled Edition.** claude-faf-mcp, distilled — a curated Core of 12 self-documenting tools, with the interview, README extractor, and server-card all composed from faf-cli's single source (no forks), and faf_go's new Table-of-8 where your goal seeds the 6Ws. Fewer tools, nothing forked, nothing guessed.
-
-**Context for Claude:** faf-cli writes this MCP's CLAUDE.md and AGENTS.md from one scored source — `bunx faf sync` (CLAUDE.md) and `bunx faf export --agents` (AGENTS.md). See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
-
-> 🏆 **Compose floor faf-cli ^7.8.0.** `faf cards` + language Editions arrive **by composition**. Turbo-Cat stays in faf-cli; CFM does not fork detectors. Precedent: [`docs/compose-faf-cli.md`](docs/compose-faf-cli.md).
-
-> 🏆 **v5.10.0 — The Dart Edition.** claude-faf-mcp now reads Dart & Flutter — it knows a Flutter app from a pure-Dart CLI. Detection by composition: because CFM composes faf-cli's Turbo-Cat (The Sourced Edition), faf-cli 6.13.0's content-aware, pubspec-driven Dart classifier arrives by construction — no forked parser, no drift.
-
-> 🏆 **v5.9.0 — The Sourced Edition.** Every answer comes from one source. `faf_go` and Turbo-Cat detection now **compose faf-cli's single-source engines** instead of carrying their own copies — fills come from real evidence or stay honestly empty, nothing guessed. The legacy guessing extractor is gone; the `/faf` prompt drives to a *verified* 100% (`faf_trust` + `✪` parity receipt) and keeps it fresh. FAF don't lie, by construction.
-
-> 🏆 **v5.8.0 — The Trust Edition.** Claude Code-native context that just works. A native SessionStart hook opens every session with fresh context and a one-line `✪` heartbeat (`faf: context ✪ 100% — fresh`); tool output is quiet (no emoji, parseable) and typed (`structuredContent` everywhere); every score carries a deterministic parity hash any engine reproduces, sealed in a self-verifying `✪` receipt. Installed explicitly via `faf_setup` — preview first, your settings preserved. Built on the Canonical foundation: path-confined file access, edge-direct remote, 35 tools.
-
-12 Core MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`). 592 tests per suite.
+Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`application/vnd.faf+yaml` · `application/vnd.fafm+yaml`).
 
 ---
 
@@ -98,51 +78,55 @@ human_context:
 
 ## Quick Start
 
-### faf-cli — any AI
+Needs Node 22 or later.
+
+### Claude Desktop — one click
+
+[**⬇ Download `claude-faf-mcp-5.22.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.22.1/claude-faf-mcp-5.22.1.mcpb)
+
+Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
+
+### Claude Desktop — config
+
+Add to `claude_desktop_config.json`, then restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "faf": { "command": "npx", "args": ["-y", "claude-faf-mcp"] }
+  }
+}
+```
+
+After `npm install -g claude-faf-mcp` you can use the installed bin instead: `{ "command": "claude-faf-mcp" }`. With Bun on Claude Desktop's PATH, `{ "command": "bunx", "args": ["claude-faf-mcp"] }` works too.
+
+### Claude Code
+
+```bash
+claude mcp add faf -- npx -y claude-faf-mcp
+```
+
+### Hosted
+
+**Smithery:** [wolfe-jam/claude-faf-mcp](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp) — hosted at `https://mcpaas.live/claude/mcp/v1`
+
+### Pinning
+
+The npx config and the SessionStart hook `faf_setup` installs (`npx -y claude-faf-mcp --session-refresh`) are not pinned: they run the latest release, so fixes arrive without a reinstall, and a new major arrives the same way. To stay on a major, write it in your config yourself: `"args": ["-y", "claude-faf-mcp@6"]`. The `.mcpb` runs the version it was built from.
+
+### Then
+
+Run the `faf` prompt — Claude scores your project, fills what the repo can, asks you what only you can answer, verifies and syncs.
+
+Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
+
+### faf-cli — any terminal
 
 ```bash
 npx faf-cli auto
 ```
 
 Same `.faf`, every surface — Claude, Gemini, Grok, Cursor. **[faf-cli on npm →](https://www.npmjs.com/package/faf-cli)**
-
-### Claude Desktop — click, copy, paste, install
-
-**Click** — one-click `.mcpb`
-
-[**⬇ Download `claude-faf-mcp-5.22.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/latest/download/claude-faf-mcp-5.22.1.mcpb)
-
-Double-click. **Zero-Config — no terminal, no JSON config. 12 Core tools live in 10 seconds.**
-
-**Copy** — paste-prompt to Claude
-
-> Install the FAF MCP server: `npm install -g claude-faf-mcp`, then add this to my claude_desktop_config.json: `{"mcpServers": {"faf": {"command": "bunx", "args": ["claude-faf-mcp"]}}}` and restart Claude Desktop.
-
-**Paste** — `claude_desktop_config.json`
-
-```json
-{
-  "mcpServers": {
-    "faf": { "command": "bunx", "args": ["claude-faf-mcp"] }
-  }
-}
-```
-
-**Install** — manual npm
-
-```bash
-npm install -g claude-faf-mcp
-```
-
-**Smithery:** [wolfe-jam/claude-faf-mcp](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp) — hosted at `https://mcpaas.live/claude/mcp/v1`
-
-Restart Claude Desktop.
-
-### Then
-
-Type `/faf` — Claude checks your project, scores it, drives it to 100%, and syncs. Done.
-
-Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 
 ---
 
@@ -151,11 +135,11 @@ Or tell Claude your 3Ws: *"I'm building [what] for [who] because [why]"*
 ```
 You → 3 answers → project.faf → AI reads it → every session → forever
 
-project.faf  ─── 8ms ──→  CLAUDE.md     (faf_sync, free)
-project.faf  ─── 8ms ──→  MEMORY.md     (faf_tri_sync, Pro 🐘)
+project.faf  ──→  CLAUDE.md     (faf_sync)
+project.faf  ──→  MEMORY.md     (faf_tri_sync 🐘)
 ```
 
-Claude does the rest. Zero-effort, right first time, fast, accurate, done. Language, framework, package manager, build tools — all auto-detected from your existing files. The human context is the part only you can give.
+Language, framework, package manager, build tools — faf-cli detects them from your existing files. The human context is the part only you can give.
 
 ---
 
@@ -180,7 +164,7 @@ git clone           →  a new dev's Claude is grounded before they write a line
 
 - **One source of truth.** `faf_sync` writes `CLAUDE.md` from `.faf` — only its faf-managed block, so your own notes stay put. Add `MEMORY.md` for cross-session memory (tri-sync 🐘).
 - **No drift.** The score is deterministic — same `.faf`, same number, on every machine and in CI. A teammate can't be *accidentally* less grounded than you.
-- **Local and private.** Nothing leaves the machine — no accounts, no telemetry. The context is yours; it just rides in the repo.
+- **Local.** No accounts, no telemetry, nothing sent to FAF. The one network use is cloning a repo you name, only when you ask ([privacy](./PRIVACY.md)). The context is yours; it rides in the repo.
 
 **Onboarding becomes `git clone` → grounded.** The context a new teammate would normally pick up by asking around is already in the repo, machine-readable, from the first clone.
 
@@ -190,7 +174,7 @@ git clone           →  a new dev's Claude is grounded before they write a line
 
 | Tier | Score | What it means |
 |------|-------|---------------|
-| 🏆 **TROPHY** | 100% | Gold Code — AI is optimized |
+| ✪ **TROPHY** | 100% | Gold Code — AI is optimized |
 | ★ **GOLD** | 99%+ | Near-perfect context |
 | ◆ **SILVER** | 95%+ | Excellent |
 | ◇ **BRONZE** | 85%+ | Production ready |
@@ -199,59 +183,53 @@ git clone           →  a new dev's Claude is grounded before they write a line
 | ○ **RED** | <55% | AI working blind |
 | ♡ **WHITE** | 0% | No context at all |
 
-At 55%, AI guesses half the time. At 100%, AI knows your project. Same compiler as faf-cli — same score everywhere.
+At 55%, AI guesses half the time. At 100%, AI knows your project. The score is faf-cli's `scoreFafYaml` — the number `faf score` prints for the same file.
 
 ---
 
-## MCP Tools — 14 Core, 30 with `FAF_TOOLS=all`
+## MCP Tools — Core 14, 30 with `FAF_TOOLS=all`
 
-By default claude-faf-mcp advertises a distilled **Core of 14** — the lifecycle tools you reach for, each self-documenting. Set `FAF_TOOLS=all` to expose Extended tools (callable by name regardless). **Core 14:** `faf_init` · `faf_auto` · `faf_go` · `faf_bench` · `faf_score` · `faf_doctor` · `faf_sync` · `faf_tri_sync` · `faf_setup` · `faf_context` · `faf_trust` · `faf_about` · `faf_etch` · `faf_recall`. (`faf_enhance` removed — no silent AI rewrite of project.faf.) Retired in 6.0.0: `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` — a call by name returns one line naming what to use instead — plus the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf and `faf_check` protect/unlock.
+By default claude-faf-mcp lists the Core 14 — the lifecycle tools you reach for. Set `FAF_TOOLS=all` to list the Extended tools too; every tool is callable by name either way. Retired in 6.0.0: `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` (a call by name returns one line naming what to use instead), the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf, and `faf_check` protect/unlock.
 
-All tools run standalone — zero CLI dependencies, 19ms average execution.
+Every tool runs on the faf-cli this package depends on. Nothing is run from your PATH.
 
-**Create & Detect**
+**Core**
 | Tool | Purpose |
 |------|---------|
-| `faf_init` | Initialize project DNA |
-| `faf_auto` | Auto-detect stack and populate context |
-| `faf_quick` | Lightning-fast creation (3ms) |
-| `faf_readme` | Extract context from README (+25-35% boost) |
-| `faf_formats` | Discover all formats in your project |
-| `faf_git` | Extract context from any GitHub repo URL |
-| `faf_human_add` | Add human context (the 6Ws) |
+| `faf_init` | Create project.faf for a folder (faf-cli detects the stack) |
+| `faf_auto` | Fill project.faf from the repo's own files, then CLAUDE.md |
+| `faf_go` | The goal and the 6Ws, by question and answer |
+| `faf_score` | AI-readiness score (0-100%), from faf-cli |
+| `faf_bench` | Benchmark AI grounding — cold vs with the .faf, graded mechanically, with a receipt |
+| `faf_doctor` | Diagnose project.faf: each finding with the tool that fixes it |
+| `faf_trust` | Validate project.faf and return a trust receipt for its score |
+| `faf_sync` | Write CLAUDE.md from project.faf — `agents`/`cursor`/`gemini`/`copilot`/`all` also write AGENTS.md / .cursorrules / GEMINI.md / copilot-instructions.md |
+| `faf_tri_sync` | Write faf's block into the MEMORY.md Claude Code loads for this project 🐘 |
+| `faf_setup` | Install the SessionStart hook in the project settings (preview first) |
+| `faf_context` | Show or set the active project; `detail` returns the .faf text |
+| `faf_etch` | Remember a decision across sessions (the project soul, soul.fafm) |
+| `faf_recall` | Recall memories from the project soul |
+| `faf_about` | What the .faf format is |
 
-**Validate & Score**
+**Extended** (`FAF_TOOLS=all`)
 | Tool | Purpose |
 |------|---------|
-| `faf_score` | AI-readiness score (0-100%) with breakdown |
-| `faf_bench` | Benchmark AI grounding — cold vs .faf, with a `✪` receipt |
-| `faf_check` | Validate .faf structure |
-| `faf_doctor` | Diagnose and fix common issues |
-| `faf_go` | Guided interview to Gold Code |
-
-**Sync & Persist**
-| Tool | Purpose |
-|------|---------|
-| `faf_sync` | Sync .faf → CLAUDE.md — `agents`/`cursor`/`gemini`/`copilot`/`all` also emit AGENTS.md / .cursorrules / GEMINI.md / copilot-instructions.md |
-| `faf_tri_sync` | Tri-sync: write MEMORY.md from .faf (faf_sync writes CLAUDE.md) — Pro feature, free for developers 🐘 |
-
-**Export & Interop**
-| Tool | Purpose |
-|------|---------|
-| `faf_agents` | Export AGENTS.md (OpenAI Codex) |
-| `faf_cursor` | Export .cursorrules (Cursor IDE) |
-| `faf_gemini` | Export GEMINI.md (Google Gemini) |
-| `faf_conductor` | Export a Conductor directory |
-
-**Read & Inspect**
-| Tool | Purpose |
-|------|---------|
-| `faf_read` | Read a file (path-confined) |
-| `faf_status` | Project status overview |
-| `faf_debug` | Environment inspection |
-| `faf_about` | What is .faf? |
-
-**[Full tool reference →](https://github.com/Wolfe-Jam/claude-faf-mcp#mcp-tools--14-core-30-with-faf_toolsall)**
+| `faf` | Start here: the project, its score and the steps to 100% (reads only) |
+| `faf_quick` | Create project.faf from one line: name, goal, language, framework, hosting |
+| `faf_readme` | Read the 6Ws from README.md; `apply` fills only empty slots |
+| `faf_human_add` | Set one 6W slot in project.faf |
+| `faf_formats` | The formats faf-cli finds in the folder, and what faf_auto would write (dry run) |
+| `faf_git` | Author a project.faf from a repo URL (clones it with git — uses the network) |
+| `faf_check` | faf-cli's validateFaf and the state of every slot |
+| `faf_dna` | The project's .faf-dna lineage (reads only) |
+| `faf_status` | Whether the project has a .faf, with its first lines |
+| `faf_agents` | Write AGENTS.md (OpenAI Codex and other agents) |
+| `faf_cursor` | Write .cursorrules (Cursor IDE) |
+| `faf_gemini` | Write GEMINI.md (Google Gemini CLI) |
+| `faf_conductor` | Write Google Conductor's conductor/ files |
+| `faf_read` | Read a file inside the active project |
+| `faf_list` | List a folder inside the active project |
+| `faf_debug` | The active project, write access and the bundled faf-cli version |
 
 ---
 
@@ -281,7 +259,7 @@ Codex     →   .faf        →    MCP
 Any LLM   →   .faf        →    MCP
 ```
 
-IANA-registered (`application/vnd.faf+yaml`). Works with any AI. Define once, use everywhere.
+IANA-registered (`application/vnd.faf+yaml`). One file, one format. Define once, use everywhere.
 
 ---
 
@@ -303,15 +281,13 @@ Same `project.faf`. Same scoring. Same result. Different execution layer.
 
 ## Quality
 
-572 tests · 28 suites · 3 platforms (bun on ubuntu/macos/windows)
-
-**[CI Dashboard →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
+Tests run with bun on ubuntu, macOS and Windows; the built package is packed, installed and started on Node 22 and 24 on all three. **[CI →](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)**
 
 ---
 
 ## Privacy
 
-Everything runs locally. No data leaves your machine. No analytics, no telemetry, no tracking, no accounts. **[Privacy policy →](./PRIVACY.md)**
+claude-faf-mcp runs on your machine. No analytics, no telemetry, no accounts. Its one network use is `faf_git`, and only when you ask it to read a repo: git clones it from the URL you give. The files it writes are listed in the **[privacy policy →](./PRIVACY.md)**
 
 ---
 
@@ -380,7 +356,7 @@ MIT — Free and open source
 | **[grok-faf-mcp](https://www.npmjs.com/package/grok-faf-mcp)** | MCP server for Grok |
 | **[faf-mcp](https://www.npmjs.com/package/faf-mcp)** | MCP server for Cursor, Windsurf, Cline, VS Code |
 | **[rust-faf-mcp](https://crates.io/crates/rust-faf-mcp)** | MCP server in Rust |
-| **[faf-skills](https://github.com/Wolfe-Jam/faf-skills)** | 17 Claude Code skills |
+| **[faf-skills](https://github.com/Wolfe-Jam/faf-skills)** | Claude Code skills for .faf |
 | **[faf.one](https://faf.one)** | Blog, downloads, docs |
 | **[IANA: vnd.faf+yaml](https://www.iana.org/assignments/media-types/application/vnd.faf+yaml)** | Context format (2025-10-30) |
 | **[IANA: vnd.fafm+yaml](https://www.iana.org/assignments/media-types/application/vnd.fafm+yaml)** | Memory format (2026-05-13) |
@@ -397,7 +373,7 @@ MIT — Free and open source
 npx faf-cli auto
 ```
 
-**Anthropic MCP [#2759](https://github.com/modelcontextprotocol/servers/pull/2759)** · **2 IANA registrations:** `vnd.faf+yaml` (Context) · `vnd.fafm+yaml` (Memory) · [faf.one](https://faf.one) · [npm](https://www.npmjs.com/package/faf-cli)
+**MCP Registry:** `one.faf/claude-faf-mcp` · **2 IANA registrations:** `vnd.faf+yaml` (Context) · `vnd.fafm+yaml` (Memory) · [faf.one](https://faf.one) · [npm](https://www.npmjs.com/package/faf-cli)
 
 ---
 

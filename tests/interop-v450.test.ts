@@ -230,8 +230,9 @@ describe('TIER 4: Engine Adapter', () => {
 describe('TIER 5: Security', () => {
   describe('faf_git clone argv', () => {
     it('never lets the URL be read as an option, and checks links out as plain files', () => {
-      const args = cloneArgs('https://github.com/owner/repo.git', '/tmp/x/repo');
-      expect(args.slice(-3)).toEqual(['--', 'https://github.com/owner/repo.git', '/tmp/x/repo']);
+      const dest = path.join(os.tmpdir(), 'never-created', 'repo'); // argv only: nothing is cloned or made
+      const args = cloneArgs('https://github.com/owner/repo.git', dest);
+      expect(args.slice(-3)).toEqual(['--', 'https://github.com/owner/repo.git', dest]);
       expect(args).toContain('core.symlinks=false');
       expect(args).toContain('--depth');
     });
@@ -273,23 +274,8 @@ describe('TIER 5: Security', () => {
   });
 });
 
-// ============================================================================
-// TIER 6: Performance (~10 tests)
-// ============================================================================
-
-describe('TIER 6: Performance', () => {
-  describe('Parser speed', () => {
-    it('normalizeGitUrl should complete 100 URLs in < 50ms', () => {
-      const start = performance.now();
-      for (let i = 0; i < 100; i++) {
-        normalizeGitUrl(`https://github.com/owner-${i}/repo-${i}`);
-      }
-      const duration = performance.now() - start;
-      expect(duration).toBeLessThan(50);
-    });
-  });
-
-});
+// TIER 6 (Performance) lives in tests/performance.test.ts: wall-clock limits
+// on shared runners are observability, not a gate.
 
 // ============================================================================
 // TIER 7: Roundtrip (~5 tests)

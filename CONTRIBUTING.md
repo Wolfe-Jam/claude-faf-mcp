@@ -1,4 +1,4 @@
-<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, tools: Core 12, 30 with FAF_TOOLS=all -->
+<!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, tools: Core 14, 30 with FAF_TOOLS=all -->
 <!-- faf: doc=contributing | canonical=project.faf | family=FAF -->
 
 # Contributing to claude-faf-mcp
@@ -7,7 +7,7 @@ Thank you for your interest in contributing to claude-faf-mcp. This document pro
 
 ## Development Philosophy
 
-This project follows F1-inspired engineering standards:
+This project follows championship-grade engineering standards:
 
 - **Championship-grade quality** - No compromises on reliability or performance
 - **Sub-50ms performance targets** - Speed matters
@@ -25,10 +25,10 @@ This project follows F1-inspired engineering standards:
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- npm or yarn
-- Git
-- Claude Desktop (for testing)
+- Node.js 22 or higher (the floor CI tests; `npm run check:engines` holds it)
+- [Bun](https://bun.sh) — the test runner (`npm test` runs `bun test`)
+- npm and Git
+- Claude Desktop or Claude Code (for trying a build)
 
 ### Setup
 
@@ -37,14 +37,21 @@ This project follows F1-inspired engineering standards:
 git clone https://github.com/Wolfe-Jam/claude-faf-mcp.git
 cd claude-faf-mcp
 
-# Install dependencies
-npm install
+# Install dependencies (the lockfile's exact versions)
+npm ci
 
 # Build the project
 npm run build
 
-# Run tests
+# Run tests — bun, under a temp HOME; the run fails if a test writes into the checkout
 npm test
+
+# One test file
+npm test -- tests/core-tier.test.ts
+
+# Lint (fails on any error, and on more warnings than today's count) and type-check
+npm run lint
+npm run type-check
 
 # Link for local testing
 npm link
@@ -77,11 +84,11 @@ npm link
    
    Example:
    ```
-   feat: add faf_enhance tool for context optimization
+   fix: faf_sync names a file it could not write
    
-   - Implements scoring algorithm with 21-slot system
-   - Adds TypeScript interfaces for tool parameters
-   - Includes test coverage for edge cases
+   - Returns isError with the file and the reason
+   - Keeps every file it did write
+   - Adds a test that fails without the fix
    ```
 
 5. **Push to your fork** and submit a pull request
@@ -91,9 +98,9 @@ npm link
 ### TypeScript
 
 - Use TypeScript strict mode (already configured)
-- All functions must have explicit return types
-- No `any` types (use `unknown` if truly needed)
+- Prefer explicit return types, and `unknown` over `any` (ESLint warns on `any`)
 - Prefer interfaces over types for object shapes
+- Compose faf-cli, never port it: load it through `src/utils/faf-cli-bridge.ts`
 
 ### Testing
 
@@ -155,7 +162,7 @@ To test your changes locally with Claude Desktop:
      "mcpServers": {
        "claude-faf-mcp": {
          "command": "node",
-         "args": ["/path/to/your/local/claude-faf-mcp/build/index.js"]
+         "args": ["/path/to/your/local/claude-faf-mcp/dist/src/index.js"]
        }
      }
    }
@@ -193,7 +200,7 @@ To test your changes locally with Claude Desktop:
 ## Getting Help
 
 - **Issues**: For bug reports and feature requests
-- **Discussions**: For questions and general discussion at [github.com/Wolfe-Jam/faf/discussions](https://github.com/Wolfe-Jam/faf/discussions)
+- **Discussions**: For questions and general discussion at [github.com/Wolfe-Jam/claude-faf-mcp/discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
 - **Email**: team@faf.one for security issues or private inquiries
 
 ## Recognition
@@ -202,7 +209,6 @@ Contributors are recognized in several ways:
 
 - Listed in CHANGELOG.md for their contributions
 - Mentioned in release notes for significant features
-- Added to package.json contributors list
 
 ## License
 
