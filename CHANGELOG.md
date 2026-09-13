@@ -32,7 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Every write is atomic. A full disk, a quota or a read-only file leaves the file exactly as it was, and the message says "not written; original kept".
 - faf_human_add, faf_go answers and faf_readme edit project.faf in place through faf-cli. Comments, key order, exact values (`1.10`, a 20-digit id, `0x1F90`), anchors and your own `_meta` survive, and a change that changes nothing writes nothing.
-- faf_auto names every value the file held that the fill changed (a typed None that a repo fact or the app-type filled) instead of saying "existing values kept". A hand-written None with no repo fact stays as typed.
+- faf_auto names every value the file held that the fill changed, instead of saying "existing values kept". A typed None or placeholder word is an empty slot and scores 0: in a tech slot the app-type uses, only a repo fact replaces it, and with no fact it stays as typed; in a tech slot the app-type leaves out, faf_auto writes `slotignored`; a 6W keeps your words (faf_go asks).
 - faf_auto reports each file on its own ("project.faf updated; CLAUDE.md not written: …"), so a CLAUDE.md that cannot be written never hides a project.faf that was.
 - faf_agents, faf_cursor, faf_gemini and the copilot export no longer refuse an existing file or take `force`. They put faf's block on top (or update it in place) and keep every other byte.
 - faf_etch and faf_recall use faf-cli's soul. A hand-kept index, comments, the version, facts or sessions in another shape and unknown keys survive an etch; re-etching an id merges into that fact; faf_recall prints bare-string facts; faf_etch creates no folders. The local soul copy is gone.
@@ -56,10 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - faf_dna reads the .faf-dna with faf-cli's FafDNAManager and writes nothing. faf_init and faf_quick write the birth certificate and faf_auto and faf_go add each new score, in faf-cli's own shape, so `faf auto` and `faf dna` keep working on the file.
 - faf_formats shows the formats faf-cli finds in the project folder, each with its file, and a dry run of what faf_auto would write. The canned recommendations and the "Intelligence Score" are gone. With faf-cli 7.13 a parent folder's package.json or tsconfig.json no longer shows up in a subfolder.
 - faf_go answers report faf-cli's score of the file just written.
-- One score everywhere: faf_go, faf_doctor and the SessionStart heartbeat report faf-cli's scoreFafYaml, the number faf_score shows. faf_go no longer says "100% GOLD CODE" when its Table-of-8 is filled: it is complete only at 100%, and below that it says where it stopped and points to faf_auto when the repo can still fill slots. The local scorer is gone.
+- One score everywhere: faf_go, faf_doctor and the SessionStart heartbeat report faf-cli's scoreFafYaml, the number faf_score shows. faf_go no longer says "100% GOLD CODE" when its Table-of-8 is filled: it is complete only at 100%, and below that it says where it stopped and what fills the rest. The local scorer is gone.
+- faf_go names faf_auto only for the slots faf_auto's own dry run would fill or mark slotignored (the dry run faf_formats shows). When it would write none, faf_go names every slot still empty and takes them as answers (`answers: {"stack.hosting": "…"}`), so faf_go and faf_auto no longer send you back and forth. The faf prompt says the same.
 - faf_score prints populated/active slots ("17/17" on a Trophy), as faf-cli and faf_init do, never populated/total.
 - faf_trust runs faf-cli's validateFaf first: a list, a scalar or a file missing faf_version or project.name gets no receipt and an error naming what is missing.
 - faf_doctor lists faf-cli's validateFaf errors, each with its fix, and faf-cli's score with every empty slot and the tool that fills it (faf_auto or faf_go). It no longer calls such a file ".faf structure is valid", sets a "70%+" target or says "championship-ready".
+- faf_go's JSON gives `score` and `currentScore` as null when the score is unknown (an About repo with no about.source_score), never -1; `scoreText` still says "unknown (—)".
 - A score faf-cli cannot know (an About repo with no about.source_score) shows as "unknown (—)" in faf_score, faf_trust, faf_doctor, faf_check, faf_auto, the resources and the heartbeat, never "-1%", and gets no trust receipt.
 - The faf_trust receipt names the project (project.name, else its folder) as its subject; the server that emitted it is on its own "by" line.
 - The ✪ mark appears only at 100%. The trophy emoji is stripped like any other emoji instead of becoming ✪, the faf_bench receipt line is plain, and the next-tier hint names the tier without its glyph.
@@ -72,6 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Every tool's arguments are checked against its input schema before it runs: a wrong type, a missing required argument, an unknown argument or an action outside the list returns an error and runs nothing. `faf_agents {action: "bogus"}` used to write AGENTS.md.
 - A tool that fails returns an error result with a readable line, never a JSON-RPC -32603. An unknown tool or prompt is -32602 and an unknown resource -32002.
 - faf_tri_sync with no project.faf returns an error: nothing was written.
+- faf_auto and faf_etch carry destructiveHint: true: faf_auto can replace a typed None already in a slot, and an etch on an existing id changes that memory.
 - Tool annotations match what each handler does: faf_init (force), faf_human_add and faf_go answers are destructive, only tools that never write a file are read-only, every tool has idempotentHint, and every tool has a title.
 - Tool descriptions say what each handler does and returns: `faf` reads only and returns the steps, faf_about promises no bridges, faf_status says it shows the first 20 lines, faf_go lists the eight things it asks, and "Mk4 engine" is gone.
 - MCP output gives MCP advice ("faf_score (details: true)"), never `faf score` (CLI). faf_score no longer suggests marking empty slots slotignored.
@@ -91,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI's Status job reports each job's real result and fails when one failed; it no longer prints "Passed" whatever happened.
 - CI's lint and type-check block a merge. `npm run lint` fails on any error and on more warnings than today's 272. The format check that needed prettier (never a dependency) is gone.
 - CI's build check looked for a file that no longer exists; it now checks the bin, main and the handlers.
+- `npm test` also points TMPDIR, TMP and TEMP at a new temp folder for each run and fails if a test leaves anything in it; tests/copilot-grade.test.ts now removes the folders it makes.
 - The test suite is hermetic: `npm test` runs bun with a temp HOME and fails if a test writes into the checkout or leaves a file in that HOME. Tests no longer write into the real ~/Projects or HOME, use fixed /tmp paths, or depend on how deep the checkout sits.
 - Tests that could not fail now can: no `fail()` (bun has none), no assertion that only runs in a catch the call never reaches, no `expect(true)`. Wall-clock limits moved to the performance suite, which is observability, not a gate.
 - faf, faf_trust, faf_recall, faf_context, faf_setup, faf_cursor, faf_gemini, faf_tri_sync and both resources are tested through a real MCP round trip, including the MEMORY.md marker cases. CI holds a coverage floor on the totals over src/ (scripts/check-coverage.mjs); it only rises.
@@ -119,7 +123,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- faf-cli `^7.13.0`. A file with no faf markers always gets the faf block on top with every original byte kept below it, an old stamp-led faf file included.
+- faf-cli `^7.13.1` (7.13.1 carries faf-cli's security patch for links in detection, and faf-cli's own output names a slot the app-type leaves out `slotignored`). A file with no faf markers always gets the faf block on top with every original byte kept below it, an old stamp-led faf file included.
 - The npm package ships only dist (no source maps), the icons, scripts/postinstall.js, project.faf and the listed docs. Dev scripts no longer ship.
 - The package `main` is now dist/src/server.js, which starts nothing when imported. The `claude-faf-mcp` bin still starts the server.
 - faf-cli loads through a plain `import('faf-cli')`; the loader that walked up directories to find it is gone.
@@ -130,15 +134,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Core 14: faf_setup and faf_tri_sync are listed by default, so every tool the faf prompt, the README onboarding and the .mcpb manifest name is on a default install.
 - The prompts are `faf` and `faf-bench`, with no leading slash; `/faf` and `/faf-bench` still answer in 6.x. The faf prompt starts with faf_score, and faf-bench reads project.faf with faf_context `{ detail: true }`, which now returns the file's text.
 - manifest.json lists the Core 14, led by faf_init, and declares the two prompts.
+- manifest.json's long description names only what a default install lists: the faf_git line (a .faf from a GitHub repo, with its example) and the README 6Ws line are gone; both tools need FAF_TOOLS=all.
 - The server no longer advertises listChanged for tools or resources: no list changes while it runs.
 - Node 22 or later: engines.node and the manifest runtime are `>=22.0.0`, and scripts/check-engines.mjs holds them to the lowest Node in CI. It runs in CI and in prepublishOnly, which now builds, tests and checks it.
 - CI tests Node 22 and 24 on ubuntu, macOS and Windows, and packs the npm tarball, installs it in a temp folder and starts its bin (initialize, tools/list, faf_score) on each.
 - @anthropic-ai/mcpb is pinned as a dev dependency (2.1.2); pack:mcpb installs the bundle's dependencies with `npm ci`, from the lockfile.
 - claude.faf.one serves only public/index.html, written by scripts/build-landing.mjs from package.json and project.faf: no Trust Edition overlay, no Mk3.1 fallback line, a real og:image, and a privacy link to PRIVACY.md. The Cloudflare Worker moved from src/index.js to worker/index.js.
+- mcpaas.live/claude/mcp/v1 is no longer given as this server's hosted endpoint in the README Quick Start, agent.fafa, smithery.yaml or the landing page: it is MCPaaS, a separate server with its own tools. PRIVACY names it that way.
 - One install path: the README config is `npx -y claude-faf-mcp` (the global bin and bunx are alternatives), and the README says the npx config and the hook are unpinned.
 - PRIVACY lists every file claude-faf-mcp writes and what faf_git sends; SECURITY lists the real dependencies and the real file access; SUPPORT and CONTRIBUTING give instructions that work (Node 22, bun, dist/src/index.js, debugging with faf_debug and the MCP Inspector, one Discussions URL).
 - CHANGELOG history keeps its entries; the lines that claimed an official Anthropic registry listing and validation are corrected to what they were, a community README entry. Banned words and the trophy emoji are gone from the work surfaces.
-- project.faf names only the stdio transport (the hosted endpoint stays in surfaces.declared) and no command that does not exist; CLAUDE.md is re-rendered from it (no "BI-SYNC" footer).
+- project.faf names only the stdio transport (the endpoint of MCPaaS, a separate server, stays in surfaces.declared) and no command that does not exist; CLAUDE.md is re-rendered from it (no "BI-SYNC" footer).
 
 ## [5.22.1] - 2026-08-19
 

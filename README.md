@@ -106,10 +106,6 @@ After `npm install -g claude-faf-mcp` you can use the installed bin instead: `{ 
 claude mcp add faf -- npx -y claude-faf-mcp
 ```
 
-### Hosted
-
-**Smithery:** [wolfe-jam/claude-faf-mcp](https://smithery.ai/servers/wolfe-jam/claude-faf-mcp) — hosted at `https://mcpaas.live/claude/mcp/v1`
-
 ### Pinning
 
 The npx config and the SessionStart hook `faf_setup` installs (`npx -y claude-faf-mcp --session-refresh`) are not pinned: they run the latest release, so fixes arrive without a reinstall, and a new major arrives the same way. To stay on a major, write it in your config yourself: `"args": ["-y", "claude-faf-mcp@6"]`. The `.mcpb` runs the version it was built from.

@@ -105,13 +105,13 @@ capabilities:
       - faf
   - name: faf_go
     type: tool
-    description: The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and whether the repo can still fill slots (then run faf_auto). With answers (slot path → text) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto does the stack.
+    description: "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and what fills the rest: faf_auto, only for the slots its dry run (the one faf_formats shows) would fill; otherwise every slot still empty, named, for faf_go to take as answers. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto fills the stack from the repo; a stack slot the repo does not state is answered here."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_auto
     type: tool
-    description: Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli's detection over the repo's own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. Values already there are kept (a typed None in a tech slot takes a repo fact), and every value it changes is listed. Then writes CLAUDE.md's faf-managed block. Returns what was filled and faf-cli's score before and after. faf_go does the human 6Ws.
+    description: "Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli's detection over the repo's own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. A value already there is kept. A typed None or placeholder word is an empty slot: in a tech slot the app-type uses, only a repo fact replaces it (with no fact it stays as typed); in a tech slot the app-type leaves out, faf_auto writes slotignored; in a 6W it stays as typed (faf_go asks). Every value it changes is listed. Then writes CLAUDE.md's faf-managed block. Returns what was filled and faf-cli's score before and after. faf_go does the human 6Ws."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -198,10 +198,6 @@ endpoints:
     version: 2025-06-18
     transport: stdio
     location: claude-faf-mcp
-  - protocol: mcp
-    version: 2025-06-18
-    transport: http
-    location: https://mcpaas.live/claude/mcp/v1
 provenance:
   faf: ./project.faf
   mediaType: application/vnd.faf+yaml

@@ -62,8 +62,8 @@ Run this sequence yourself, end to end:
 2. **Source** — \`faf_auto\`. It creates project.faf if there is none, and otherwise fills the empty slots of the one there from the repo (package.json, Cargo.toml, pyproject.toml, go.mod…) — values already there are kept. Re-score with \`faf_score\`.
 
 3. **Do FAF's part, then hand over the human's part:**
-   - What is left is the human-only context: the goal and the 6Ws (who, what, why, where, when, how). Don't guess it. \`faf_go\` returns the Table-of-8 — what is filled, what is seeded from the goal, what is empty — and says when the repo can still fill slots (run \`faf_auto\` again then).
-   - Tell them, in one plain message: here's what FAF already did, and here are the few things only you can answer. Then write their answers with \`faf_go\` (answers: slot path → text).
+   - What is left is what the repo does not say: the goal and the 6Ws (who, what, why, where, when, how), and any stack slot no file states. Don't guess it. \`faf_go\` returns the Table-of-8 — what is filled, what is seeded from the goal, what is empty — and a \`next\` line. It names \`faf_auto\` only when faf_auto's dry run would still fill a slot (run it then); otherwise it names every slot still empty, and \`faf_go\` takes those as answers. Don't run \`faf_auto\` again when \`next\` does not name it.
+   - Tell them, in one plain message: here's what FAF already did, and here are the few things only you can answer. Then write their answers with \`faf_go\` (answers: slot path → text, e.g. { "stack.hosting": "<their answer>" }).
    - Re-score. Repeat until ✪ 100%. The human's part stays the human's; FAF never fabricates it.
 
 4. **Verify** — \`faf_trust\`. It checks the .faf with faf-cli's validateFaf and returns a receipt: faf-cli's score and a faf-parity/v1 hash (claude-faf-mcp's own spec) anyone can check — sha256(projection) === parityHash. A receipt, not a claim.

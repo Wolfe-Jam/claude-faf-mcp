@@ -41,9 +41,9 @@ FAF only accesses files you explicitly point it to (via `path` parameters or the
 
 No files are read or written outside your project directory without your explicit request.
 
-## Hosted Version
+## MCPaaS, a separate server
 
-The hosted endpoint (`mcpaas.live/claude/mcp/v1`) runs on FAF's servers and receives the tool arguments you send. What it keeps is listed at https://faf.one/privacy, which covers every FAF product.
+`mcpaas.live/claude/mcp/v1` is not this package: it is MCPaaS, a separate FAF server with its own tools. It runs on FAF's servers and receives the tool arguments you send it. What it keeps is listed at https://faf.one/privacy, which covers every FAF product.
 
 ## Open Source
 

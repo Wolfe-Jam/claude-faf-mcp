@@ -210,8 +210,9 @@ describe('🏁 WJTTC — tool schema truth', () => {
     expect(wrong).toEqual([]);
     expect(tools.find((t) => t.name === 'faf_git')!.annotations?.openWorldHint).toBe(true);
     expect(tools.filter((t) => t.annotations?.openWorldHint === true).map((t) => t.name)).toEqual(['faf_git']);
-    // A tool that can replace what is there is destructive.
-    for (const name of ['faf_init', 'faf_human_add', 'faf_go']) {
+    // A tool that can replace what is there is destructive: faf_auto can
+    // replace a typed None, and an etch on an existing id changes that memory.
+    for (const name of ['faf_init', 'faf_human_add', 'faf_go', 'faf_auto', 'faf_etch']) {
       expect(tools.find((t) => t.name === name)!.annotations?.destructiveHint).toBe(true);
     }
   });

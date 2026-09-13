@@ -136,7 +136,6 @@ export function renderLanding({ pkg, faf, coreTools, allCount }) {
 
   <footer>
     <div><a href="${esc(repo)}">GitHub</a> · <a href="https://www.npmjs.com/package/${esc(pkg.name)}">npm</a> · <a href="https://faf.one">faf.one</a> · <a href="${esc(repo)}/blob/main/PRIVACY.md">Privacy</a> · <a href="mailto:team@faf.one">team@faf.one</a></div>
-    <div>Hosted MCP endpoint: <code>https://mcpaas.live/claude/mcp/v1</code></div>
     <div>FAF stops AI Faffing about.</div>
   </footer>
 </main>

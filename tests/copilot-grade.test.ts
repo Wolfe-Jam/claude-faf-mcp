@@ -7,7 +7,7 @@
  * gone: it printed a stack labelled by hand and its own framing, so faf_sync
  * and `faf export` kept swapping the block.
  */
-import { describe, test, expect } from 'bun:test';
+import { describe, test, expect, afterAll } from 'bun:test';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -30,11 +30,18 @@ const START = '<!-- faf:start -->';
 const END = '<!-- faf:end -->';
 const blockOf = (text: string): string => text.slice(text.indexOf(START) + START.length, text.indexOf(END)).trim();
 
+/** Every folder project() made, removed in afterAll. */
+const made: string[] = [];
 function project(): string {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cfm-copilot-'));
+  made.push(dir);
   fs.writeFileSync(path.join(dir, 'project.faf'), stringify(FAF));
   return dir;
 }
+
+afterAll(() => {
+  for (const dir of made) {fs.rmSync(dir, { recursive: true, force: true });}
+});
 
 describe('Copilot export — faf-cli render and writer', () => {
   test('faf_sync { copilot: true } writes exactly faf-cli\'s renderCopilotInstructions in the block', async () => {

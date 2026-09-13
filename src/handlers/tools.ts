@@ -235,10 +235,11 @@ function isBlank(v: unknown): boolean {
 
 /** What a fill did to .faf data: the empty slots it filled, and every value
  *  the file already held that it changed ("path: old → new"). */
-function slotChanges(before: unknown, after: unknown): { filledPaths: string[]; ignoredPaths: string[]; changedValues: string[] } {
+function slotChanges(before: unknown, after: unknown): { filledPaths: string[]; ignoredPaths: string[]; changedPaths: string[]; changedValues: string[] } {
   const was = leaves(before);
   const filledPaths: string[] = [];
   const ignoredPaths: string[] = [];
+  const changedPaths: string[] = [];
   const changedValues: string[] = [];
   for (const [p, v] of leaves(after)) {
     const old = was.get(p);
@@ -246,10 +247,36 @@ function slotChanges(before: unknown, after: unknown): { filledPaths: string[]; 
     if (isBlank(old)) {
       if (v === 'slotignored') {ignoredPaths.push(p);} else if (!isBlank(v)) {filledPaths.push(p);}
     } else {
+      changedPaths.push(p);
       changedValues.push(`${p}: ${JSON.stringify(old)} → ${JSON.stringify(v)}`);
     }
   }
-  return { filledPaths, ignoredPaths, changedValues };
+  return { filledPaths, ignoredPaths, changedPaths, changedValues };
+}
+
+/**
+ * What faf_auto would write into <folder>/project.faf now — never written.
+ * faf-cli's own chain on the folder: updateExistingFaf over the project.faf
+ * (else the older .faf) there, or assembleFreshFaf when there is neither.
+ * faf_formats shows this dry run, and faf_go decides from it whether to send
+ * the agent to faf_auto.
+ */
+async function autoDryRun(cwd: string): Promise<{
+  target: string;
+  source: string | null;
+  after: Map<string, unknown>;
+  filledPaths: string[];
+  ignoredPaths: string[];
+  changedPaths: string[];
+  changedValues: string[];
+}> {
+  const { assembleFreshFaf, updateExistingFaf } = await fafCli;
+  const target = pathModule.join(cwd, 'project.faf');
+  const legacy = pathModule.join(cwd, '.faf');
+  const source = present(target) ? target : present(legacy) ? legacy : null;
+  const before = source ? (await readFafData(source)).data : {};
+  const filled = source ? updateExistingFaf(cwd, structuredClone(before)) : assembleFreshFaf(cwd);
+  return { target, source, after: leaves(filled), ...slotChanges(before, filled) };
 }
 
 /**
@@ -670,7 +697,7 @@ function toolList(): Tool[] {
     {
       name: 'faf_go',
       ...hints('Guided Interview', { readOnly: false, destructive: true, idempotent: false }),
-      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and whether the repo can still fill slots (then run faf_auto). With answers (slot path → text) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto does the stack.',
+      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and what fills the rest: faf_auto, only for the slots its dry run (the one faf_formats shows) would fill; otherwise every slot still empty, named, for faf_go to take as answers. With answers (slot path → text, e.g. {"stack.hosting": "<the answer>"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto fills the stack from the repo; a stack slot the repo does not state is answered here.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -686,8 +713,8 @@ function toolList(): Tool[] {
     },
     {
       name: 'faf_auto',
-      ...hints('Fill from the Repo', { readOnly: false, idempotent: true }),
-      description: 'Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli\'s detection over the repo\'s own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. Values already there are kept (a typed None in a tech slot takes a repo fact), and every value it changes is listed. Then writes CLAUDE.md\'s faf-managed block. Returns what was filled and faf-cli\'s score before and after. faf_go does the human 6Ws.',
+      ...hints('Fill from the Repo', { readOnly: false, destructive: true, idempotent: true }),
+      description: 'Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli\'s detection over the repo\'s own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. A value already there is kept. A typed None or placeholder word is an empty slot: in a tech slot the app-type uses, only a repo fact replaces it (with no fact it stays as typed); in a tech slot the app-type leaves out, faf_auto writes slotignored; in a 6W it stays as typed (faf_go asks). Every value it changes is listed. Then writes CLAUDE.md\'s faf-managed block. Returns what was filled and faf-cli\'s score before and after. faf_go does the human 6Ws.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -1018,7 +1045,7 @@ function toolList(): Tool[] {
     },
     {
       name: 'faf_etch',
-      ...hints('Etch Memory', { readOnly: false, idempotent: false }),
+      ...hints('Etch Memory', { readOnly: false, destructive: true, idempotent: false }),
       description: 'Remember a decision, gotcha, or win across sessions by writing it to the project soul (soul.fafm) with faf-cli\'s Soul. Returns the stored memory and the soul\'s size. Re-etching an id updates that memory in place. Use it to persist something an AI should recall later; faf_recall reads them back.',
       inputSchema: {
         type: 'object',
@@ -2798,7 +2825,7 @@ HOW IT WORKS
       // they're SOURCED by Turbo-Cat (faf-cli's separate STACK_INTERVIEW if ever
       // needed), never asked of a human. (Decision: single-source the 8-Q 6Ws
       // Interview, wolfejam 2026-06-10 — language is not on the human side.)
-      const { SIX_WS_INTERVIEW, buildTableOf8, updateFafFile, readFafRaw, scoreFafYaml, scoreText, loopVerdict } = await fafCli;
+      const { SIX_WS_INTERVIEW, buildTableOf8, updateFafFile, readFafRaw, scoreFafYaml, scoreText } = await fafCli;
       const QUESTION_REGISTRY: Record<string, (typeof SIX_WS_INTERVIEW)[number]> =
         Object.fromEntries(SIX_WS_INTERVIEW.map((q) => [q.path, q]));
 
@@ -2879,7 +2906,6 @@ HOW IT WORKS
         const growth = result.written && !scored.unknown ? await this.recordGrowth(cwd, score, 'faf_go') : null;
         const keptAliases = [...(result.keptAliases ?? []).map((k) => k.path), ...underAlias];
         const applied = plan.entries.filter((e) => !underAlias.includes(e.key));
-        const after = await readFafData(fafPath);
         const lines = [
           'FAF Go - Answers Applied',
           '',
@@ -2892,7 +2918,7 @@ HOW IT WORKS
           `Score: ${scoreText(scored)} (faf-cli)`,
           ...(growth ? [growth] : []),
           '',
-          await this.goVerdictLine(scored, after.data),
+          (await this.goVerdictLine(cwd, scored)).line,
         ];
         return { content: [{ type: 'text', text: lines.join('\n') }] };
       }
@@ -2905,16 +2931,16 @@ HOW IT WORKS
       // human approves and faf_go is called back with answers.
       //
       // The score is faf-cli's scoreFafYaml — the number faf_score reports —
-      // and whether the work is done is faf-cli's loopVerdict: complete only at
-      // 100. A filled Table-of-8 is not 100% by itself; before 6.0.0 it was
-      // reported as "100% GOLD CODE" at 38–67%. When the repo can still fill
-      // slots (can-source), the reply points to faf_auto; faf_go itself asks
-      // only the Table-of-8.
+      // and the work is complete only at 100. A filled Table-of-8 is not 100%
+      // by itself; before 6.0.0 it was reported as "100% GOLD CODE" at 38–67%.
+      // The reply points to faf_auto only for slots faf_auto's dry run would
+      // fill; otherwise it names the slots still empty, which faf_go takes as
+      // answers (goVerdictLine).
       const table = buildTableOf8(fafData);
       const scored = scoreFafYaml(readFafRaw(fafPath));
-      const verdict = loopVerdict(scored.unknown ? 0 : scored.score, fafData);
       const complete = !scored.unknown && scored.score >= 100;
-      const next = await this.goVerdictLine(scored, fafData);
+      const verdict = await this.goVerdictLine(cwd, scored);
+      const next = verdict.line;
       const bootstrapInfo = bootstrap.ran ? {
         created: true,
         sourced: true,
@@ -2930,12 +2956,14 @@ HOW IT WORKS
             : ''
         }. Wrote ${bootstrap.filesWritten.join(' and ')}.${bootstrap.above ? ` ${bootstrap.above} (one level up) is left as it is.` : ''}`,
       } : undefined;
+      // An unknown score is null here, never -1; scoreText says "unknown (—)".
       const scoreFields = {
-        score: scored.score,
+        score: scored.unknown ? null : scored.score,
         scoreText: scoreText(scored),
         ...(scored.unknown ? { unknown: true } : {}),
         status: verdict.status,
-        ...(verdict.gaps.sourceable.length ? { sourceable: verdict.gaps.sourceable } : {}),
+        ...(verdict.sourceable.length ? { sourceable: verdict.sourceable } : {}),
+        ...(verdict.needsAnswer.length ? { needsAnswer: verdict.needsAnswer } : {}),
         next,
       };
 
@@ -2977,7 +3005,7 @@ HOW IT WORKS
             complete: false,
             context: 'faf_go — the Table-of-8 (the human half of project.faf)',
             ...(bootstrapInfo ? { bootstrap: { ...bootstrapInfo, message: `${bootstrapInfo.message} The 6Ws below complete it.` } } : {}),
-            currentScore: scored.score,
+            currentScore: scored.unknown ? null : scored.score,
             targetScore: 100,
             ...scoreFields,
             // The full Table-of-8 to render: each box filled / seeded / empty.
@@ -3001,27 +3029,61 @@ HOW IT WORKS
   }
 
   /**
-   * The one line faf_go ends on: ✪ at 100, else where it stopped and why —
-   * from faf-cli's loopVerdict on the lifted data. can-source → faf_auto;
-   * needs-human → faf_go asks; done below 100 → faf_score shows the rest.
+   * The one line faf_go ends on, and the status its JSON carries: ✪ at 100,
+   * else where it stopped and what fills the rest. faf_auto is named only for
+   * the slots its own dry run (autoDryRun, the one faf_formats shows) would
+   * fill or mark slotignored — faf-cli's scorer's empty slots among them. When
+   * it would write none, the line names every slot the scorer still counts
+   * empty and says faf_go takes them as answers, so faf_go never sends the
+   * agent back to a faf_auto that has nothing left to write.
    */
   private async goVerdictLine(
+    cwd: string,
     scored: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>,
-    data: Record<string, unknown>,
-  ): Promise<string> {
-    const { loopVerdict, scoreText } = await fafCli;
+  ): Promise<{ line: string; status: 'done' | 'can-source' | 'needs-human'; sourceable: string[]; needsAnswer: string[] }> {
+    const { scoreText, SLOT_BY_PATH } = await fafCli;
     if (scored.unknown) {
-      return `The score is ${scoreText(scored)}: an About repo is scored from about.source_score, which faf_go does not set.`;
+      return {
+        line: `The score is ${scoreText(scored)}: an About repo is scored from about.source_score, which faf_go does not set.`,
+        status: 'needs-human', sourceable: [], needsAnswer: [],
+      };
     }
-    if (scored.score >= 100) {return '✪ 100% — your AI has the complete context.';}
-    const verdict = loopVerdict(scored.score, data);
-    if (verdict.status === 'can-source') {
-      return `Stopped at ${scored.score}%: the repo can still fill ${verdict.gaps.sourceable.join(', ')} — run faf_auto${verdict.gaps.human.length ? `; faf_go asks for ${verdict.gaps.human.join(', ')}` : ''}.`;
+    if (scored.score >= 100) {return { line: '✪ 100% — your AI has the complete context.', status: 'done', sourceable: [], needsAnswer: [] };}
+
+    const empty = Object.entries(scored.slots ?? {}).filter(([, state]) => state === 'empty').map(([p]) => p);
+    // What faf_auto would write, by the on-wire slot the scorer reads.
+    const writes = new Map<string, unknown>();
+    try {
+      const dry = await autoDryRun(cwd);
+      for (const p of [...dry.filledPaths, ...dry.ignoredPaths, ...dry.changedPaths]) {
+        writes.set(SLOT_BY_PATH.get(p)?.path ?? p, dry.after.get(p));
+      }
+    } catch { /* no dry run, so nothing is claimed for faf_auto */ }
+    const fills = empty.filter((p) => writes.has(p) && writes.get(p) !== 'slotignored');
+    const ignores = empty.filter((p) => writes.get(p) === 'slotignored');
+    const rest = empty.filter((p) => !writes.has(p));
+
+    if (fills.length + ignores.length > 0) {
+      const what = [
+        ...(fills.length ? [`the repo can still fill ${fills.join(', ')}`] : []),
+        ...(ignores.length ? [`faf_auto marks ${ignores.join(', ')} slotignored (the app-type leaves ${ignores.length === 1 ? 'it' : 'them'} out)`] : []),
+      ].join(', and ');
+      return {
+        line: `Stopped at ${scored.score}%: ${what} — run faf_auto${rest.length ? `; then faf_go takes ${rest.join(', ')} as answers` : ''}.`,
+        status: 'can-source', sourceable: [...fills, ...ignores], needsAnswer: rest,
+      };
     }
-    if (verdict.status === 'needs-human') {
-      return `Stopped at ${scored.score}%: only you can fill ${verdict.gaps.human.join(', ')} — faf_go asks for them.`;
+    if (rest.length > 0) {
+      const answers = `{${rest.map((p) => `${JSON.stringify(p)}: "…"`).join(', ')}}`;
+      return {
+        line: `Stopped at ${scored.score}%: faf_auto has nothing more to fill from the repo. Still empty: ${rest.join(', ')}. faf_go takes them: call it with answers: ${answers}.`,
+        status: 'needs-human', sourceable: [], needsAnswer: rest,
+      };
     }
-    return `Stopped at ${scored.score}%: faf_go has nothing left to ask. faf_score (details: true) lists the slots still empty.`;
+    return {
+      line: `Stopped at ${scored.score}%: faf_score (details: true) lists the slots still empty.`,
+      status: 'needs-human', sourceable: [], needsAnswer: [],
+    };
   }
 
   /**
@@ -3182,8 +3244,10 @@ HOW IT WORKS
    * project.faf is <folder>/project.faf exactly (as `faf auto` targets it): a
    * new file is assembled with assembleFreshFaf; an existing one is filled with
    * updateExistingFaf (existing values win; interrogated → detected →
-   * Turbo-Cat → Relentless fill only the empties; a typed none in a tech slot
-   * takes a repo fact) and written in place by writeFaf, which keeps comments,
+   * Turbo-Cat → Relentless fill only the empties; a typed none is an empty
+   * slot: in a tech slot the app-type uses only a repo fact replaces it, in a
+   * tech slot the app-type leaves out it becomes slotignored, and a 6W keeps
+   * its words) and written in place by writeFaf, which keeps comments,
    * key order and exact scalars and writes nothing on a no-op. Every value the
    * file held that the fill changed is listed. A folder with only the older
    * `.faf` gets a project.faf filled from it (the .faf is left as it is), so
@@ -3436,22 +3500,16 @@ HOW IT WORKS
     const startTime = Date.now();
 
     try {
-      const { turboCatScan, assembleFreshFaf, updateExistingFaf } = await fafCli;
+      const { turboCatScan } = await fafCli;
       const scan = turboCatScan(cwd);
       const formats = [...scan.discoveredFormats]
         .sort((a, b) => a.fileName.localeCompare(b.fileName))
         .map((f) => ({ ...f, path: pathModule.join(cwd, f.fileName) }));
 
       // The dry run: faf_auto's own chain on this folder, never written.
-      const target = pathModule.join(cwd, 'project.faf');
-      const legacy = pathModule.join(cwd, '.faf');
-      const source = present(target) ? target : present(legacy) ? legacy : null;
-      const before = source ? (await readFafData(source)).data : {};
-      const after = source ? updateExistingFaf(cwd, structuredClone(before)) : assembleFreshFaf(cwd);
-      const { filledPaths, ignoredPaths, changedValues } = slotChanges(before, after);
-      const values = leaves(after);
+      const { target, source, after, filledPaths, ignoredPaths, changedValues } = await autoDryRun(cwd);
       const wouldFill: Record<string, unknown> = {};
-      for (const p of filledPaths) {wouldFill[p] = values.get(p);}
+      for (const p of filledPaths) {wouldFill[p] = after.get(p);}
       const elapsed = Date.now() - startTime;
 
       const structured = {
