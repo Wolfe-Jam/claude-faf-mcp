@@ -300,7 +300,7 @@
   },
   {
    "name": "faf_go",
-   "description": "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and what fills the rest: faf_auto, only for the slots its dry run (the one faf_formats shows) would fill; otherwise every slot still empty, named, for faf_go to take as answers. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto fills the stack from the repo; a stack slot the repo does not state is answered here.",
+   "description": "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -549,7 +549,7 @@
   },
   {
    "name": "faf_git",
-   "description": "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto fills an existing one); without path, writes nothing and returns the .faf.",
+   "description": "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto writes each fact from repo into an existing one); without path, writes nothing and returns the .faf.",
    "inputSchema": {
     "type": "object",
     "properties": {

@@ -82,7 +82,7 @@ export async function gitContextCommand(url: string, outputDir?: string): Promis
     if (existing) {
       return {
         success: false,
-        message: `${existing} already exists; faf_git writes only a new project.faf, so it wrote nothing. faf_auto fills the file you have from the repo (existing values kept).`,
+        message: `${existing} already exists; faf_git writes only a new project.faf, so it wrote nothing. faf_auto writes each fact from repo into the file you have (existing values kept).`,
       };
     }
   }

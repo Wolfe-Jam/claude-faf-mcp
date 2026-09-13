@@ -59,7 +59,7 @@ Run this sequence yourself, end to end:
 
 1. **Score** — \`faf_score\` (details: true). It says whether the project has a project.faf, and lists every empty slot.
 
-2. **Source** — \`faf_auto\`. It creates project.faf if there is none, and otherwise fills the empty slots of the one there from the repo (package.json, Cargo.toml, pyproject.toml, go.mod…) — values already there are kept. Re-score with \`faf_score\`.
+2. **Source** — \`faf_auto\`. It creates project.faf if there is none, and otherwise writes each fact from repo (package.json, Cargo.toml, pyproject.toml, go.mod…) into the empty slots of the one there — values already there are kept. Re-score with \`faf_score\`.
 
 3. **Do FAF's part, then hand over the human's part:**
    - What is left is what the repo does not say: the goal and the 6Ws (who, what, why, where, when, how), and any stack slot no file states. Don't guess it. \`faf_go\` returns the Table-of-8 — what is filled, what is seeded from the goal, what is empty — and a \`next\` line. It names \`faf_auto\` only when faf_auto's dry run would still fill a slot (run it then); otherwise it names every slot still empty, and \`faf_go\` takes those as answers. Don't run \`faf_auto\` again when \`next\` does not name it.

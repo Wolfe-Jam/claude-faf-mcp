@@ -59,5 +59,5 @@ export async function readFafData(fafPath: string): Promise<FafRead> {
 
 /** The line every tool that meets the older shape prints. */
 export function legacyProjectHint(file: string, name: string): string {
-  return `${file} still has the older \`project: ${name}\` shape, which faf-cli does not read as a name. faf_auto moves it to project.name (the name is kept) and fills the rest.`;
+  return `${file} still has the older \`project: ${name}\` shape, which faf-cli does not read as a name. faf_auto moves it to project.name (the name is kept) and writes each fact from repo.`;
 }

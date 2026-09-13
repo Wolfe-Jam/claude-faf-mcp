@@ -183,7 +183,8 @@ describe('R2-2 — faf_go never sends the agent back to a faf_auto with nothing 
     expect(data.status).toBe('needs-human');
     expect(data.sourceable).toBeUndefined();
     expect(text(go)).not.toContain('run faf_auto');
-    expect(data.next).toContain('faf_auto has nothing more to fill from the repo');
+    expect(data.next).toContain('no fact in repo for');
+    expect(data.next).not.toContain('faf_auto writes');
     expect(data.next).toContain('"stack.hosting": "…"');
     expect(data.next).toContain('faf_go takes them');
     expect(data.needsAnswer).toContain('stack.hosting');
@@ -212,7 +213,8 @@ describe('R2-2 — faf_go never sends the agent back to a faf_auto with nothing 
     const dry = (await call('faf_formats', { path: dir, json: true })).structuredContent;
     const data = JSON.parse(text(await call('faf_go', { path: dir })));
     expect(data.status).toBe('can-source');
-    expect(data.next).toContain('run faf_auto');
+    expect(data.next).toContain('fact from repo for');
+    expect(data.next).toContain('faf_auto writes');
     expect(data.sourceable.length).toBeGreaterThan(0);
     const writes = new Set([...Object.keys(dry.wouldFill), ...dry.wouldIgnore]);
     expect(data.sourceable.filter((slot: string) => !writes.has(slot))).toEqual([]);
@@ -221,7 +223,7 @@ describe('R2-2 — faf_go never sends the agent back to a faf_auto with nothing 
   test('faf_go\'s description and the faf prompt say the same', async () => {
     const d = await toolDescription('faf_go');
     expect(d).not.toContain('then run faf_auto');
-    expect(d).toContain('only for the slots its dry run');
+    expect(d).toContain('fact from repo');
     const prompt = new FafPromptHandler().getPrompt('faf').messages[0].content.text;
     expect(prompt).not.toContain('run `faf_auto` again then');
     expect(prompt).toContain('only when faf_auto\'s dry run would still fill a slot');
@@ -363,5 +365,50 @@ describe('R2-8 — faf-cli ^7.13.1; no reply calls a slotignored slot N/A', () =
     }
     expect(replies.join('\n')).toContain('slotignored');
     expect(replies.filter((t) => t.includes('N/A'))).toEqual([]);
+  });
+});
+
+// ─────────────────────────────────────────────── R2 follow-up: "fact from repo"
+describe('fact from repo — every empty slot says what fills it, from faf_auto\'s own dry run', () => {
+  test('faf_doctor and faf_score (details) label each empty slot; "faf_auto fills" appears nowhere', async () => {
+    const dir = project({
+      'project.faf': 'faf_version: "3.0"\nproject:\n  name: shop-api\n  goal: An API for the shop\n  type: backend\n',
+      'package.json': EXPRESS_PKG,
+    });
+    const doctor = text(await call('faf_doctor', { path: dir }));
+    const score = text(await call('faf_score', { path: dir, details: true }));
+    for (const out of [doctor, score]) {
+      expect(out).toContain('Empty slots:');
+      expect(out).toMatch(/stack\.backend — fact from repo: Express/);
+      expect(out).toMatch(/stack\.hosting — no fact in repo: answer it \(faf_go\)/);
+      expect(out).toMatch(/human_context\.\w+ — yours: faf_go asks/);
+      expect(out).toMatch(/faf_auto writes the \d+ facts? from repo/);
+      expect(out).not.toContain('faf_auto fills');
+    }
+  });
+
+  test('when the repo holds no fact for any empty slot, no line names faf_auto', async () => {
+    const dir = project({ 'package.json': EXPRESS_PKG });
+    await call('faf_auto', { path: dir });
+    const doctor = text(await call('faf_doctor', { path: dir }));
+    expect(doctor).toMatch(/stack\.hosting — no fact in repo/);
+    expect(doctor).not.toMatch(/faf_auto writes the \d+ fact/);
+  });
+
+  test('a repo faf could not classify (type library, fallback): faf_go never sends the agent back to faf_auto', async () => {
+    const dir = project({
+      'project.faf': 'faf_version: "3.0"\nproject:\n  name: hand\n  goal: A hand-kept project\nstack:\n  frontend: React\n  backend: None\n',
+    });
+    await call('faf_auto', { path: dir });
+    const after = read(path.join(dir, 'project.faf'));
+    expect(after).toContain('# found: no classifying signals');
+    const go = JSON.parse(text(await call('faf_go', { path: dir })));
+    expect(go.status).toBe('needs-human');
+    expect(go.next).not.toContain('faf_auto writes');
+    // and faf_auto indeed has nothing to write: the file stays byte for byte
+    await call('faf_auto', { path: dir });
+    expect(read(path.join(dir, 'project.faf'))).toBe(after);
+    const again = JSON.parse(text(await call('faf_go', { path: dir })));
+    expect(again.status).toBe('needs-human');
   });
 });

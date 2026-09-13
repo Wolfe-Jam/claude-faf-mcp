@@ -275,7 +275,12 @@ async function autoDryRun(cwd: string): Promise<{
   const legacy = pathModule.join(cwd, '.faf');
   const source = present(target) ? target : present(legacy) ? legacy : null;
   const before = source ? (await readFafData(source)).data : {};
-  const filled = source ? updateExistingFaf(cwd, structuredClone(before)) : assembleFreshFaf(cwd);
+  // A second read, not a copy: faf-cli's read carries the file's own text, so
+  // updateExistingFaf sees a `type: library # found: … fallback` note exactly as
+  // faf_auto does (structuredClone dropped it, and the dry run then claimed a
+  // slotignored that faf_auto never writes).
+  const input = source ? (await readFafData(source)).data : {};
+  const filled = source ? updateExistingFaf(cwd, input) : assembleFreshFaf(cwd);
   return { target, source, after: leaves(filled), ...slotChanges(before, filled) };
 }
 
@@ -697,7 +702,7 @@ function toolList(): Tool[] {
     {
       name: 'faf_go',
       ...hints('Guided Interview', { readOnly: false, destructive: true, idempotent: false }),
-      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and what fills the rest: faf_auto, only for the slots its dry run (the one faf_formats shows) would fill; otherwise every slot still empty, named, for faf_go to take as answers. With answers (slot path → text, e.g. {"stack.hosting": "<the answer>"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto fills the stack from the repo; a stack slot the repo does not state is answered here.',
+      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {"stack.hosting": "<the answer>"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -1012,7 +1017,7 @@ function toolList(): Tool[] {
     {
       name: 'faf_git',
       ...hints('Author from a Git Repo', { readOnly: false, idempotent: false, openWorld: true }),
-      description: 'Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli\'s detection on it and reports faf-cli\'s score. With path, writes <path>/project.faf only when that folder has none (faf_auto fills an existing one); without path, writes nothing and returns the .faf.',
+      description: 'Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli\'s detection on it and reports faf-cli\'s score. With path, writes <path>/project.faf only when that folder has none (faf_auto writes each fact from repo into an existing one); without path, writes nothing and returns the .faf.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -1612,18 +1617,44 @@ export class FafToolHandler {
     };
   }
 
-  /** The line naming which tool fills each empty slot: faf_auto for what the
-   *  repo can hold, faf_go for the goal and the 6Ws (faf-cli's isHumanSlot). */
-  private async fillHint(empty: string[]): Promise<string | null> {
+  /** What faf_auto's dry run would write, by the on-wire slot faf-cli's scorer
+   *  reads — so a slot is named "fact from repo" only when the repo holds it. */
+  private async dryRunWrites(dir: string): Promise<Map<string, unknown>> {
+    const { SLOT_BY_PATH } = await fafCli;
+    const writes = new Map<string, unknown>();
+    try {
+      const dry = await autoDryRun(dir);
+      for (const p of [...dry.filledPaths, ...dry.ignoredPaths, ...dry.changedPaths]) {
+        writes.set(SLOT_BY_PATH.get(p)?.path ?? p, dry.after.get(p));
+      }
+    } catch { /* no dry run, so no slot is named a fact from repo */ }
+    return writes;
+  }
+
+  /** One line per empty slot — a fact from repo (with its value), a slot the
+   *  app-type leaves out, a slot with no fact in repo, or a 6W — and one closing
+   *  line naming faf_auto only when it has a fact to write. `dir` is the folder
+   *  of the .faf the score came from. */
+  private async fillHint(dir: string, empty: string[]): Promise<string | null> {
     if (empty.length === 0) {return null;}
     const { isHumanSlot } = await fafCli;
-    const human = empty.filter((p) => isHumanSlot(p));
-    const sourced = empty.filter((p) => !isHumanSlot(p));
-    const parts = [
-      ...(sourced.length ? [`faf_auto fills what the repo holds (${sourced.join(', ')})`] : []),
-      ...(human.length ? [`faf_go asks for ${human.join(', ')}`] : []),
-    ];
-    return `To fill the empty slots: ${parts.join('; ')}.`;
+    const writes = await this.dryRunWrites(dir);
+    const show = (v: unknown): string => (typeof v === 'string' ? v : JSON.stringify(v));
+    let facts = 0;
+    let ignores = 0;
+    const lines = empty.map((p) => {
+      if (isHumanSlot(p)) {return `  ${p} — yours: faf_go asks`;}
+      if (writes.has(p) && writes.get(p) === 'slotignored') {ignores++; return `  ${p} — the app-type leaves it out: faf_auto marks it slotignored`;}
+      if (writes.has(p)) {facts++; return `  ${p} — fact from repo: ${show(writes.get(p))}`;}
+      return `  ${p} — no fact in repo: answer it (faf_go), or fix project.type if it doesn't apply`;
+    });
+    const close = facts + ignores > 0
+      ? [`faf_auto writes ${[
+        ...(facts ? [`the ${facts} fact${facts === 1 ? '' : 's'} from repo`] : []),
+        ...(ignores ? [`${ignores} slotignored`] : []),
+      ].join(' and ')}.`]
+      : [];
+    return [`Empty slots:`, ...lines, ...close].join('\n');
   }
 
   private async handleFafScore(args: any): Promise<CallToolResult> {
@@ -1759,7 +1790,7 @@ export class FafToolHandler {
       output += `Populated (${lists.populated.length}): ${lists.populated.join(', ') || '(none)'}\n`;
       output += `Empty (${lists.empty.length}): ${lists.empty.join(', ') || '(none)'}\n`;
       output += `Slotignored (${lists.ignored.length}): ${lists.ignored.join(', ') || '(none)'}`;
-      const hint = await this.fillHint(lists.empty);
+      const hint = await this.fillHint(pathModule.dirname(fafPath), lists.empty);
       if (score < 100 && hint) {
         output += `\n\n${hint}`;
       }
@@ -1842,7 +1873,7 @@ export class FafToolHandler {
         const name = pathModule.basename(existing);
         let hint = existing === legacyPath
           ? `💡 faf_auto writes project.faf from ${name} (kept as it is) and fills the empty slots from the repo; faf_go asks for the 6Ws.`
-          : '💡 faf_auto fills its empty slots from the repo (existing values kept); faf_go asks for the 6Ws.';
+          : '💡 faf_auto writes each fact from repo (existing values kept); faf_go asks for the 6Ws.';
         try {
           const { legacyProject } = await readFafData(existing);
           if (legacyProject !== null) {hint = `💡 ${legacyProjectHint(name, legacyProject)}`;}
@@ -2603,7 +2634,7 @@ HOW IT WORKS
       lines.push('');
       lines.push(`Empty (${lists.empty.length}): ${lists.empty.join(', ') || '(none)'}`);
       if (lists.ignored.length) {lines.push(`Slotignored (${lists.ignored.length}): ${lists.ignored.join(', ')}`);}
-      const hint = await this.fillHint(lists.empty);
+      const hint = await this.fillHint(pathModule.dirname(fafResult.path), lists.empty);
       if (hint) {lines.push('', hint);}
     }
 
@@ -3041,7 +3072,7 @@ HOW IT WORKS
     cwd: string,
     scored: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>,
   ): Promise<{ line: string; status: 'done' | 'can-source' | 'needs-human'; sourceable: string[]; needsAnswer: string[] }> {
-    const { scoreText, SLOT_BY_PATH } = await fafCli;
+    const { scoreText } = await fafCli;
     if (scored.unknown) {
       return {
         line: `The score is ${scoreText(scored)}: an About repo is scored from about.source_score, which faf_go does not set.`,
@@ -3052,31 +3083,25 @@ HOW IT WORKS
 
     const empty = Object.entries(scored.slots ?? {}).filter(([, state]) => state === 'empty').map(([p]) => p);
     // What faf_auto would write, by the on-wire slot the scorer reads.
-    const writes = new Map<string, unknown>();
-    try {
-      const dry = await autoDryRun(cwd);
-      for (const p of [...dry.filledPaths, ...dry.ignoredPaths, ...dry.changedPaths]) {
-        writes.set(SLOT_BY_PATH.get(p)?.path ?? p, dry.after.get(p));
-      }
-    } catch { /* no dry run, so nothing is claimed for faf_auto */ }
+    const writes = await this.dryRunWrites(cwd);
     const fills = empty.filter((p) => writes.has(p) && writes.get(p) !== 'slotignored');
     const ignores = empty.filter((p) => writes.get(p) === 'slotignored');
     const rest = empty.filter((p) => !writes.has(p));
 
     if (fills.length + ignores.length > 0) {
       const what = [
-        ...(fills.length ? [`the repo can still fill ${fills.join(', ')}`] : []),
+        ...(fills.length ? [`fact from repo for ${fills.map((p) => { const v = writes.get(p); return `${p} (${typeof v === 'string' ? v : JSON.stringify(v)})`; }).join(', ')}`] : []),
         ...(ignores.length ? [`faf_auto marks ${ignores.join(', ')} slotignored (the app-type leaves ${ignores.length === 1 ? 'it' : 'them'} out)`] : []),
       ].join(', and ');
       return {
-        line: `Stopped at ${scored.score}%: ${what} — run faf_auto${rest.length ? `; then faf_go takes ${rest.join(', ')} as answers` : ''}.`,
+        line: `Stopped at ${scored.score}%: ${what} — faf_auto writes ${fills.length + ignores.length === 1 ? 'it' : 'them'}${rest.length ? `; then faf_go takes ${rest.join(', ')} as answers` : ''}.`,
         status: 'can-source', sourceable: [...fills, ...ignores], needsAnswer: rest,
       };
     }
     if (rest.length > 0) {
       const answers = `{${rest.map((p) => `${JSON.stringify(p)}: "…"`).join(', ')}}`;
       return {
-        line: `Stopped at ${scored.score}%: faf_auto has nothing more to fill from the repo. Still empty: ${rest.join(', ')}. faf_go takes them: call it with answers: ${answers}.`,
+        line: `Stopped at ${scored.score}%: no fact in repo for ${rest.join(', ')}. faf_go takes them: call it with answers: ${answers}.`,
         status: 'needs-human', sourceable: [], needsAnswer: rest,
       };
     }
@@ -3618,7 +3643,7 @@ Example: "my-app, e-commerce platform"`
             text: `⚡ FAF Quick
 
 ⚠️ ${path.basename(existing)} already exists at: ${existing}
-faf_quick only creates a new file, so it wrote nothing. faf_auto fills its empty slots from the repo (existing values kept); faf_go asks for the 6Ws.`
+faf_quick only creates a new file, so it wrote nothing. faf_auto writes each fact from repo (existing values kept); faf_go asks for the 6Ws.`
           }],
           isError: true
         };
@@ -3803,7 +3828,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto fills its empty
                 : e.includes('project.name')
                   ? isScalarProject(data.project)
                     ? legacyProjectHint(fafResult.filename, String(data.project))
-                    : 'faf_go asks for the project name (project.name), or faf_auto fills it from the repo.'
+                    : 'faf_go asks for the project name (project.name), or faf_auto writes it as a fact from repo.'
                   : `Edit ${fafResult.path} by hand: ${e}.`
             });
           }
@@ -3828,7 +3853,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto fills its empty
               results.push({
                 status: 'warning',
                 message: `Score: ${scored.score}% ${scored.tier.name} (faf-cli) — ${scored.populated}/${scored.active} slots populated; empty: ${lists.empty.join(', ')}`,
-                fix: (await this.fillHint(lists.empty)) ?? undefined
+                fix: (await this.fillHint(pathModule.dirname(fafResult.path), lists.empty)) ?? undefined
               });
             }
           }
@@ -3856,7 +3881,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto fills its empty
         const names = scan ? scan.discoveredFormats.map((f) => f.fileName) : [];
         results.push(names.length
           ? { status: 'ok', message: `faf-cli finds ${names.length} format(s) in the folder: ${names.slice(0, 8).join(', ')}${names.length > 8 ? ', …' : ''}` }
-          : { status: 'warning', message: 'faf-cli finds no manifest or config file in the folder', fix: 'faf_auto fills the stack from files such as package.json, pyproject.toml, Cargo.toml or go.mod; with none, answer the stack slots with faf_go.' });
+          : { status: 'warning', message: 'faf-cli finds no manifest or config file in the folder', fix: 'faf_auto writes each fact from repo files such as package.json, pyproject.toml, Cargo.toml or go.mod; with none, answer the stack slots with faf_go.' });
       } catch {
         results.push({ status: 'warning', message: 'faf-cli could not scan the folder for formats' });
       }
