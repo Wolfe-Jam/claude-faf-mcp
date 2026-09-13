@@ -23,6 +23,26 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+/**
+ * The Edition and its oneliner for `version`, from the CHANGELOG entry
+ * `## [<version>] - <date> — The <Name> Edition` and the bold line that leads
+ * it. Null when this version has no named entry yet (the page then shows the
+ * version alone): the CHANGELOG is where an Edition is written, once.
+ */
+export function editionOf(changelog, version) {
+  const lines = String(changelog ?? '').split(/\r?\n/);
+  const at = lines.findIndex((l) => l.startsWith(`## [${version}]`));
+  if (at < 0) {return { edition: null, oneliner: null };}
+  const named = /—\s*(The .+ Edition)\s*$/.exec(lines[at]);
+  let oneliner = null;
+  for (let i = at + 1; i < lines.length && !lines[i].startsWith('## '); i++) {
+    const bold = /^\*\*(.+)\*\*\s*$/.exec(lines[i].trim());
+    if (bold) {oneliner = bold[1]; break;}
+    if (lines[i].startsWith('### ')) {break;}
+  }
+  return { edition: named ? named[1] : null, oneliner };
+}
+
 /** The inputs the page is built from, read from a checkout. */
 export function landingInputs(root = path.join(here, '..')) {
   const read = (p) => fs.readFileSync(path.join(root, p), 'utf-8');
@@ -35,11 +55,13 @@ export function landingInputs(root = path.join(here, '..')) {
     faf,
     coreTools: (manifest.tools ?? []).map((t) => t.name),
     allCount: (card.capabilities ?? []).length,
+    // No CHANGELOG (a copy of some files only): the page shows the version alone.
+    ...editionOf(fs.existsSync(path.join(root, 'CHANGELOG.md')) ? read('CHANGELOG.md') : '', pkg.version),
   };
 }
 
 /** The page, as a string. Pure: same inputs, same bytes. */
-export function renderLanding({ pkg, faf, coreTools, allCount }) {
+export function renderLanding({ pkg, faf, coreTools, allCount, edition = null, oneliner = null }) {
   const project = faf.project ?? {};
   const who = faf.human_context ?? {};
   const repo = String(pkg.repository?.url ?? '').replace(/^git\+/, '').replace(/\.git$/, '');
@@ -72,6 +94,7 @@ export function renderLanding({ pkg, faf, coreTools, allCount }) {
   .logo { font-size: 72px; }
   h1 { font-size: 2.2rem; font-weight: 900; letter-spacing: -1px; }
   .version { display: inline-block; background: #ff6600; color: #000; font-weight: 800; font-size: .85rem; padding: 2px 12px; border-radius: 4px; margin: 8px 0; }
+  .oneliner { max-width: 640px; margin: 10px auto 0; font-weight: 600; }
   .goal { color: #ffd27f; font-size: 1.15rem; font-weight: 600; }
   .ids { color: #888; font-size: .9rem; margin-top: 8px; }
   code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
@@ -99,8 +122,8 @@ export function renderLanding({ pkg, faf, coreTools, allCount }) {
   <header>
     <div class="logo">🍊</div>
     <h1>${esc(pkg.name)}</h1>
-    <div class="version">v${esc(version)}</div>
-    <div class="goal">${esc(project.goal)}</div>
+    <div class="version">v${esc(version)}${edition ? ` · ${esc(edition)}` : ''}</div>
+    <div class="goal">${esc(project.goal)}</div>${oneliner ? `\n    <p class="oneliner">${esc(oneliner)}</p>` : ''}
     <div class="ids">MCP Registry: <code>one.faf/${esc(pkg.name)}</code> · IANA-registered <code>application/vnd.faf+yaml</code> · npm <code>${esc(pkg.name)}</code></div>
   </header>
 

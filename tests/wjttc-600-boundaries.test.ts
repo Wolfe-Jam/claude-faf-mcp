@@ -146,6 +146,7 @@ function probe(home: string, cwd: string, steps: string[], claudeConfig = sandbo
   const env: Record<string, string> = {
     ...(process.env as Record<string, string>),
     HOME: home,
+    USERPROFILE: home, // Windows reads the home folder from USERPROFILE
     BUN_RUNTIME_TRANSPILER_CACHE_PATH: '0',
     CLAUDE_CONFIG_DIR: claudeConfig,
   };

@@ -194,7 +194,7 @@ describe('#1 / #16 — reads and writes go through faf-cli\'s safe path', () => 
   });
 
   test('a write that fails says "not written; original kept" and leaves the file byte for byte', async () => {
-    if (process.getuid?.() === 0) {return;} // root writes through 0444
+    if (process.getuid?.() === 0 || process.platform === 'win32') {return;} // root writes through 0444; Windows has no POSIX folder modes
     const dir = sandbox('ro');
     const fafPath = path.join(dir, 'project.faf');
     fs.writeFileSync(fafPath, HAND_FAF);
@@ -643,7 +643,7 @@ describe('Q9 / #11 — the home folder: faf_setup and faf_quick write nothing', 
       '}',
       'console.log(JSON.stringify(out));',
     ].join('\n'));
-    const env: Record<string, string> = { ...(process.env as Record<string, string>), HOME: home, BUN_RUNTIME_TRANSPILER_CACHE_PATH: '0' };
+    const env: Record<string, string> = { ...(process.env as Record<string, string>), HOME: home, USERPROFILE: home, BUN_RUNTIME_TRANSPILER_CACHE_PATH: '0' };
     delete env.FAF_WORKING_DIR;
     delete env.MCP_WORKING_DIR;
     delete env.CLAUDE_CONFIG_DIR;

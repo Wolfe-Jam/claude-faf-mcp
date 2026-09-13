@@ -158,6 +158,7 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     const env: Record<string, string> = {
       ...(process.env as Record<string, string>),
       HOME: home,
+      USERPROFILE: home, // Windows reads the home folder from USERPROFILE
       BUN_RUNTIME_TRANSPILER_CACHE_PATH: '0',
     };
     delete env.FAF_WORKING_DIR;
@@ -189,7 +190,7 @@ describe('WJTTC 5.23 round 3 — safety guards and truthful output', () => {
     for (const name of ['faf_init', 'faf_auto', 'faf_go']) {
       const r = await handler.callTool(name, { path: '/' });
       expect(`${name}: ${r.isError}`).toBe(`${name}: true`);
-      expect(toolText(r)).toContain(`${name}: / ${REFUSAL}`);
+      expect(toolText(r)).toContain(`${name}: ${path.resolve('/')} ${REFUSAL}`);
     }
     expect(fs.existsSync('/project.faf')).toBe(hadRootFaf);
     expect(fs.existsSync('/CLAUDE.md')).toBe(hadRootClaude);

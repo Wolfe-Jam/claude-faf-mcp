@@ -2357,7 +2357,9 @@ HOW IT WORKS
         output += '(empty)\n';
       } else {
         for (const item of results) {
-          const indent = item.path.split('/').length - resolvedPath.split('/').length - 1;
+          // Depth below the listed folder, by the OS separator (a '/' split gave
+          // -1 on Windows, and repeat(-1) threw: faf_list failed on every entry).
+          const indent = Math.max(0, path.relative(resolvedPath, item.path).split(path.sep).length - 1);
           const prefix = '  '.repeat(indent);
           const icon = item.isDir ? '📁' : item.isLink ? '🔗' : '📄';
           const status = item.hasFaf ? '✅ project.faf' : '';

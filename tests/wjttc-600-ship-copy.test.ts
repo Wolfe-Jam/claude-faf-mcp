@@ -549,3 +549,19 @@ describe('#54 #72 #73 #75 #77 #89 — the gates can fail, and CI runs what ships
     expect(pkg.scripts['format:check']).toBeUndefined(); // prettier is not a dependency
   });
 });
+
+describe('the landing page names the release\'s Edition, from the CHANGELOG', () => {
+  test('editionOf reads the Edition and its bold oneliner for exactly this version; none when unnamed', async () => {
+    const { editionOf, renderLanding, landingInputs } = await import('../scripts/build-landing.mjs');
+    const cl = '# Changelog\n\n## [Unreleased]\n\n## [6.0.0] - 2026-09-13 — The Earned Badge Edition\n\n**Every badge earned, none claimed.**\n\n### Changed\n- x\n\n## [5.22.1] - 2026-08-19\n\n### Fixed\n- y\n';
+    expect(editionOf(cl, '6.0.0')).toEqual({ edition: 'The Earned Badge Edition', oneliner: 'Every badge earned, none claimed.' });
+    expect(editionOf(cl, '5.22.1')).toEqual({ edition: null, oneliner: null });
+    expect(editionOf(cl, '9.9.9')).toEqual({ edition: null, oneliner: null });
+    expect(editionOf(cl.replace(/\n/g, '\r\n'), '6.0.0').edition).toBe('The Earned Badge Edition');
+    const html = renderLanding({ ...landingInputs(), edition: 'The Earned Badge Edition', oneliner: 'Every badge earned, none claimed.' });
+    expect(html).toMatch(/class="version">v[\d.]+ · The Earned Badge Edition</);
+    expect(html).toContain('<p class="oneliner">Every badge earned, none claimed.</p>');
+    const plain = renderLanding({ ...landingInputs(), edition: null, oneliner: null });
+    expect(plain).not.toContain('class="oneliner"');
+  });
+});
