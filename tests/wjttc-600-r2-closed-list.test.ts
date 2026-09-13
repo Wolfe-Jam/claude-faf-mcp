@@ -96,11 +96,15 @@ async function toolDescription(name: string): Promise<string> {
   return (await client.listTools()).tools.find((t) => t.name === name)?.description ?? '';
 }
 
-/** The CHANGELOG's [Unreleased] section. */
+/** The CHANGELOG section for the work on this branch: [Unreleased] while it
+ *  is unreleased, then the entry for the package version once it is stamped. */
 function unreleased(): string {
   const log = read(path.join(ROOT, 'CHANGELOG.md'));
-  const start = log.indexOf('## [Unreleased]');
-  return log.slice(start, log.indexOf('\n## [', start + 1));
+  const version = (JSON.parse(read(path.join(ROOT, 'package.json'))) as { version: string }).version;
+  let start = log.indexOf('## [Unreleased]');
+  if (start < 0) {start = log.indexOf(`## [${version}]`);}
+  const end = log.indexOf('\n## [', start + 1);
+  return log.slice(start, end < 0 ? undefined : end);
 }
 
 // ─────────────────────────────────────────────────────────────── R2-1

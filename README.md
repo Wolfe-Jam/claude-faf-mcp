@@ -40,6 +40,32 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ---
 
+## What's New in v6.0.0 — The Earned Badge Edition
+
+**Every badge earned, none claimed: claude-faf-mcp 6.0 composes faf-cli, touches only what it wrote, and every tool tells the truth — one score, facts from repo, nothing from your PATH.**
+
+- **Composes faf-cli 7.13.** Detection, scoring, the renders and every writer are faf-cli's own functions. claude-faf-mcp never runs a `faf` it finds on your PATH.
+- **Touches only what it wrote.**
+  - Every write is atomic and goes through faf-cli's safe path, and a file that links out of the project is refused.
+  - project.faf edits keep your comments and exact values.
+  - Your soul.fafm and Claude's own MEMORY.md notes stay as you left them.
+- **One score.** Every tool shows faf-cli's score, and ✪ appears only at 100%.
+- **Facts from repo.** Every empty slot says what fills it:
+  - a **fact from repo**, which `faf_auto` writes;
+  - **no fact in repo**, which you answer with `faf_go`;
+  - or **yours**, for the 6Ws.
+- **Tools that tell the truth.**
+  - Every title, hint and schema matches what the tool does, and bad arguments are refused before anything runs.
+  - Core 14: `faf_setup` and `faf_tri_sync` join the default list.
+- **Safe with any repo.**
+  - A cloned repo's symlinks never reach your AI's context.
+  - `faf_go` answers can't pollute objects.
+  - The file tools stay inside the active project.
+- **Ships what it runs.** The `.mcpb` runs the server bundled inside it, and it's started and checked before its sha is recorded. Node 22+, with CI on Node 22 and 24 across Ubuntu, macOS and Windows.
+- **Retired:** `faf_clear`, `faf_friday`, `faf_guide`, `faf_write`, the interop imports into project.faf, and `faf_check` protect/unlock. The archive tag `archive/cfm-v5-surface` keeps them.
+
+---
+
 ## The 3Ws — 3 Answers. That's It.
 
 Every great product started with 3 answers to the 3Ws — **Who, What, Why:**
@@ -82,7 +108,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-5.22.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v5.22.1/claude-faf-mcp-5.22.1.mcpb)
+[**⬇ Download `claude-faf-mcp-6.0.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v6.0.0/claude-faf-mcp-6.0.0.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 

@@ -1,6 +1,6 @@
 {
   "name": "claude-faf-mcp",
-  "version": "5.22.1",
+  "version": "6.0.0",
   "mcpName": "one.faf/claude-faf-mcp",
   "description": "Persistent project context for Claude. IANA-registered .faf format. Core 14 MCP tools (30 with FAF_TOOLS=all).",
   "icon": "./assets/icons/faf-icon-256.png",

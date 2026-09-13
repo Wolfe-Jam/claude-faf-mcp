@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v5.22.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v6.0.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -9,7 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [6.0.0] - 2026-09-13 — The Earned Badge Edition
+
+**Every badge earned, none claimed: claude-faf-mcp 6.0 composes faf-cli, touches only what it wrote, and every tool tells the truth — one score, facts from repo, nothing from your PATH.**
 
 **6.0.0 is a major release.** It needs Node 22 or later. Four tools and the interop imports are retired (see Removed). The `.mcpb` runs the server bundled inside it. The npx config and the SessionStart hook stay unpinned, so an install that runs `npx -y claude-faf-mcp` moves to 6.x on its next start.
 

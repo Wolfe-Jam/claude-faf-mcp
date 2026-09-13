@@ -1,7 +1,7 @@
 {
  "serverInfo": {
   "name": "claude-faf-mcp",
-  "version": "5.22.1"
+  "version": "6.0.0"
  },
  "authentication": {
   "required": false
