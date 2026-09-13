@@ -5,6 +5,10 @@ name: 📡 MCP Registry Publish — sibling one.faf server (DNS)
 # secrets are per-repo and cannot be read back. A sibling that never received
 # the secret (faf-mcp, 2026-09-10) can still be published from here without
 # the key ever leaving GitHub. Manual only — nothing fires this on its own.
+#
+# The inputs reach the shell through the environment, never interpolated into
+# a script, and the key reaches scripts/registry-login.mjs through the
+# environment, never a command line.
 
 on:
   workflow_dispatch:
@@ -18,37 +22,60 @@ on:
         required: true
         default: 'v3.0.0'
 
+env:
+  MCP_PUBLISHER_VERSION: v1.8.1
+  # sha256 of mcp-publisher_linux_amd64.tar.gz at v1.8.1 (registry_1.8.1_checksums.txt)
+  MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+
 jobs:
   publish-sibling:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout this repo (the login script)
+        uses: actions/checkout@v7
+        with:
+          path: cfm
+
       - name: Checkout the sibling repo at the release tag
         uses: actions/checkout@v7
         with:
           repository: ${{ inputs.repo }}
           ref: ${{ inputs.ref }}
+          path: sibling
 
-      - name: Install mcp-publisher
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22.x'
+
+      - name: Install mcp-publisher (pinned, checksum verified)
         run: |
-          curl -sL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
-          tar -xzf mcp-publisher.tar.gz && chmod +x ./mcp-publisher
+          curl -sSfL "https://github.com/modelcontextprotocol/registry/releases/download/${MCP_PUBLISHER_VERSION}/mcp-publisher_linux_amd64.tar.gz" -o mcp-publisher.tar.gz
+          echo "${MCP_PUBLISHER_SHA256}  mcp-publisher.tar.gz" | sha256sum -c -
+          tar -xzf mcp-publisher.tar.gz mcp-publisher && chmod +x ./mcp-publisher
 
       - name: Verify server.json is one.faf/* and its version matches the ref
+        working-directory: sibling
+        env:
+          REF: ${{ inputs.ref }}
         run: |
           NAME=$(node -p "require('./server.json').name")
           case "$NAME" in one.faf/*) ;; *) echo "::error::server.json name '$NAME' is not one.faf/* — this key cannot publish it"; exit 1;; esac
-          TAG="${{ inputs.ref }}"; TAG="${TAG#v}"
+          TAG="${REF#v}"
           MV=$(node -p "require('./server.json').version")
           [ "$TAG" = "$MV" ] || { echo "::error::server.json $MV != ref $TAG"; exit 1; }
           echo "publishing $NAME $MV"
 
-      - name: Login via DNS (one.faf namespace)
-        run: ./mcp-publisher login dns --domain faf.one --private-key "${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}"
+      - name: Login via DNS (one.faf namespace; the key from the environment)
+        env:
+          MCP_PRIVATE_KEY: ${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}
+        run: node cfm/scripts/registry-login.mjs --domain faf.one
 
       - name: Publish to MCP Registry
-        run: ./mcp-publisher publish server.json
+        working-directory: sibling
+        run: ../mcp-publisher publish server.json
 
       - name: Round-trip verify (version-detail endpoint, publisher-provided receipt lives in server._meta)
+        working-directory: sibling
         run: |
           ENC=$(node -p "encodeURIComponent(require('./server.json').name)")
           VER=$(node -p "require('./server.json').version")

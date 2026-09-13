@@ -22,7 +22,9 @@ import {
   HOOK_COMMAND,
   HOOK_FINGERPRINT,
 } from '../src/faf-core/commands/setup-hook';
-import { FAF_START, FAF_END } from '../src/faf-core/inject';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
+
+const { FAF_START, FAF_END } = await fafCli;
 
 const FAF_CONTENT = 'project:\n  name: hook-test\n  goal: test the native session hook\nfaf_score: 100%\n';
 
@@ -208,7 +210,7 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
       const written = JSON.parse(fs.readFileSync(settingsPath(), 'utf-8'));
       const ours = written.hooks.SessionStart
         .flatMap((m: any) => m.hooks)
-        .filter((h: any) => h.command.includes(HOOK_FINGERPRINT));
+        .filter((h: any) => h.command === HOOK_COMMAND);
       expect(ours.length).toBe(1);
     });
 
@@ -220,7 +222,7 @@ describe('🔒 WJTTC — Pillar 5: native session hook', () => {
       }, null, 2));
       await setupSessionHook(dir, { confirm: true });
 
-      const r = await setupSessionHook(dir, { remove: true });
+      const r = await setupSessionHook(dir, { remove: true, confirm: true });
       expect(r.action).toBe('removed');
       const written = JSON.parse(fs.readFileSync(settingsPath(), 'utf-8'));
       expect(written.env.FOO).toBe('bar');

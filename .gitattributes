@@ -1,2 +1,5 @@
 # Normalize line endings
 * text=auto
+
+# Rendered and compared byte for byte (tests/wjttc-600-ship-copy): LF everywhere
+public/index.html text eol=lf

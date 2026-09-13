@@ -6,9 +6,9 @@ We release patches for security vulnerabilities in the following versions:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.x.x   | :white_check_mark: |
-| 4.x.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| 6.x.x   | :white_check_mark: |
+| 5.x.x   | :white_check_mark: (security fixes) |
+| < 5.0   | :x:                |
 
 ## Reporting a Vulnerability
 
@@ -79,29 +79,31 @@ When using claude-faf-mcp:
 
 ## Dependencies
 
-We maintain minimal dependencies to reduce attack surface:
+We keep the dependency list short to reduce attack surface. The production dependencies are the ones in package.json:
 
-- Only one production dependency (MCP SDK)
-- Regular dependency audits
-- Automated security updates via Dependabot
-- No deprecated or unmaintained dependencies
+- `@modelcontextprotocol/sdk` — the MCP protocol and stdio transport
+- `faf-cli` — detection, scoring, the renders and every file writer (composed, not forked)
+- `yaml` — reading and editing YAML
+
+CI runs `npm audit --audit-level=high` on every push and pull request, and Dependabot proposes security updates.
 
 ## Known Security Considerations
 
 ### MCP Protocol
 
-- claude-faf-mcp operates within the Model Context Protocol (MCP) framework
+- claude-faf-mcp operates within the Model Context Protocol (MCP) framework, over stdio
 - It requires filesystem access to manage .faf files
-- All operations are local to the user's machine
-- No data is transmitted to external services
+- Everything runs on the user's machine. The one network use is `faf_git`, which runs `git clone --depth 1` of the URL the caller gives, with symbolic links checked out as plain files
+- Nothing is sent to FAF; see [PRIVACY.md](PRIVACY.md)
 
 ### Filesystem Access
 
-The server requires read/write access to:
-- Project directories for .faf file management
-- Claude Desktop configuration directory (for MCP setup)
+The server reads and writes only:
+- The active project folder (the one `faf_context` shows) and folders listed in `FAF_ALLOWED_ROOTS` — never the home folder or the filesystem root
+- The MEMORY.md Claude Code loads for the project (`~/.claude/projects/<id>/memory/MEMORY.md`), through `faf_tri_sync`
+- The project's `.claude/settings.json`, only faf's SessionStart hook entry, through `faf_setup` after a preview
 
-This access is necessary for core functionality and is limited to user-initiated operations.
+A context file that is a link out of the project is refused. It never writes the Claude Desktop configuration. [PRIVACY.md](PRIVACY.md) lists every file it writes.
 
 ## Security Updates
 
@@ -141,11 +143,11 @@ If you report a vulnerability, we will list you here (with your permission).
 ## Contact
 
 - **Security issues**: team@faf.one
-- **General questions**: [GitHub Discussions](https://github.com/Wolfe-Jam/faf/discussions)
+- **General questions**: [GitHub Discussions](https://github.com/Wolfe-Jam/claude-faf-mcp/discussions)
 - **Project maintainer**: Wolfe James ([ORCID: 0009-0007-0801-3841](https://orcid.org/0009-0007-0801-3841))
 
 ---
 
-**Last updated**: April 2026
+**Last updated**: September 2026
 
 Thank you for helping keep claude-faf-mcp and its users safe.

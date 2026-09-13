@@ -4,7 +4,7 @@
  * Mirrors the disclosure reproduced against the grok-faf-mcp sibling (Zhihao
  * Zhang, WPI): caller `path` arguments flowed through path.resolve() into
  * fs read/write with no confinement (here via the shared getProjectPath()
- * chokepoint + the faf_read/faf_write file tools). CWE-22 / CWE-73 / CWE-200.
+ * chokepoint + the faf_read file tool). CWE-22 / CWE-73 / CWE-200.
  *
  * Boundary under test (utils/safe-path.ts): the `.faf` tools only ever read
  * `.faf`/`.fafm` context files; the general file tools are confined to the
@@ -45,7 +45,11 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
       expect(() => confinePath('/etc/passwd')).toThrow(PathConfinementError);
     });
     test.skipIf(process.platform === 'win32')('refuses ../ traversal to a non-.faf file', () => {
-      expect(() => confinePath('../../../../../../etc/passwd')).toThrow(PathConfinementError);
+      // Built from where the test runs, so it reaches /etc/passwd at any checkout depth.
+      const traversal = path.relative(process.cwd(), '/etc/passwd');
+      expect(traversal.startsWith('..')).toBe(true);
+      expect(path.resolve(traversal)).toBe('/etc/passwd');
+      expect(() => confinePath(traversal)).toThrow(PathConfinementError);
     });
     test('refuses a real existing secret file (any directory)', () => {
       expect(() => confinePath(secretFile)).toThrow(PathConfinementError);
@@ -67,7 +71,12 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
   });
 
   describe('handler — PoC must NOT leak', () => {
-    const handler = new FafToolHandler(new FafEngineAdapter('native'));
+    // The active project is a temp folder of its own, never the checkout.
+    const projectDir = fs.mkdtempSync(path.join(os.tmpdir(), 'claudefaf-sec-project-'));
+    const engine = new FafEngineAdapter();
+    engine.setWorkingDirectory(projectDir);
+    const handler = new FafToolHandler(engine);
+    afterAll(() => { fs.rmSync(projectDir, { recursive: true, force: true }); });
     const textOf = (res: any): string =>
       (res?.content ?? []).map((c: any) => c.text ?? '').join('\n');
 
@@ -82,10 +91,11 @@ describe('🔒 SECURITY — path confinement (arbitrary-file-read/write)', () =>
       expect(textOf(res)).not.toContain('root:');
     });
 
-    test('faf_write outside the project root is refused', async () => {
+    test('faf_write (retired in 6.0.0) writes nothing, anywhere', async () => {
       const target = path.join(os.homedir(), '.claudefaf_should_not_be_written');
       const res: any = await handler.callTool('faf_write', { path: target, content: 'pwned' });
       expect(res.isError).toBeTruthy();
+      expect(textOf(res)).toContain('retired in 6.0.0');
       expect(fs.existsSync(target)).toBe(false);
     });
   });

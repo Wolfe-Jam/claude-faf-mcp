@@ -1,5 +1,6 @@
 # claude-faf-mcp — FAF Agent Card (.fafa)
-# Generated from package.json + manifest.json + server.json. Capabilities = the live MCP tools.
+# agent.version, capabilities and tool_tiers are written by scripts/sync-version.js from package.json
+# and the server's live tools/list; tests/wjttc-600-ship-copy.test.ts checks them.
 # Provenance is the canonical FAF context block (one context, every door).
 
 version: "0.1"
@@ -7,218 +8,188 @@ agent:
   name: claude-faf-mcp
   id: did:web:faf.one:claude-faf-mcp
   vendor: WolfeJAM
-  version: 5.20.0
+  version: 6.0.0
   description: Persistent project context for Claude — define once, never re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
   homepage: https://faf.one
   license: MIT
 capabilities:
   - name: faf
     type: tool
-    description: Type "faf" to start. Scores your project, drives it to 100%, syncs everything. The one command that does it all.
+    description: "Start here: names the project and the .faf faf-cli finds for it (the folder, then one level up), with faf-cli's score, and returns the steps that take it to 100% — faf_auto, faf_score, faf_go, faf_trust, faf_sync. Reads only; it runs none of the steps itself."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_about
     type: tool
-    description: Explain what the FAF format is — project DNA for AI — with its IANA registration, version, and connected platforms. Returns format metadata and the available MCP bridges. Use this when someone asks what FAF is or how it connects to other AI tools.
+    description: Explain what the .faf format is — project context for AI, IANA-registered as application/vnd.faf+yaml — and how this server uses it. Returns a short plain-text overview with this server's version. Reads nothing and writes nothing. Use it when someone asks what FAF is.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_status
     type: tool
-    description: Check if your project has project.faf (project DNA for AI) - Shows AI-readability status
+    description: "Say whether the project has a .faf (faf-cli's finder: the folder, then one level up) and show its first 20 lines. Reads only. For the score use faf_score; for what to fix, faf_doctor."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_score
     type: tool
-    description: Score a project.faf and return its 0–100% AI-readability, tier, and per-slot breakdown, via the deterministic Mk4 engine. Use this for a quick status check; use faf_doctor when you need to diagnose and fix what's missing.
+    description: "Score the project's .faf with faf-cli's scorer — the one score every faf tool reports: 0–100%, the tier, populated/active slots, and a faf-parity/v1 hash of the result. details: true lists every slot as populated, empty or slotignored. Reads only. Use faf_doctor for what to fix."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_init
     type: tool
-    description: Create a new project.faf with a name, goal, and language. Returns the file path and starting score. Won't overwrite an existing file — use faf_auto to fill the stack from your manifests, or faf_go for the human 6Ws.
+    description: "Create a new project.faf for a folder: faf-cli detects its name, language and stack, and the reply gives the file path, faf-cli's starting score and the birth .faf-dna. An existing project.faf is left as it is — use faf_auto to fill its empty slots from your manifests, or faf_go for the human 6Ws. force: true replaces an existing project.faf with a fresh one, after copying the old file to a backup beside it."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_trust
     type: tool
-    description: "Attest a project.faf's integrity: its validity, score, and a deterministic parity hash any conformant engine reproduces. Returns the ✪ receipt. Use this to prove a score is genuine and untampered."
+    description: "Attest the project's .faf: faf-cli's validateFaf, faf-cli's score, and a faf-parity/v1 hash (claude-faf-mcp's own spec) of that score that anyone can check with sha256(projection) === parityHash. Returns a trust receipt whose subject is the project. An invalid .faf, or a score that is unknown, gets no receipt (isError). Reads only."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_setup
     type: tool
-    description: "Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook."
+    description: "Install the native SessionStart hook in the project settings (<project>/.claude/settings.json) — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings first (preview); writes only with confirm: true, install or remove. faf changes only its own hook entry; every other key and hook stays as written. remove: true takes out only the hook whose command is exactly the faf hook command. Never writes the user settings: the home folder is refused."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_sync
     type: tool
-    description: Sync project.faf into CLAUDE.md as a faf-managed block, and optionally into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini), and .github/copilot-instructions.md (copilot) — or all of them (all). Updates each block in place — it never overwrites your file. Use this after editing project.faf so every AI tool sees the latest context.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_enhance
-    type: tool
-    description: Refine a project.faf with an AI model (claude/gemini/grok, optionally by consensus). Returns the enhanced content, or a dry-run preview when dryRun is set. Use this to polish after faf_auto and faf_go have filled the slots.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_clear
-    type: tool
-    description: Clear caches, temporary files, and reset FAF state for a fresh start
+    description: Write project.faf into CLAUDE.md as a faf-managed block (faf-cli's render and injector), and on request into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini) and .github/copilot-instructions.md (copilot) — or all of them (all) — with faf-cli's writers. Each file keeps every line outside faf's block. Returns the files written and any requested file that could not be written, with the reason (then isError). Use it after editing project.faf.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_debug
     type: tool
-    description: Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status
+    description: "Show this server's environment: the active project folder and whether it can be written, the bundled faf-cli version every tool runs on, and the .faf faf-cli finds there. Reads only; it never runs a faf found on PATH."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_read
     type: tool
-    description: Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_write
-    type: tool
-    description: Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.
+    description: Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS, and return its text. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_list
     type: tool
-    description: List directories and discover projects with project.faf files - Essential for FAF discovery workflow
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_friday
-    type: tool
-    description: Detect the FAF Chrome extension and run fuzzy-matching helpers.
-    cites_spec: application/vnd.faf+yaml
-    tags:
-      - faf
-  - name: faf_guide
-    type: tool
-    description: FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns
+    description: List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_readme
     type: tool
-    description: Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching
+    description: "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_human_add
     type: tool
-    description: Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP
+    description: "Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to the text you give, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_check
     type: tool
-    description: Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings
+    description: "Check the project's .faf with faf-cli: validateFaf (required fields such as faf_version and project.name, and the about-block rules) and the scorer's state for every slot — populated, empty or slotignored — with the 6Ws listed one by one. Returns valid, the errors and the slot states. Reads only; writes nothing."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_context
     type: tool
-    description: Set or show the active project path that subsequent faf_ calls resolve against. Returns the current context path. Call this once at the start of a session so the other tools target the right project.
+    description: "Show the active project — the folder every faf_* call without a path uses — and the .faf there; pass path to make another folder the active project (your home folder and the filesystem root are refused). detail: true also returns the .faf's text. Writes no file. Call it once at the start of a session."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_go
     type: tool
-    description: The friendly front door — "let's go, tell me about your idea." Asks the human the 6Ws (goal, why, who, what, where, when) that can't be auto-detected, then applies them to project.faf. If no project.faf exists yet, faf_go bootstraps it first (creates it, sources the stack) so you go from nothing to the 6Ws in one step. Returns the Table-of-8 to confirm/answer, or applies the answers you pass back. Use faf_auto for the technical stack on its own.
+    description: "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_auto
     type: tool
-    description: Scan your manifests (package.json, Cargo.toml, pyproject.toml, go.mod…) and fill the project.faf stack slots from real dependencies — no hardcoded defaults. Returns what was detected and the updated score. Use this for the technical context; use faf_go for the human 6Ws it can't detect, and faf_enhance to have an AI refine the result.
+    description: "Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli's detection over the repo's own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. A value already there is kept. A typed None or placeholder word is an empty slot: in a tech slot the app-type uses, only a repo fact replaces it (with no fact it stays as typed); in a tech slot the app-type leaves out, faf_auto writes slotignored; in a 6W it stays as typed (faf_go asks). Every value it changes is listed. Then writes CLAUDE.md's faf-managed block. Returns what was filled and faf-cli's score before and after. faf_go does the human 6Ws."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_bench
     type: tool
-    description: Prove the .faf earns its place — measure how much the context is worth, on THIS repo, falsifiably. Questions derive from the project.faf's own populated slots (the .faf is the answer key), so grading is mechanical — no judge, no rubric. action=questions returns the answer-key-safe question set; action=grade takes your answers WITHOUT the .faf (cold) and WITH it (faf), grades both, and returns the cold→with-faf lift with a ✪ receipt. The delta is the product; the cold number belongs to the absence of context, never to FAF.
+    description: Prove the .faf earns its place — measure how much the context is worth, on THIS repo, falsifiably. Questions derive from the project.faf's own populated slots (the .faf is the answer key), so grading is mechanical — no judge, no rubric. action=questions returns the answer-key-safe question set; action=grade takes your answers WITHOUT the .faf (cold) and WITH it (faf), grades both, and returns the cold→with-faf lift with a receipt hash. The delta is the product; the cold number belongs to the absence of context, never to FAF. Reads only.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_dna
     type: tool
-    description: Show the project FAF DNA — score history and progression over time.
+    description: "Show the project's .faf-dna lineage, read with faf-cli: the birth score faf_init recorded, every score since (faf_auto and faf_go add them) and the journey line. Reads only; writes nothing."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_formats
     type: tool
-    description: Discover all formats in the project (154+ validated types) and fill stack slots.
+    description: Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_quick
     type: tool
-    description: 'Lightning-fast .faf creation - One-liner format: "name, description, language, framework, hosting"'
+    description: "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli's score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_doctor
     type: tool
-    description: "Diagnose a project.faf: report empty or weak slots, common issues, and how to fix each. Returns a prioritized checklist. Use this when faf_score is below target and you need to know why."
+    description: "Diagnose the project's .faf: faf-cli's validateFaf errors, faf-cli's score with every empty slot and the tool that fills it (faf_auto from the repo, faf_go for the 6Ws), whether CLAUDE.md is there, and the formats faf-cli finds in the folder. Returns a checklist of findings, each with its fix. Reads only. Use it when faf_score is below 100%."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_agents
     type: tool
-    description: Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!
+    description: "Write project.faf into AGENTS.md (OpenAI Codex and other agents) as a faf-managed block: faf-cli's render, enriched from the repo, written by faf-cli (the bytes faf-cli's own export writes). A file already there keeps every line outside the block; the block is updated in place on later runs."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_cursor
     type: tool
-    description: Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!
+    description: "Write project.faf into .cursorrules (Cursor IDE) as a faf-managed block: faf-cli's render, written by faf-cli. A file already there keeps every line outside the block; the block is updated in place on later runs."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_gemini
     type: tool
-    description: Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!
+    description: "Write project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed block: faf-cli's render, enriched from the repo, written by faf-cli. A file already there keeps every line outside the block; the block is updated in place on later runs."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_conductor
     type: tool
-    description: Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!
+    description: Write project.faf into Google Conductor's conductor/ folder — product.md, tech-stack.md, workflow.md and product-guidelines.md — as one faf-managed block per file, from faf-cli's keys (empty, placeholder and slotignored values left out). A file already there keeps every line outside the block.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_git
     type: tool
-    description: Generate project.faf from any GitHub repo URL - 1-click context extraction!
+    description: "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto writes each fact from repo into an existing one); without path, writes nothing and returns the .faf."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_tri_sync
     type: tool
-    description: Tri-directionally sync project.faf ↔ CLAUDE.md ↔ MEMORY.md so context persists across sessions.
+    description: "Write project.faf as a faf-managed block into the MEMORY.md Claude Code loads for this project (~/.claude/projects/<project-id>/memory/MEMORY.md, or under CLAUDE_CONFIG_DIR). Only the block changes; every note of Claude's is kept, and the reply says so only after reading the file back. action: status reads only. faf_sync writes CLAUDE.md."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_etch
     type: tool
-    description: Remember a decision, gotcha, or win across sessions by writing it to the project soul (.fafm). Returns the stored memory's id. Use this to persist something an AI should recall later; use faf_recall to read them back.
+    description: Remember a decision, gotcha, or win across sessions by writing it to the project soul (soul.fafm) with faf-cli's Soul. Returns the stored memory and the soul's size. Re-etching an id updates that memory in place. Use it to persist something an AI should recall later; faf_recall reads them back.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
   - name: faf_recall
     type: tool
-    description: Recall memories from the project soul (.fafm), ranked by priority then recency, filtered by query/tags/type. Returns the matching entries. Use this to surface past decisions; use faf_etch to add new ones.
+    description: Recall memories from the project soul (soul.fafm), ranked by priority then recency, filtered by query/tags/type. Returns the matching entries. Reads only. Use it to surface past decisions; faf_etch adds new ones.
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf
@@ -227,10 +198,6 @@ endpoints:
     version: 2025-06-18
     transport: stdio
     location: claude-faf-mcp
-  - protocol: mcp
-    version: 2025-06-18
-    transport: http
-    location: https://mcpaas.live/claude/mcp/v1
 provenance:
   faf: ./project.faf
   mediaType: application/vnd.faf+yaml
@@ -239,11 +206,26 @@ provenance:
   generated: 2026-07-01T04:35:37Z
 metadata:
   repository: https://github.com/Wolfe-Jam/claude-faf-mcp
-  privacy: Runs locally. No telemetry, no analytics, no data leaves the machine.
+  privacy: Runs locally. No telemetry, no analytics, nothing sent to FAF. The one network use is faf_git, which clones a repo you name with git. https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/PRIVACY.md
   tool_tiers:
-    status: planned
-    model: Essentials (~17 core) + Extended specialist kit
-    note: Capabilities declared flat for now; tier-based surfacing is a planned dimension (per the tool-surface curation design), not yet finalized — no fabricated split.
+    status: live
+    default: "Core 14: the tools/list a host sees without FAF_TOOLS"
+    core:
+      - faf_about
+      - faf_score
+      - faf_init
+      - faf_trust
+      - faf_setup
+      - faf_sync
+      - faf_context
+      - faf_go
+      - faf_auto
+      - faf_bench
+      - faf_doctor
+      - faf_tri_sync
+      - faf_etch
+      - faf_recall
+    all: 30 with FAF_TOOLS=all; every tool is callable by name either way
   trinity:
     context: ./project.faf (live)
     memory: soul.fafm (live)

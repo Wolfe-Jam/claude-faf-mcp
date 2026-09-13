@@ -1,17 +1,10 @@
 #!/usr/bin/env node
 
+// The package's bin: starts the MCP server on stdio (or runs the SessionStart
+// hook with --session-refresh). Importing this file starts the server, so the
+// package's `main` is dist/src/server.js, which has no side effects.
 import { ClaudeFafMcpServer } from './server.js';
 
-// Smithery sandbox support — allows Smithery to scan server capabilities
-export function createSandboxServer() {
-  const wrapper = new ClaudeFafMcpServer({
-    transport: 'stdio',
-    fafEnginePath: 'faf'
-  });
-  return wrapper.getServer();
-}
-
-// MCP servers run via stdio transport when launched by Claude Desktop
 async function main() {
   // Trust Edition Pillar 5 — the SessionStart hook entry. Runs the quiet
   // context refresh and exits; never starts the server, never breaks a
@@ -27,10 +20,7 @@ async function main() {
     process.exit(0);
   }
 
-  const server = new ClaudeFafMcpServer({
-    transport: 'stdio',
-    fafEnginePath: 'faf'
-  });
+  const server = new ClaudeFafMcpServer({ transport: 'stdio' });
 
   await server.start();
 }

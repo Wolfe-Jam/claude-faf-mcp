@@ -42,8 +42,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: What version of claude-faf-mcp are you running?
-      placeholder: "2.5.5"
+      description: What version of claude-faf-mcp are you running? (faf_about and faf_debug show it)
+      placeholder: "the version faf_about reports"
     validations:
       required: true
 
@@ -64,8 +64,8 @@ body:
     id: node-version
     attributes:
       label: Node.js Version
-      description: What version of Node.js? (run `node --version`)
-      placeholder: "v18.0.0"
+      description: What version of Node.js? (run `node --version`; claude-faf-mcp needs 22 or later)
+      placeholder: "v22.x"
     validations:
       required: true
 

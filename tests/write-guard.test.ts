@@ -20,7 +20,7 @@ const BARE =
 
 function tsFiles(dir: string, out: string[] = []): string[] {
   for (const e of readdirSync(dir)) {
-    if (e === 'node_modules' || e === 'dist' || e === 'inject.ts') continue;
+    if (e === 'node_modules' || e === 'dist') continue;
     const p = join(dir, e);
     const s = statSync(p);
     if (s.isDirectory()) tsFiles(p, out);

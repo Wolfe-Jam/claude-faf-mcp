@@ -1,5 +1,6 @@
 import { test, expect, describe } from 'bun:test';
-import { quietText, sanitizeToolResult, quietToolList, stripAnsi, QUIET_TROPHY } from '../src/utils/sanitize-output.js';
+import { quietText, sanitizeToolResult, quietToolList, stripAnsi } from '../src/utils/sanitize-output.js';
+import { SEAL_TROPHY } from '../src/trust/receipt.js';
 import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 
 // WJTTC — The Trust Edition · Pillar 1 (QUIET)
@@ -13,11 +14,13 @@ import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 const ESC = String.fromCharCode(27);
 
 describe('BRAKE — trust-critical quiet guarantees', () => {
-  test('B1 — the rich trophy 🏆 maps to the quiet seal ✪ (never stripped to nothing)', () => {
-    expect(quietText('🏆 Trophy')).toBe('✪ Trophy');
-    expect(QUIET_TROPHY).toBe('✪');
-    expect(quietText('Score: 🏆')).toContain('✪');
-    expect(quietText('🏆')).toBe('✪');
+  test('B1 — the rich trophy 🏆 is stripped like any emoji; quietText never adds the ✪ seal (6.0.0, #46)', () => {
+    // ✪ is the 100% mark: only sealForScore(100) emits it. A "🏆 GOLD CODE" at
+    // 40% must not come out sealed, so the trophy emoji is not turned into ✪.
+    expect(quietText('🏆 Trophy')).toBe('Trophy');
+    expect(quietText('Score: 🏆')).toBe('Score:');
+    expect(quietText('🏆')).toBe('');
+    expect(quietText('🏆 GOLD CODE ACHIEVED!')).not.toContain('✪');
   });
 
   test('B2 — geometric tier ladder survives intact (NOT emoji): ♡ ○ ● ◇ ◆ ★ ✪', () => {
@@ -35,7 +38,7 @@ describe('BRAKE — trust-critical quiet guarantees', () => {
   test('B4 — emoji + adjacent space collapses cleanly ("✅ Done" → "Done", no orphan space)', () => {
     expect(quietText('✅ Done')).toBe('Done');
     expect(quietText('🏎️ Fast')).toBe('Fast');
-    expect(quietText('Score: 🏆 100%')).toBe('Score: ✪ 100%'); // seal keeps its space
+    expect(quietText('Score: 🏆 100%')).toBe('Score: 100%'); // the trophy goes with its space
   });
 
   test('B5 — no orphaned joiners/variation-selectors left behind', () => {
@@ -64,7 +67,7 @@ describe('BRAKE — trust-critical quiet guarantees', () => {
       structuredContent: { score: 100, tier: '🏆 TROPHY' } as Record<string, unknown>,
     };
     const out = sanitizeToolResult(result);
-    expect((out.content[0] as { text: string }).text).toBe('✪ Score: 100%');
+    expect((out.content[0] as { text: string }).text).toBe('Score: 100%');
     expect((out.content[1] as { text: string }).text).toBe('Tier: ★ GOLD');
     // structuredContent is machine data — the sanitizer must not rewrite it:
     expect((out.structuredContent as { tier: string }).tier).toBe('🏆 TROPHY');
@@ -106,7 +109,7 @@ describe('ENGINE — documented behaviour', () => {
       ],
     };
     const out = quietToolList(list);
-    expect(out.tools[0].description).toBe('✪ AI-readiness score');
+    expect(out.tools[0].description).toBe('AI-readiness score');
     expect(out.tools[0].name).toBe('faf_score');            // name untouched
     expect(out.tools[0].inputSchema).toEqual({ type: 'object' }); // schema untouched
     expect(out.tools[1].description).toBe('remember a fact');
@@ -126,7 +129,7 @@ describe('AERO — edge cases that bite in the wild', () => {
   });
 
   test('A2 — emoji embedded mid-word boundary', () => {
-    expect(quietText('v5.8.0🏆release')).toBe('v5.8.0✪release');
+    expect(quietText('v5.8.0🏆release')).toBe('v5.8.0release');
   });
 
   test('A3 — skin-tone modifiers and regional indicators fully removed', () => {
@@ -135,12 +138,12 @@ describe('AERO — edge cases that bite in the wild', () => {
   });
 
   test('A4 — large input with dense emoji stays correct and fast', () => {
-    const line = '🏆 row ✅ data ★ kept ⚡ go\n';
+    const line = '🏆 row ✅ data ★ kept ✪ seal ⚡ go\n';
     const big = line.repeat(5000);
     const out = quietText(big);
     expect(out).not.toMatch(/[\u{1F000}-\u{1FAFF}]/u);
     expect(out).toContain('★'); // tier glyph survives at scale
-    expect(out).toContain('✪'); // seal survives at scale
+    expect(out).toContain('✪'); // a ✪ already in the text survives at scale
     expect(out.split('\n').length).toBe(big.split('\n').length); // line structure intact
   });
 
@@ -150,7 +153,7 @@ describe('AERO — edge cases that bite in the wild', () => {
   });
 
   test('A6 — the ✪ seal renders as exactly one code point (stable across surfaces)', () => {
-    expect([...QUIET_TROPHY].length).toBe(1);
-    expect(QUIET_TROPHY.codePointAt(0)).toBe(0x272a);
+    expect([...SEAL_TROPHY].length).toBe(1);
+    expect(SEAL_TROPHY.codePointAt(0)).toBe(0x272a);
   });
 });

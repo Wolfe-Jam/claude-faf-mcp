@@ -3,10 +3,14 @@ import type { ParityReceipt } from './parity.js';
 /**
  * The `✪` trust receipt (The Trust Edition · Pillar 4).
  *
- * A falsifiable, render-IDENTICAL artifact that bundles what a FAF release
- * attests: the score (sealed with the quiet trophy `✪` at Trophy), the
- * determinism parity hash from Pillar 3, and — optionally — a test pass count.
- * Its value is OUTSIDE the terminal: WJTTC/TAF reports, CI artifacts, logs.
+ * A falsifiable, render-IDENTICAL artifact that bundles what faf_trust
+ * attests for a project: faf-cli's score (sealed with the quiet trophy `✪` only
+ * at 100 — every other score gets its own glyph on the ladder), the
+ * faf-parity/v1 hash from Pillar 3 (claude-faf-mcp's spec), and — optionally —
+ * a test pass count. The subject is the project (project.name, else its
+ * folder), never this server: the server that emitted it is parity.producedBy.
+ * A score that is unknown (an About repo with no about.source_score) gets no
+ * receipt. Its value is OUTSIDE the terminal: WJTTC/TAF reports, CI artifacts, logs.
  *
  * Why `✪` and not 🏆: emoji shapeshift per platform; a seal that renders
  * differently isn't a seal. `✪` (U+272A) is one stable code point everywhere,
@@ -47,7 +51,7 @@ export interface TestAttestation {
 export interface TrustReceipt {
   spec: 'faf-trust-receipt/v1';
   seal: string;          // the quiet-ladder glyph for this score
-  subject: string;       // e.g. 'claude-faf-mcp@5.8.0'
+  subject: string;       // the project: project.name, else its folder name
   score: number;
   tier: string;
   tests: TestAttestation | null;
@@ -93,9 +97,10 @@ export function renderReceipt(r: TrustReceipt): string {
     lines.push(`tests:   ${suite}${r.tests.passed}/${r.tests.total} passing`);
   }
   lines.push(
-    `parity:  ${r.parity.spec}  ${r.parity.parityHash}`,
+    `parity:  ${r.parity.spec} (claude-faf-mcp)  ${r.parity.parityHash}`,
     `source:  sha256 ${r.parity.sourceSha256}`,
     `scorer:  ${r.parity.scorer}  (single deterministic source)`,
+    `by:      ${r.parity.producedBy}`,
     `verify:  sha256(projection) === parityHash`,
   );
   if (r.issued) lines.push(`issued:  ${r.issued}`);

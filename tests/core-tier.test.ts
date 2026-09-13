@@ -9,9 +9,12 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { FafToolHandler } from '../src/handlers/tools.js';
 
+// 6.0.0 (Q3): faf_setup and faf_tri_sync join the Core → 14, so every tool the
+// faf prompt, the README onboarding and the .mcpb manifest name is listed.
 const CORE = [
   'faf_init', 'faf_auto', 'faf_go', 'faf_bench', 'faf_score', 'faf_doctor',
   'faf_sync', 'faf_context', 'faf_trust', 'faf_about', 'faf_etch', 'faf_recall',
+  'faf_setup', 'faf_tri_sync',
 ];
 
 // listTools() never touches the engine adapter — a stub is enough.
@@ -23,7 +26,7 @@ describe('Core tier — Glama-facing default surface', () => {
     delete process.env.FAF_EXTENDED;
   });
 
-  test('default tools/list advertises EXACTLY the 12 Core tools', async () => {
+  test('default tools/list advertises EXACTLY the 14 Core tools', async () => {
     const { tools } = await handler().listTools();
     expect(tools.map((t: any) => t.name).sort()).toEqual([...CORE].sort());
   });
@@ -41,10 +44,10 @@ describe('Core tier — Glama-facing default surface', () => {
     }
   });
 
-  test('FAF_TOOLS=all exposes the full set (>30 tools, Core ⊂ all)', async () => {
+  test('FAF_TOOLS=all exposes the full set (more than Core, Core ⊂ all)', async () => {
     process.env.FAF_TOOLS = 'all';
     const { tools } = await handler().listTools();
-    expect(tools.length).toBeGreaterThan(30);
+    expect(tools.length).toBeGreaterThan(CORE.length);
     const names = tools.map((t: any) => t.name);
     for (const c of CORE) expect(names).toContain(c);
   });

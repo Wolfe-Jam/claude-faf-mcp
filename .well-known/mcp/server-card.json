@@ -1,7 +1,7 @@
 {
  "serverInfo": {
   "name": "claude-faf-mcp",
-  "version": "5.8.0"
+  "version": "6.0.0"
  },
  "authentication": {
   "required": false
@@ -9,13 +9,13 @@
  "tools": [
   {
    "name": "faf",
-   "description": "Type \"faf\" to start. Scores your project, drives it to 100%, syncs everything. The one command that does it all.",
+   "description": "Start here: names the project and the .faf faf-cli finds for it (the folder, then one level up), with faf-cli's score, and returns the steps that take it to 100% — faf_auto, faf_score, faf_go, faf_trust, faf_sync. Reads only; it runs none of the steps itself.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Project path (optional — uses current directory if not provided)"
+      "description": "Project path (optional — the active project if omitted)"
      }
     },
     "additionalProperties": false
@@ -23,7 +23,7 @@
   },
   {
    "name": "faf_about",
-   "description": "Learn what .faf format is - project DNA for AI",
+   "description": "Explain what the .faf format is — project context for AI, IANA-registered as application/vnd.faf+yaml — and how this server uses it. Returns a short plain-text overview with this server's version. Reads nothing and writes nothing. Use it when someone asks what FAF is.",
    "inputSchema": {
     "type": "object",
     "properties": {},
@@ -32,7 +32,7 @@
   },
   {
    "name": "faf_status",
-   "description": "Check if your project has project.faf (project DNA for AI) - Shows AI-readability status",
+   "description": "Say whether the project has a .faf (faf-cli's finder: the folder, then one level up) and show its first 20 lines. Reads only. For the score use faf_score; for what to fix, faf_doctor.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -46,13 +46,13 @@
   },
   {
    "name": "faf_score",
-   "description": "Calculate your project's AI-readability from project.faf (project DNA for AI) - F1-inspired metrics!",
+   "description": "Score the project's .faf with faf-cli's scorer — the one score every faf tool reports: 0–100%, the tier, populated/active slots, and a faf-parity/v1 hash of the result. details: true lists every slot as populated, empty or slotignored. Reads only. Use faf_doctor for what to fix.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "details": {
       "type": "boolean",
-      "description": "Include detailed breakdown and improvement suggestions"
+      "description": "List every slot as populated, empty or slotignored, and the tools that fill the empty ones"
      },
      "path": {
       "type": "string",
@@ -64,17 +64,17 @@
   },
   {
    "name": "faf_init",
-   "description": "Create project.faf (project DNA for AI) - Makes your project instantly AI-readable . Just enter path or project name. Examples: ~/Projects/my-app, my-app, /full/path/to/project",
+   "description": "Create a new project.faf for a folder: faf-cli detects its name, language and stack, and the reply gives the file path, faf-cli's starting score and the birth .faf-dna. An existing project.faf is left as it is — use faf_auto to fill its empty slots from your manifests, or faf_go for the human 6Ws. force: true replaces an existing project.faf with a fresh one, after copying the old file to a backup beside it.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Project path or name. Smart resolution: \"my-app\" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too. Omit to use current directory."
+      "description": "Project path or name. Smart resolution: \"my-app\" finds ~/Projects/my-app OR ~/Code/my-app. Full paths like ~/Projects/app or /Users/me/code/app work too; \".\", \"..\", \"./app\" are relative to the active project. Omit to create ~/Projects/unnamed-project; pass the workspace path to init it. Your home folder and the filesystem root are refused."
      },
      "force": {
       "type": "boolean",
-      "description": "Overwrite existing project.faf if it exists"
+      "description": "Replace an existing project.faf with a fresh one: every value and comment in it is replaced. The old file is copied to project.faf.bak-<time> first."
      }
     },
     "additionalProperties": false
@@ -82,7 +82,7 @@
   },
   {
    "name": "faf_trust",
-   "description": "Attest project.faf integrity — validity, score, and a deterministic parity hash any conformant engine reproduces.",
+   "description": "Attest the project's .faf: faf-cli's validateFaf, faf-cli's score, and a faf-parity/v1 hash (claude-faf-mcp's own spec) of that score that anyone can check with sha256(projection) === parityHash. Returns a trust receipt whose subject is the project. An invalid .faf, or a score that is unknown, gets no receipt (isError). Reads only.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -96,7 +96,7 @@
   },
   {
    "name": "faf_setup",
-   "description": "Install the native SessionStart hook — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings JSON first (preview); writes only with confirm: true. Non-destructive: existing settings and hooks are preserved. remove: true uninstalls exactly the faf hook.",
+   "description": "Install the native SessionStart hook in the project settings (<project>/.claude/settings.json) — every Claude Code session in this project starts with fresh .faf context. Shows the exact settings first (preview); writes only with confirm: true, install or remove. faf changes only its own hook entry; every other key and hook stays as written. remove: true takes out only the hook whose command is exactly the faf hook command. Never writes the user settings: the home folder is refused.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -106,11 +106,11 @@
      },
      "confirm": {
       "type": "boolean",
-      "description": "Actually write the hook into .claude/settings.json. Without it, faf_setup only previews."
+      "description": "Write the change to the project settings (.claude/settings.json). Without it, faf_setup only previews — install and remove alike."
      },
      "remove": {
       "type": "boolean",
-      "description": "Remove the faf SessionStart hook (and only it) from .claude/settings.json."
+      "description": "Remove the faf SessionStart hook (and only it) from the project settings. Previews unless confirm: true."
      }
     },
     "additionalProperties": false
@@ -118,81 +118,33 @@
   },
   {
    "name": "faf_sync",
-   "description": "Sync project.faf (project DNA for AI) with CLAUDE.md - Bi-directional context",
+   "description": "Write project.faf into CLAUDE.md as a faf-managed block (faf-cli's render and injector), and on request into AGENTS.md (agents), .cursorrules (cursor), GEMINI.md (gemini) and .github/copilot-instructions.md (copilot) — or all of them (all) — with faf-cli's writers. Each file keeps every line outside faf's block. Returns the files written and any requested file that could not be written, with the reason (then isError). Use it after editing project.faf.",
    "inputSchema": {
     "type": "object",
     "properties": {
-     "path": {
-      "type": "string",
-      "description": "Project path. Sets session context for subsequent calls."
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_bi_sync",
-   "description": "Bi-directional sync between project.faf and CLAUDE.md. v4.5.0: Also sync to AGENTS.md, .cursorrules, GEMINI.md!",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "auto": {
-      "type": "boolean",
-      "description": "Enable automatic synchronization"
-     },
-     "watch": {
-      "type": "boolean",
-      "description": "Start real-time file watching for changes"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite conflicting changes"
-     },
      "agents": {
       "type": "boolean",
-      "description": "Also sync to AGENTS.md (OpenAI/Codex format)"
+      "description": "Also write AGENTS.md (OpenAI Codex and other agents)"
      },
      "cursor": {
       "type": "boolean",
-      "description": "Also sync to .cursorrules (Cursor IDE format)"
+      "description": "Also write .cursorrules (Cursor IDE)"
      },
      "gemini": {
       "type": "boolean",
-      "description": "Also sync to GEMINI.md (Google Gemini format)"
+      "description": "Also write GEMINI.md (Google Gemini CLI)"
+     },
+     "copilot": {
+      "type": "boolean",
+      "description": "Also write .github/copilot-instructions.md (GitHub Copilot)"
      },
      "all": {
       "type": "boolean",
-      "description": "Sync to ALL formats: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md"
+      "description": "Write every format: CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md + .github/copilot-instructions.md"
      },
      "path": {
       "type": "string",
       "description": "Project path. Sets session context for subsequent calls."
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_clear",
-   "description": "Clear caches, temporary files, and reset FAF state for a fresh start",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "cache": {
-      "type": "boolean",
-      "description": "Clear trust cache only"
-     },
-     "todos": {
-      "type": "boolean",
-      "description": "Clear todo lists only"
-     },
-     "backups": {
-      "type": "boolean",
-      "description": "Clear backup files only"
-     },
-     "all": {
-      "type": "boolean",
-      "description": "Clear everything (default)"
      }
     },
     "additionalProperties": false
@@ -200,7 +152,7 @@
   },
   {
    "name": "faf_debug",
-   "description": "Debug Claude FAF MCP environment - show working directory, permissions, and FAF CLI status",
+   "description": "Show this server's environment: the active project folder and whether it can be written, the bundled faf-cli version every tool runs on, and the .faf faf-cli finds there. Reads only; it never runs a faf found on PATH.",
    "inputSchema": {
     "type": "object",
     "properties": {},
@@ -209,13 +161,13 @@
   },
   {
    "name": "faf_read",
-   "description": "Read a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.",
+   "description": "Read a file inside the active project (the one faf_context shows) or a folder listed in FAF_ALLOWED_ROOTS, and return its text. A relative path resolves against the active project. Anything else — your home folder, the filesystem root, a temp folder, ../ out of the project — is refused.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Absolute or relative file path to read"
+      "description": "File to read: absolute, or relative to the active project"
      }
     },
     "required": [
@@ -225,36 +177,14 @@
    }
   },
   {
-   "name": "faf_write",
-   "description": "Write a file within the project root (cwd / FAF_ALLOWED_ROOTS). Paths that escape the project are refused.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "path": {
-      "type": "string",
-      "description": "Absolute or relative file path to write"
-     },
-     "content": {
-      "type": "string",
-      "description": "Content to write to the file"
-     }
-    },
-    "required": [
-     "path",
-     "content"
-    ],
-    "additionalProperties": false
-   }
-  },
-  {
    "name": "faf_list",
-   "description": "List directories and discover projects with project.faf files - Essential for FAF discovery workflow",
+   "description": "List a folder inside the active project (or a folder listed in FAF_ALLOWED_ROOTS) and flag the subfolders that hold a project.faf. Links are listed, never followed. Reads only.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
-      "description": "Directory path to list (e.g., ~/Projects, /Users/username/Projects)"
+      "description": "Folder to list, inside the active project or FAF_ALLOWED_ROOTS; a relative path resolves against the active project"
      },
      "filter": {
       "type": "string",
@@ -285,41 +215,14 @@
    }
   },
   {
-   "name": "faf_friday",
-   "description": "Detect the FAF Chrome extension and run fuzzy-matching helpers.",
-   "inputSchema": {
-    "type": "object",
-    "properties": {
-     "test": {
-      "type": "string",
-      "description": "Test fuzzy matching with typos like \"raect\" or \"chr ext\""
-     }
-    },
-    "additionalProperties": false
-   }
-  },
-  {
-   "name": "faf_guide",
-   "description": "FAF MCP usage guide for Claude Desktop - Projects convention, path resolution, and UX patterns",
-   "inputSchema": {
-    "type": "object",
-    "properties": {},
-    "additionalProperties": false
-   }
-  },
-  {
    "name": "faf_readme",
-   "description": "Extract 6 Ws (Who/What/Why/Where/When/How) from README.md into human_context - Smart pattern matching",
+   "description": "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "apply": {
       "type": "boolean",
-      "description": "Apply extracted content to project.faf (default: preview only)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Overwrite existing human_context values (default: only fill empty slots)"
+      "description": "Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written."
      },
      "path": {
       "type": "string",
@@ -331,7 +234,7 @@
   },
   {
    "name": "faf_human_add",
-   "description": "Add a human_context field (who/what/why/where/when/how) - Non-interactive for MCP",
+   "description": "Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to the text you give, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -365,18 +268,10 @@
   },
   {
    "name": "faf_check",
-   "description": "Quality inspection for human_context fields + field protection - Shows empty/generic/good/excellent ratings",
+   "description": "Check the project's .faf with faf-cli: validateFaf (required fields such as faf_version and project.name, and the about-block rules) and the scorer's state for every slot — populated, empty or slotignored — with the 6Ws listed one by one. Returns valid, the errors and the slot states. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
-     "protect": {
-      "type": "boolean",
-      "description": "Lock good/excellent fields from being overwritten"
-     },
-     "unlock": {
-      "type": "boolean",
-      "description": "Remove all field protections"
-     },
      "path": {
       "type": "string",
       "description": "Project path. Sets session context for subsequent calls."
@@ -387,13 +282,17 @@
   },
   {
    "name": "faf_context",
-   "description": "Set or view active project context - Path is remembered for subsequent faf_ calls",
+   "description": "Show the active project — the folder every faf_* call without a path uses — and the .faf there; pass path to make another folder the active project (your home folder and the filesystem root are refused). detail: true also returns the .faf's text. Writes no file. Call it once at the start of a session.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
       "description": "Set active project path. If omitted, shows current context."
+     },
+     "detail": {
+      "type": "boolean",
+      "description": "Also return the text of the .faf (read with faf-cli's reader), for reading project.faf in one call"
      }
     },
     "additionalProperties": false
@@ -401,7 +300,7 @@
   },
   {
    "name": "faf_go",
-   "description": "Guided interview to Gold Code (100%): returns questions for missing fields, then applies your answers.",
+   "description": "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -411,7 +310,7 @@
      },
      "answers": {
       "type": "object",
-      "description": "Answers to apply. Keys are field paths (e.g., \"project.goal\", \"human_context.why\"), values are the answers. If provided, applies answers and returns new score.",
+      "description": "Answers to apply: a slot path (e.g. \"project.goal\", \"human_context.why\", \"stack.database\") → the answer text. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.",
       "additionalProperties": {
        "type": "string"
       }
@@ -422,17 +321,61 @@
   },
   {
    "name": "faf_auto",
-   "description": "Run the full FAF pipeline in one step: init + sync + formats + bi-sync + score.",
+   "description": "Create <folder>/project.faf, or fill the empty slots of the one there, with faf-cli's detection over the repo's own files (package.json, Cargo.toml, pyproject.toml, go.mod…) — no hardcoded defaults. A value already there is kept. A typed None or placeholder word is an empty slot: in a tech slot the app-type uses, only a repo fact replaces it (with no fact it stays as typed); in a tech slot the app-type leaves out, faf_auto writes slotignored; in a 6W it stays as typed (faf_go asks). Every value it changes is listed. Then writes CLAUDE.md's faf-managed block. Returns what was filled and faf-cli's score before and after. faf_go does the human 6Ws.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "path": {
       "type": "string",
       "description": "Project path. Sets session context for subsequent calls."
+     }
+    },
+    "additionalProperties": false
+   }
+  },
+  {
+   "name": "faf_bench",
+   "description": "Prove the .faf earns its place — measure how much the context is worth, on THIS repo, falsifiably. Questions derive from the project.faf's own populated slots (the .faf is the answer key), so grading is mechanical — no judge, no rubric. action=questions returns the answer-key-safe question set; action=grade takes your answers WITHOUT the .faf (cold) and WITH it (faf), grades both, and returns the cold→with-faf lift with a receipt hash. The delta is the product; the cold number belongs to the absence of context, never to FAF. Reads only.",
+   "inputSchema": {
+    "type": "object",
+    "properties": {
+     "path": {
+      "type": "string",
+      "description": "Project path (optional — the active project if omitted)."
      },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
+     "action": {
+      "type": "string",
+      "enum": [
+       "questions",
+       "grade"
+      ],
+      "description": "questions = get the answer-key-safe question set to answer; grade = submit cold + with-faf answers to score the delta. Default: questions."
+     },
+     "cold": {
+      "type": "object",
+      "description": "action=grade: answers produced WITHOUT the .faf (general repo knowledge only). Map of question number → answer string.",
+      "additionalProperties": {
+       "type": "string"
+      }
+     },
+     "faf": {
+      "type": "object",
+      "description": "action=grade: answers produced WITH the project.faf in context. Map of question number → answer string.",
+      "additionalProperties": {
+       "type": "string"
+      }
+     },
+     "coldTokens": {
+      "type": "number",
+      "description": "action=grade (optional): tokens spent answering cold."
+     },
+     "fafTokens": {
+      "type": "number",
+      "description": "action=grade (optional): tokens spent answering with the .faf."
+     },
+     "model": {
+      "type": "string",
+      "description": "action=grade (optional): the model that produced the answers."
      }
     },
     "additionalProperties": false
@@ -440,7 +383,7 @@
   },
   {
    "name": "faf_dna",
-   "description": "Show the project FAF DNA — score history and progression over time.",
+   "description": "Show the project's .faf-dna lineage, read with faf-cli: the birth score faf_init recorded, every score since (faf_auto and faf_go add them) and the journey line. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -454,7 +397,7 @@
   },
   {
    "name": "faf_formats",
-   "description": "Discover all formats in the project (154+ validated types) and fill stack slots.",
+   "description": "Show the file formats faf-cli finds in the project folder (never above it) and what faf_auto would write into project.faf from them — a dry run. Reads only; writes nothing.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -472,7 +415,7 @@
   },
   {
    "name": "faf_quick",
-   "description": "Lightning-fast .faf creation - One-liner format: \"name, description, language, framework, hosting\"",
+   "description": "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli's score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -482,11 +425,7 @@
      },
      "input": {
       "type": "string",
-      "description": "Quick input: \"project-name, description, language, framework, hosting\" (minimum: name, description)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing .faf file"
+      "description": "Quick input: \"project-name, goal, language, framework, hosting\" (minimum: name, goal)"
      }
     },
     "required": [
@@ -497,7 +436,7 @@
   },
   {
    "name": "faf_doctor",
-   "description": "Health check for your .faf setup - Diagnose and fix common issues",
+   "description": "Diagnose the project's .faf: faf-cli's validateFaf errors, faf-cli's score with every empty slot and the tool that fills it (faf_auto from the repo, faf_go for the 6Ws), whether CLAUDE.md is there, and the formats faf-cli finds in the folder. Returns a checklist of findings, each with its fix. Reads only. Use it when faf_score is below 100%.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -511,26 +450,17 @@
   },
   {
    "name": "faf_agents",
-   "description": "Import/Export/Sync between AGENTS.md (OpenAI/Codex) and project.faf - AI interop!",
+   "description": "Write project.faf into AGENTS.md (OpenAI Codex and other agents) as a faf-managed block: faf-cli's render, enriched from the repo, written by faf-cli (the bytes faf-cli's own export writes). A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (AGENTS.md -> .faf), export (.faf -> AGENTS.md), sync (bidirectional)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
+      "description": "Action: export (.faf -> AGENTS.md), sync (same as export — project.faf is the source of truth)"
      },
      "path": {
       "type": "string",
@@ -545,26 +475,17 @@
   },
   {
    "name": "faf_cursor",
-   "description": "Import/Export/Sync between .cursorrules (Cursor IDE) and project.faf - AI interop!",
+   "description": "Write project.faf into .cursorrules (Cursor IDE) as a faf-managed block: faf-cli's render, written by faf-cli. A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (.cursorrules -> .faf), export (.faf -> .cursorrules), sync (bidirectional)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
+      "description": "Action: export (.faf -> .cursorrules), sync (same as export — project.faf is the source of truth)"
      },
      "path": {
       "type": "string",
@@ -579,26 +500,17 @@
   },
   {
    "name": "faf_gemini",
-   "description": "Import/Export/Sync between GEMINI.md (Google Gemini CLI) and project.faf - AI interop!",
+   "description": "Write project.faf into GEMINI.md (Google Gemini CLI) as a faf-managed block: faf-cli's render, enriched from the repo, written by faf-cli. A file already there keeps every line outside the block; the block is updated in place on later runs.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export",
        "sync"
       ],
-      "description": "Action: import (GEMINI.md -> .faf), export (.faf -> GEMINI.md), sync (bidirectional)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
+      "description": "Action: export (.faf -> GEMINI.md), sync (same as export — project.faf is the source of truth)"
      },
      "path": {
       "type": "string",
@@ -613,25 +525,16 @@
   },
   {
    "name": "faf_conductor",
-   "description": "Import/Export between conductor/ directory (Google Conductor) and project.faf - AI interop!",
+   "description": "Write project.faf into Google Conductor's conductor/ folder — product.md, tech-stack.md, workflow.md and product-guidelines.md — as one faf-managed block per file, from faf-cli's keys (empty, placeholder and slotignored values left out). A file already there keeps every line outside the block.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "action": {
       "type": "string",
       "enum": [
-       "import",
        "export"
       ],
-      "description": "Action: import (conductor/ -> .faf), export (.faf -> conductor/)"
-     },
-     "force": {
-      "type": "boolean",
-      "description": "Force overwrite existing files"
-     },
-     "merge": {
-      "type": "boolean",
-      "description": "Merge imported data with existing .faf instead of replacing"
+      "description": "Action: export (.faf -> conductor/)"
      },
      "path": {
       "type": "string",
@@ -646,17 +549,17 @@
   },
   {
    "name": "faf_git",
-   "description": "Generate project.faf from any GitHub repo URL - 1-click context extraction!",
+   "description": "Author a project.faf for a repository by URL. Uses the network: faf clones the repo with git (a shallow `git clone`, into a temp folder it removes afterwards), runs faf-cli's detection on it and reports faf-cli's score. With path, writes <path>/project.faf only when that folder has none (faf_auto writes each fact from repo into an existing one); without path, writes nothing and returns the .faf.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "url": {
       "type": "string",
-      "description": "GitHub repository URL (e.g., https://github.com/owner/repo or owner/repo)"
+      "description": "Repository URL: owner/repo (GitHub) or https://github.com/owner/repo"
      },
      "path": {
       "type": "string",
-      "description": "Output directory for generated project.faf. If omitted, returns content without writing."
+      "description": "An existing project folder to write project.faf into (a new file only). If omitted, returns the content without writing."
      }
     },
     "required": [
@@ -667,7 +570,7 @@
   },
   {
    "name": "faf_tri_sync",
-   "description": "Tri-directionally sync project.faf ↔ CLAUDE.md ↔ MEMORY.md so context persists across sessions.",
+   "description": "Write project.faf as a faf-managed block into the MEMORY.md Claude Code loads for this project (~/.claude/projects/<project-id>/memory/MEMORY.md, or under CLAUDE_CONFIG_DIR). Only the block changes; every note of Claude's is kept, and the reply says so only after reading the file back. action: status reads only. faf_sync writes CLAUDE.md.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -677,7 +580,7 @@
        "export",
        "status"
       ],
-      "description": "export = sync .faf to MEMORY.md, status = show MEMORY.md state"
+      "description": "export = write faf's block into MEMORY.md (default), status = show what MEMORY.md holds (reads only)"
      },
      "path": {
       "type": "string",
@@ -689,7 +592,7 @@
   },
   {
    "name": "faf_etch",
-   "description": "Etch a memory — remember this across sessions (a decision, gotcha, or win). Writes to the project soul (.fafm).",
+   "description": "Remember a decision, gotcha, or win across sessions by writing it to the project soul (soul.fafm) with faf-cli's Soul. Returns the stored memory and the soul's size. Re-etching an id updates that memory in place. Use it to persist something an AI should recall later; faf_recall reads them back.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -741,7 +644,7 @@
   },
   {
    "name": "faf_recall",
-   "description": "Recall memories from the project soul (.fafm), ranked by priority then recency.",
+   "description": "Recall memories from the project soul (soul.fafm), ranked by priority then recency, filtered by query/tags/type. Returns the matching entries. Reads only. Use it to surface past decisions; faf_etch adds new ones.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -787,23 +690,38 @@
   {
    "uri": "claude-faf://context",
    "name": "Current FAF Context",
-   "description": "Current project FAF context and metadata"
+   "description": "The active project's .faf as JSON: its path, faf-cli's score and the parsed data.",
+   "mimeType": "application/json"
   },
   {
    "uri": "claude-faf://status",
    "name": "FAF Status Summary",
-   "description": "Project health and AI readiness status"
-  },
-  {
-   "uri": "file:///Users/wolfejam/FAF/claude-faf-mcp",
-   "name": "FAF Working Directory",
-   "description": "File system access for FAF operations"
+   "description": "One line of text: the active project's .faf path and faf-cli's score.",
+   "mimeType": "text/plain"
   }
  ],
  "prompts": [
   {
-   "name": "/faf",
-   "description": "Relentless pursuit of 100% — one source of truth for every AI, every MD. FAF defines. MD instructs. AI codes."
+   "name": "faf",
+   "description": "Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.",
+   "arguments": [
+    {
+     "name": "path",
+     "description": "Project directory path (optional — uses the active project if not provided)",
+     "required": false
+    }
+   ]
+  },
+  {
+   "name": "faf-bench",
+   "description": "Prove the .faf earns its place — run the AI-grounding benchmark honestly, in two passes (cold, then with the .faf), and report the cold→with-faf delta with its receipt. The delta is the product.",
+   "arguments": [
+    {
+     "name": "path",
+     "description": "Project directory path (optional — uses the active project if not provided)",
+     "required": false
+    }
+   ]
   }
  ]
 }

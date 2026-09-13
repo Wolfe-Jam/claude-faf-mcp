@@ -27,17 +27,17 @@ export function stripAnsi(text: string): string {
 // a footgun for anything parsing it). Brand voice lives in MARKETING surfaces,
 // never in tool results.
 //
-// TWO marks, by surface:
-//   🏆  — rich/marketing trophy (web badges, README, blog). NEVER in tool output.
-//   ✪  (U+272A) — the quiet trust SEAL. Renders identically everywhere (unlike
-//       emoji, which shapeshift per platform), so it can anchor falsifiable
-//       receipts (TAF / WJTTC / CI logs). The 🏆 in tool output becomes ✪.
+// The 100% mark on this work surface is ✪ (U+272A), the quiet trust seal: one
+// stable code point that renders the same everywhere, so it can anchor
+// falsifiable receipts (TAF / WJTTC / CI logs). It is emitted ONLY where the
+// score is 100 — by sealForScore (src/trust/receipt.ts) on faf-cli's score.
+// The trophy emoji (U+1F3C6) is stripped here like any other emoji. Before
+// 6.0.0 quietText turned every trophy emoji into ✪, so a "GOLD CODE" or
+// "Perfect health" line at 40–67% came out sealed; now a seal can only come
+// from a score of 100.
 //
 // PRESERVED (these are geometric Unicode, NOT emoji — the quiet tier ladder):
 //   ♡ U+2661 · ○ U+25CB · ● U+25CF · ◇ U+25C7 · ◆ U+25C6 · ★ U+2605 · ✪ U+272A
-
-const RICH_TROPHY = '\u{1F3C6}'; // 🏆
-export const QUIET_TROPHY = '✪'; // ✪ — the quiet trust seal
 
 // Emoji code points to strip. Built from two zones, with HOLES punched out for
 // the tier seals we keep (★ 2605, ☆ 2606, ♡ 2661, ✪ 272A):
@@ -60,12 +60,11 @@ const EMOJI_PATTERN = new RegExp(`(?:${EMOJI_BASE})${JOINERS}*[ \\t]?`, 'gu');
 const ORPHAN_JOINERS = new RegExp(JOINERS, 'gu');
 
 /**
- * Quiet a string: map the rich trophy to the trust seal, then strip all other
- * emoji while preserving the geometric tier ladder (♡ ○ ● ◇ ◆ ★ ✪).
+ * Quiet a string: strip every emoji (the trophy included) while preserving the
+ * geometric tier ladder (♡ ○ ● ◇ ◆ ★ ✪). It never adds a mark.
  */
 export function quietText(text: string): string {
   return text
-    .split(RICH_TROPHY).join(QUIET_TROPHY) // 🏆 → ✪ before the strip removes it
     .replace(EMOJI_PATTERN, '')
     .replace(ORPHAN_JOINERS, '')
     .replace(/[ \t]+$/gm, ''); // trim whitespace orphaned at line ends

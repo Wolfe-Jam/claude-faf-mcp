@@ -93,7 +93,7 @@ describe('ENGINE — faf_bench grades the cold→with-faf delta', () => {
     expect(res.isError).toBe(true);
   });
 
-  test('the render shows the pair + a prescription + the ✪, never a bare cold verdict', async () => {
+  test('the render shows the pair + a prescription + the receipt hash (no ✪: a bench is not a 100% score), never a bare cold verdict', async () => {
     const { deriveQuestionSet } = await fafCli;
     const qset = deriveQuestionSet(FAF);
     const fafAnswers: Record<string, string> = {};
@@ -105,22 +105,24 @@ describe('ENGINE — faf_bench grades the cold→with-faf delta', () => {
     expect(text).toContain('With FAF:');
     expect(text).toContain('Delta:');
     expect(text).toContain('Prescription:');
-    expect(text).toContain('✪');
+    expect(text).toMatch(/Receipt: [0-9a-f]{16}…/);
+    expect(text).not.toContain('✪');
   });
 });
 
-describe('ENGINE — the /faf-bench two-pass protocol prompt', () => {
+describe('ENGINE — the faf-bench two-pass protocol prompt', () => {
   const prompts = new FafPromptHandler();
 
-  test('/faf-bench is registered with a path arg', () => {
+  test('faf-bench is registered (no leading slash) with a path arg', () => {
     const list = prompts.listPrompts().prompts;
-    const bench = list.find((p) => p.name === '/faf-bench');
+    const bench = list.find((p) => p.name === 'faf-bench');
     expect(bench).toBeDefined();
     expect(bench!.arguments?.[0]?.name).toBe('path');
+    expect(list.map((p) => p.name).some((n) => n.startsWith('/'))).toBe(false);
   });
 
   test('the prompt drives an honest two-pass run (cold blind, then with-faf)', () => {
-    const text = prompts.getPrompt('/faf-bench').messages[0].content.text;
+    const text = prompts.getPrompt('faf-bench').messages[0].content.text;
     expect(text).toContain('action: "questions"');
     expect(text).toContain('action: "grade"');
     expect(text).toContain('DO NOT read project.faf yet');     // cold must be blind
@@ -129,12 +131,14 @@ describe('ENGINE — the /faf-bench two-pass protocol prompt', () => {
   });
 
   test('path arg flows into the prompt', () => {
-    const text = prompts.getPrompt('/faf-bench', { path: '/tmp/demo' }).messages[0].content.text;
+    const text = prompts.getPrompt('faf-bench', { path: '/tmp/demo' }).messages[0].content.text;
     expect(text).toContain('/tmp/demo');
   });
 
-  test('the original /faf prompt still works; unknown still throws', () => {
-    expect(prompts.getPrompt('/faf').messages[0].content.text).toContain('/faf');
+  test('the faf prompt works; the pre-6.0 names /faf and /faf-bench still answer; unknown still throws', () => {
+    expect(prompts.getPrompt('faf').messages[0].content.text).toContain('faf_score');
+    expect(prompts.getPrompt('/faf').messages[0].content.text).toBe(prompts.getPrompt('faf').messages[0].content.text);
+    expect(prompts.getPrompt('/faf-bench').messages[0].content.text).toBe(prompts.getPrompt('faf-bench').messages[0].content.text);
     expect(() => prompts.getPrompt('/nope')).toThrow();
   });
 });

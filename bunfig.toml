@@ -2,3 +2,9 @@
 # Single-process runner — suites share one process. Tests must clean up
 # their own state (cwd, env, fs). root scopes discovery to ./tests.
 root = "./tests"
+# The suite runs only under scripts/hermetic-test.mjs (a temp HOME; the
+# checkout hashed before and after). bun reads HOME at process start, so the
+# wrapper sets it; this preload refuses a run without it.
+preload = ["./tests/setup/hermetic.ts"]
+# The coverage floor is scripts/check-coverage.mjs, on the totals of the lcov
+# report CI writes (bun's own coverageThreshold applies to each file alone).

@@ -6,7 +6,7 @@
  * detectors. These tests prove the **MCP tool path** (faf_auto / faf_formats)
  * surfaces Edition signals, not only the low-level composedTurboCatSlots helper.
  *
- * Floor: faf-cli >= 7.7.0 (see docs/compose-faf-cli.md).
+ * Floor: faf-cli >= 7.7.0 (the version is pinned in package.json).
  *
  * Isolation: every case uses a tmp sandbox + path: dir. Repo-root project.faf
  * must never change (sticky-cwd trap).

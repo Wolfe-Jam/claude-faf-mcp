@@ -1,17 +1,18 @@
 name = "faf-claude"
-main = "src/index.js"
+main = "worker/index.js"
 compatibility_date = "2024-12-30"
 
 # claude-faf-mcp web surface — Cloudflare canonical (claude.faf.one)
 #
-# Pure-static deployment via Workers Assets. The docs/ directory
-# contains index.html — the live landing page.
+# Workers Assets serves public/, which holds only the landing page
+# (public/index.html, written by scripts/build-landing.mjs from package.json
+# and project.faf). worker/index.js redirects the MCP paths to the hosted
+# endpoint and hands everything else to the assets.
 #
 # Surfaces (CF canonical; Vercel deprecated):
-#   1. claude.faf.one                    — THIS Worker (CF-edge canonical landing page)
+#   1. claude.faf.one                    — THIS Worker (the landing page)
 #   2. mcpaas.live/claude/mcp/v1         — MCP endpoint (Cloudflare, served_by mcpaas-cf)
-#   3. wolfe-jam.github.io/claude-faf-mcp/ — GitHub Pages mirror (serves same docs/)
-#   4. faf.one/claude                    — discovery page (SvelteKit route — TODO, 404 today)
+#   3. faf.one/claude                    — discovery page (SvelteKit route — TODO, 404 today)
 #
 # Per `ask-before-going-live-website-deploys.md` doctrine, this config is
 # staged + committed autonomously; the actual `wrangler deploy` requires
@@ -24,5 +25,5 @@ routes = [
 ]
 
 [assets]
-directory = "./docs"
+directory = "./public"
 binding = "ASSETS"

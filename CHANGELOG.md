@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v5.22.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v6.0.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -9,7 +9,145 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [6.0.0] - 2026-09-13 — The Earned Badge Edition
+
+**Every badge earned, none claimed: claude-faf-mcp 6.0 composes faf-cli, touches only what it wrote, and every tool tells the truth — one score, facts from repo, nothing from your PATH.**
+
+**6.0.0 is a major release.** It needs Node 22 or later. Four tools and the interop imports are retired (see Removed). The `.mcpb` runs the server bundled inside it. The npx config and the SessionStart hook stay unpinned, so an install that runs `npx -y claude-faf-mcp` moves to 6.x on its next start.
+
+### Security
+
+- Every read of project context and every write goes through faf-cli's safe path. A project.faf, CLAUDE.md, AGENTS.md, soul.fafm, .faf-dna, MEMORY.md or .claude/settings.json that is a link out of the project is refused: never read into a reply, never written through (faf_status, faf_dna, faf_sync, faf_auto, faf_etch, faf_tri_sync, faf_setup and the SessionStart hook).
+- The copilot and conductor exports make their folder inside the project, and a `.github` or `conductor` that links out of it is refused.
+- faf_debug no longer writes and deletes a probe file to test write access. It asks the OS, so a `.claude-faf-test` of yours, or a link by that name, is left alone.
+- Correction to the 5.x path-confinement note below: it covered only the `path` argument. A context file that was itself a link out of the project was still followed until this release.
+- One path resolver for every tool. Your home folder and the filesystem root are refused by faf-cli's device-and-inode check, so no other spelling of home (upper case, a link) gets past it. It covers every writer and the SessionStart hook, and it refuses before the active project moves: a refused call leaves the active project where it was.
+- faf_go answers take only slot paths faf-cli knows (its interview and its slot table), the caller's own keys, and text. `__proto__`, `constructor` and `prototype` are refused at any depth, so an answer can no longer turn on another tool's `force` or change its path. One bad key refuses the whole call, and nothing is written.
+- Tool arguments are read as the caller's own keys only: a flag or a path the caller did not send is never read from Object.prototype.
+- faf_read and faf_list reach only the active project and FAF_ALLOWED_ROOTS: no temp folders, never your home folder or the filesystem root. A relative path resolves against the active project. faf_list is confined like faf_read and lists a link without following it. (The 5.x note below said cwd plus the system temp folders.)
+- faf_git checks out a repo's links as plain files, so a link in a repo can never make faf read a file outside the clone.
+- A test clones a real repo whose README.md is a link to a secret file outside it: the secret's text is in no reply and no file. Without `core.symlinks=false` the same test fails.
+- The registry workflows pin mcp-publisher (v1.8.1) and check its sha256, pin trufflehog to a commit, pass the DNS key through the environment (never a command line), and pass the sibling workflow's inputs through the environment instead of into the script.
+- The dependency tree passes `npm audit --audit-level=high` again: js-yaml 4.3.2 (through eslint, a dev dependency) and hono 4.13.7 (through @modelcontextprotocol/sdk; the override floor is now >=4.13.5), and tmp >=0.2.6 for @anthropic-ai/mcpb's prompt library.
+
+### Fixed
+
+- Every write is atomic. A full disk, a quota or a read-only file leaves the file exactly as it was, and the message says "not written; original kept".
+- faf_human_add, faf_go answers and faf_readme edit project.faf in place through faf-cli. Comments, key order, exact values (`1.10`, a 20-digit id, `0x1F90`), anchors and your own `_meta` survive, and a change that changes nothing writes nothing.
+- faf_auto names every value the file held that the fill changed, instead of saying "existing values kept". A typed None or placeholder word is an empty slot and scores 0: in a tech slot the app-type uses, only a repo fact replaces it, and with no fact it stays as typed; in a tech slot the app-type leaves out, faf_auto writes `slotignored`; a 6W keeps your words (faf_go asks).
+- faf_auto reports each file on its own ("project.faf updated; CLAUDE.md not written: …"), so a CLAUDE.md that cannot be written never hides a project.faf that was.
+- faf_agents, faf_cursor, faf_gemini and the copilot export no longer refuse an existing file or take `force`. They put faf's block on top (or update it in place) and keep every other byte.
+- faf_etch and faf_recall use faf-cli's soul. A hand-kept index, comments, the version, facts or sessions in another shape and unknown keys survive an etch; re-etching an id merges into that fact; faf_recall prints bare-string facts; faf_etch creates no folders. The local soul copy is gone.
+- faf_conductor writes one faf-managed block into each conductor/ file and keeps every line you wrote. `force` is gone. The content comes from project.faf's own keys: goal, language, stack, commands and the 6Ws.
+- faf_readme apply fills only empty human_context slots, never replaces a value you wrote, lists what it filled, and writes nothing when nothing changed. `force` is gone.
+- faf_quick builds on faf-cli's detection: no invented TypeScript or "cloud", no timestamp, server-version or `initialized_by` keys, and a framework goes in stack.frontend or stack.backend only when faf-cli knows which (otherwise it says so). It refuses a folder that already has a project.faf or .faf (use faf_auto) and your home folder. `force` is gone.
+- Advice points at the fix. A YAML error names the file:line:col to edit by hand, a comments-only file is called "no keys", and no message tells you to force or recreate a file you wrote (faf_score, faf_doctor, faf_init, faf_sync and the exports).
+- faf_init `force: true` replaces project.faf with a fresh one, after copying the old file to `project.faf.bak-<time>`. With faf-cli 7.13 it had started to merge instead. Without force an existing file is left alone.
+- faf_setup removes only the hook whose command is exactly faf's; a user hook that mentions `claude-faf-mcp --session-refresh` stays. It refuses a `hooks` or `SessionStart` of the wrong shape instead of replacing it, previews a removal unless `confirm: true`, and rewrites settings.json only when it is laid out the way faf writes JSON (otherwise it gives the entry to add by hand). It refuses the home folder, whose .claude/settings.json is your user settings, and every message names the project settings.
+- faf_tri_sync writes MEMORY.md through faf-cli's Claude-memory writer, at the path Claude Code reads: its id for the project's canonical git root (every character outside a-z, A-Z, 0-9 becomes "-"), under CLAUDE_CONFIG_DIR when set. Only faf's block changes, Claude's notes keep every byte (CRLF and a BOM included), and "kept" is reported only after the file is read back. The local MEMORY.md port is gone.
+- faf_git no longer writes over an existing project.faf. It refuses before fetching anything and points to faf_auto.
+- A relative path (".", "..", "./app") resolves against the active project, never against ~/Projects. faf_init refuses a name with no letters or digits.
+- A path that does not exist is an error ("path not found") in faf_context and every other tool, and the active project stays where it was. faf_etch creates no folders.
+- Starting the server creates no folder. A host that starts it at "/" gets an existing ~/Projects, or the home folder, and the writers ask for a path.
+- The older `project: <name>` (a string, a number or a boolean) is lifted to project.name once, where project.faf is read. faf_go keeps the name, and faf_sync, the SessionStart hook, the exports and faf_tri_sync title everything with it.
+- faf_init, faf_score, faf_sync and faf_doctor name the older `project: <name>` shape and point to faf_auto, which moves it to project.name.
+- The CLAUDE.md that claude-faf-mcp 4.5.0–5.22.1 wrote with no markers ("AI Telemetry Link … STATUS: BI-SYNC ACTIVE") is taken out from below faf's block only when faf can prove it wrote every line of it. A file with any line of yours is left as it is, and the reply says so.
+- One .faf finder, faf-cli's: project.faf, else .faf, in the folder and then one level up. Every reader uses it and names the file it read, and the exports write next to that file. The writers write <folder>/project.faf exactly, and name the .faf above it they did not fill. The two local finders are gone, one of which walked up ten folders.
+- faf_auto in a folder with only the older .faf writes project.faf from it, keeps every value, fills the empty slots and leaves the .faf as it was.
+- faf_git composes faf-cli's `faf git`. faf-cli checks the URL, a shallow git clone fetches the repo into a temp folder, and faf-cli authors the .faf and scores it. The score in the reply is faf-cli's, where it used to claim 100% for a file faf-cli scored 14–24%. It writes only a new project.faf, never in your home folder.
+- faf_dna reads the .faf-dna with faf-cli's FafDNAManager and writes nothing. faf_init and faf_quick write the birth certificate and faf_auto and faf_go add each new score, in faf-cli's own shape, so `faf auto` and `faf dna` keep working on the file.
+- faf_formats shows the formats faf-cli finds in the project folder, each with its file, and a dry run of what faf_auto would write. The canned recommendations and the "Intelligence Score" are gone. With faf-cli 7.13 a parent folder's package.json or tsconfig.json no longer shows up in a subfolder.
+- faf_go answers report faf-cli's score of the file just written.
+- One score everywhere: faf_go, faf_doctor and the SessionStart heartbeat report faf-cli's scoreFafYaml, the number faf_score shows. faf_go no longer says "100% GOLD CODE" when its Table-of-8 is filled: it is complete only at 100%, and below that it says where it stopped and what fills the rest. The local scorer is gone.
+- faf_go names faf_auto only for the slots faf_auto's own dry run would fill or mark slotignored (the dry run faf_formats shows). When it would write none, faf_go names every slot still empty and takes them as answers (`answers: {"stack.hosting": "…"}`), so faf_go and faf_auto no longer send you back and forth. The faf prompt says the same.
+- **Every empty slot says what fills it — "fact from repo".** faf_doctor, faf_score (details) and faf_go label each empty slot from faf_auto's own dry run: `fact from repo: <value>` when the repo holds it, `no fact in repo: answer it (faf_go), or fix project.type if it doesn't apply`, `yours: faf_go asks` for a 6W, or `the app-type leaves it out: faf_auto marks it slotignored`. faf_auto is named once, only when it has a fact to write. The dry run now reads project.faf exactly as faf_auto does, so a type faf fell back to (`# found: no classifying signals — fallback`) never makes faf_go send you back to a faf_auto with nothing to write.
+- faf_score prints populated/active slots ("17/17" on a Trophy), as faf-cli and faf_init do, never populated/total.
+- faf_trust runs faf-cli's validateFaf first: a list, a scalar or a file missing faf_version or project.name gets no receipt and an error naming what is missing.
+- faf_doctor lists faf-cli's validateFaf errors, each with its fix, and faf-cli's score with every empty slot and the tool that fills it (faf_auto or faf_go). It no longer calls such a file ".faf structure is valid", sets a "70%+" target or says "championship-ready".
+- faf_go's JSON gives `score` and `currentScore` as null when the score is unknown (an About repo with no about.source_score), never -1; `scoreText` still says "unknown (—)".
+- A score faf-cli cannot know (an About repo with no about.source_score) shows as "unknown (—)" in faf_score, faf_trust, faf_doctor, faf_check, faf_auto, the resources and the heartbeat, never "-1%", and gets no trust receipt.
+- The faf_trust receipt names the project (project.name, else its folder) as its subject; the server that emitted it is on its own "by" line.
+- The ✪ mark appears only at 100%. The trophy emoji is stripped like any other emoji instead of becoming ✪, the faf_bench receipt line is plain, and the next-tier hint names the tier without its glyph.
+- The parity claim is true: faf-parity/v1 is claude-faf-mcp's own spec, which no other engine computes yet, and you check it with sha256(projection) === parityHash.
+- faf_check reports faf-cli's validateFaf verdict and the scorer's state for every slot, the 6Ws one by one, instead of a "Quality: N%" based on string length.
+- AGENTS.md, .cursorrules, GEMINI.md and .github/copilot-instructions.md are faf-cli's renders written by faf-cli's writers, the same bytes `faf export` writes (AGENTS.md and GEMINI.md enriched from the repo). No more "slotignored" printed as a value, "Deployed:" for the 6W where, a one-line GEMINI.md or a daily date line.
+- faf_sync names every requested file it could not write, with the reason, and returns an error instead of leaving it out of "Files written".
+- Both resources read the active project's .faf with the bundled faf-cli: their score is faf_score's, and reading one never runs a program or writes in your home folder.
+- faf_debug reports the bundled faf-cli version, not whatever `faf` is on PATH, and no longer tells you to install faf-cli.
+- Every tool's arguments are checked against its input schema before it runs: a wrong type, a missing required argument, an unknown argument or an action outside the list returns an error and runs nothing. `faf_agents {action: "bogus"}` used to write AGENTS.md.
+- A tool that fails returns an error result with a readable line, never a JSON-RPC -32603. An unknown tool or prompt is -32602 and an unknown resource -32002.
+- faf_tri_sync with no project.faf returns an error: nothing was written.
+- faf_auto and faf_etch carry destructiveHint: true: faf_auto can replace a typed None already in a slot, and an etch on an existing id changes that memory.
+- Tool annotations match what each handler does: faf_init (force), faf_human_add and faf_go answers are destructive, only tools that never write a file are read-only, every tool has idempotentHint, and every tool has a title.
+- Tool descriptions say what each handler does and returns: `faf` reads only and returns the steps, faf_about promises no bridges, faf_status says it shows the first 20 lines, faf_go lists the eight things it asks, and "Mk4 engine" is gone.
+- MCP output gives MCP advice ("faf_score (details: true)"), never `faf score` (CLI). faf_score no longer suggests marking empty slots slotignored.
+- faf_read returns its metadata in `_meta` instead of a top-level `metadata` key.
+- The `faf` tool names the project from project.faf (or faf-cli's detection) and its first step runs faf_auto for an existing project.faf too.
+- faf_bench names the older `project: <name>` shape, which faf-cli reads no name from.
+- The .mcpb runs its own bundled code: manifest.json starts `node ${__dirname}/dist/src/index.js` instead of `npx -y claude-faf-mcp`, and pack:mcpb no longer deletes ajv-formats, which the bundled server needs to start.
+- pack:mcpb is one chain joined with `&&`: a missing file or a failed step stops the pack instead of being swallowed by `2>/dev/null;`.
+- `npm run verify:mcpb` packs the bundle, unpacks it with mcpb's own unpacker, starts the server inside it the way a host does, and checks initialize, tools/list and faf_score. `--record` then writes the bundle's sha256 into server.json; nothing else writes it.
+- scripts/gen-server-card.js refuses to write server.json for a new version without the new bundle's sha, so a release can no longer publish the old bundle's sha on the new URL.
+- The registry workflow downloads the release .mcpb, checks its sha256 against server.json, checks the version inside it, and starts it, before anything is published; after publishing it reads the entry back.
+- server.json's title comes from faf-cli's registryTitle, and its icons from this repo's own assets/icons (they pointed at the faf-mcp repo).
+- scripts/sync-version.js writes every version stamp and tool count from package.json and the live tools/list: project.faf, manifest.json, agent.fafa, the server card, server.json, the README's .mcpb link, the landing page and the Core counts. A test holds every one to its source.
+- The README's .mcpb link names the release for its own version (it used a latest/download URL with a fixed file name, which breaks at the next release).
+- agent.fafa's tool tiers are the real ones (Core 14; 30 with FAF_TOOLS=all), not "planned, ~17 core", and its version is the package's.
+- The .well-known server card says the package version (it said 5.23.0, which never shipped).
+- CI's Status job reports each job's real result and fails when one failed; it no longer prints "Passed" whatever happened.
+- CI's lint and type-check block a merge. `npm run lint` fails on any error and on more warnings than today's 272. The format check that needed prettier (never a dependency) is gone.
+- CI's build check looked for a file that no longer exists; it now checks the bin, main and the handlers.
+- `npm test` also points TMPDIR, TMP and TEMP at a new temp folder for each run and fails if a test leaves anything in it; tests/copilot-grade.test.ts now removes the folders it makes.
+- The test suite is hermetic: `npm test` runs bun with a temp HOME and fails if a test writes into the checkout or leaves a file in that HOME. Tests no longer write into the real ~/Projects or HOME, use fixed /tmp paths, or depend on how deep the checkout sits.
+- Tests that could not fail now can: no `fail()` (bun has none), no assertion that only runs in a catch the call never reaches, no `expect(true)`. Wall-clock limits moved to the performance suite, which is observability, not a gate.
+- faf, faf_trust, faf_recall, faf_context, faf_setup, faf_cursor, faf_gemini, faf_tri_sync and both resources are tested through a real MCP round trip, including the MEMORY.md marker cases. CI holds a coverage floor on the totals over src/ (scripts/check-coverage.mjs); it only rises.
+- faf_about states facts: the format, the media type, the versions and where to start. The speed, reach and mood lines are gone.
+
+### Removed
+
+- `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` are retired: they are no longer listed, and a call by name returns an error with one line saying what to use instead.
+- `faf_chat` (retired in 5.7.0) now answers the same way: an error with one line.
+- `faf_check` has no `protect` / `unlock` any more and never writes `_protected_fields` into project.faf. No writer ever read that key, so nothing was ever locked.
+- The AGENTS.md, .cursorrules, GEMINI.md and conductor/ imports into project.faf are gone. `action: "import"` returns an error, so these tools can no longer rewrite a project.faf, or a parent folder's, from those files. Export and sync stay.
+- 41 source modules that no tool could reach (the old Mk3 commands, the Mk3 FafCompiler scorer, the tool registry, the visibility config, the unused licensing gate, the fuzzy detector), and the tests and scripts that only exercised them. The engine adapter keeps only the commands a tool calls.
+- The `bi-sync` / `bisync` engine aliases, which no tool called.
+- esbuild, @upstash/redis and faf-scoring-kernel are no longer dependencies, so installs are smaller and no longer run esbuild's install script.
+- mcp-registry-entry.json, faf-mcp-config.json, .npmignore and .mcpbignore are out of the tree (the tag `archive/cfm-v5-surface` keeps them).
+- The GitHub-API port behind faf_git — its GitHub extractor, its own .faf writer and its slot counter, about 1,050 lines — and its own scorer. faf_git no longer reads GITHUB_TOKEN or GH_TOKEN.
+- The PATH detector (`which faf` and `faf --version` at every start), the shell-out that ran it and the "faf-cli REQUIRED FIRST" startup banner. Nothing is run from PATH.
+- The file:// resource: it answered any URI with a placeholder line and read nothing.
+- claude-faf-mcp's own AGENTS.md, .cursorrules, GEMINI.md and Copilot renderers, and its local scorer.
+- `fafEnginePath` in the server config: there is no engine on PATH to point at.
+- docs/ is out of the tree (copied to the PLANET-FAF archive first; the tag `archive/cfm-v5-surface` keeps it). claude.faf.one served all of it, including internal evaluations, a press release and pages with removed tools.
+- The README's badge and footer line claiming an Anthropic MCP listing, the manifest's "Merged in Anthropic MCP ecosystem", and the old "standalone, zero CLI dependencies" and "only one production dependency" claims.
+- examples/test-project/project.faf, a legacy fixture with the maintainer's absolute path: step 1 of the example now creates the file.
+- The `f1-inspired` package keyword, and the `format` / `format:check` scripts (prettier was never installed).
+- tests/stress-test-v120.sh, which called files that no longer exist at the maintainer's absolute path.
+
+### Changed
+
+- faf-cli `^7.13.1` (7.13.1 carries faf-cli's security patch for links in detection, and faf-cli's own output names a slot the app-type leaves out `slotignored`). A file with no faf markers always gets the faf block on top with every original byte kept below it, an old stamp-led faf file included.
+- The npm package ships only dist (no source maps), the icons, scripts/postinstall.js, project.faf and the listed docs. Dev scripts no longer ship.
+- The package `main` is now dist/src/server.js, which starts nothing when imported. The `claude-faf-mcp` bin still starts the server.
+- faf-cli loads through a plain `import('faf-cli')`; the loader that walked up directories to find it is gone.
+- scripts/verify-fafa.js checks the A2A card with faf-cli's `buildA2ACard`; the local copy is gone.
+- `npm run dev` works: it runs the server from source with bun.
+- `npm run lint` quotes its glob, so ESLint checks every file under src/, not just the first level.
+- faf_git needs git on PATH, because it clones the repo. Its description says it uses the network.
+- Core 14: faf_setup and faf_tri_sync are listed by default, so every tool the faf prompt, the README onboarding and the .mcpb manifest name is on a default install.
+- The prompts are `faf` and `faf-bench`, with no leading slash; `/faf` and `/faf-bench` still answer in 6.x. The faf prompt starts with faf_score, and faf-bench reads project.faf with faf_context `{ detail: true }`, which now returns the file's text.
+- manifest.json lists the Core 14, led by faf_init, and declares the two prompts.
+- manifest.json's long description names only what a default install lists: the faf_git line (a .faf from a GitHub repo, with its example) and the README 6Ws line are gone; both tools need FAF_TOOLS=all.
+- The server no longer advertises listChanged for tools or resources: no list changes while it runs.
+- Node 22 or later: engines.node and the manifest runtime are `>=22.0.0`, and scripts/check-engines.mjs holds them to the lowest Node in CI. It runs in CI and in prepublishOnly, which now builds, tests and checks it.
+- CI tests Node 22 and 24 on ubuntu, macOS and Windows, and packs the npm tarball, installs it in a temp folder and starts its bin (initialize, tools/list, faf_score) on each.
+- @anthropic-ai/mcpb is pinned as a dev dependency (2.1.2); pack:mcpb installs the bundle's dependencies with `npm ci`, from the lockfile.
+- claude.faf.one serves only public/index.html, written by scripts/build-landing.mjs from package.json and project.faf: no Trust Edition overlay, no Mk3.1 fallback line, a real og:image, and a privacy link to PRIVACY.md. The Cloudflare Worker moved from src/index.js to worker/index.js.
+- mcpaas.live/claude/mcp/v1 is no longer given as this server's hosted endpoint in the README Quick Start, agent.fafa, smithery.yaml or the landing page: it is MCPaaS, a separate server with its own tools. PRIVACY names it that way.
+- One install path: the README config is `npx -y claude-faf-mcp` (the global bin and bunx are alternatives), and the README says the npx config and the hook are unpinned.
+- PRIVACY lists every file claude-faf-mcp writes and what faf_git sends; SECURITY lists the real dependencies and the real file access; SUPPORT and CONTRIBUTING give instructions that work (Node 22, bun, dist/src/index.js, debugging with faf_debug and the MCP Inspector, one Discussions URL).
+- CHANGELOG history keeps its entries; the lines that claimed an official Anthropic registry listing and validation are corrected to what they were, a community README entry. Banned words and the trophy emoji are gone from the work surfaces.
+- project.faf names only the stdio transport (the endpoint of MCPaaS, a separate server, stays in surfaces.declared) and no command that does not exist; CLAUDE.md is re-rendered from it (no "BI-SYNC" footer).
 
 ## [5.22.1] - 2026-08-19
 
@@ -206,11 +344,11 @@ Patch — inherits The Sourced Edition.
 ### Changed
 
 - **Quiet output, everywhere, always.** Tool results and descriptions carry no emoji — plain, parseable, scriptable. Tier glyphs use the quiet ladder `♡ ○ ● ◇ ◆ ★ ✪` (geometric symbols, render-identical); ✪ is the Trophy seal. One predictable output format, no toggle.
-- **The generated CLAUDE.md block is quiet too.** The native faf→CLAUDE.md renderer now emits the canonical format (`What This Is / Stack / Context`) — no emoji, no brand voice — matching faf-cli's export, since the session hook makes that block part of every session's context. `slotignored` slots stay invisible.
+- **The CLAUDE.md block faf writes is quiet too.** The native faf→CLAUDE.md renderer now emits the canonical format (`What This Is / Stack / Context`) — no emoji, no brand voice — matching faf-cli's export, since the session hook makes that block part of every session's context. `slotignored` slots stay invisible.
 
 ### Fixed
 
-- **Enhanced interop — your files are enhanced, never replaced.** The interop tools (`faf_agents`, `faf_gemini`, `faf_cursor`, `faf_sync`) overwrote AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md wholesale — anything you'd written was lost. Now every write goes through a non-destructive injector: a structured `.faf` block owns the top of the file, everything you've written below is preserved, re-runs update the block in place (idempotent), and existing faf-generated files upgrade cleanly in one pass. A build-failing write-guard makes the old behavior impossible to reintroduce.
+- **Enhanced interop — your files are enhanced, never replaced.** The interop tools (`faf_agents`, `faf_gemini`, `faf_cursor`, `faf_sync`) overwrote AGENTS.md, GEMINI.md, .cursorrules, and CLAUDE.md wholesale — anything you'd written was lost. Now every write goes through a non-destructive injector: a structured `.faf` block owns the top of the file, everything you've written below is preserved, re-runs update the block in place (idempotent), and existing faf-written files upgrade cleanly in one pass. A build-failing write-guard makes the old behavior impossible to reintroduce.
 - **`faf_trust` works again.** It shelled out to a `faf trust` subcommand that no longer exists in faf-cli (every call errored); now a self-contained local attestation.
 
 35 tools live. 547 tests, 0 fail.
@@ -218,7 +356,7 @@ Patch — inherits The Sourced Edition.
 ## [5.7.2] - 2026-06-11 — The Canonical Edition
 
 ### Security
-- **Path confinement on every caller-supplied `path` argument (CWE-22 / CWE-73 / CWE-200).** The shared `getProjectPath()` chokepoint (feeding the `.faf` tools) and the `faf_read` / `faf_write` file tools resolved a caller path straight into a filesystem read/write with no confinement — so an absolute path or `../` traversal could read any file the server process could read (e.g. `/etc/passwd`, `~/.ssh/id_rsa`) or write outside the project. New `safe-path.ts` confines reads to `.faf` / `.fafm` context files and general file ops to the project root (cwd + system temp; override with `FAF_ALLOWED_ROOTS`), canonicalizes through symlinks (closing the symlink bypass), and rejects traversal/absolute escapes; `callTool()` gains a central PATH-DENIED guard. Identified by the maintainers during a sibling-server audit prompted by the coordinated disclosure of the same class of issue in `grok-faf-mcp` by Zhihao Zhang (Worcester Polytechnic Institute). Adds a security regression suite (incl. symlink bypass).
+- **Path confinement on every caller-supplied `path` argument (CWE-22 / CWE-73 / CWE-200).** The shared `getProjectPath()` chokepoint (feeding the `.faf` tools) and the `faf_read` / `faf_write` file tools resolved a caller path straight into a filesystem read/write with no confinement — so an absolute path or `../` traversal could read any file the server process could read (e.g. `/etc/passwd`, `~/.ssh/id_rsa`) or write outside the project. New `safe-path.ts` confines reads to `.faf` / `.fafm` context files and general file ops to the project root (cwd + system temp; override with `FAF_ALLOWED_ROOTS`), canonicalizes through symlinks (closing the symlink bypass for the `path` argument; see the 6.0.0 correction: a context file that was itself a link was still followed), and rejects traversal/absolute escapes; `callTool()` gains a central PATH-DENIED guard. Identified by the maintainers during a sibling-server audit prompted by the coordinated disclosure of the same class of issue in `grok-faf-mcp` by Zhihao Zhang (Worcester Polytechnic Institute). Adds a security regression suite (incl. symlink bypass).
 
 ## [5.7.1] - 2026-06-10 — The Canonical Edition
 
@@ -308,7 +446,7 @@ layer was already on, same number `faf score` (CLI) and faf-mcp 2.1.1 emit.
 
 ## [5.6.0] - 2026-05-25
 
-🏆 **FAF-binary scoring lands in Claude Desktop.**
+✪ **FAF-binary scoring lands in Claude Desktop.**
 
 The real FAF engine — faf-cli's WASM scoring kernel — now powers every
 score in claude-faf-mcp. What you see is the exact, deterministic score
@@ -324,7 +462,7 @@ FAF family.
   faf-cli's renderer, byte-identical to `faf show`. The exact view your
   whole team sees.
 - **Canonical tiers, live in Claude Desktop** — the official
-  🏆 ★ ◆ ◇ ● ○ ♡ ladder.
+  ✪ ★ ◆ ◇ ● ○ ♡ ladder.
 
 ### Under the hood
 
@@ -339,7 +477,7 @@ FAF family.
 ### Changed
 - **displayName standardized** to `.faf 🐘` — pairs the constant elephant family mark with each surface's modifier in MCP client lists (matches grok-faf-mcp's `.faf 🐘⚡️ for Grok` pattern).
 - **Package description aligned** to "Persistent project context for AI" — the canonical positioning across the FAF family. npm and MCP Registry catalogs both pick this up.
-- **Branding pass** — README scoring table now uses geometric tier symbols (★ ◆ ◇ ● ○ ♡) matching `faf-cli/src/core/tiers.ts`. 🏆 is the only emoji marker; decorative emojis stripped from CLI surfaces.
+- **Branding pass** — README scoring table now uses geometric tier symbols (★ ◆ ◇ ● ○ ♡) matching `faf-cli/src/core/tiers.ts`; decorative emojis stripped from CLI surfaces.
 - **manifest.json description** sharpened to "Persistent project context that survives sessions, works across AI tools, and eliminates re-explaining" — strengthens the user-facing pitch in Claude Desktop's Extensions catalog.
 
 ### Fixed
@@ -376,8 +514,8 @@ Docs-only release; code unchanged from v5.5.0.
 
 - **Desktop Extension (.mcpb)** — one-click install for Claude Desktop. No JSON config, no terminal. Drag and click.
 - **`pack:mcpb` build script** — repeatable .mcpb packaging with production deps only (6.2MB bundle)
-- **`destructiveHint` annotations** on all 32 tools — Anthropic Connectors Directory compliant
-- **`examples/test-project/`** — sample project for Anthropic review and user onboarding
+- **`destructiveHint` annotations** on all 32 tools, for the Connectors Directory's annotation requirement
+- **`examples/test-project/`** — sample project for directory reviewers and user onboarding
 - **WJTTC v5.5.0 report** — 67/67 tests, 100% pass rate across all three tiers
 
 ### Changed
@@ -398,7 +536,7 @@ Docs-only release; code unchanged from v5.5.0.
 
 ### Added
 
-- **`/faf` MCP Prompt** — type `/faf` in Claude Desktop and it drives your project to 100% automatically. Check → Score → Improve → Sync → Lock 🏆
+- **`/faf` MCP Prompt** — type `/faf` in Claude Desktop and it drives your project to 100% automatically. Check → Score → Improve → Sync → Lock ✪
   - Relentlessly seeks 100%. Does not stop until the score is Trophy.
   - Syncs `.faf` ↔ `CLAUDE.md` ↔ `MEMORY.md` on completion.
   - Optional `path` argument for non-current-directory projects.
@@ -522,7 +660,7 @@ Tool annotations change the MCP contract surface. All 32 tools now expose struct
 - **Bi-sync `--all` flag** — Sync project.faf to all formats at once (CLAUDE.md + AGENTS.md + .cursorrules + GEMINI.md)
 - **7 bundled parsers** — All parser logic runs standalone, zero CLI dependency
   - agents-parser, cursorrules-parser, gemini-parser, conductor-parser
-  - github-extractor, faf-git-generator, slot-counter
+  - `github-extractor`, `faf-git-generator`, `slot-counter`
 - **95 new tests** across 7 WJTTC tiers (Parser Units, Import/Export, MCP Integration, Engine Adapter, Security, Performance, Roundtrip)
 - Tool count: 56 → 61 (25 core + 36 advanced)
 
@@ -623,7 +761,7 @@ Tool annotations change the MCP contract surface. All 32 tools now expose struct
 - **faf_formats** - TURBO-CAT Format Discovery
   - Discovers 24+ known format files in project
   - Extracts intelligence from package.json
-  - Generates stack signature
+  - Writes the stack signature
   - Provides slot fill recommendations
   - Returns JSON or human-readable output
 
@@ -722,11 +860,11 @@ Tool annotations change the MCP contract surface. All 32 tools now expose struct
   - JSON output now uses canonical tier names (Trophy, Gold, Silver, Bronze, Green, Yellow, Red, White)
   - Fixed 0% edge case to show White tier (🤍)
   - All scorecard renders now use unified `getScoreMedal()` function
-- **Removed Unauthorized Branding** - Cleaned up hallucinated F1/racing terminology
+- **Removed Unauthorized Branding** - Cleaned up hallucinated racing terminology
   - Removed "Championship", "Podium Edition", "Race ready", "Pit Stop" from user-facing output
   - Tool descriptions updated to neutral language
   - Help text now shows proper Mk3 tier system
-- **README Cleanup** - Removed F1 branding, aligned with code changes
+- **README Cleanup** - Removed the racing branding, aligned with code changes
 
 ## [3.3.2] - 2025-11-16
 
@@ -799,7 +937,7 @@ This release inaugurates the "project.faf scorecard era" - transforming the stat
 
 ### Added
 - **Discord Release Automation** - Automatic Discord announcements for new releases
-- **MCP Mission Statement** - Clarified .faf's position as universal Context layer for Model Context Protocol
+- **MCP Mission Statement** - Clarified .faf's position as the Context layer for Model Context Protocol
 
 ### Changed
 - **Documentation Polish** - Updated README from beta messaging to stable v3.0.4+ docs
@@ -843,7 +981,7 @@ This release inaugurates the "project.faf scorecard era" - transforming the stat
   - `faf_innit` - British init command (innit bruv!)
 
 ### Fixed
-- **CRITICAL**: Users can now generate CLAUDE.md without CLI (faf_bi_sync works!)
+- **CRITICAL**: Users can now write CLAUDE.md without CLI (faf_bi_sync works!)
 - **CRITICAL**: Format discovery works without CLI (faf_formats works!)
 - All 50 MCP tools now work standalone - NO CLI DEPENDENCY
 
@@ -859,7 +997,7 @@ This release inaugurates the "project.faf scorecard era" - transforming the stat
 - Zero CLI fallback calls for bundled commands
 
 ### Breaking the 40% Barrier
-Users stuck at 40% AI-readiness (couldn't generate CLAUDE.md) are now FREE!
+Users stuck at 40% AI-readiness (couldn't write CLAUDE.md) are now FREE!
 - Before: 16/25 working (64%) - blocked by CLI dependency
 - After: 25/25 working (100%) - fully standalone
 
@@ -867,7 +1005,7 @@ Users stuck at 40% AI-readiness (couldn't generate CLAUDE.md) are now FREE!
 
 ### Fixed
 - **Claude Desktop Usability**: MCP now defaults to ~/Projects instead of constantly asking for directory paths
-- **Working Directory Logic**: Simplified `findBestWorkingDirectory()` to force universal ~/Projects default
+- **Working Directory Logic**: Simplified `findBestWorkingDirectory()` to force the ~/Projects default
 - **Container Compatibility**: Explicitly avoids `/root/` to work seamlessly in Claude Desktop's container environment
 
 ### Changed
@@ -907,7 +1045,7 @@ Users stuck at 40% AI-readiness (couldn't generate CLAUDE.md) are now FREE!
 
 ### What's New in v3.0.0
 - **Mk3 Bundled Engine**: Core CLI code bundled directly (6-16x faster)
-- **ONE Standard**: project.faf everywhere (visible, universal, like package.json)
+- **ONE Standard**: project.faf everywhere (visible, one name, like package.json)
 - **LOUD Migration Errors**: Clear guidance when legacy `.faf` detected
 - **Championship Performance**: 24.7ms avg, 104 calls/sec throughput
 
@@ -966,7 +1104,7 @@ If upgrading from v2.x with `.faf` files:
   - `auto` - Combined init + score workflow (9-15ms avg)
 - New `/src/faf-core/` directory with 19 bundled files (624KB compiled):
   - Core compiler engine (FafCompiler - 922 lines)
-  - Generators (championship faf-generator)
+  - Authoring (championship `faf-generator`)
   - Utilities (file operations, fafignore parsing, chrome detection)
   - Engines (FAB formats processor, DNA analyzer, context extractor, dependency TSA)
 - Programmatic APIs for score, init, and auto commands (return structured data, no console output)
@@ -997,7 +1135,7 @@ If upgrading from v2.x with `.faf` files:
 ### Documentation
 - BUNDLING_PLAN.md - Complete dependency tree and migration strategy
 - MK3_TEST_RESULTS.md - Architecture documentation and performance benchmarks
-- WJTTC-MK3-ENGINE-REPORT.md - F1-inspired championship test report
+- WJTTC-MK3-ENGINE-REPORT.md - championship test report
 
 ### Known Limitations
 - 13 commands still require CLI fallback (quick, sync, bi-sync, enhance, formats, validate, doctor, dna, log, update, recover, auth, audit)
@@ -1022,7 +1160,7 @@ If upgrading from v2.x with `.faf` files:
 - Smart Projects folder detection in faf_quick with projectName parameter (~/projects/ > ~/Projects/ > create ~/Projects/)
 
 ### Changed
-- Updated messaging from "THE JPEG for AI" to "Persistent Project Context" (official Anthropic terminology)
+- Updated messaging from "THE JPEG for AI" to "Persistent Project Context"
 - Enhanced user onboarding experience with clear three-pathway guidance
 - faf_quick now supports projectName parameter for instant project creation in Projects folder
 
@@ -1061,7 +1199,7 @@ If upgrading from v2.x with `.faf` files:
 
 ### Testing
 - WJTTC Gold Certified
-- F1-inspired testing standards applied
+- Championship testing standards applied
 - Complete test report available
 
 ## [2.7.3] - 2025-11-02
@@ -1135,7 +1273,7 @@ If upgrading from v2.x with `.faf` files:
 ### Changed
 - Redesigned README for professional clarity and credibility
 - Removed decorative emoji and formatting from meta-content
-- Emphasized "persistent project context" in official registry listing
+- Emphasized "persistent project context" in the registry listing
 - Clarified format-driven architecture (format-first, not tools-first)
 
 ### Added
@@ -1166,24 +1304,24 @@ If upgrading from v2.x with `.faf` files:
 
 ## [2.6.1] - 2025-10-16
 
-☑️ **Official MCP Registry Publication**
+☑️ **MCP Registry publication** (historical: `io.github.Wolfe-Jam/claude-faf-mcp`, since superseded by `one.faf/claude-faf-mcp`)
 
 ### Added
-- server.json configuration for Anthropic MCP Registry listing
-- Official registry validation and publication ([PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759) MERGED)
+- server.json configuration for the MCP Registry listing
+- A one-line community entry in the modelcontextprotocol/servers README ([PR #2759](https://github.com/modelcontextprotocol/servers/pull/2759), merged 2025-10-17). Historical: that README no longer lists it.
 
 ### Changed
 - mcpName field updated with correct capitalization format (io.github.Wolfe-Jam/claude-faf-mcp)
-- First .faf format server officially listed in Anthropic MCP ecosystem
+- First .faf format server in the MCP Registry
 
 ### Registry Status
-- ☑️ Published to official Anthropic MCP Registry
-- ☑️ Validated by Anthropic engineering team
+- ☑️ Published to the MCP Registry (registry.modelcontextprotocol.io)
+- Correction (6.0.0): this entry used to say the listing was validated by Anthropic's engineering team. It was a community README entry; no Anthropic review or endorsement is claimed.
 - ☑️ Available for one-click installation in MCP-compatible hosts
 
 ## [2.6.0] - 2025-10-14
 
-🏆 **Post-Evaluation Release (94.4/100 Gold Standard)**
+✪ **Post-Evaluation Release (94.4/100 Gold Standard)**
 
 ### Added
 - Type-safe tool handlers with proper TypeScript definitions
@@ -1258,8 +1396,8 @@ If upgrading from v2.x with `.faf` files:
 - Enhanced scoring algorithm for better project analysis
 
 ### Changed
-- Scoring system now uses F1-inspired tiers:
-  - 🏆 Trophy (100%) - Perfect AI|HUMAN balance
+- Scoring system now uses podium tiers:
+  - ✪ Trophy (100%) - Perfect AI|HUMAN balance
   - 🥇 Gold (99%) - Gold standard
   - 🥈 Silver (95-98%) - Excellence
   - 🥉 Bronze (85-94%) - Production ready

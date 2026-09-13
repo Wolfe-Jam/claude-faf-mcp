@@ -1,219 +1,139 @@
 /**
- * Performance Benchmarking for FAF MCP
- * Championship-level performance validation
+ * Performance — observability, not a gate.
+ *
+ * Every wall-clock limit in the suite lives here: `npm test` leaves this file
+ * out (--path-ignore-patterns), and CI runs it as `npm run test:performance`
+ * in a job whose failure does not fail the build. Timing on shared runners is
+ * noise; a real regression shows up here as a trend.
+ *
+ * 6.0.0 (audit #92): the tool timings that used to sit in the gating suites
+ * (wjttc-mcp TIER 6, desktop-native, wjttc-v340, interop-v450) moved here, and
+ * every file is written in a mkdtemp folder, never the checkout.
  */
 
 import { describe, test, expect, beforeAll, afterAll } from 'bun:test';
-import * as fs from 'fs/promises';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 import { performance } from 'perf_hooks';
+import { FafToolHandler } from '../src/handlers/tools';
+import { FafEngineAdapter } from '../src/handlers/engine-adapter';
+import { fafCli } from '../src/utils/faf-cli-bridge.js';
 
-// Performance targets (milliseconds)
+// Targets (milliseconds)
 const TARGETS = {
-  fileRead: 50,        // Read a file
-  fileWrite: 100,      // Write a file
-  listDirectory: 30,   // List directory contents
-  treeView: 100,       // Generate tree view
-  scoring: 200,        // Calculate score
-  detection: 150,      // Detect project type
+  fileRead: 50,
+  fileWrite: 100,
+  listDirectory: 30,
+  toolList: 50,
+  toolCall: 100,
+  concurrent: 500,
+  formats: 100,
+  go: 200,
+  auto: 5000,
+  gitUrls: 50,
 };
 
-// Test utilities
-const measureTime = async (fn: () => Promise<any>): Promise<number> => {
+const measureTime = async (fn: () => Promise<unknown> | unknown): Promise<number> => {
   const start = performance.now();
   await fn();
-  const end = performance.now();
-  return end - start;
+  return performance.now() - start;
 };
 
-const createTestFile = async (size: number): Promise<string> => {
-  const testPath = path.join(process.cwd(), `test-${Date.now()}.txt`);
-  const content = 'x'.repeat(size);
-  await fs.writeFile(testPath, content);
-  return testPath;
-};
+let dir: string;
+let handler: FafToolHandler;
 
-describe('File Operation Performance', () => {
-  let testFile: string;
+beforeAll(() => {
+  process.env.FAF_TOOLS = 'all';
+  dir = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'cfm-perf-')));
+  fs.writeFileSync(path.join(dir, 'perf.txt'), 'Performance test content');
+  fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name: 'perf-test', version: '1.0.0', dependencies: { typescript: '^5.0.0' } }));
+  fs.writeFileSync(path.join(dir, 'project.faf'), 'faf_version: "3.0"\nproject:\n  name: perf-test\n  goal: Measure\n');
+  const engine = new FafEngineAdapter();
+  engine.setWorkingDirectory(dir);
+  handler = new FafToolHandler(engine);
+});
 
-  beforeAll(async () => {
-    // Create a 1KB test file
-    testFile = await createTestFile(1024);
-  });
+afterAll(() => {
+  fs.rmSync(dir, { recursive: true, force: true });
+});
 
-  afterAll(async () => {
-    // Clean up
-    try {
-      await fs.unlink(testFile);
-    } catch {
-      // Ignore if already deleted
-    }
-  });
-
-  test('should read files within target time', async () => {
-    const time = await measureTime(async () => {
-      await fs.readFile(testFile, 'utf-8');
-    });
-
-    expect(time).toBeLessThan(TARGETS.fileRead);
+describe('File operations', () => {
+  test('read a 1KB file', async () => {
+    const f = path.join(dir, 'one-k.txt');
+    fs.writeFileSync(f, 'x'.repeat(1024));
+    const time = await measureTime(() => fs.promises.readFile(f, 'utf-8'));
     console.log(`File read: ${time.toFixed(2)}ms (target: ${TARGETS.fileRead}ms)`);
+    expect(time).toBeLessThan(TARGETS.fileRead);
   });
 
-  test('should write files within target time', async () => {
-    const time = await measureTime(async () => {
-      await fs.writeFile(`${testFile}.copy`, 'test content');
-    });
-
-    expect(time).toBeLessThan(TARGETS.fileWrite);
+  test('write a file', async () => {
+    const time = await measureTime(() => fs.promises.writeFile(path.join(dir, 'copy.txt'), 'test content'));
     console.log(`File write: ${time.toFixed(2)}ms (target: ${TARGETS.fileWrite}ms)`);
-
-    // Clean up
-    await fs.unlink(`${testFile}.copy`);
+    expect(time).toBeLessThan(TARGETS.fileWrite);
   });
 
-  test('should handle large files efficiently', async () => {
-    // Create a 5MB file
-    const largeFile = await createTestFile(5 * 1024 * 1024);
-
-    const time = await measureTime(async () => {
-      await fs.readFile(largeFile, 'utf-8');
-    });
-
-    // Should still be reasonably fast
-    expect(time).toBeLessThan(500);
-    console.log(`Large file read (5MB): ${time.toFixed(2)}ms`);
-
-    // Clean up
-    await fs.unlink(largeFile);
-  });
-});
-
-describe('Directory Operation Performance', () => {
-  test('should list directories within target time', async () => {
-    const time = await measureTime(async () => {
-      await fs.readdir(process.cwd());
-    });
-
-    expect(time).toBeLessThan(TARGETS.listDirectory);
-    console.log(`Directory list: ${time.toFixed(2)}ms (target: ${TARGETS.listDirectory}ms)`);
-  });
-
-  test('should generate tree view within target time', async () => {
-    const generateTree = async (dir: string, _depth: number = 3): Promise<string> => {
-      // Simplified tree generation for testing
-      const items = await fs.readdir(dir);
-      return items.slice(0, 10).join('\n'); // Limit for testing
-    };
-
-    const time = await measureTime(async () => {
-      await generateTree(process.cwd());
-    });
-
-    expect(time).toBeLessThan(TARGETS.treeView);
-    console.log(`Tree view: ${time.toFixed(2)}ms (target: ${TARGETS.treeView}ms)`);
-  });
-});
-
-describe('3-3-1 Format Performance', () => {
-  test('should format output instantly', async () => {
-    const format3x3x1 = (emoji: string, metric: string, value: string, percentage: number) => {
-      const filled = Math.round(percentage / 4);
-      const bar = '█'.repeat(filled) + '░'.repeat(25 - filled);
-
-      return [
-        `${emoji} ${metric}: ${value}`,
-        bar,
-        `Status: Excellent`
-      ].join('\n');
-    };
-
-    const time = await measureTime(async () => {
-      // Format 1000 times to get measurable time
-      for (let i = 0; i < 1000; i++) {
-        format3x3x1('📊', 'Score', '88/100', 88);
-      }
-    });
-
-    const perFormat = time / 1000;
-    expect(perFormat).toBeLessThan(1); // Less than 1ms per format
-    console.log(`Format output: ${perFormat.toFixed(3)}ms per operation`);
-  });
-});
-
-describe('Memory Usage', () => {
-  test('should not leak memory on repeated operations', async () => {
-    const initialMemory = process.memoryUsage().heapUsed;
-
-    // Perform 100 operations
-    for (let i = 0; i < 100; i++) {
-      const testFile = await createTestFile(1024);
-      await fs.readFile(testFile, 'utf-8');
-      await fs.unlink(testFile);
-    }
-
-    // Force garbage collection if available
-    if (global.gc) {
-      global.gc();
-    }
-
-    const finalMemory = process.memoryUsage().heapUsed;
-    const memoryGrowth = finalMemory - initialMemory;
-
-    // Should not grow more than 10MB
-    expect(memoryGrowth).toBeLessThan(10 * 1024 * 1024);
-    console.log(`Memory growth: ${(memoryGrowth / 1024 / 1024).toFixed(2)}MB`);
-  });
-});
-
-describe('Concurrent Operations', () => {
-  test('should handle concurrent file operations', async () => {
-    const operations = 10;
-    const promises: Promise<any>[] = [];
-
-    const time = await measureTime(async () => {
-      for (let i = 0; i < operations; i++) {
-        promises.push(fs.readdir(process.cwd()));
-      }
-      await Promise.all(promises);
-    });
-
-    const perOperation = time / operations;
-    expect(perOperation).toBeLessThan(50); // Should benefit from parallelism
-    console.log(`Concurrent ops: ${perOperation.toFixed(2)}ms per operation (${operations} total)`);
-  });
-
-  test('should maintain performance under load', async () => {
-    const operations = 100;
+  test('list a folder, 100 times', async () => {
     const times: number[] = [];
-
-    for (let i = 0; i < operations; i++) {
-      const time = await measureTime(async () => {
-        await fs.readdir(process.cwd());
-      });
-      times.push(time);
-    }
-
-    const average = times.reduce((a, b) => a + b, 0) / times.length;
-    const max = Math.max(...times);
-
-    expect(average).toBeLessThan(TARGETS.listDirectory);
-    expect(max).toBeLessThan(TARGETS.listDirectory * 2); // Max should not be too high
-
-    console.log(`Under load - Avg: ${average.toFixed(2)}ms, Max: ${max.toFixed(2)}ms`);
+    for (let i = 0; i < 100; i++) {times.push(await measureTime(() => fs.promises.readdir(dir)));}
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    console.log(`Directory list: avg ${avg.toFixed(2)}ms, max ${Math.max(...times).toFixed(2)}ms`);
+    expect(avg).toBeLessThan(TARGETS.listDirectory);
   });
 });
 
-describe('Championship Performance Summary', () => {
-  test('should meet all performance targets', () => {
-    console.log('\n🏁 PERFORMANCE SUMMARY:');
-    console.log('Target: All operations under 200ms');
-    console.log('File operations: ✅ <50ms');
-    console.log('Directory operations: ✅ <30ms');
-    console.log('Format operations: ✅ <1ms');
-    console.log('Memory usage: ✅ No leaks detected');
-    console.log('Concurrent ops: ✅ Scales well');
-    console.log('\n🏆 CHAMPIONSHIP PERFORMANCE ACHIEVED!');
+describe('Tool latency', () => {
+  test('tools/list', async () => {
+    const time = await measureTime(() => handler.listTools());
+    console.log(`Tool list: ${time.toFixed(2)}ms (target: ${TARGETS.toolList}ms)`);
+    expect(time).toBeLessThan(TARGETS.toolList);
+  });
 
-    expect(true).toBe(true); // Summary test
+  test('faf_debug, faf_read and faf_score', async () => {
+    for (const [name, args] of [['faf_debug', {}], ['faf_read', { path: path.join(dir, 'perf.txt') }], ['faf_score', { path: dir }]] as const) {
+      const time = await measureTime(() => handler.callTool(name, args as Record<string, unknown>));
+      console.log(`${name}: ${time.toFixed(2)}ms (target: ${TARGETS.toolCall}ms)`);
+      expect(time).toBeLessThan(TARGETS.toolCall);
+    }
+  });
+
+  test('10 concurrent faf_debug calls; 50 in a row keep their latency', async () => {
+    const concurrent = await measureTime(() => Promise.all(Array.from({ length: 10 }, () => handler.callTool('faf_debug', {}))));
+    console.log(`10 concurrent: ${concurrent.toFixed(2)}ms (target: ${TARGETS.concurrent}ms)`);
+    expect(concurrent).toBeLessThan(TARGETS.concurrent);
+    const times: number[] = [];
+    for (let i = 0; i < 50; i++) {times.push(await measureTime(() => handler.callTool('faf_debug', {})));}
+    const avg = times.reduce((a, b) => a + b, 0) / times.length;
+    console.log(`50 ops — avg ${avg.toFixed(2)}ms, max ${Math.max(...times).toFixed(2)}ms`);
+    expect(avg).toBeLessThan(TARGETS.toolCall);
+  });
+
+  test('faf_formats, faf_go and faf_auto', async () => {
+    const formats = await measureTime(() => handler.callTool('faf_formats', { path: dir }));
+    const go = await measureTime(() => handler.callTool('faf_go', { path: dir }));
+    const autoDir = fs.mkdtempSync(path.join(dir, 'auto-'));
+    fs.writeFileSync(path.join(autoDir, 'package.json'), JSON.stringify({ name: 'auto-perf', version: '1.0.0' }));
+    const auto = await measureTime(() => handler.callTool('faf_auto', { path: autoDir }));
+    console.log(`faf_formats ${formats.toFixed(0)}ms · faf_go ${go.toFixed(0)}ms · faf_auto ${auto.toFixed(0)}ms`);
+    expect(formats).toBeLessThan(TARGETS.formats);
+    expect(go).toBeLessThan(TARGETS.go);
+    expect(auto).toBeLessThan(TARGETS.auto);
+  });
+
+  test('faf-cli normalizeGitUrl: 100 URLs', async () => {
+    const { normalizeGitUrl } = await fafCli;
+    const time = await measureTime(() => { for (let i = 0; i < 100; i++) {normalizeGitUrl(`https://github.com/owner-${i}/repo-${i}`);} });
+    console.log(`normalizeGitUrl ×100: ${time.toFixed(2)}ms (target: ${TARGETS.gitUrls}ms)`);
+    expect(time).toBeLessThan(TARGETS.gitUrls);
+  });
+});
+
+describe('Memory', () => {
+  test('100 light tool calls do not grow the heap by 50MB', async () => {
+    const before = process.memoryUsage().heapUsed;
+    for (let i = 0; i < 100; i++) {await handler.callTool('faf_debug', {});}
+    const growth = process.memoryUsage().heapUsed - before;
+    console.log(`Memory growth: ${(growth / 1024 / 1024).toFixed(2)}MB`);
+    expect(growth).toBeLessThan(50 * 1024 * 1024);
   });
 });
