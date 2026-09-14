@@ -11,6 +11,9 @@ on:
     branches: [ main ]
   release:
     types: [ created ]
+  # Weekly Audit Fix dispatches this after its bot push (a GITHUB_TOKEN push
+  # can't trigger a push run), so lockfile commits still get tested + a receipt.
+  workflow_dispatch:
 
 env:
   # The lowest Node in the matrices below — scripts/check-engines.mjs holds
@@ -92,7 +95,7 @@ jobs:
           name: codecov-umbrella
 
       - name: Write TAF Receipt
-        if: matrix.os == 'ubuntu-latest' && github.event_name == 'push'
+        if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: Wolfe-Jam/faf-taf-git@v2.2.2
         with:
           test-output-file: /tmp/test-output.txt
