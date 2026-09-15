@@ -95,7 +95,9 @@ jobs:
           name: codecov-umbrella
 
       - name: Write TAF Receipt
-        if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+        # main only: taf-receipts is main's proof over time; a dispatch on another
+        # branch still runs CI but writes no receipt.
+        if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
         uses: Wolfe-Jam/faf-taf-git@v2.3.0
         with:
           test-output-file: /tmp/test-output.txt
