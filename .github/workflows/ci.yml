@@ -98,7 +98,7 @@ jobs:
         # main only: taf-receipts is main's proof over time; a dispatch on another
         # branch still runs CI but writes no receipt.
         if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-        uses: Wolfe-Jam/faf-taf-git@v2.3.0
+        uses: Wolfe-Jam/faf-taf-git@v2.3.1
         with:
           test-output-file: /tmp/test-output.txt
           auto-commit: 'true'
