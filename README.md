@@ -30,7 +30,7 @@
 
 > ⚡ **The `faf` prompt** — pick it from your host's prompt list (Claude Code shows it as `/mcp__<server name>__faf`). It scores your project, fills what the repo can, asks you only what only you can answer, verifies, and syncs.
 
-> **6.0.0 is a major release.** It needs Node 22 or later. `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` are retired, and so are the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf. The `.mcpb` now runs the server bundled inside it. The npx config and the SessionStart hook are not pinned to a version, so an install that runs `npx -y claude-faf-mcp` moves to 6.x on its next start: check your Node before you upgrade. Every change is in the [CHANGELOG](./CHANGELOG.md).
+> **7.0.0 is a major release — scores can move.** claude-faf-mcp now scores with faf-cli 8's always-33 engine. A `.faf` without the 12 enterprise `slotignored` markers counts them as empty (21 filled = 64%): run `faf_auto` and it writes the markers. The npx config and the SessionStart hook are not pinned to a version, so an install that runs `npx -y claude-faf-mcp` moves to 7.x on its next start. Every change is in the [CHANGELOG](./CHANGELOG.md).
 
 **Context for Claude:** faf-cli writes this repo's CLAUDE.md from its scored `project.faf` — `faf_sync` here, `faf sync` in faf-cli. See [FAF-CLI for Claude Code 👀](https://github.com/Wolfe-Jam/faf-cli/blob/main/docs/faf-cli-for-claude.md).
 
@@ -40,7 +40,17 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ---
 
-## What's New in v6.0.0 — The Earned Badge Edition
+## What's New in v7.0.0 — The Always33 Edition
+
+**One engine, one number: claude-faf-mcp 7 scores all 33 slots with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.**
+
+- **The always-33 engine.** Every tool scores with faf-cli 8.0.0 — all 33 Mk4 slots, one Rust kernel. Checked live: faf-python-sdk 56, mcp-context-card 56, faf-cli ✪ 100, the same numbers faf-cli and the reference scorer give.
+- **Your 21 slots, and the 12 enterprise slots in view.** The enterprise slots (infra, app, ops) are marked `slotignored` unless your app-type uses them. `faf_score` scores against all 33; `slotignored` slots drop out of the denominator.
+- **Upgrading:** a `.faf` without the 12 markers now scores against 33. **Run `faf_auto`** — it writes them and your score returns (56% → ✪ 100% on a real v7-era file).
+
+---
+
+## v6.0.0 — The Earned Badge Edition
 
 **Every badge earned, none claimed: claude-faf-mcp 6.0 composes faf-cli, touches only what it wrote, and every tool tells the truth — one score, facts from repo, nothing from your PATH.**
 
@@ -108,7 +118,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-6.0.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v6.0.0/claude-faf-mcp-6.0.0.mcpb)
+[**⬇ Download `claude-faf-mcp-7.0.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.0.0/claude-faf-mcp-7.0.0.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 
@@ -205,7 +215,7 @@ git clone           →  a new dev's Claude is grounded before they write a line
 | ○ **RED** | <55% | AI working blind |
 | ♡ **WHITE** | 0% | No context at all |
 
-At 55%, AI guesses half the time. At 100%, AI knows your project. The score is faf-cli's `scoreFafYaml` — the number `faf score` prints for the same file.
+At 55%, AI guesses half the time. At 100%, AI knows your project. The score is faf-cli's `scoreFafYaml` — the always-33 number `faf score` prints for the same file.
 
 ---
 
