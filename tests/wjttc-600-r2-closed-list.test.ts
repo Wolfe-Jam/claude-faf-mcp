@@ -98,6 +98,14 @@ async function toolDescription(name: string): Promise<string> {
 
 /** The CHANGELOG section for the work on this branch: [Unreleased] while it
  *  is unreleased, then the entry for the package version once it is stamped. */
+/** The CHANGELOG section for one released version (a claim stays with the release it shipped in). */
+function section(version: string): string {
+  const log = read(path.join(ROOT, 'CHANGELOG.md'));
+  const start = log.indexOf(`## [${version}]`);
+  const end = log.indexOf('\n## [', start + 1);
+  return start < 0 ? '' : log.slice(start, end < 0 ? undefined : end);
+}
+
 function unreleased(): string {
   const log = read(path.join(ROOT, 'CHANGELOG.md'));
   const version = (JSON.parse(read(path.join(ROOT, 'package.json'))) as { version: string }).version;
@@ -144,7 +152,7 @@ describe('R2-1 — the typed-None rule, stated as faf_auto runs it', () => {
   });
 
   test('the CHANGELOG line says the same; no surface shows slotignored as N/A', async () => {
-    const line = unreleased().split('\n').find((l) => l.startsWith('- faf_auto names every value')) ?? '';
+    const line = section('6.0.0').split('\n').find((l) => l.startsWith('- faf_auto names every value')) ?? ''; // R2-1 shipped in 6.0.0
     expect(line).toContain('only a repo fact replaces it, and with no fact it stays as typed');
     expect(line).toContain('in a tech slot the app-type leaves out, faf_auto writes `slotignored`');
     expect(line).not.toContain('A hand-written None with no repo fact stays as typed.');

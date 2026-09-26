@@ -381,7 +381,8 @@ describe('#60 #85 #87 #88 — one install path, true self-references, working in
     expect(readme).not.toMatch(/Compose floor faf-cli \^/);
     expect(readme).not.toMatch(/faf-cli writes this MCP's CLAUDE\.md and AGENTS\.md/);
     // The major and the unpinned hook/npx are called out (Q11).
-    expect(readme).toContain('6.0.0 is a major release');
+    const major = (JSON.parse(read('package.json')) as { version: string }).version;
+    expect(readme).toContain(`${major} is a major release`);
     expect(readme).toMatch(/not pinned/);
   });
 

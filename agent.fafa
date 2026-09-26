@@ -8,7 +8,7 @@ agent:
   name: claude-faf-mcp
   id: did:web:faf.one:claude-faf-mcp
   vendor: WolfeJAM
-  version: 6.0.0
+  version: 7.0.0
   description: Persistent project context for Claude — define once, never re-explain. The FAF Context MCP for Claude Desktop and Claude Code.
   homepage: https://faf.one
   license: MIT
