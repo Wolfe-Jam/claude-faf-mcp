@@ -675,6 +675,19 @@ stack:
   hosting: local
   build: tsc
   cicd: GitHub Actions
+  monorepo_tool: slotignored
+  package_manager: slotignored
+  workspaces: slotignored
+  admin: slotignored
+  cache: slotignored
+  search: slotignored
+  storage: slotignored
+monorepo:
+  packages_count: slotignored
+  build_orchestrator: slotignored
+  versioning_strategy: slotignored
+  shared_configs: slotignored
+  remote_cache: slotignored
 `);
         const trophy = JSON.parse(getTextContent((await toolHandler.callTool('faf_go', { path: completeDir })).content));
         expect(trophy.complete).toBe(true);

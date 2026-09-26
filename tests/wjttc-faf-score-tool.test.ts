@@ -127,6 +127,10 @@ describe('faf_score MCP tool end-to-end', () => {
         workspaces: 'slotignored', admin: 'slotignored', cache: 'slotignored',
         search: 'slotignored', storage: 'slotignored',
       },
+      monorepo: {
+        packages_count: 'slotignored', build_orchestrator: 'slotignored',
+        versioning_strategy: 'slotignored', shared_configs: 'slotignored', remote_cache: 'slotignored',
+      },
       human_context: { who: 'a', what: 'b', why: 'c', where: 'd', when: 'e', how: 'f' }
     }));
     const handler = new FafToolHandler(new FafEngineAdapter('native'));
