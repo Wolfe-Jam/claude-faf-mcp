@@ -335,12 +335,12 @@ describe('R2-7 — npm test gives each run its own TMPDIR and fails on anything 
 });
 
 // ─────────────────────────────────────────────────────────────── R2-8
-describe('R2-8 — faf-cli ^7.13.1; no reply calls a slotignored slot N/A', () => {
-  test('package.json pins faf-cli ^7.13.1, and the faf-cli installed is 7.13.1 or later', () => {
+describe('R2-8 — faf-cli ^8.0.0 (always-33); no reply calls a slotignored slot N/A', () => {
+  test('package.json pins faf-cli ^8.0.0, and the faf-cli installed is 8.0.0 or later', () => {
     const pkg = JSON.parse(read(path.join(ROOT, 'package.json')));
-    expect(pkg.dependencies['faf-cli']).toBe('^7.13.1');
-    const [major, minor, patch] = String(bundledFafCliVersion()).split('.').map((n) => parseInt(n, 10));
-    expect(major === 7 && (minor > 13 || (minor === 13 && patch >= 1))).toBe(true);
+    expect(pkg.dependencies['faf-cli']).toBe('^8.0.0');
+    const [major] = String(bundledFafCliVersion()).split('.').map((n) => parseInt(n, 10));
+    expect(major).toBe(8); // ^8.0.0 — the always-33 engine
   });
 
   test('faf_score, faf_check, faf_doctor, faf_go, faf_formats and faf_auto say slotignored, never N/A', async () => {
