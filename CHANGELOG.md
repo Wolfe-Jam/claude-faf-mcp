@@ -11,13 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0] - 2026-09-26 — The Always33 Edition
 
-**One engine, one number: claude-faf-mcp 7 scores all 33 slots with faf-cli 8's always-33 kernel — the same score faf-cli, faf-kernel and rust-faf-mcp give.** 513 tests.
+**One engine, one number: claude-faf-mcp 7 scores all 33 slots with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.** 513 tests.
 
 **7.0.0 is a major release because scores can move.** A `.faf` without the 12 enterprise `slotignored` markers now counts them as empty (21 filled = 64%). Run `faf_auto` — it writes the markers and the score returns (a v7-era faf-python-sdk file: 56% → ✪ 100%). Anything that gates on `faf_score` should re-check its threshold.
 
 ### Changed
 - **The always-33 engine.** claude-faf-mcp composes **faf-cli ^8.0.0** (was ^7.13.1, which could never resolve 8.x). Every tool's score is faf-cli 8's `scoreFafYaml`: all 33 Mk4 slots, one Rust kernel (`faf-scoring-kernel` 3.0.0). Verified live: `faf_score` on faf-python-sdk 56, mcp-context-card 56, faf-cli ✪ 100 — identical to faf-cli 8.0.0 and the reference always-33 scorer.
-- **The 12 enterprise slots stay in view.** faf-cli fills the 21 base slots and marks the 12 enterprise slots `slotignored` unless your app-type uses them; `faf_score` counts all 33.
+- **The 12 enterprise slots stay in view.** faf-cli fills the 21 base slots and marks the 12 enterprise slots `slotignored` unless your app-type uses them; `faf_score` scores against all 33, and `slotignored` slots drop out of the denominator.
 - `tbd` and `todo` (any case) count as empty (faf-cli 8).
 - Compose floor: `faf-cli ^8.0.0`, pinned by `tests/wjttc-600-r2-closed-list.test.ts` (R2-8).
 
