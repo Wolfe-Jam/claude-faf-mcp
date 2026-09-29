@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.0] - 2026-09-26 — The Always33 Edition
 
-**One engine, one number: claude-faf-mcp 7 scores all 33 slots with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.** 513 tests.
+**One engine, one number: claude-faf-mcp 7 scores with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.** 513 tests.
 
 **7.0.0 is a major release because scores can move.** A `.faf` without the 12 enterprise `slotignored` markers now counts them as empty (21 filled = 64%). Run `faf_auto` — it writes the markers and the score returns (a v7-era faf-python-sdk file: 56% → ✪ 100%). Anything that gates on `faf_score` should re-check its threshold.
 
