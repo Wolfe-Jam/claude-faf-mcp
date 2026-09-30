@@ -42,7 +42,7 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ## What's New in v7.0.0 — The Always33 Edition
 
-**One engine, one number: claude-faf-mcp 7 scores all 33 slots with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.**
+**One engine, one number: claude-faf-mcp 7 scores with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.**
 
 - **The always-33 engine.** Every tool scores with faf-cli 8.0.0 — all 33 Mk4 slots, one Rust kernel. Checked live: faf-python-sdk 56, mcp-context-card 56, faf-cli ✪ 100, the same numbers faf-cli and the reference scorer give.
 - **Your 21 slots, and the 12 enterprise slots in view.** The enterprise slots (infra, app, ops) are marked `slotignored` unless your app-type uses them. `faf_score` scores against all 33; `slotignored` slots drop out of the denominator.
