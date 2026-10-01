@@ -306,7 +306,10 @@ describe('#80 — the npm package holds what it should', () => {
       cwd: stage, encoding: 'utf-8', env: { ...process.env, HOME: stage, npm_config_update_notifier: 'false' },
     });
     expect(r.status).toBe(0);
-    const files: string[] = JSON.parse(r.stdout)[0].files.map((f: { path: string }) => f.path);
+    // npm 10 prints [ {...} ]; npm 12 prints { "<name>": {...} }. Read either.
+    const packed = JSON.parse(r.stdout);
+    const entry = Array.isArray(packed) ? packed[0] : Object.values(packed)[0];
+    const files: string[] = (entry as { files: { path: string }[] }).files.map((f) => f.path);
     const allowed = new Set(['package.json', 'project.faf', 'scripts/postinstall.js', 'README.md', 'CLAUDE.md',
       'PRIVACY.md', 'manifest.json', 'LICENSE', 'CHANGELOG.md']);
     const stray = files.filter((f) => !allowed.has(f) && !f.startsWith('assets/icons/') &&

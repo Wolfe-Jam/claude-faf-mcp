@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v7.0.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v7.0.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,19 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.0.1] - 2026-09-30
+
+**faf-cli 8.0.1 inside: pnpm installs work, and fast-uri is out of two moderate advisories.** Patch — inherits The Always33 Edition. 513 tests.
+
+### Fixed
+- **faf-cli 8.0.1.** faf-cli 8.0.0 pointed at a `vendor/` folder inside its own package, so pnpm installs of claude-faf-mcp (and Glama's pnpm build) stopped with `ERR_PNPM_LINKED_PKG_DIR_NOT_FOUND`. The lockfile and the Claude Desktop `.mcpb` now carry faf-cli 8.0.1, which gets `faf-scoring-kernel` from npm. `package.json` keeps `faf-cli ^8.0.0`.
+- **fast-uri 4.2.1** (runtime, through `ajv`): out of GHSA-hrr3-gc8f-f4qj and GHSA-jvvf-x445-j334, both moderate. The override is now `>=4.1.5`, the first release outside both. `npm audit` reports 0 vulnerabilities.
+- `brace-expansion` 1.1.21 and 2.1.7 (dev only, #128) and `ip-address` 10.7.2.
+
+### Tests
+- #80 reads `npm pack --json` from npm 10 (an array) and npm 12 (an object keyed by name).
+- The major-release callout check names the major (7.0.0), so a patch keeps it.
 
 ## [7.0.0] - 2026-09-26 — The Always33 Edition
 

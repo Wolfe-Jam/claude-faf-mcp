@@ -40,7 +40,14 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ---
 
-## What's New in v7.0.0 — The Always33 Edition
+## What's New in v7.0.1 — The Always33 Edition
+
+**faf-cli 8.0.1 inside: pnpm installs work, and fast-uri is out of two moderate advisories.**
+
+- **pnpm installs work.** faf-cli 8.0.1 gets its scoring kernel from npm, so pnpm (and Glama's build) install claude-faf-mcp cleanly. The Claude Desktop `.mcpb` carries it too.
+- **fast-uri 4.2.1**, out of two moderate advisories; `npm audit` is clean.
+
+## The Always33 Edition (7.0)
 
 **One engine, one number: claude-faf-mcp 7 scores with faf-cli 8's always-33 kernel — the same score faf-cli and faf-kernel give.**
 
@@ -118,7 +125,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-7.0.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.0.0/claude-faf-mcp-7.0.0.mcpb)
+[**⬇ Download `claude-faf-mcp-7.0.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.0.1/claude-faf-mcp-7.0.1.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 
