@@ -37,8 +37,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Gate what ships: dev-only tools (mcpb packer, eslint) are left out, since
+      # an advisory with no upstream fix there would block every PR.
       - name: NPM Audit
-        run: npm audit --audit-level=high
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Check for secrets
         uses: trufflesecurity/trufflehog@4dd8831c5f12599465d4d45c3c447b4018a34c85 # v3.97.9
