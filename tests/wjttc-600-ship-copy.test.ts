@@ -491,7 +491,7 @@ describe('#54 #72 #73 #75 #77 #89 — the gates can fail, and CI runs what ships
     expect(statusRun).toContain('process.exit(1)');
     expect(ci).not.toMatch(/echo "✅ Security: Passed"|PODIUM READY|\bF1\b|🏆/u);
     expect(steps('security').find((s) => s.uses?.startsWith('trufflesecurity/'))?.uses).toMatch(/@[0-9a-f]{40}$/);
-    expect(steps('security').map((s) => s.run)).toContain('npm audit --audit-level=high');
+    expect(steps('security').map((s) => s.run)).toContain('npm audit --omit=dev --audit-level=high');
   });
 
   test('the registry workflows pin mcp-publisher and check its sha256, keep the key out of argv and interpolate no input into a script', () => {
