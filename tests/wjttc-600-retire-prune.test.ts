@@ -302,8 +302,10 @@ describe('#80 — the npm package holds what it should', () => {
     }
     const { scripts: _scripts, ...manifest } = pkg();
     fs.writeFileSync(path.join(stage, 'package.json'), JSON.stringify(manifest, null, 2));
+    // Windows: npm is npm.cmd, which Node only starts through a shell (fixed args, nothing user-supplied).
     const r = spawnSync('npm', ['pack', '--dry-run', '--json'], {
       cwd: stage, encoding: 'utf-8', env: { ...process.env, HOME: stage, npm_config_update_notifier: 'false' },
+      shell: process.platform === 'win32',
     });
     expect(r.status).toBe(0);
     // npm 10 prints [ {...} ]; npm 12 prints { "<name>": {...} }. Read either.
