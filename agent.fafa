@@ -205,6 +205,8 @@ provenance:
   deterministic: true
   generated: 2026-07-01T04:35:37Z
 metadata:
+  cards:
+    accent: "#FF6B35" # key colour: FAF orange
   repository: https://github.com/Wolfe-Jam/claude-faf-mcp
   privacy: Runs locally. No telemetry, no analytics, nothing sent to FAF. The one network use is faf_git, which clones a repo you name with git. https://github.com/Wolfe-Jam/claude-faf-mcp/blob/main/PRIVACY.md
   tool_tiers:
