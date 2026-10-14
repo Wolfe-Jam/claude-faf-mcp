@@ -23,7 +23,7 @@ export class PathValidator {
         };
       }
       return { valid: true };
-    } catch (_error: unknown) {
+    } catch {
       // Missing file: the read itself reports it
       return { valid: true };
     }

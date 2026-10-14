@@ -1806,7 +1806,7 @@ export class FafToolHandler {
         empty: result.empty,
         ignored: result.ignored,
         total: result.total,
-        slots: result.slots as Record<string, string>,
+        slots: result.slots,
       },
       { producedBy: `claude-faf-mcp@${VERSION}` },
     );
@@ -1898,7 +1898,7 @@ export class FafToolHandler {
         backup = `${fafPath}.bak-${new Date().toISOString().replace(/[:.]/g, '-')}`;
         safeWriteFile(backup, original, { root: targetDir, expect: null });
       }
-      writeFaf(fafPath, assembleFreshFaf(targetDir) as any, { replace: force });
+      writeFaf(fafPath, assembleFreshFaf(targetDir), { replace: force });
       const score = scoreFafYaml(readFafRaw(fafPath));
 
       // Birth DNA — faf-cli's lineage file, only when there is none: faf never
@@ -1972,7 +1972,7 @@ export class FafToolHandler {
     let data: Record<string, unknown>;
     try {
       raw = readFafRaw(fafPath);
-      data = readFaf(fafPath) as Record<string, unknown>;
+      data = readFaf(fafPath);
     } catch (error) {
       return {
         content: [{ type: 'text', text: `FAF Trust: no receipt — faf-cli could not read ${fafPath} as a .faf: ${oneLine(error)}` }],
@@ -2030,7 +2030,7 @@ export class FafToolHandler {
         empty: result.empty,
         ignored: result.ignored,
         total: result.total,
-        slots: result.slots as Record<string, string>,
+        slots: result.slots,
       },
       { producedBy: `claude-faf-mcp@${VERSION}` },
     );
@@ -2469,7 +2469,7 @@ HOW IT WORKS
       // scalars kept) and writes nothing when nothing changed.
       const { fillEmpties, writeFaf } = await fafCli;
       const { data } = await readFafData(fafResult.path);
-      const filled = fillEmpties(data, { human_context: extracted } as Record<string, unknown>);
+      const filled = fillEmpties(data, { human_context: extracted });
       const hcBefore = isMapping(data.human_context) ? data.human_context : {};
       const hcAfter = isMapping(filled.human_context) ? filled.human_context : {};
       const changed = Object.keys(hcAfter).filter((k) => {
@@ -2482,7 +2482,7 @@ HOW IT WORKS
         // readFaf returned, so a file edited meanwhile is refused, not written over.
         data.human_context = { ...hcBefore, ...Object.fromEntries(changed.map((k) => [k, hcAfter[k]])) };
         try {
-          written = writeFaf(fafResult.path, data as any);
+          written = writeFaf(fafResult.path, data);
         } catch (error: any) {
           return {
             content: [{ type: 'text', text: `📖 FAF README Extraction:\n\n❌ ${notWritten(fafResult.path, error)}` }],
@@ -2555,7 +2555,7 @@ HOW IT WORKS
       }
       fafData.human_context = { ...(fafData.human_context as Record<string, unknown> | undefined), [field]: value };
       try {
-        writeFaf(fafResult.path, fafData as any);
+        writeFaf(fafResult.path, fafData);
       } catch (error: any) {
         return { content: [{ type: 'text', text: `🧡 FAF Human Set:\n\n❌ ${notWritten(fafResult.path, error)}` }], isError: true };
       }
@@ -2602,7 +2602,7 @@ HOW IT WORKS
     let data: Record<string, unknown>;
     let result: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>;
     try {
-      data = readFaf(fafResult.path) as Record<string, unknown>;
+      data = readFaf(fafResult.path);
       result = scoreFafYaml(readFafRaw(fafResult.path));
     } catch (error) {
       return {
@@ -3315,12 +3315,12 @@ HOW IT WORKS
         const read = await readFafData(legacyPath);
         legacyProject = read.legacyProject;
         beforeScore = scoreFafYaml(readFafRaw(legacyPath)).score;
-        writeFaf(fafPath, updateExistingFaf(cwd, read.data) as any);
+        writeFaf(fafPath, updateExistingFaf(cwd, read.data));
         fafOutcome = 'project.faf created from .faf';
         steps.push(`✅ Created ${fafPath} from ${legacyPath} (its values kept, the empty slots filled from the repo)`);
         steps.push('✅ .faf is left as it was; faf reads project.faf first from now on');
       } else if (!fafExisted) {
-        writeFaf(fafPath, assembleFreshFaf(cwd) as any);
+        writeFaf(fafPath, assembleFreshFaf(cwd));
         fafOutcome = 'project.faf created';
         steps.push(`✅ Created project.faf (${fafPath})`);
         let nearest: FoundFaf | null = null;
@@ -3334,7 +3334,7 @@ HOW IT WORKS
         const before = structuredClone(data);
         const filled = updateExistingFaf(cwd, data);
         const kept: string[] = [];
-        const written = writeFaf(fafPath, filled as any, { onAliasKept: (k) => kept.push(k.path) });
+        const written = writeFaf(fafPath, filled, { onAliasKept: (k) => kept.push(k.path) });
         const { filledPaths, ignoredPaths, changedValues } = slotChanges(before, filled);
         steps.push(`✅ Found ${fafPath}`);
         if (!written) {
@@ -3686,7 +3686,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto writes each fac
 
       const fafPath = path.join(cwd, 'project.faf');
       try {
-        writeFaf(fafPath, data as any);
+        writeFaf(fafPath, data);
       } catch (error: any) {
         return { content: [{ type: 'text', text: `⚡ FAF Quick:\n\n❌ ${notWritten(fafPath, error, false)}` }], isError: true };
       }
@@ -3794,7 +3794,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto writes each fac
         let raw: string | null = null;
         try {
           raw = readFafRaw(fafResult.path);
-          data = readFaf(fafResult.path) as Record<string, unknown>;
+          data = readFaf(fafResult.path);
         } catch (error) {
           const parseError = raw !== null ? yamlErrorAt(raw) : null;
           results.push({
@@ -4102,7 +4102,7 @@ faf_quick only creates a new file, so it wrote nothing. faf_auto writes each fac
     try {
       memoryPath = resolveClaudeMemoryPath(projectDir);
       const { data } = await readFafData(fafResult.path);
-      const result = writeClaudeMemory(projectDir, data as any);
+      const result = writeClaudeMemory(projectDir, data);
       const mode: Record<typeof result.action, string> = {
         created: 'Created (there was no MEMORY.md)',
         updated: 'faf block updated in place',
