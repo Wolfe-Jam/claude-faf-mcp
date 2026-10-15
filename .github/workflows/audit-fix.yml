@@ -54,10 +54,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
-      - name: Verify high-severity audit is clean
+      - name: Verify high-severity audit is clean (production dependencies)
         id: audit
         run: |
-          if npm audit --audit-level=high; then
+          # Same bar as ci.yml: what ships. Dev-only findings with no fix would fail this forever.
+          if npm audit --omit=dev --audit-level=high; then
             echo "clean=true" >> "$GITHUB_OUTPUT"
           else
             echo "clean=false" >> "$GITHUB_OUTPUT"
@@ -79,7 +80,7 @@ jobs:
               `Workflow: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
               '',
               '### Next steps',
-              '1. Run `npm audit --audit-level=high` locally',
+              '1. Run `npm audit --omit=dev --audit-level=high` locally',
               '2. Pin patched versions under `package.json` → `overrides`',
               '3. `npm install` → re-lock → push',
               '',
