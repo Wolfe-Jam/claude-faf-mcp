@@ -145,7 +145,7 @@ export async function writeClaudeFromFaf(
   const stamp = legacyStampNoteAt(claudePath, 'CLAUDE.md');
   if (stamp) {notes.push(stamp);}
 
-  writeClaudeMd(dir, renderClaudeMd(data as any));
+  writeClaudeMd(dir, renderClaudeMd(data));
   let after = readClaudeMd(dir);
 
   if (after !== null && looksOld(after)) {
