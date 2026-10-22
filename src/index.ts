@@ -4,8 +4,30 @@
 // hook with --session-refresh). Importing this file starts the server, so the
 // package's `main` is dist/src/server.js, which has no side effects.
 import { ClaudeFafMcpServer } from './server.js';
+import { VERSION } from './version.js';
 
 async function main() {
+  // --version / --help print and exit; they never start the server (#142).
+  // An MCP host launches the bare binary (no args), which falls through to server.start().
+  const args = process.argv.slice(2);
+  if (args.includes('--version') || args.includes('-v')) {
+    console.log(`claude-faf-mcp ${VERSION}`);
+    return;
+  }
+  if (args.includes('--help') || args.includes('-h')) {
+    console.log(
+      `claude-faf-mcp ${VERSION} — the Claude MCP server (persistent project context via .faf/.fafm)\n\n` +
+        `Usage:\n` +
+        `  claude-faf-mcp                    start the MCP server over stdio (how an MCP host launches it)\n` +
+        `  claude-faf-mcp --session-refresh  quiet context refresh for a Claude Code SessionStart hook\n` +
+        `  claude-faf-mcp --version          print the version\n` +
+        `  claude-faf-mcp --help             show this help\n\n` +
+        `Add to Claude Code: claude mcp add faf -- npx -y claude-faf-mcp\n` +
+        `Docs: https://faf.one/claude`
+    );
+    return;
+  }
+
   // Trust Edition Pillar 5 — the SessionStart hook entry. Runs the quiet
   // context refresh and exits; never starts the server, never breaks a
   // session (always exit 0). Silent when nothing changed.
