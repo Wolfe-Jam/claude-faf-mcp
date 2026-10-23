@@ -8,6 +8,7 @@ import { FafEngineAdapter } from './handlers/engine-adapter';
 import { isError } from './utils/type-guards.js';
 import { sanitizeToolResult, quietToolList } from './utils/sanitize-output.js';
 import { VERSION } from './version';
+import { SERVER_INSTRUCTIONS } from './instructions';
 
 export interface ClaudeFafMcpServerConfig {
   transport: 'stdio';
@@ -54,6 +55,7 @@ export class ClaudeFafMcpServer {
             listChanged: false,
           },
         },
+        instructions: SERVER_INSTRUCTIONS,
       }
     );
 
