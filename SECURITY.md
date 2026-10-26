@@ -84,6 +84,7 @@ We keep the dependency list short to reduce attack surface. The production depen
 - `@modelcontextprotocol/sdk` — the MCP protocol and stdio transport
 - `faf-cli` — detection, scoring, the renders and every file writer (composed, not forked)
 - `yaml` — reading and editing YAML
+- `zod` — schema validation, used by the MCP SDK; listed directly to hold it at a patched version (≥ 4.6.6, GHSA-mrhx-c7xc-m3w5)
 
 CI runs `npm audit --audit-level=high` on every push and pull request, and Dependabot proposes security updates.
 
