@@ -53,7 +53,7 @@
       "registryType": "mcpb",
       "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.1.0/claude-faf-mcp-7.1.0.mcpb",
       "version": "7.1.0",
-      "fileSha256": "76c3d0e0c7143cc776f3a07961c4e561a5928a01d70465ed49023db0990f9b41",
+      "fileSha256": "34752ebde8f6397f6fe35ae56105900b77aa8268172af9e972260fb41b204c62",
       "transport": {
         "type": "stdio"
       }

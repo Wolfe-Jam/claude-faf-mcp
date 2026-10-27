@@ -29,8 +29,7 @@ import { yamlFixHint, yamlErrorAt, NO_KEYS_FIX } from '../faf-core/fix-once/yaml
  * Everything else is Extended: still callable by name (the dispatch in callTool
  * is unchanged), but advertised only when FAF_TOOLS=all. Glama (and any client)
  * runs the server and scores the default tools/list, so a tight, non-overlapping
- * Core is what earns the coherence grade. See
- * PLANET-FAF/strategy/claude-faf-mcp-core-tier-glama-a-2026-06-17.md.
+ * Core is what earns the coherence grade.
  *
  * faf_bench leads on the default surface (added 5.12.0): the in-session proof
  * tool — "see the delta yourself" — is the value-prop made callable, so it

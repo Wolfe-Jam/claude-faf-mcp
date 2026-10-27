@@ -152,3 +152,57 @@ describe('AERO — Language Edition rail via CFM tools (faf-cli compose floor 7.
     });
   }
 });
+
+// ── Skills detection (faf-cli ^8.5.0) through the MCP tool path ─────────────
+// faf-cli proves the behaviour in its own suite (tests/detect/skills-detect.test.ts,
+// v8.5.0). This proves faf_auto reaches it: the type project.faf gets.
+
+const SKILL = (name: string) => `---\nname: ${name}\ndescription: Does ${name}.\n---\nBody\n`;
+
+const SKILL_CASES: { name: string; files: Record<string, string>; type: string }[] = [
+  {
+    name: 'skills',
+    files: { 'skills/alpha/SKILL.md': SKILL('alpha'), 'skills/beta/SKILL.md': SKILL('beta') },
+    type: 'skills',
+  },
+  {
+    name: 'skills-plugin',
+    files: {
+      'skills/alpha/SKILL.md': SKILL('alpha'),
+      'skills/beta/SKILL.md': SKILL('beta'),
+      '.claude-plugin/plugin.json': '{"name":"alpha-skills","version":"0.1.0"}\n',
+    },
+    type: 'skills-plugin',
+  },
+  {
+    name: 'cli-ships-a-skill',
+    files: {
+      'package.json': '{"name":"tool","version":"1.0.0","bin":{"tool":"cli.js"}}\n',
+      'cli.js': '#!/usr/bin/env node\n',
+      'skills/tool/SKILL.md': SKILL('tool'),
+      '.claude-plugin/plugin.json': '{"name":"tool","version":"1.0.0"}\n',
+    },
+    type: 'cli',
+  },
+];
+
+describe('AERO — skills detection via faf_auto (faf-cli compose floor 8.5)', () => {
+  for (const c of SKILL_CASES) {
+    test(`E2E ${c.name}: faf_auto writes type: ${c.type}`, async () => {
+      const dir = fs.mkdtempSync(path.join(os.tmpdir(), `cfm-skills-${c.name}-`));
+      try {
+        for (const [rel, body] of Object.entries(c.files)) {
+          const p = path.join(dir, rel);
+          fs.mkdirSync(path.dirname(p), { recursive: true });
+          fs.writeFileSync(p, body);
+        }
+        const auto = await makeHandler(dir).callTool('faf_auto', { path: dir });
+        expect(auto.isError).not.toBe(true);
+        const faf = fs.readFileSync(path.join(dir, 'project.faf'), 'utf-8');
+        expect(faf).toMatch(new RegExp(`^\\s*type: ${c.type}(\\s|$)`, 'm'));
+      } finally {
+        fs.rmSync(dir, { recursive: true, force: true });
+      }
+    });
+  }
+});
