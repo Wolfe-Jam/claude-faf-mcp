@@ -3,10 +3,10 @@
  * registry-login.mjs — log mcp-publisher in to the MCP Registry by DNS, with
  * the private key read from the environment, never from argv.
  *
- * `mcp-publisher login dns --private-key <hex>` (v1.8.1) takes the key only as
+ * `mcp-publisher login dns --private-key <hex>` (v1.8.6) takes the key only as
  * a flag, so it would sit in the process list for as long as the login runs.
  * This does the same login the publisher's in-process signer does
- * (cmd/publisher/auth/common.go at v1.8.1):
+ * (cmd/publisher/auth/common.go at v1.8.6):
  *
  *   timestamp  = now, RFC 3339, UTC, whole seconds
  *   signature  = ed25519(seed = MCP_PRIVATE_KEY, message = timestamp)

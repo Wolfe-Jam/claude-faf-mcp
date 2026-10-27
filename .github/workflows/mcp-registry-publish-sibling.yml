@@ -23,9 +23,9 @@ on:
         default: 'v3.0.0'
 
 env:
-  MCP_PUBLISHER_VERSION: v1.8.1
-  # sha256 of mcp-publisher_linux_amd64.tar.gz at v1.8.1 (registry_1.8.1_checksums.txt)
-  MCP_PUBLISHER_SHA256: a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc
+  MCP_PUBLISHER_VERSION: v1.8.6
+  # sha256 of mcp-publisher_linux_amd64.tar.gz at v1.8.6 (registry_1.8.6_checksums.txt)
+  MCP_PUBLISHER_SHA256: 1fbe93fc0783c2394d8012c8d6e50a59e98cb2cc2d216264cc69f405d0e21340
 
 jobs:
   publish-sibling:
