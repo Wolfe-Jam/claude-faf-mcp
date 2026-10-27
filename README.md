@@ -41,12 +41,14 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ---
 
-## What's New in v7.0.1 — The Always33 Edition
+## What's New in v7.1.0 — The Instructions Edition
 
-**faf-cli 8.0.1 inside: pnpm installs work, and fast-uri is out of two moderate advisories.**
+**claude-faf-mcp now tells Claude how its tools fit together: server instructions in initialize (637 characters), plus faf-cli 8.5.0, which knows a skills repo when it sees one.**
 
-- **pnpm installs work.** faf-cli 8.0.1 gets its scoring kernel from npm, so pnpm (and Glama's build) install claude-faf-mcp cleanly. The Claude Desktop `.mcpb` carries it too.
-- **fast-uri 4.2.1**, out of two moderate advisories; `npm audit` is clean.
+- **Server instructions.** When Claude connects, the server says how its tools fit together, in five short lines: one project at a time, read project.faf first, ask the user for the human answers, project.faf is the source, remember only when asked.
+- **faf-cli 8.5.0 inside.** `faf_init` and `faf_auto` detect a skills repo: `SKILL.md` folders make it `skills` (10 slots), and a Claude Code plugin manifest makes it `skills-plugin` (14).
+- **`--version` and `--help`** print and exit, instead of starting the server.
+- **Three advisories cleared:** the MCP SDK, zod and hono.
 
 ## The Always33 Edition (7.0)
 
@@ -126,7 +128,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-7.0.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.0.1/claude-faf-mcp-7.0.1.mcpb)
+[**⬇ Download `claude-faf-mcp-7.1.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.1.0/claude-faf-mcp-7.1.0.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 

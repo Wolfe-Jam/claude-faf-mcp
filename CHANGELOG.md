@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v7.0.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v7.1.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,20 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.1.0] - 2026-10-27 — The Instructions Edition
+
+**claude-faf-mcp now tells Claude how its tools fit together: server instructions in initialize (637 characters), plus faf-cli 8.5.0, which knows a skills repo when it sees one.** 520 tests.
+
+### Added
+- **Server instructions** (#146). `initialize` now returns `instructions`: 637 characters on how the tools fit together. One project at a time; read project.faf first; the human slots come from the user, not invented; project.faf is the one-way source for CLAUDE.md and MEMORY.md; `faf_etch` only when asked. Relationships and rules only, following the MCP project's guidance on server instructions; each tool's own description still says what it does. `tests/server-instructions.test.ts` checks the length and that every tool named is on the default list.
+
+### Changed
+- **faf-cli ^8.5.0** (#151 and this release, was ^8.0.0). `faf_init` and `faf_auto` now detect a skills repo: `SKILL.md` folders make it `skills` (10 slots); add `.claude-plugin/plugin.json` and it's `skills-plugin` (14 slots). A CLI or library that ships a skill keeps its type. The compose floor is pinned by `tests/wjttc-600-r2-closed-list.test.ts` (R2-8).
+
+### Fixed
+- **`--version` and `--help` print and exit** (#144, #142). On 7.0.1 they started the MCP server.
+- **Three advisories cleared:** MCP SDK 1.32.1 (GHSA-6qxp-vccf-f47h, #134) · zod held at a patched 4.x (GHSA-mrhx-c7xc-m3w5, #150) · hono 4.13.13 (serveStatic double-decode, #145).
 
 ## [7.0.1] - 2026-09-30
 

@@ -343,13 +343,13 @@ describe('R2-7 — npm test gives each run its own TMPDIR and fails on anything 
 });
 
 // ─────────────────────────────────────────────────────────────── R2-8
-describe('R2-8 — faf-cli ^8.4.0 (always-33, skills app-types); no reply calls a slotignored slot N/A', () => {
-  test('package.json pins faf-cli ^8.4.0, and the faf-cli installed is 8.4.0 or later', () => {
+describe('R2-8 — faf-cli ^8.5.0 (always-33, skills detection); no reply calls a slotignored slot N/A', () => {
+  test('package.json pins faf-cli ^8.5.0, and the faf-cli installed is 8.5.0 or later', () => {
     const pkg = JSON.parse(read(path.join(ROOT, 'package.json')));
-    expect(pkg.dependencies['faf-cli']).toBe('^8.4.0');
+    expect(pkg.dependencies['faf-cli']).toBe('^8.5.0');
     const [major, minor] = String(bundledFafCliVersion()).split('.').map((n) => parseInt(n, 10));
     expect(major).toBe(8); // the always-33 engine
-    expect(minor).toBeGreaterThanOrEqual(4); // 8.4.0 adds skills (9) and skills-plugin (12)
+    expect(minor).toBeGreaterThanOrEqual(5); // 8.5.0 detects skills repos: skills (10), skills-plugin (14)
   });
 
   test('faf_score, faf_check, faf_doctor, faf_go, faf_formats and faf_auto say slotignored, never N/A', async () => {
