@@ -80,6 +80,8 @@ jobs:
         run: npm ci
 
       - name: Run tests (bun)
+        id: tests
+        continue-on-error: true    # keep going, so a failed run still gets a receipt
         shell: bash
         run: |
           set -o pipefail
@@ -100,12 +102,17 @@ jobs:
         # main only: taf-receipts is main's proof over time; a dispatch on another
         # branch still runs CI but writes no receipt.
         if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-        uses: Wolfe-Jam/faf-taf-git@v2.3.1
+        uses: Wolfe-Jam/faf-taf-git@v2.4.2
         with:
           test-output-file: /tmp/test-output.txt
           auto-commit: 'true'
           commit-message: 'chore(taf): update .taf receipt [skip ci]'
           target-branch: taf-receipts
+
+      - name: Fail the job if the tests failed
+        # the test step keeps going so a red run still gets a receipt; this keeps the job red
+        if: steps.tests.outcome == 'failure'
+        run: exit 1
 
   # 🟢 Node Smoke — the server ships to Node users: build it and start the bin
   # on every Node the engines field names, on all three platforms.
