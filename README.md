@@ -23,7 +23,7 @@
 
 **FAF defines. MD instructs. AI codes.**
 
-⭐ [Star it on GitHub](https://github.com/Wolfe-Jam/claude-faf-mcp): bookmarks it for you, helps other devs find it too.
+⭐ [Star faf-cli on GitHub](https://github.com/Wolfe-Jam/faf-cli), the CLI this server is built on: bookmarks it for you, helps other devs find it too.
 
 **v0.2-conformant reader** of the [FAF Context Ingestion Contract](https://github.com/Wolfe-Jam/faf/blob/main/CONTEXT-INGESTION.md).
 
