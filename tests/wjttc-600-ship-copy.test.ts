@@ -561,6 +561,9 @@ describe('the landing page names the release\'s Edition, from the CHANGELOG', ()
     expect(editionOf(cl, '5.22.1')).toEqual({ edition: null, oneliner: null });
     expect(editionOf(cl, '9.9.9')).toEqual({ edition: null, oneliner: null });
     expect(editionOf(cl.replace(/\n/g, '\r\n'), '6.0.0').edition).toBe('The Earned Badge Edition');
+    // A patch inherits its minor's Edition: 6.0.1 has no name of its own, 6.0.0 does.
+    const patched = cl.replace('## [6.0.0]', '## [6.0.1] - 2026-09-14\n\n### Fixed\n- y\n\n## [6.0.0]');
+    expect(editionOf(patched, '6.0.1')).toEqual({ edition: 'The Earned Badge Edition', oneliner: 'Every badge earned, none claimed.' });
     const html = renderLanding({ ...landingInputs(), edition: 'The Earned Badge Edition', oneliner: 'Every badge earned, none claimed.' });
     expect(html).toMatch(/class="version">v[\d.]+ · The Earned Badge Edition</);
     expect(html).toContain('<p class="oneliner">Every badge earned, none claimed.</p>');
