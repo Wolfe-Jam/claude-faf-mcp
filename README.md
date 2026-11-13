@@ -49,6 +49,7 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 - **faf-cli 8.10.0 inside.** `faf_init`, `faf_auto` and `faf_git` leave the goal and six W's empty, so a new project.faf scores lower, honestly, and they say how many suggestions are waiting. Files you already have are not changed.
 - **`faf_readme` suggests and never writes**, from README, package.json or Cargo.toml. `faf_git` returns the repo's suggestions before its temporary clone is gone.
 - **CI on the faf-cli users get.** A daily run tests the server against `faf-cli@latest`.
+- **7.2.1:** `faf_go`'s closing line keeps the goal and six W's apart from stack slots: they are the user's to give, never "no fact in repo".
 
 ## v7.1.0 — The Instructions Edition
 
@@ -137,7 +138,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-7.2.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.0/claude-faf-mcp-7.2.0.mcpb)
+[**⬇ Download `claude-faf-mcp-7.2.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.1/claude-faf-mcp-7.2.1.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 

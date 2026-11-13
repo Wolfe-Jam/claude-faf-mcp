@@ -3048,7 +3048,7 @@ HOW IT WORKS
     cwd: string,
     scored: ReturnType<Awaited<typeof fafCli>['scoreFafYaml']>,
   ): Promise<{ line: string; status: 'done' | 'can-source' | 'needs-human'; sourceable: string[]; needsAnswer: string[] }> {
-    const { scoreText } = await fafCli;
+    const { scoreText, isHumanSlot, suggestIntent } = await fafCli;
     if (scored.unknown) {
       return {
         line: `The score is ${scoreText(scored)}: an About repo is scored from about.source_score, which faf_go does not set.`,
@@ -3063,6 +3063,23 @@ HOW IT WORKS
     const fills = empty.filter((p) => writes.has(p) && writes.get(p) !== 'slotignored');
     const ignores = empty.filter((p) => writes.get(p) === 'slotignored');
     const rest = empty.filter((p) => !writes.has(p));
+    // The goal and 6 Ws are the user's (faf-cli 8.10.0): never "no fact in
+    // repo", never answers to send unconfirmed. Stack slots keep that wording.
+    const human = rest.filter((p) => isHumanSlot(p));
+    const stack = rest.filter((p) => !isHumanSlot(p));
+    let waiting = 0;
+    if (human.length) {
+      try {
+        const sug = suggestIntent(cwd, (await readFafData(pathModule.join(cwd, 'project.faf'))).data) as Record<string, unknown>;
+        waiting = human.filter((p) => p in sug).length;
+      } catch { waiting = 0; }
+    }
+    const humanPart = human.length
+      ? `${human.join(', ')} ${human.length === 1 ? 'is' : 'are'} the user's to give${waiting ? ` (faf_go offers ${waiting} ${waiting === 1 ? 'suggestion' : 'suggestions'} from the repo, with sources)` : ''}: ask them, and send only what they confirm as faf_go answers`
+      : '';
+    const stackPart = stack.length
+      ? `no fact in repo for ${stack.join(', ')}: faf_go takes them as answers: {${stack.map((p) => `${JSON.stringify(p)}: "…"`).join(', ')}}`
+      : '';
 
     if (fills.length + ignores.length > 0) {
       const what = [
@@ -3070,14 +3087,13 @@ HOW IT WORKS
         ...(ignores.length ? [`faf_auto marks ${ignores.join(', ')} slotignored (the app-type leaves ${ignores.length === 1 ? 'it' : 'them'} out)`] : []),
       ].join(', and ');
       return {
-        line: `Stopped at ${scored.score}%: ${what} — faf_auto writes ${fills.length + ignores.length === 1 ? 'it' : 'them'}${rest.length ? `; then faf_go takes ${rest.join(', ')} as answers` : ''}.`,
+        line: `Stopped at ${scored.score}%: ${what} — faf_auto writes ${fills.length + ignores.length === 1 ? 'it' : 'them'}${rest.length ? `; then ${[stackPart, humanPart].filter(Boolean).join('; ')}` : ''}.`,
         status: 'can-source', sourceable: [...fills, ...ignores], needsAnswer: rest,
       };
     }
     if (rest.length > 0) {
-      const answers = `{${rest.map((p) => `${JSON.stringify(p)}: "…"`).join(', ')}}`;
       return {
-        line: `Stopped at ${scored.score}%: no fact in repo for ${rest.join(', ')}. faf_go takes them: call it with answers: ${answers}.`,
+        line: `Stopped at ${scored.score}%: ${[stackPart, humanPart].filter(Boolean).join('; ')}.`,
         status: 'needs-human', sourceable: [], needsAnswer: rest,
       };
     }

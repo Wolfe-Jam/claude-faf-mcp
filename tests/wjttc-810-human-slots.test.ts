@@ -229,3 +229,40 @@ describe('faf_git leaves the goal and six W\'s empty and returns the repo\'s sug
     }
   });
 });
+
+// ── /dev-notes 7.2.0: the faf_go closing line still called the goal and W's
+// "no fact in repo" and listed them as answers to send, unconfirmed.
+describe('faf_go\'s closing line keeps human slots apart from stack slots', () => {
+  test('after an answer: the goal and W\'s are the user\'s to give, with the suggestion count; no "no fact in repo" for them', async () => {
+    const dir = repo('verdict', EMPTY_HUMAN);
+    const r = await handler().callTool('faf_go', { path: dir, answers: { 'human_context.why': WHY } });
+    const t = text(r);
+    expect(t).not.toMatch(/no fact in repo for [^:]*(project\.goal|human_context\.)/);
+    expect(t).toMatch(/project\.goal[\s\S]*?the user's to give/);
+    expect(t).toMatch(/faf_go offers \d+ suggestions? from the repo/);
+    expect(t).toContain('send only what they confirm');
+  });
+
+  test('without answers: the `next` line says the same', async () => {
+    const dir = repo('verdict-next', EMPTY_HUMAN);
+    const reply = JSON.parse(text(await handler().callTool('faf_go', { path: dir })));
+    expect(reply.next).not.toMatch(/no fact in repo for [^:]*(project\.goal|human_context\.)/);
+    expect(reply.next).toContain("the user's to give");
+  });
+});
+
+// Case B of the closing line: faf_auto has nothing left to write; only slots
+// that need the user remain (the exact line /dev-notes caught on 7.2.0).
+describe('faf_go\'s closing line, nothing left for faf_auto: stack slots and human slots stay apart', () => {
+  test('after faf_init: "no fact in repo" names only stack slots; the goal and W\'s are the user\'s to give', async () => {
+    const dir = repo('verdict-b');
+    expect((await handler().callTool('faf_init', { path: dir })).isError).toBeFalsy();
+    const reply = JSON.parse(text(await handler().callTool('faf_go', { path: dir })));
+    const next: string = reply.next;
+    expect(next).not.toContain('faf_auto writes');               // case B: nothing for faf_auto
+    expect(next).toMatch(/no fact in repo for stack\./);          // stack slots keep their wording
+    expect(next).not.toMatch(/no fact in repo for [^:]*(project\.goal|human_context\.)/);
+    expect(next).toMatch(/project\.goal[\s\S]*?the user's to give \(faf_go offers \d+ suggestions? from the repo, with sources\)/);
+    expect(next).toContain('send only what they confirm');
+  });
+});

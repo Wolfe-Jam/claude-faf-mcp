@@ -33,7 +33,7 @@
       ]
     }
   ],
-  "version": "7.2.0",
+  "version": "7.2.1",
   "repository": {
     "url": "https://github.com/Wolfe-Jam/claude-faf-mcp",
     "source": "github",
@@ -44,16 +44,16 @@
     {
       "registryType": "npm",
       "identifier": "claude-faf-mcp",
-      "version": "7.2.0",
+      "version": "7.2.1",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "mcpb",
-      "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.0/claude-faf-mcp-7.2.0.mcpb",
-      "version": "7.2.0",
-      "fileSha256": "45bfcdf7943c1bb5870471efdf70337e525070102b3701d8a84e7d55ea41b125",
+      "identifier": "https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.1/claude-faf-mcp-7.2.1.mcpb",
+      "version": "7.2.1",
+      "fileSha256": "5445db282411007a599f39e8e726ecab451709ef3cd7eecc74ef828b4789cc6f",
       "transport": {
         "type": "stdio"
       }

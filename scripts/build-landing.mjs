@@ -26,13 +26,21 @@ const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 /**
  * The Edition and its oneliner for `version`, from the CHANGELOG entry
  * `## [<version>] - <date> — The <Name> Edition` and the bold line that leads
- * it. Null when this version has no named entry yet (the page then shows the
- * version alone): the CHANGELOG is where an Edition is written, once.
+ * it. A patch with no name of its own inherits its minor's (X.Y.0) Edition.
+ * Null when there is no named entry (the page then shows the version alone):
+ * the CHANGELOG is where an Edition is written, once.
  */
 export function editionOf(changelog, version) {
   const lines = String(changelog ?? '').split(/\r?\n/);
-  const at = lines.findIndex((l) => l.startsWith(`## [${version}]`));
+  let at = lines.findIndex((l) => l.startsWith(`## [${version}]`));
   if (at < 0) {return { edition: null, oneliner: null };}
+  // A patch inherits its minor's Edition: X.Y.Z with no name of its own reads
+  // the X.Y.0 entry, when that one is named.
+  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(version);
+  if (m && m[3] !== '0' && !/—\s*The .+ Edition\s*$/.test(lines[at])) {
+    const minor = lines.findIndex((l) => l.startsWith(`## [${m[1]}.${m[2]}.0]`) && /—\s*The .+ Edition\s*$/.test(l));
+    if (minor >= 0) {at = minor;}
+  }
   const named = /—\s*(The .+ Edition)\s*$/.exec(lines[at]);
   let oneliner = null;
   for (let i = at + 1; i < lines.length && !lines[i].startsWith('## '); i++) {

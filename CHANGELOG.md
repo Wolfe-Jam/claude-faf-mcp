@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v7.2.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v7.2.1 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,11 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.2.1] - 2026-11-13
+
+### Fixed
+- **`faf_go`'s closing line no longer calls the goal and six W's "no fact in repo".** It listed them with stack slots as answers to send. Now stack slots keep that wording, and the goal and W's are "the user's to give": the line says how many suggestions `faf_go` offers from the repo, and to send only what the user confirms. Found by `/dev-notes` on the published 7.2.0.
 
 ## [7.2.0] - 2026-11-13 — The Human Slots Edition
 
