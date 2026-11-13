@@ -197,7 +197,9 @@ describe('#15 / #28 / #29 — the home folder is refused by every writer, before
       `await step('after', async () => p.e.getWorkingDirectory());`,
     ], probeConfig);
 
-    for (const key of ['go', 'sync', 'syncBare', 'autoBare', 'etch', 'tri', 'agents', 'human', 'readme', 'git', 'context', 'autoHome']) {
+    // faf_readme is a reader since faf-cli 8.10.0 (#167): it is not refused as a writer;
+    // the snapshot check below still holds HOME unchanged.
+    for (const key of ['go', 'sync', 'syncBare', 'autoBare', 'etch', 'tri', 'agents', 'human', 'git', 'context', 'autoHome']) {
       expect(`${key}: ${out[key]?.isError}`).toBe(`${key}: true`);
       expect(`${key}: ${out[key]?.text}`).toContain('your home folder (or the filesystem root)');
     }

@@ -216,13 +216,13 @@
   },
   {
    "name": "faf_readme",
-   "description": "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.",
+   "description": "Suggest the goal and the 6 Ws (Who/What/Why/Where/When/How) from README.md, package.json and Cargo.toml with faf-cli's suggestIntent: each with its source, for the user to confirm. These are human slots: nothing is written here. Confirmed text goes in with faf_go answers.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "apply": {
       "type": "boolean",
-      "description": "Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written."
+      "description": "Accepted for compatibility. Since faf-cli 8.10.0 the goal and 6 Ws are confirmed by a person, so nothing is written either way: confirm each suggestion with the user, then pass it to faf_go answers."
      },
      "path": {
       "type": "string",
@@ -234,7 +234,7 @@
   },
   {
    "name": "faf_human_add",
-   "description": "Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to the text you give, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once.",
+   "description": "Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to text the user has confirmed, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -300,7 +300,7 @@
   },
   {
    "name": "faf_go",
-   "description": "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {\"stack.hosting\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.",
+   "description": "The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli's score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. An empty goal or W carries faf-cli's suggestion from the repo with its `source`, for the user to confirm. With answers (slot path → the text the user confirmed, e.g. {\"human_context.why\": \"<the answer>\"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -310,7 +310,7 @@
      },
      "answers": {
       "type": "object",
-      "description": "Answers to apply: a slot path (e.g. \"project.goal\", \"human_context.why\", \"stack.database\") → the answer text. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.",
+      "description": "Answers to apply: a slot path (e.g. \"project.goal\", \"human_context.why\", \"stack.database\") → the text the user confirmed. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.",
       "additionalProperties": {
        "type": "string"
       }
@@ -415,7 +415,7 @@
   },
   {
    "name": "faf_quick",
-   "description": "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli's score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.",
+   "description": "Create a new project.faf from one line: \"name, goal, language, framework, hosting\" (name and goal required; the goal is the user's confirmed words). faf-cli detects the rest from the folder and leaves the six W's for faf_go; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli's score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.",
    "inputSchema": {
     "type": "object",
     "properties": {

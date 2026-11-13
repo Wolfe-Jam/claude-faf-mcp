@@ -54,7 +54,7 @@ human_context:
 /** The tools that write a file — each must carry readOnlyHint: false. */
 const WRITERS = [
   'faf_init', 'faf_auto', 'faf_go', 'faf_sync', 'faf_tri_sync', 'faf_setup', 'faf_etch',
-  'faf_quick', 'faf_readme', 'faf_human_add', 'faf_agents', 'faf_cursor', 'faf_gemini',
+  'faf_quick', 'faf_human_add', 'faf_agents', 'faf_cursor', 'faf_gemini',
   'faf_conductor', 'faf_git',
 ];
 
@@ -260,7 +260,7 @@ describe('🏁 WJTTC — tool schema truth', () => {
       if (diff.length > 0 && t.annotations?.readOnlyHint !== false) {
         offenders.push(`${t.name} changed files without readOnlyHint: false`);
       }
-      if (WRITERS.includes(t.name) && t.name !== 'faf_readme' && diff.length === 0) {
+      if (WRITERS.includes(t.name) && diff.length === 0) {
         offenders.push(`${t.name} was expected to write in this fixture (${r.isError ? `isError: ${firstText(r).slice(0, 120)}` : 'wrote nothing'})`);
       }
     }

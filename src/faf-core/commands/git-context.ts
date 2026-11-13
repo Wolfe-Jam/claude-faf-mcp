@@ -38,6 +38,8 @@ export interface GitContextResult {
     tier: string;
     fafContent: string;
     filePath?: string;
+    /** The repo's suggestions for the goal and 6 Ws (faf-cli 8.10.0), to confirm with faf_go answers. */
+    suggestions?: Array<{ slot: string; value: string; source: string }>;
   };
 }
 
@@ -65,7 +67,7 @@ export function cloneArgs(repoUrl: string, dir: string): string[] {
  * and the content is returned.
  */
 export async function gitContextCommand(url: string, outputDir?: string): Promise<GitContextResult> {
-  const { normalizeGitUrl, authorFafFromRepo, serializeFaf, scoreFafYaml, scoreText, safeWriteFile } = await fafCli;
+  const { normalizeGitUrl, authorFafFromRepo, serializeFaf, scoreFafYaml, scoreText, safeWriteFile, suggestIntent } = await fafCli;
 
   let repoUrl: string;
   try {
@@ -111,6 +113,15 @@ export async function gitContextCommand(url: string, outputDir?: string): Promis
     // faf-cli's `faf git` pipeline on the clone: the same .faf `faf git` writes.
     const data = authorFafFromRepo(cloneDir, { repoUrl });
     const fafContent = serializeFaf(data);
+    // faf-cli 8.10.0 leaves the goal and 6 Ws empty. Return what the repo
+    // suggests now, with sources: the clone is gone once this call returns.
+    const suggested = suggestIntent(cloneDir, data) as Record<string, { value: string; source: string }>;
+    const suggestions = Object.entries(suggested).map(([slot, s]) => ({ slot, value: s.value, source: s.source }));
+    const waiting = suggestions.length;
+    const intentNote = waiting === 0
+      ? "The goal and six W's are empty: fill them with faf_go in a clone."
+      : `The goal and six W's are empty: ${waiting} ${waiting === 1 ? 'suggestion waits' : 'suggestions wait'} in the repo, for the user to confirm with faf_go answers:\n${suggestions.map((x) => `  ${x.slot}: ${x.value}  (${x.source})`).join('\n')}`;
+
     const score = scoreFafYaml(fafContent);
 
     let filePath: string | undefined;
@@ -128,9 +139,9 @@ export async function gitContextCommand(url: string, outputDir?: string): Promis
     return {
       success: true,
       message: filePath
-        ? `Wrote ${filePath} for ${repoUrl} — faf-cli scores it ${scoreText(score)} (${score.tier.name})`
-        : `Authored project.faf for ${repoUrl} (preview, nothing written) — faf-cli scores it ${scoreText(score)} (${score.tier.name})`,
-      data: { repoUrl, score: score.score, tier: score.tier.name, fafContent, filePath },
+        ? `Wrote ${filePath} for ${repoUrl} — faf-cli scores it ${scoreText(score)} (${score.tier.name}). ${intentNote}`
+        : `Authored project.faf for ${repoUrl} (preview, nothing written) — faf-cli scores it ${scoreText(score)} (${score.tier.name}). ${intentNote}`,
+      data: { repoUrl, score: score.score, tier: score.tier.name, fafContent, filePath, suggestions },
     };
   } finally {
     // The temp folder is this call's own (mkdtemp); nothing else is in it.

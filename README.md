@@ -258,7 +258,7 @@ Every tool runs on the faf-cli this package depends on. Nothing is run from your
 |------|---------|
 | `faf` | Start here: the project, its score and the steps to 100% (reads only) |
 | `faf_quick` | Create project.faf from one line: name, goal, language, framework, hosting |
-| `faf_readme` | Read the 6Ws from README.md; `apply` fills only empty slots |
+| `faf_readme` | Suggest the goal and 6Ws from README, package.json and Cargo.toml, each with its source; writes nothing |
 | `faf_human_add` | Set one 6W slot in project.faf |
 | `faf_formats` | The formats faf-cli finds in the folder, and what faf_auto would write (dry run) |
 | `faf_git` | Author a project.faf from a repo URL (clones it with git — uses the network) |
