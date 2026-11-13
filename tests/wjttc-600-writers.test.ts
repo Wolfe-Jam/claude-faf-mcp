@@ -361,8 +361,10 @@ describe('#9 — faf_conductor export: one managed block per file, never an over
 });
 
 // ─────────────────────────────────────────────── #10 readme
-describe('#10 — faf_readme apply fills only empty slots; a no-op writes nothing', () => {
-  test('force cannot replace a hand-written 6W; comments survive; the second apply writes nothing', async () => {
+// faf-cli 8.10.0: the goal and 6 Ws are human slots. faf_readme suggests; it
+// never writes, apply or not (claude-faf-mcp#167).
+describe('#10 — faf_readme suggests and writes nothing, apply or not', () => {
+  test('force is refused; apply leaves every byte and the mtime; hand-written slots are not re-suggested', async () => {
     const dir = sandbox('readme');
     writeRepo(dir);
     const fafPath = path.join(dir, 'project.faf');
@@ -371,22 +373,14 @@ describe('#10 — faf_readme apply fills only empty slots; a no-op writes nothin
     const forced = await handler().callTool('faf_readme', { path: dir, apply: true, force: true });
     expect(forced.isError).toBe(true);
     expect(read(fafPath)).toBe(HAND_FAF);
-    const r = await handler().callTool('faf_readme', { path: dir, apply: true });
-    expect(r.isError).toBeFalsy();
-    const out = read(fafPath);
-    expectHandBytesKept(out);
-    const hc = parseYaml(out).human_context;
-    expect(hc.why).toBe('Because my manager asked for it'); // hand-written, kept
-    expect(hc.who).toBe('Platform team');                   // hand-written, kept
-    expect(hc.what).toBe('Ships widgets to Acme');          // empty → filled
-    expect(text(r)).toContain('what');
-
     past(fafPath);
     const mtime = fs.statSync(fafPath).mtimeMs;
-    const again = await handler().callTool('faf_readme', { path: dir, apply: true });
-    expect(again.isError).toBeFalsy();
-    expect(read(fafPath)).toBe(out);
+    const r = await handler().callTool('faf_readme', { path: dir, apply: true });
+    expect(r.isError).toBeFalsy();
+    expect(read(fafPath)).toBe(HAND_FAF);
     expect(fs.statSync(fafPath).mtimeMs).toBe(mtime);
+    expect(text(r)).not.toContain('Because my manager asked for it'); // hand-written, never suggested over
+    expect(text(r)).toContain('faf_go');
   });
 });
 

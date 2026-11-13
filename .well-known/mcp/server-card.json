@@ -216,13 +216,13 @@
   },
   {
    "name": "faf_readme",
-   "description": "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.",
+   "description": "Suggest the goal and the 6 Ws (Who/What/Why/Where/When/How) from README.md, package.json and Cargo.toml with faf-cli's suggestIntent: each with its source, for the user to confirm. These are human slots: nothing is written here. Confirmed text goes in with faf_go answers.",
    "inputSchema": {
     "type": "object",
     "properties": {
      "apply": {
       "type": "boolean",
-      "description": "Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written."
+      "description": "Accepted for compatibility. Since faf-cli 8.10.0 the goal and 6 Ws are confirmed by a person, so nothing is written either way: confirm each suggestion with the user, then pass it to faf_go answers."
      },
      "path": {
       "type": "string",

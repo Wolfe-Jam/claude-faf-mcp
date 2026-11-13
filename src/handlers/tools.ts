@@ -597,12 +597,12 @@ function toolList(): Tool[] {
     },
     {
       name: 'faf_readme',
-      ...hints('6Ws from README', { readOnly: false, idempotent: true }),
-      description: 'Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli\'s sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled.',
+      ...hints('6Ws from README', { readOnly: true, idempotent: true }),
+      description: 'Suggest the goal and the 6 Ws (Who/What/Why/Where/When/How) from README.md, package.json and Cargo.toml with faf-cli\'s suggestIntent: each with its source, for the user to confirm. These are human slots: nothing is written here. Confirmed text goes in with faf_go answers.',
       inputSchema: {
         type: 'object',
         properties: {
-          apply: { type: 'boolean', description: 'Fill the empty human_context slots in project.faf (default: preview only). Slots that hold a value are left as written.' },
+          apply: { type: 'boolean', description: 'Accepted for compatibility. Since faf-cli 8.10.0 the goal and 6 Ws are confirmed by a person, so nothing is written either way: confirm each suggestion with the user, then pass it to faf_go answers.' },
           path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' }
         },
         additionalProperties: false
@@ -1921,6 +1921,7 @@ export class FafToolHandler {
 
       // Pomelli-style success confirmation with path resolution info
       const pathConfirmation = formatPathConfirmation({ ...resolution, projectPath: targetDir });
+      const initNote = await this.suggestionLine(targetDir);
       const sourceExplanation = resolution.source === 'user-name'
         ? `\n\n💡 Smart resolution: "${userInput}" → ${targetDir}`
         : '';
@@ -1928,7 +1929,7 @@ export class FafToolHandler {
       return {
         content: [{
           type: 'text',
-          text: `🚀 Claude FAF Initialization:\n\n✅ ${backup ? `Replaced ${fafPath} with a fresh one (force). The previous file is kept at ${backup}` : `Created ${fafPath}`}${existing === legacyPath ? `\nℹ️ .faf is left as it was; faf reads project.faf first from now on.` : ''}\n📊 ${score.score}/100 (${score.populated}/${score.active} slots populated) — ${score.tier.name}\n${dnaLine}\n\n${pathConfirmation}${sourceExplanation}\n\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_go for human 6Ws`
+          text: `🚀 Claude FAF Initialization:\n\n✅ ${backup ? `Replaced ${fafPath} with a fresh one (force). The previous file is kept at ${backup}` : `Created ${fafPath}`}${existing === legacyPath ? `\nℹ️ .faf is left as it was; faf reads project.faf first from now on.` : ''}\n📊 ${score.score}/100 (${score.populated}/${score.active} slots populated) — ${score.tier.name}\n${dnaLine}\n\n${pathConfirmation}${sourceExplanation}\n\n🍊 Vitamin Context activated!\n⚡ FAFFLESS AI ready!${initNote ? `\n\n💡 ${initNote}` : ''}\n\n🏁 Next steps:\n  • Run faf_score for AI-readiness score\n  • Run faf_sync to create CLAUDE.md\n  • Run faf_go for human 6Ws`
         }]
       };
     } catch (error: any) {
@@ -2404,6 +2405,15 @@ HOW IT WORKS
   // NEW: Human Context Tools (v3.2.0 parity)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+  /** faf-cli's note when suggestions for the goal and 6 Ws wait (8.10.0), pointed at faf_go; '' when none. */
+  private async suggestionLine(dir: string): Promise<string> {
+    const { suggestionNote, readFaf } = await fafCli;
+    let faf: Record<string, unknown> | undefined;
+    try { faf = readFaf(pathModule.join(dir, 'project.faf')); } catch { faf = undefined; }
+    const note = suggestionNote(dir, faf);
+    return note ? note.replace("'faf go'", 'faf_go') : '';
+  }
+
   private async handleFafReadme(args: any): Promise<CallToolResult> {
     try {
       const path = await import('path');
@@ -2424,15 +2434,8 @@ HOW IT WORKS
         };
       }
 
-      // Preview: the .faf the readers use. Apply: <cwd>/project.faf exactly.
-      let fafResult: { path: string; filename: string } | null = null;
-      if (apply) {
-        const t = await this.targetFaf('faf_readme', cwd);
-        if (!t.ok) {return this.refused({ message: `📖 FAF README Extraction:\n\n❌ ${t.message}` });}
-        fafResult = { path: t.path, filename: pathModule.basename(t.path) };
-      } else {
-        fafResult = await this.findFaf(cwd);
-      }
+      // The .faf the readers use: suggestions skip slots that already hold words.
+      const fafResult: { path: string; filename: string } | null = await this.findFaf(cwd);
       if (!fafResult) {
         return {
           content: [{
@@ -2443,61 +2446,25 @@ HOW IT WORKS
         };
       }
 
-      // Extract 6 Ws — composed from faf-cli's canonical sourced extractor
-      // (README + package, no-guess). Single source; no local fork.
-      const { relentlessContext } = await fafCli;
-      const extracted = relentlessContext(cwd);
-
-      if (!apply) {
-        // Preview mode
-        let output = `📖 FAF Context Extraction (Preview)\n\n`;
-        output += `Sourced from README + package.json:\n`;
-        for (const [field, value] of Object.entries(extracted)) {
-          if (value) {
-            output += `  ${field.toUpperCase()}: ${value}\n`;
-          }
-        }
-        output += `\nThe .faf here: ${fafResult.path}`;
-        output += `\n💡 Use apply: true to fill the empty human_context slots of ${path.join(cwd, 'project.faf')}`;
-        return { content: [{ type: 'text', text: output }] };
-      }
-
-      // Apply: faf-cli's fillEmpties — only an empty slot is filled; a value
-      // the file holds (a typed none in a 6W included: the person's words) is
-      // kept. writeFaf edits the file in place (comments, key order and exact
-      // scalars kept) and writes nothing when nothing changed.
-      const { fillEmpties, writeFaf } = await fafCli;
+      // The goal and the 6 Ws are human slots (faf-cli 8.10.0): AI suggests,
+      // a person confirms. faf-cli's suggestIntent is the one gate (markup,
+      // nav rows, notices, misplaced facts rejected); nothing is written here.
+      const { suggestIntent } = await fafCli;
       const { data } = await readFafData(fafResult.path);
-      const filled = fillEmpties(data, { human_context: extracted });
-      const hcBefore = isMapping(data.human_context) ? data.human_context : {};
-      const hcAfter = isMapping(filled.human_context) ? filled.human_context : {};
-      const changed = Object.keys(hcAfter).filter((k) => {
-        const v = hcAfter[k];
-        return typeof v === 'string' && v.trim() !== '' && v !== hcBefore[k];
-      });
-      let written = false;
-      if (changed.length > 0 && (isMapping(data.human_context) || data.human_context == null)) {
-        // Only the slots fillEmpties filled are added; `data` is the object
-        // readFaf returned, so a file edited meanwhile is refused, not written over.
-        data.human_context = { ...hcBefore, ...Object.fromEntries(changed.map((k) => [k, hcAfter[k]])) };
-        try {
-          written = writeFaf(fafResult.path, data);
-        } catch (error: any) {
-          return {
-            content: [{ type: 'text', text: `📖 FAF README Extraction:\n\n❌ ${notWritten(fafResult.path, error)}` }],
-            isError: true
-          };
+      const suggestions = suggestIntent(cwd, data) as Record<string, { value: string; source: string }>;
+      const rows = Object.entries(suggestions);
+      let output = `📖 FAF README Extraction (suggestions)\n\n`;
+      if (rows.length === 0) {
+        output += `No suggestions: every empty slot in the goal and 6 Ws has nothing the repo can offer, or holds your words already.\n`;
+      } else {
+        output += `Suggested from the repo, for the user to confirm (nothing is written):\n`;
+        for (const [slot, s] of rows) {
+          output += `  ${slot}: ${s.value}  (${s.source})\n`;
         }
+        output += `\nConfirm each with the user, then call faf_go with answers (slot path → the confirmed text).`;
       }
-
-      return {
-        content: [{
-          type: 'text',
-          text: written
-            ? `📖 FAF README Extraction:\n\n✅ Filled ${changed.length} empty human_context slot(s): ${changed.join(', ')}\n📁 Updated: ${fafResult.path} (every other line kept)`
-            : `📖 FAF README Extraction:\n\n✅ Nothing to fill: every slot the README answers already holds a value. ${fafResult.path} was not changed.`
-        }]
-      };
+      output += `\nThe .faf here: ${fafResult.path}${apply ? ' (apply writes nothing: these are human slots)' : ''}`;
+      return { content: [{ type: 'text', text: output }] };
     } catch (error: any) {
       return {
         content: [{ type: 'text', text: `📖 FAF README Extraction:\n\n❌ Error: ${error.message}` }],
@@ -3018,16 +2985,24 @@ HOW IT WORKS
       }
 
       // Rows needing human input: seeded (confirm/edit the goal-fact) + empty (answer).
+      // An empty row carries faf-cli's suggestion from the repo, with its source
+      // (faf-cli 8.10.0 suggestIntent): offered to confirm, never written here.
+      const { suggestIntent } = await fafCli;
+      const repoSuggestions = suggestIntent(cwd, fafData) as Record<string, { value: string; source: string } | undefined>;
       const questions = table.rows
         .filter((r) => r.status !== 'filled')
-        .map((r) => ({
-          field: r.path,
-          question: r.question,
-          header: r.header,
-          status: r.status,                       // 'seeded' | 'empty'
-          suggested: r.seeded ? r.value : '',      // a goal-fact to accept (Tab/Enter) or edit
-          options: QUESTION_REGISTRY[r.path]?.options,
-        }));
+        .map((r) => {
+          const fromRepo = !r.seeded ? repoSuggestions[r.path] : undefined;
+          return {
+            field: r.path,
+            question: r.question,
+            header: r.header,
+            status: r.status,                       // 'seeded' | 'empty'
+            suggested: r.seeded ? r.value : (fromRepo?.value ?? ''), // to accept (Tab/Enter) or edit
+            ...(fromRepo ? { source: fromRepo.source } : {}),
+            options: QUESTION_REGISTRY[r.path]?.options,
+          };
+        });
 
       return {
         content: [{
@@ -3047,7 +3022,7 @@ HOW IT WORKS
             empty: table.emptyCount,
             questionsRemaining: questions.length,
             questions,
-            instructions: 'Present the Table-of-8. For SEEDED rows, show the `suggested` value for the human to accept (Tab/Enter) or edit — these are facts pulled from the project goal, confirm them, do not re-ask blind. For EMPTY rows, ask the question. Then call faf_go again with the answers parameter (field path → value) to apply.'
+            instructions: 'Present the Table-of-8. A row with a `suggested` value (seeded from the goal, or from the repo with its `source`) is a suggestion for the human to accept (Tab/Enter) or edit: show it with its source, do not re-ask blind, never write it unconfirmed. For EMPTY rows with no suggestion, ask the question. Then call faf_go again with the answers parameter (field path → the confirmed text) to apply.'
           }, null, 2)
         }]
       };
@@ -3417,6 +3392,8 @@ HOW IT WORKS
       : newScore >= 100
         ? `✪ 100% — your AI has the complete context.\n`
         : `${100 - newScore}% to go: faf_score (details: true) lists the empty slots; faf_go asks for what the repo cannot tell.\n`;
+    const autoNote = await this.suggestionLine(cwd);
+    if (autoNote) {output += `\n💡 ${autoNote}`;}
     output += `\n💡 Next: faf_score (details: true) | faf_go`;
 
     return { content: [{ type: 'text', text: output }], ...(claudeFailed ? { isError: true } : {}) };

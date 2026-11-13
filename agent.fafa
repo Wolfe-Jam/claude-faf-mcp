@@ -81,7 +81,7 @@ capabilities:
       - faf
   - name: faf_readme
     type: tool
-    description: "Read the 6 Ws (Who/What/Why/Where/When/How) from README.md and package.json with faf-cli's sourced extractor. Previews by default; apply: true fills only the empty human_context slots in project.faf — a value you wrote is never replaced — and lists the slots it filled."
+    description: "Suggest the goal and the 6 Ws (Who/What/Why/Where/When/How) from README.md, package.json and Cargo.toml with faf-cli's suggestIntent: each with its source, for the user to confirm. These are human slots: nothing is written here. Confirmed text goes in with faf_go answers."
     cites_spec: application/vnd.faf+yaml
     tags:
       - faf

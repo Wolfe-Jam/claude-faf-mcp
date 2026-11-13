@@ -183,15 +183,14 @@ describe('🏎️ TIER 3: Tool Integrity', () => {
   });
 
   describe('faf_readme', () => {
-    it('SHOULD: Fill empty 6W slots from README.md, and write only inside the sandbox', async () => {
+    it('SHOULD: Suggest 6W slots from README.md and write nothing (faf-cli 8.10.0: a person confirms)', async () => {
       const dir = fs.mkdtempSync(path.join(testDir, 'readme-'));
       fs.writeFileSync(path.join(dir, 'README.md'), '# Test Project\n\n## Who\nCreated by the FAF Team\n\n## Why\nTo validate MCP tools\n');
-      fs.writeFileSync(path.join(dir, 'project.faf'), 'faf_version: "3.0"\nproject:\n  name: sandbox\n');
+      const before = 'faf_version: "3.0"\nproject:\n  name: sandbox\n';
+      fs.writeFileSync(path.join(dir, 'project.faf'), before);
       const result = await handler.callTool('faf_readme', { path: dir, apply: true });
       expect(result.isError).toBeFalsy();
-      const after = fs.readFileSync(path.join(dir, 'project.faf'), 'utf-8');
-      expect(after).toContain('name: sandbox');
-      expect(after).toMatch(/who:/);
+      expect(fs.readFileSync(path.join(dir, 'project.faf'), 'utf-8')).toBe(before);
       expect(fs.readdirSync(dir).sort()).toEqual(['README.md', 'project.faf']);
     });
   });
