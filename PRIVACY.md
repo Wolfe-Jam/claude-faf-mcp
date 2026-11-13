@@ -26,7 +26,7 @@ claude-faf-mcp runs on your machine and sends nothing to FAF. Its one network us
 
 FAF only accesses files you explicitly point it to (via `path` parameters or the active project). It creates and modifies:
 
-- `project.faf` — your project's AI context (faf_init, faf_auto, faf_go, faf_quick, faf_readme, faf_human_add, faf_git)
+- `project.faf` — your project's AI context (faf_init, faf_auto, faf_go, faf_quick, faf_human_add, faf_git)
 - `project.faf.bak-<time>` — a copy of the old file, written only when you ask `faf_init` to replace it (`force: true`)
 - `.faf-dna` — the project's score lineage (faf_init writes it with a new project.faf; faf_auto and faf_go add each new score)
 - `CLAUDE.md` — Anthropic Claude instructions (via faf_sync, faf_auto and the SessionStart hook; only the faf-managed block is written)

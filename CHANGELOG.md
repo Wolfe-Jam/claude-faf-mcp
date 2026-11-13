@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- **faf-cli ^8.10.0** (was ^8.5.0, #167). faf-cli 8.10.0 no longer writes the goal or six W's: AI suggests them, a person confirms each one. `faf_init`, `faf_auto` and `faf_git` leave them empty, so a new project.faf scores lower, honestly. Files you already have are not changed.
+- **faf-cli ^8.10.0** (was ^8.5.0, #167). faf-cli 8.10.0 no longer writes the goal or six W's: AI suggests them, a person confirms each one. `faf_init`, `faf_auto` and `faf_git` leave them empty, so a new project.faf scores lower, honestly. Files you already have are not changed. Earlier versions filled these slots from the README and package.json, and some of that text is a fragment (a link row, an install line); `faf_go` answers replace it.
 - **`faf_go` offers the suggestions.** Called without answers, an empty goal or W comes with faf-cli's suggestion and where it came from (`README.md § Why`, `package.json description`). Claude shows it for you to accept or edit; only the answers passed back are written.
 - **`faf_readme` suggests and never writes.** It lists faf-cli's suggestions for the goal and six W's, each with its source. `apply: true` is still accepted and writes nothing; confirmed text goes in with `faf_go` answers. The tool is now marked read-only.
-- `faf_init` and `faf_auto` say how many suggestions are waiting; `faf_git` says the goal and six W's are empty and how many suggestions wait in the repo.
+- `faf_init` and `faf_auto` say how many suggestions are waiting, or which of the goal and six W's are still empty. `faf_git` says they are empty and returns the repo's suggestions with their sources (the clone is gone afterwards).
+- `faf_go` marks a row seeded from the goal with `source: "project.goal"`; when faf-cli also has a suggestion from the repo for it, that comes too, as `repoSuggestion`.
+- `faf_readme` works with any README faf-cli reads (`readme.md` too) and with no README at all, from package.json or Cargo.toml.
+- The server instructions name all eight human slots; `faf_go`, `faf_human_add` and `faf_quick` say they take text the user has confirmed.
 
 ### Added
 - A daily CI run of the suite against `faf-cli@latest`, so a faf-cli release that changes what a tool returns shows here first.

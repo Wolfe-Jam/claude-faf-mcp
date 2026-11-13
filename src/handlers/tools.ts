@@ -611,7 +611,7 @@ function toolList(): Tool[] {
     {
       name: 'faf_human_add',
       ...hints('Set a 6W Slot', { readOnly: false, destructive: true, idempotent: true }),
-      description: 'Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to the text you give, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once.',
+      description: 'Set one human_context slot (who, what, why, where, when or how) in <folder>/project.faf to text the user has confirmed, in place: a value already in that slot is replaced; every other line, comment and value is kept. Returns the file written. faf_go asks for all of them at once.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -701,14 +701,14 @@ function toolList(): Tool[] {
     {
       name: 'faf_go',
       ...hints('Guided Interview', { readOnly: false, destructive: true, idempotent: false }),
-      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. With answers (slot path → text, e.g. {"stack.hosting": "<the answer>"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.',
+      description: 'The human half of project.faf. Without answers it returns the Table-of-8 — project name, goal and the 6Ws (who, what, why, where, when, how) — each filled, seeded from the goal, or empty, with faf-cli\'s score and, for each slot still empty, whether it is a fact from repo (faf_auto writes it: its dry run, the one faf_formats shows) or needs an answer here. An empty goal or W carries faf-cli\'s suggestion from the repo with its `source`, for the user to confirm. With answers (slot path → the text the user confirmed, e.g. {"human_context.why": "<the answer>"}) it writes them into <folder>/project.faf in place and returns the new score; a value already in a slot you answer is replaced. With no project.faf yet it runs faf_init and faf_auto first. faf_auto writes each fact from repo; a stack slot with no fact in repo is answered here.',
       inputSchema: {
         type: 'object',
         properties: {
           path: { type: 'string', description: 'Project path. Sets session context for subsequent calls.' },
           answers: {
             type: 'object',
-            description: 'Answers to apply: a slot path (e.g. "project.goal", "human_context.why", "stack.database") → the answer text. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.',
+            description: 'Answers to apply: a slot path (e.g. "project.goal", "human_context.why", "stack.database") → the text the user confirmed. Any other key, or an answer that is not text, is refused and nothing is written. If provided, applies the answers and returns the new score.',
             additionalProperties: { type: 'string' }
           }
         },
@@ -903,7 +903,7 @@ function toolList(): Tool[] {
     {
       name: 'faf_quick',
       ...hints('Quick Create', { readOnly: false, idempotent: true }),
-      description: 'Create a new project.faf from one line: "name, goal, language, framework, hosting" (name and goal required). faf-cli detects the rest from the folder; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli\'s score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.',
+      description: 'Create a new project.faf from one line: "name, goal, language, framework, hosting" (name and goal required; the goal is the user\'s confirmed words). faf-cli detects the rest from the folder and leaves the six W\'s for faf_go; each word you give goes in the slot it names, and a framework faf cannot place is reported, not guessed. Returns the file and faf-cli\'s score. Only creates: when a project.faf (or .faf) is already there it writes nothing — use faf_auto to fill it.',
       inputSchema: {
         type: 'object',
         properties: {
@@ -2405,34 +2405,31 @@ HOW IT WORKS
   // NEW: Human Context Tools (v3.2.0 parity)
   // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-  /** faf-cli's note when suggestions for the goal and 6 Ws wait (8.10.0), pointed at faf_go; '' when none. */
+  /** What the reply says about the goal and 6 Ws (faf-cli 8.10.0): faf-cli's
+   *  note when suggestions wait, pointed at faf_go; otherwise which are still
+   *  empty; '' when all seven hold words. */
   private async suggestionLine(dir: string): Promise<string> {
-    const { suggestionNote, readFaf } = await fafCli;
+    const { suggestionNote, readFaf, isPlaceholder } = await fafCli;
     let faf: Record<string, unknown> | undefined;
     try { faf = readFaf(pathModule.join(dir, 'project.faf')); } catch { faf = undefined; }
     const note = suggestionNote(dir, faf);
-    return note ? note.replace("'faf go'", 'faf_go') : '';
+    if (note) {return note.replace("'faf go'", 'faf_go');}
+    const project = isMapping(faf?.project) ? faf.project : {};
+    const hc = isMapping(faf?.human_context) ? faf.human_context : {};
+    const values = [project.goal, ...['who', 'what', 'why', 'where', 'when', 'how'].map((w) => hc[w])];
+    const empty = values.filter((v) => v === undefined || v === null || (typeof v === 'string' && (v.trim() === '' || isPlaceholder(v)))).length;
+    if (empty === 0) {return '';}
+    if (empty === 7) {return "The goal and six W's are empty: faf_go asks for them.";}
+    return `${empty} of the goal and six W's ${empty === 1 ? 'is' : 'are'} empty: faf_go asks for ${empty === 1 ? 'it' : 'them'}.`;
   }
 
   private async handleFafReadme(args: any): Promise<CallToolResult> {
     try {
-      const path = await import('path');
       const apply = args.apply === true;
-      const r = await this.resolveDir('faf_readme', args.path, { write: apply });
+      // Read-only, apply or not (faf-cli 8.10.0): no write guard.
+      const r = await this.resolveDir('faf_readme', args.path);
       if (!r.ok) {return this.refused(r);}
       const cwd = r.dir;
-
-      // Find README.md
-      const readmePath = path.join(cwd, 'README.md');
-      if (!fs.existsSync(readmePath)) {
-        return {
-          content: [{
-            type: 'text',
-            text: `📖 FAF README Extraction:\n\n❌ No README.md found in ${cwd}\n💡 Create a README.md first`
-          }],
-          isError: true
-        };
-      }
 
       // The .faf the readers use: suggestions skip slots that already hold words.
       const fafResult: { path: string; filename: string } | null = await this.findFaf(cwd);
@@ -2992,14 +2989,17 @@ HOW IT WORKS
       const questions = table.rows
         .filter((r) => r.status !== 'filled')
         .map((r) => {
-          const fromRepo = !r.seeded ? repoSuggestions[r.path] : undefined;
+          const fromRepo = repoSuggestions[r.path];
           return {
             field: r.path,
             question: r.question,
             header: r.header,
             status: r.status,                       // 'seeded' | 'empty'
             suggested: r.seeded ? r.value : (fromRepo?.value ?? ''), // to accept (Tab/Enter) or edit
-            ...(fromRepo ? { source: fromRepo.source } : {}),
+            // Where `suggested` came from: the goal (seeded) or the repo (faf-cli).
+            ...(r.seeded ? { source: 'project.goal' } : fromRepo ? { source: fromRepo.source } : {}),
+            // A seeded row keeps the goal's seed; faf-cli's repo suggestion comes too.
+            ...(r.seeded && fromRepo && fromRepo.value !== r.value ? { repoSuggestion: { value: fromRepo.value, source: fromRepo.source } } : {}),
             options: QUESTION_REGISTRY[r.path]?.options,
           };
         });
@@ -3022,7 +3022,7 @@ HOW IT WORKS
             empty: table.emptyCount,
             questionsRemaining: questions.length,
             questions,
-            instructions: 'Present the Table-of-8. A row with a `suggested` value (seeded from the goal, or from the repo with its `source`) is a suggestion for the human to accept (Tab/Enter) or edit: show it with its source, do not re-ask blind, never write it unconfirmed. For EMPTY rows with no suggestion, ask the question. Then call faf_go again with the answers parameter (field path → the confirmed text) to apply.'
+            instructions: 'Present the Table-of-8. A row with a `suggested` value (seeded from the goal, or from the repo, with its `source`) is a suggestion for the human to accept (Tab/Enter) or edit: show it with its source, do not re-ask blind, never write it unconfirmed. A seeded row may also carry `repoSuggestion` (faf-cli\'s suggestion from the repo): offer both. For EMPTY rows with no suggestion, ask the question. Then call faf_go again with the answers parameter (field path → the confirmed text) to apply.'
           }, null, 2)
         }]
       };
@@ -3244,8 +3244,8 @@ HOW IT WORKS
    *
    * project.faf is <folder>/project.faf exactly (as `faf auto` targets it): a
    * new file is assembled with assembleFreshFaf; an existing one is filled with
-   * updateExistingFaf (existing values win; interrogated → detected →
-   * Turbo-Cat → Relentless fill only the empties; a typed none is an empty
+   * updateExistingFaf (existing values win; detected repo facts fill only
+   * the empty tech slots, never the goal or 6 Ws (faf-cli 8.10.0); a typed none is an empty
    * slot: in a tech slot the app-type uses only a repo fact replaces it, in a
    * tech slot the app-type leaves out it becomes slotignored, and a 6W keeps
    * its words) and written in place by writeFaf, which keeps comments,
