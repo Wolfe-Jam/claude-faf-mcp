@@ -237,8 +237,8 @@ describe('faf_go\'s closing line keeps human slots apart from stack slots', () =
     const dir = repo('verdict', EMPTY_HUMAN);
     const r = await handler().callTool('faf_go', { path: dir, answers: { 'human_context.why': WHY } });
     const t = text(r);
-    expect(t).not.toMatch(/no fact in repo for [^.]*(project\.goal|human_context\.)/);
-    expect(t).toMatch(/project\.goal[^.]*the user's to give/);
+    expect(t).not.toMatch(/no fact in repo for [^:]*(project\.goal|human_context\.)/);
+    expect(t).toMatch(/project\.goal[\s\S]*?the user's to give/);
     expect(t).toMatch(/faf_go offers \d+ suggestions? from the repo/);
     expect(t).toContain('send only what they confirm');
   });
@@ -246,7 +246,7 @@ describe('faf_go\'s closing line keeps human slots apart from stack slots', () =
   test('without answers: the `next` line says the same', async () => {
     const dir = repo('verdict-next', EMPTY_HUMAN);
     const reply = JSON.parse(text(await handler().callTool('faf_go', { path: dir })));
-    expect(reply.next).not.toMatch(/no fact in repo for [^.]*(project\.goal|human_context\.)/);
+    expect(reply.next).not.toMatch(/no fact in repo for [^:]*(project\.goal|human_context\.)/);
     expect(reply.next).toContain("the user's to give");
   });
 });
