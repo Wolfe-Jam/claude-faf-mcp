@@ -9,6 +9,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Changed
+- **faf-cli ^8.10.0** (was ^8.5.0, #167). faf-cli 8.10.0 no longer writes the goal or six W's: AI suggests them, a person confirms each one. `faf_init`, `faf_auto` and `faf_git` leave them empty, so a new project.faf scores lower, honestly. Files you already have are not changed.
+- **`faf_go` offers the suggestions.** Called without answers, an empty goal or W comes with faf-cli's suggestion and where it came from (`README.md § Why`, `package.json description`). Claude shows it for you to accept or edit; only the answers passed back are written.
+- **`faf_readme` suggests and never writes.** It lists faf-cli's suggestions for the goal and six W's, each with its source. `apply: true` is still accepted and writes nothing; confirmed text goes in with `faf_go` answers. The tool is now marked read-only.
+- `faf_init` and `faf_auto` say how many suggestions are waiting; `faf_git` says the goal and six W's are empty and how many suggestions wait in the repo.
+
+### Added
+- A daily CI run of the suite against `faf-cli@latest`, so a faf-cli release that changes what a tool returns shows here first.
+
+
 ## [7.1.0] - 2026-10-27 — The Instructions Edition
 
 **claude-faf-mcp now tells Claude how its tools fit together: server instructions in initialize (637 characters), plus faf-cli 8.5.0, which knows a skills repo when it sees one.** 523 tests.
