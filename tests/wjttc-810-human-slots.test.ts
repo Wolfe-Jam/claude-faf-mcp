@@ -197,3 +197,35 @@ describe('F8 — the other writers leave the six W\'s to a person', () => {
     }
   });
 });
+
+// ── faf_git, offline: git's url.<local>.insteadOf points the GitHub URL at a
+// repo made here (GIT_CONFIG_COUNT env, git 2.31+). No network.
+describe('faf_git leaves the goal and six W\'s empty and returns the repo\'s suggestions', () => {
+  test('acme/demo → a local fixture repo: file written with empty human slots; reply lists each suggestion with its source', async () => {
+    const { execFileSync } = await import('child_process');
+    const src = repo('git-src');
+    const git = (...a: string[]): void => { execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@t', '-c', 'commit.gpgsign=false', ...a], { cwd: src, stdio: 'ignore' }); };
+    git('init', '-q');
+    git('add', '.');
+    git('commit', '-q', '-m', 'fixture');
+    const out = sandbox('git-out');
+    const keys = ['GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0', 'GIT_CONFIG_VALUE_0'] as const;
+    const prev = keys.map((k) => process.env[k]);
+    process.env.GIT_CONFIG_COUNT = '1';
+    process.env.GIT_CONFIG_KEY_0 = `url.file://${src}.insteadOf`;
+    process.env.GIT_CONFIG_VALUE_0 = 'https://github.com/acme/demo.git';
+    try {
+      const r = await handler().callTool('faf_git', { url: 'acme/demo', path: out });
+      expect(r.isError).toBeFalsy();
+      const data = parseYaml(fs.readFileSync(path.join(out, 'project.faf'), 'utf-8'));
+      expect(data.project?.goal ?? '').toBe('');
+      for (const w of ['who', 'what', 'why', 'where', 'when', 'how']) {expect(data.human_context?.[w] ?? '').toBe('');}
+      const t = text(r);
+      expect(t).toContain("The goal and six W's are empty");
+      expect(t).toContain(TAGLINE);
+      expect(t).toContain(`human_context.why: ${WHY}  (README.md § Why)`);
+    } finally {
+      keys.forEach((k, i) => { if (prev[i] === undefined) {delete process.env[k];} else {process.env[k] = prev[i];} });
+    }
+  });
+});
