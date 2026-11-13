@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v7.1.0 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v7.2.0 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -9,7 +9,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [7.2.0] - 2026-11-13 — The Human Slots Edition
+
+**Claude suggests, you confirm. claude-faf-mcp no longer writes your project's goal or six W's: faf_go shows each suggestion with its source, and only what you confirm is written.**
 
 ### Changed
 - **faf-cli ^8.10.0** (was ^8.5.0, #167). faf-cli 8.10.0 no longer writes the goal or six W's: AI suggests them, a person confirms each one. `faf_init`, `faf_auto` and `faf_git` leave them empty, so a new project.faf scores lower, honestly. Files you already have are not changed. Earlier versions filled these slots from the README and package.json, and some of that text is a fragment (a link row, an install line); `faf_go` answers replace it.
@@ -22,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - A daily CI run of the suite against `faf-cli@latest`, so a faf-cli release that changes what a tool returns shows here first.
+
+**Compose floor:** `faf-cli ^8.10.0`. Re-runnable proof: `tests/wjttc-810-human-slots.test.ts` (faf_go, faf_readme, faf_init, faf_auto, faf_quick, a legacy `.faf`, and faf_git offline). Reviewed by Fable 5.2 before release (#168).
 
 
 ## [7.1.0] - 2026-10-27 — The Instructions Edition

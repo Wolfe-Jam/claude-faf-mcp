@@ -41,7 +41,16 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 
 ---
 
-## What's New in v7.1.0 — The Instructions Edition
+## What's New in v7.2.0 — The Human Slots Edition
+
+**Claude suggests, you confirm. claude-faf-mcp no longer writes your project's goal or six W's: faf_go shows each suggestion with its source, and only what you confirm is written.**
+
+- **Suggestions with their source.** `faf_go` offers faf-cli's suggestion for each empty goal or W, with where it came from (`README.md § Why`, `package.json description`). Claude shows it for you to accept or edit; only your answers are written.
+- **faf-cli 8.10.0 inside.** `faf_init`, `faf_auto` and `faf_git` leave the goal and six W's empty, so a new project.faf scores lower, honestly, and they say how many suggestions are waiting. Files you already have are not changed.
+- **`faf_readme` suggests and never writes**, from README, package.json or Cargo.toml. `faf_git` returns the repo's suggestions before its temporary clone is gone.
+- **CI on the faf-cli users get.** A daily run tests the server against `faf-cli@latest`.
+
+## v7.1.0 — The Instructions Edition
 
 **claude-faf-mcp now tells Claude how its tools fit together: server instructions in initialize (637 characters), plus faf-cli 8.5.0, which knows a skills repo when it sees one.**
 
@@ -114,7 +123,7 @@ human_context:
 
 ```yaml
   where: "mobile app, iOS and Android"    # where does it live?
-  when: "launch in 3 months"              # when is it shipping?
+  when: "beta since March 2026"           # what stage, and since when?
   how: "GPS matching, real-time pricing"  # how does it work?
 ```
 
@@ -128,7 +137,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-7.1.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.1.0/claude-faf-mcp-7.1.0.mcpb)
+[**⬇ Download `claude-faf-mcp-7.2.0.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.0/claude-faf-mcp-7.2.0.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 
@@ -216,7 +225,7 @@ git clone           →  a new dev's Claude is grounded before they write a line
 
 | Tier | Score | What it means |
 |------|-------|---------------|
-| ✪ **TROPHY** | 100% | Gold Code — AI is optimized |
+| ✪ **TROPHY** | 100% | AI is optimized to code |
 | ★ **GOLD** | 99%+ | Near-perfect context |
 | ◆ **SILVER** | 95%+ | Excellent |
 | ◇ **BRONZE** | 85%+ | Production ready |
@@ -240,7 +249,7 @@ Every tool runs on the faf-cli this package depends on. Nothing is run from your
 |------|---------|
 | `faf_init` | Create project.faf for a folder (faf-cli detects the stack) |
 | `faf_auto` | Fill project.faf from the repo's own files, then CLAUDE.md |
-| `faf_go` | The goal and the 6Ws, by question and answer |
+| `faf_go` | The goal and the 6Ws: suggestions from the repo, with their source, for you to confirm |
 | `faf_score` | AI-readiness score (0-100%), from faf-cli |
 | `faf_bench` | Benchmark AI grounding — cold vs with the .faf, graded mechanically, with a receipt |
 | `faf_doctor` | Diagnose project.faf: each finding with the tool that fixes it |
@@ -259,9 +268,9 @@ Every tool runs on the faf-cli this package depends on. Nothing is run from your
 | `faf` | Start here: the project, its score and the steps to 100% (reads only) |
 | `faf_quick` | Create project.faf from one line: name, goal, language, framework, hosting |
 | `faf_readme` | Suggest the goal and 6Ws from README, package.json and Cargo.toml, each with its source; writes nothing |
-| `faf_human_add` | Set one 6W slot in project.faf |
+| `faf_human_add` | Set one 6W slot in project.faf to text you confirmed |
 | `faf_formats` | The formats faf-cli finds in the folder, and what faf_auto would write (dry run) |
-| `faf_git` | Author a project.faf from a repo URL (clones it with git — uses the network) |
+| `faf_git` | Author a project.faf from a repo URL (clones it with git — uses the network); the goal and 6Ws stay empty, and the repo's suggestions are returned |
 | `faf_check` | faf-cli's validateFaf and the state of every slot |
 | `faf_dna` | The project's .faf-dna lineage (reads only) |
 | `faf_status` | Whether the project has a .faf, with its first lines |
