@@ -2,7 +2,7 @@ faf_version: 2.5.0
 project:
   name: claude-faf-mcp
   title: Claude FAF
-  version: 7.1.0
+  version: 7.2.0
   goal: Persistent project context for Claude — define once, never re-explain
   main_language: TypeScript
   type: mcp
@@ -33,8 +33,8 @@ human_context:
   what: Persistent project-context MCP server
   why: Define once, never re-explain
   where: npm, Claude, MCP registry
-  when: Every coding session
-  how: One-click .mcpb install
+  when: Production since September 2025; built on faf-cli since May 2026
+  how: "Composes faf-cli: detection, scoring and writes come from faf-cli, served as MCP tools over stdio"
 monorepo:
   packages_count: slotignored
   build_orchestrator: slotignored
