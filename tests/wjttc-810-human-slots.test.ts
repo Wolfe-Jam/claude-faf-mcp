@@ -229,3 +229,24 @@ describe('faf_git leaves the goal and six W\'s empty and returns the repo\'s sug
     }
   });
 });
+
+// ── /dev-notes 7.2.0: the faf_go closing line still called the goal and W's
+// "no fact in repo" and listed them as answers to send, unconfirmed.
+describe('faf_go\'s closing line keeps human slots apart from stack slots', () => {
+  test('after an answer: the goal and W\'s are the user\'s to give, with the suggestion count; no "no fact in repo" for them', async () => {
+    const dir = repo('verdict', EMPTY_HUMAN);
+    const r = await handler().callTool('faf_go', { path: dir, answers: { 'human_context.why': WHY } });
+    const t = text(r);
+    expect(t).not.toMatch(/no fact in repo for [^.]*(project\.goal|human_context\.)/);
+    expect(t).toMatch(/project\.goal[^.]*the user's to give/);
+    expect(t).toMatch(/faf_go offers \d+ suggestions? from the repo/);
+    expect(t).toContain('send only what they confirm');
+  });
+
+  test('without answers: the `next` line says the same', async () => {
+    const dir = repo('verdict-next', EMPTY_HUMAN);
+    const reply = JSON.parse(text(await handler().callTool('faf_go', { path: dir })));
+    expect(reply.next).not.toMatch(/no fact in repo for [^.]*(project\.goal|human_context\.)/);
+    expect(reply.next).toContain("the user's to give");
+  });
+});
