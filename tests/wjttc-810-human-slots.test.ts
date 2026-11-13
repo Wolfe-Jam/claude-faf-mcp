@@ -125,3 +125,75 @@ describe('faf_init and faf_auto say how many suggestions are waiting', () => {
     expect(text(r)).toMatch(/suggestions? for the goal and the six W's .* confirm (them|it) in faf_go/);
   });
 });
+
+// ── Review of #168 (Fable 5.2), findings F1, F2, F7, F8 ──
+
+describe('F1 — a row seeded from the goal names its source, and the repo suggestion still reaches the user', () => {
+  test('goal filled: what is seeded from it (source project.goal) and faf-cli\'s README suggestion comes too', async () => {
+    const dir = repo('go-seeded', EMPTY_HUMAN.replace('  goal: ""', '  goal: "A config parser for small Node.js apps."'));
+    const reply = JSON.parse(text(await handler().callTool('faf_go', { path: dir })));
+    const what = reply.questions.find((q: { field: string }) => q.field === 'human_context.what');
+    expect(what.status).toBe('seeded');
+    expect(what.source).toBe('project.goal');
+    expect(what.repoSuggestion?.value).toBeTruthy();
+    expect(what.repoSuggestion?.source).toBeTruthy();
+  });
+});
+
+describe('F2 — faf_readme works wherever faf-cli finds suggestions', () => {
+  test('a lowercase readme.md', async () => {
+    const d = sandbox('readme-lower');
+    fs.writeFileSync(path.join(d, 'readme.md'), `# tinyconf\n\n${TAGLINE}\n`);
+    fs.writeFileSync(path.join(d, 'project.faf'), EMPTY_HUMAN);
+    const r = await handler().callTool('faf_readme', { path: d });
+    expect(r.isError).toBeFalsy();
+    expect(text(r)).toContain(TAGLINE);
+  });
+
+  test('no README at all, only a package.json description', async () => {
+    const d = sandbox('readme-none');
+    fs.writeFileSync(path.join(d, 'package.json'), JSON.stringify({ name: 'tinyconf', version: '1.0.0', description: 'Parse small config files into typed objects' }));
+    fs.writeFileSync(path.join(d, 'project.faf'), EMPTY_HUMAN);
+    const r = await handler().callTool('faf_readme', { path: d });
+    expect(r.isError).toBeFalsy();
+    expect(text(r)).toContain('Parse small config files into typed objects');
+    expect(text(r)).toContain('package.json description');
+  });
+});
+
+describe('F7 — with nothing to suggest, faf_init and faf_auto still say the goal and six W\'s are empty', () => {
+  test('a repo with no README and no description', async () => {
+    const d = sandbox('nothing');
+    fs.writeFileSync(path.join(d, 'package.json'), JSON.stringify({ name: 'bare', version: '1.0.0' }));
+    fs.writeFileSync(path.join(d, 'index.js'), '\n');
+    const init = await handler().callTool('faf_init', { path: d });
+    expect(text(init)).toContain("The goal and six W's are empty: faf_go asks for them.");
+    const auto = await handler().callTool('faf_auto', { path: d });
+    expect(text(auto)).toContain("The goal and six W's are empty: faf_go asks for them.");
+  });
+});
+
+describe('F8 — the other writers leave the six W\'s to a person', () => {
+  test('faf_quick writes the goal it is given, and no W', async () => {
+    const d = sandbox('quick');
+    fs.writeFileSync(path.join(d, 'README.md'), `# tinyconf\n\n${TAGLINE}\n\n## Why\n\n${WHY}\n`);
+    const r = await handler().callTool('faf_quick', { path: d, input: 'tinyconf, A config parser for small Node.js apps' });
+    expect(r.isError).toBeFalsy();
+    const data = parseYaml(fs.readFileSync(path.join(d, 'project.faf'), 'utf-8'));
+    expect(data.project.goal).toBe('A config parser for small Node.js apps');
+    for (const w of ['who', 'what', 'why', 'where', 'when', 'how']) {expect(data.human_context?.[w] ?? '').toBe('');}
+  });
+
+  test('a legacy .faf through faf_auto: the goal and six W\'s stay empty', async () => {
+    const d = repo('legacy');
+    fs.writeFileSync(path.join(d, '.faf'), 'faf_version: "3.0"\nproject:\n  name: tinyconf\n');
+    const r = await handler().callTool('faf_auto', { path: d });
+    expect(r.isError).toBeFalsy();
+    const written = ['project.faf', '.faf'].map((f) => path.join(d, f)).filter((f) => fs.existsSync(f));
+    for (const f of written) {
+      const data = parseYaml(fs.readFileSync(f, 'utf-8'));
+      expect(data.project?.goal ?? '').toBe('');
+      for (const w of ['who', 'what', 'why', 'where', 'when', 'how']) {expect(data.human_context?.[w] ?? '').toBe('');}
+    }
+  });
+});
