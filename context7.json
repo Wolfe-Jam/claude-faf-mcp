@@ -1,0 +1,19 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "claude-faf-mcp",
+  "description": "MCP server for Claude Desktop and Claude Code. Keeps a project's facts (stack, goal, commands) in project.faf, an IANA-registered YAML file (application/vnd.faf+yaml), with tools to create, score and fill it, write CLAUDE.md and AGENTS.md from it, and keep project memory in soul.fafm.",
+  "excludeFolders": ["tests", "test", "test-project", "scripts", "assets", "public", "worker", ".github", ".well-known", "dist", "node_modules", "archive", "deprecated", "legacy"],
+  "excludeFiles": [
+    "CHANGELOG.md",
+    "LICENSE.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "CLAUDE.md"
+  ],
+  "includeExtensions": [".faf"],
+  "rules": [
+    "Call faf_init to create project.faf for a folder, then faf_score to see which slots are empty; faf_go suggests the goal and six W's for the user to confirm.",
+    "Treat project.faf as the source of the project's facts; faf_sync writes CLAUDE.md from it and faf_tri_sync writes faf's block into the MEMORY.md Claude Code loads.",
+    "A core set of tools is listed by default; set FAF_TOOLS=all to list the rest. Every tool is callable by name either way."
+  ]
+}
