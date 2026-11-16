@@ -494,18 +494,21 @@ describe('#54 #72 #73 #75 #77 #89 — the gates can fail, and CI runs what ships
     expect(steps('security').map((s) => s.run)).toContain('npm audit --omit=dev --audit-level=high');
   });
 
-  test('the registry workflows pin mcp-publisher and check its sha256, keep the key out of argv and interpolate no input into a script', () => {
-    for (const f of ['.github/workflows/mcp-registry-publish.yml', '.github/workflows/mcp-registry-publish-sibling.yml']) {
-      const t = read(f);
-      expect(t).not.toContain('releases/latest/download');
-      expect(t).toMatch(/MCP_PUBLISHER_VERSION: v\d+\.\d+\.\d+/);
-      expect(t).toMatch(/MCP_PUBLISHER_SHA256: [0-9a-f]{64}/);
-      expect(t).toContain('sha256sum -c -');
-      expect(t).not.toContain('--private-key');
-      expect(t).toContain('registry-login.mjs --domain faf.one');
-      const runs = (Object.values(parse(t).jobs) as any[]).flatMap((j) => j.steps.map((s: any) => s.run ?? ''));
-      for (const run of runs) {expect(run).not.toMatch(/\$\{\{\s*(inputs|secrets)\./);}
-    }
+  test('the registry workflow pins mcp-publisher and checks its sha256, holds no DNS key, hands off to the publisher and interpolates no input into a script', () => {
+    const t = read('.github/workflows/mcp-registry-publish.yml');
+    expect(t).not.toContain('releases/latest/download');
+    expect(t).toMatch(/MCP_PUBLISHER_VERSION: v\d+\.\d+\.\d+/);
+    expect(t).toMatch(/MCP_PUBLISHER_SHA256: [0-9a-f]{64}/);
+    expect(t).toContain('sha256sum -c -');
+    expect(t).not.toContain('--private-key');
+    expect(t).not.toContain('FAF_ONE_MCP_PRIVATE_KEY');
+    expect(t).toContain('gh workflow run publish.yml -R Wolfe-Jam/mcp-registry-publisher');
+    expect(t).toContain('GH_TOKEN: ${{ secrets.REGISTRY_PUBLISHER_DISPATCH_TOKEN }}');
+    const runs = (Object.values(parse(t).jobs) as any[]).flatMap((j) => j.steps.map((s: any) => s.run ?? ''));
+    for (const run of runs) {expect(run).not.toMatch(/\$\{\{\s*(inputs|secrets)\./);}
+    // the key lives only in mcp-registry-publisher: no workflow here copies it or publishes a sibling with it
+    expect(fs.existsSync(path.join(ROOT, '.github/workflows/copy-registry-key-to-sibling.yml'))).toBe(false);
+    expect(fs.existsSync(path.join(ROOT, '.github/workflows/mcp-registry-publish-sibling.yml'))).toBe(false);
     const main = parse(read('.github/workflows/mcp-registry-publish.yml')).jobs;
     expect(main.publish.needs).toBe('verify');
     expect(JSON.stringify(main.verify.steps)).toContain('verify-mcpb.mjs --file');
