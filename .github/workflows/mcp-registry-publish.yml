@@ -9,10 +9,10 @@ name: 📡 MCP Registry Publish (DNS)
 # manifest inside it must be server.json's version, and the server bundled in
 # it must start and list its tools (scripts/verify-mcpb.mjs).
 #
-# Requires repo secret FAF_ONE_MCP_PRIVATE_KEY = the ed25519 private key (64-hex)
-# whose public key is the `v=MCPv1; k=ed25519; p=...` TXT record at the faf.one
-# apex. The key reaches scripts/registry-login.mjs through the environment,
-# never a command line.
+# The faf.one DNS key is not in this repo. After its checks, the last
+# step hands off to Wolfe-Jam/mcp-registry-publisher (repo secret
+# REGISTRY_PUBLISHER_DISPATCH_TOKEN), which holds the key and publishes after
+# your approval there.
 
 on:
   release:
@@ -96,25 +96,12 @@ jobs:
           done
           echo "::error::${PKG}@${VER} is not on npm after 10 minutes: publish it, then re-run this workflow"; exit 1
 
-      - name: Login via DNS (one.faf namespace; the key from the environment)
+      - name: Hand off to mcp-registry-publisher (the key lives there; publish waits for approval)
         env:
-          MCP_PRIVATE_KEY: ${{ secrets.FAF_ONE_MCP_PRIVATE_KEY }}
-        run: node scripts/registry-login.mjs --domain faf.one
-
-      - name: Publish to MCP Registry
-        run: ./mcp-publisher publish server.json
-
-      - name: Round-trip verify (version-detail endpoint, publisher-provided receipt lives in server._meta)
+          GH_TOKEN: ${{ secrets.REGISTRY_PUBLISHER_DISPATCH_TOKEN }}
+          REPO: ${{ github.repository }}
         run: |
-          ENC=$(node -p "encodeURIComponent(require('./server.json').name)")
-          VER=$(node -p "require('./server.json').version")
-          for i in 1 2 3 4 5; do
-            OUT=$(curl -s --max-time 20 "https://registry.modelcontextprotocol.io/v0.1/servers/${ENC}/versions/${VER}" | node -e '
-              let d="";process.stdin.on("data",c=>d+=c).on("end",()=>{try{const j=JSON.parse(d);const s=j.server||{};const pp=(s._meta||{})["io.modelcontextprotocol.registry/publisher-provided"]||{};console.log((pp["one.faf/context"]?"ok":"no-ctx")+" "+(s.version||""))}catch{console.log("lag")}})')
-            case "$OUT" in
-              ok\ *) echo "✅ live + serves one.faf/context — $OUT"; exit 0;;
-              no-ctx\ *) echo "⚠️ live but no one.faf/context receipt — $OUT"; exit 0;;
-              *) echo "⏳ not consistent yet ($i/5)"; sleep 8;;
-            esac
-          done
-          echo "::warning::registry detail endpoint not consistent after retries — verify manually"
+          [ -n "$GH_TOKEN" ] || { echo "::error::REGISTRY_PUBLISHER_DISPATCH_TOKEN is not set in this repo"; exit 1; }
+          VER=$(jq -r .version server.json)
+          gh workflow run publish.yml -R Wolfe-Jam/mcp-registry-publisher -f repo="$REPO" -f tag="v$VER"
+          echo "::notice::Handed off $REPO v$VER. Approve it at https://github.com/Wolfe-Jam/mcp-registry-publisher/actions"
