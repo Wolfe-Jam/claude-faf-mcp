@@ -241,6 +241,8 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. The score is f
 
 ## MCP Tools — Core 14, 30 with `FAF_TOOLS=all`
 
+Every tool with a real call and its output: [TOOLS.md](TOOLS.md).
+
 By default claude-faf-mcp lists the Core 14 — the lifecycle tools you reach for. Set `FAF_TOOLS=all` to list the Extended tools too; every tool is callable by name either way. Retired in 6.0.0: `faf_clear`, `faf_friday`, `faf_guide` and `faf_write` (a call by name returns one line naming what to use instead), the AGENTS.md / .cursorrules / GEMINI.md / conductor imports into project.faf, and `faf_check` protect/unlock.
 
 Every tool runs on the faf-cli this package depends on. Nothing is run from your PATH.
