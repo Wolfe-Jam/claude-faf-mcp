@@ -170,11 +170,7 @@ When seeking help:
 
 ## Version Support
 
-- **Current major (6.x)**: Full support
-- **Previous major (5.x)**: Security fixes only
-- **Versions < 5.0**: No longer supported
-
-Always update to the latest version:
+Fixes and new features ship in the latest 7.x release. On an older version, update first; the issue may already be fixed:
 ```bash
 npm update -g claude-faf-mcp
 ```
