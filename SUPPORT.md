@@ -40,7 +40,7 @@ npm run build
 
 ### Usage Problems
 
-**Issue**: Low context scores (below 85%)
+**Issue**: Low context scores (below 100%)
 
 **Solution**: 
 - Run `faf_go` for human 6Ws gaps

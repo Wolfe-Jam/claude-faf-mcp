@@ -12,7 +12,7 @@
 **Home:** [faf.one/mcp](https://faf.one/mcp)
 **Site:** [claude.faf.one](https://claude.faf.one)
 
-**Persistent Project Context with Memory, looped for you.** One-click setup. 30 seconds. 🐘 Nelly Never Forgets.
+**Persistent Project Context with Memory, looped for you.** One-click setup. 🐘 Nelly Never Forgets.
 
 [![MCP Registry: one.faf/claude-faf-mcp](https://img.shields.io/badge/MCP_Registry-one.faf%2Fclaude--faf--mcp-blueviolet)](https://registry.modelcontextprotocol.io/v0.1/servers?search=one.faf%2Fclaude-faf-mcp)
 [![CI](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Wolfe-Jam/claude-faf-mcp/actions/workflows/ci.yml)
@@ -116,7 +116,7 @@ human_context:
   why: "taxis are slow, expensive, and hard to find"
 ```
 
-30 seconds. Claude builds your `project.faf` from this. Every session after, AI starts smart.
+Claude builds your `project.faf` from this. Every session after, AI starts smart.
 
 ### The 6Ws — For Optimized AI
 
