@@ -138,7 +138,7 @@ Needs Node 22 or later.
 
 ### Claude Desktop — one click
 
-[**⬇ Download `claude-faf-mcp-7.2.1.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.1/claude-faf-mcp-7.2.1.mcpb)
+[**⬇ Download `claude-faf-mcp-7.2.2.mcpb`**](https://github.com/Wolfe-Jam/claude-faf-mcp/releases/download/v7.2.2/claude-faf-mcp-7.2.2.mcpb)
 
 Open it in Claude Desktop. The extension runs the server bundled inside it (no npx, no network at start) and lists the Core 14 tools.
 

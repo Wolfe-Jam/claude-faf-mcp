@@ -1,5 +1,5 @@
 <!-- faf: claude-faf-mcp | TypeScript | mcp-server | FAF MCP server for Claude Desktop — persistent project context, Core tools composed from faf-cli -->
-<!-- faf: doc=changelog | latest=v7.2.1 | canonical=project.faf | family=FAF -->
+<!-- faf: doc=changelog | latest=v7.2.2 | canonical=project.faf | family=FAF -->
 
 # Changelog
 
@@ -8,6 +8,12 @@ All notable changes to claude-faf-mcp will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [7.2.2] - 2026-11-17
+
+### Changed
+- **`faf_init` force overwrite uses faf-cli's replace backup.** `project.faf.bak-<time>` is written by `writeFaf({ replace: true })` in faf-cli 8.10.1+ ([#238](https://github.com/Wolfe-Jam/faf-cli/issues/238)); the duplicate copy in this server is removed.
+- **faf-cli ^8.10.1** (was ^8.10.0). Compose floor for replace-time backups on `faf_init` force.
 
 ## [7.2.1] - 2026-11-13
 
