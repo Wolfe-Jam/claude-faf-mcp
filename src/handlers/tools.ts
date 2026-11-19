@@ -1891,7 +1891,7 @@ export class FafToolHandler {
       }
 
       const { assembleFreshFaf, writeFaf, readFafRaw, scoreFafYaml, FafDNAManager } = await fafCli;
-      let backup: string | null = null;
+      let backup = null as string | null; // set in a callback: keep the declared type, not the narrowed null
       writeFaf(fafPath, assembleFreshFaf(targetDir), {
         replace: force,
         onReplacedBackup: (p) => { backup = p; },
