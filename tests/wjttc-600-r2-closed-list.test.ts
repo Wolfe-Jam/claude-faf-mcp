@@ -343,10 +343,10 @@ describe('R2-7 — npm test gives each run its own TMPDIR and fails on anything 
 });
 
 // ─────────────────────────────────────────────────────────────── R2-8
-describe('R2-8 — faf-cli ^8.10.0 (always-33, skills detection, human slots suggested); no reply calls a slotignored slot N/A', () => {
-  test('package.json pins faf-cli ^8.10.0, and the faf-cli installed is 8.10.0 or later', () => {
+describe('R2-8 — faf-cli ^8.10.1 (always-33, skills detection, human slots suggested); no reply calls a slotignored slot N/A', () => {
+  test('package.json pins faf-cli ^8.10.1, and the faf-cli installed is 8.10.1 or later', () => {
     const pkg = JSON.parse(read(path.join(ROOT, 'package.json')));
-    expect(pkg.dependencies['faf-cli']).toBe('^8.10.0');
+    expect(pkg.dependencies['faf-cli']).toBe('^8.10.1');
     const [major, minor] = String(bundledFafCliVersion()).split('.').map((n) => parseInt(n, 10));
     expect(major).toBe(8); // the always-33 engine
     expect(minor).toBeGreaterThanOrEqual(10); // 8.5.0 detects skills repos; 8.10.0 leaves the goal and six W's to a person (suggestIntent)

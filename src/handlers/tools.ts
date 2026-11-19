@@ -1864,7 +1864,7 @@ export class FafToolHandler {
       // An existing file is the user's. writeFaf merges into a file that is
       // there — the fresh render's values over the file's — so without force
       // faf_init writes nothing. force is the explicit overwrite (`faf init
-      // --force`: writeFaf { replace: true }), after the old bytes are kept as a backup.
+      // --force`: writeFaf { replace: true }; faf-cli keeps project.faf.bak-<time>).
       const existing = present(fafPath) ? fafPath : present(legacyPath) ? legacyPath : null;
       if (existing && !force) {
         // The user named this project: it becomes the session project, as on a write.
@@ -1890,14 +1890,12 @@ export class FafToolHandler {
         fs.mkdirSync(targetDir, { recursive: true });
       }
 
-      const { assembleFreshFaf, writeFaf, readFafRaw, scoreFafYaml, resolveInside, safeWriteFile, FafDNAManager } = await fafCli;
-      let backup: string | null = null;
-      if (force && present(fafPath)) {
-        const original = fs.readFileSync(resolveInside(targetDir, fafPath, { read: true }));
-        backup = `${fafPath}.bak-${new Date().toISOString().replace(/[:.]/g, '-')}`;
-        safeWriteFile(backup, original, { root: targetDir, expect: null });
-      }
-      writeFaf(fafPath, assembleFreshFaf(targetDir), { replace: force });
+      const { assembleFreshFaf, writeFaf, readFafRaw, scoreFafYaml, FafDNAManager } = await fafCli;
+      let backup = null as string | null; // set in a callback: keep the declared type, not the narrowed null
+      writeFaf(fafPath, assembleFreshFaf(targetDir), {
+        replace: force,
+        onReplacedBackup: (p) => { backup = p; },
+      });
       const score = scoreFafYaml(readFafRaw(fafPath));
 
       // Birth DNA — faf-cli's lineage file, only when there is none: faf never
