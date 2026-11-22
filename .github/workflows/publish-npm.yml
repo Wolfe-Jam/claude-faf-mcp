@@ -1,0 +1,82 @@
+name: 📦 npm Publish (OIDC)
+
+# Publishes claude-faf-mcp to npm through OIDC Trusted Publishing when a
+# GitHub release is published: no npm token in this repo, no 2FA prompt, and
+# npm adds a provenance statement linking the package to this workflow run.
+#
+# npm side (once, by the package owner): npmjs.com → claude-faf-mcp →
+# Settings → Trusted Publisher → GitHub Actions: Wolfe-Jam/claude-faf-mcp,
+# workflow publish-npm.yml, environment npm. The filename must match exactly.
+#
+# Order on release: this job and mcp-registry-publish.yml start together; the
+# registry job already waits (up to 10 minutes) for the version on npm.
+# If the version is already on npm (published by hand), the job stops green.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: package.json version == release tag
+        if: github.event_name == 'release'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PV=$(node -p "require('./package.json').version")
+          [ "$TAG" = "$PV" ] || { echo "::error::package.json $PV != tag $TAG"; exit 1; }
+
+      - name: Already on npm?
+        id: exists
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          if curl -sf -o /dev/null "https://registry.npmjs.org/claude-faf-mcp/${VER}"; then
+            echo "::notice::claude-faf-mcp ${VER} is already on npm; nothing to publish"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Trusted Publishing needs npm 11.5.1 or later; Node 24 ships it.
+      - uses: actions/setup-node@v7
+        if: steps.exists.outputs.skip != 'true'
+        with:
+          node-version: '24.x'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      # prepublishOnly runs build + the bun test suite + check:engines.
+      - uses: oven-sh/setup-bun@v2
+        if: steps.exists.outputs.skip != 'true'
+        with:
+          bun-version: '1.3.13'
+
+      - name: Install dependencies
+        if: steps.exists.outputs.skip != 'true'
+        run: npm ci
+
+      - name: npm publish (OIDC Trusted Publishing)
+        if: steps.exists.outputs.skip != 'true'
+        run: |
+          unset NODE_AUTH_TOKEN
+          npm publish --access public
+
+      - name: Confirm the version is on npm
+        if: steps.exists.outputs.skip != 'true'
+        run: |
+          VER=$(node -p "require('./package.json').version")
+          for i in $(seq 1 20); do
+            curl -sf -o /dev/null "https://registry.npmjs.org/claude-faf-mcp/${VER}" && { echo "npm serves claude-faf-mcp ${VER}"; exit 0; }
+            sleep 6
+          done
+          echo "::error::claude-faf-mcp ${VER} not served by npm after 2 minutes"; exit 1
