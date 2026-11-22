@@ -56,7 +56,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30   # backstop: bound the job so an --isolate epoll hang can't run unbounded
     permissions:
-      contents: write  # Required for faf-taf-git auto-commit to taf-receipts branch
+      contents: read
     strategy:
       fail-fast: false
       matrix:
@@ -80,12 +80,10 @@ jobs:
         run: npm ci
 
       - name: Run tests (bun)
-        id: tests
-        continue-on-error: true    # keep going, so a failed run still gets a receipt
         shell: bash
         run: |
           set -o pipefail
-          sh scripts/run-tests.sh --coverage --coverage-reporter=text --coverage-reporter=lcov 2>&1 | tee /tmp/test-output.txt
+          sh scripts/run-tests.sh --coverage --coverage-reporter=text --coverage-reporter=lcov 2>&1 | tee test-output.txt
 
       - name: Coverage floor (totals over src/; it only rises)
         run: node scripts/check-coverage.mjs
@@ -98,21 +96,30 @@ jobs:
           flags: unittests
           name: codecov-umbrella
 
-      - name: Write TAF Receipt
+      - name: Upload test output for the TAF receipt
         # main only: taf-receipts is main's proof over time; a dispatch on another
         # branch still runs CI but writes no receipt.
-        if: matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-        uses: Wolfe-Jam/faf-taf-git@v2.6.0
+        if: ${{ !cancelled() && matrix.os == 'ubuntu-latest' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-artifact@v7
         with:
-          test-output-file: /tmp/test-output.txt
-          auto-commit: 'true'
-          commit-message: 'chore(taf): update .taf receipt [skip ci]'
-          target-branch: taf-receipts
+          name: taf-test-output
+          path: test-output.txt
+          overwrite: true
 
-      - name: Fail the job if the tests failed
-        # the test step keeps going so a red run still gets a receipt; this keeps the job red
-        if: steps.tests.outcome == 'failure'
-        run: exit 1
+  # TAF receipt: one per push to main, red runs included (FAILED), saved to the
+  # taf-receipts branch by taf-git's receipt job, the only job that writes.
+  # test-result is the whole matrix: a red leg on any OS records FAILED.
+  receipt:
+    needs: test
+    if: ${{ !cancelled() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main' }}
+    permissions:
+      contents: write
+    uses: Wolfe-Jam/taf-git/.github/workflows/receipt.yml@v3.0.1
+    with:
+      artifact-name: taf-test-output
+      test-output-file: test-output.txt
+      test-result: ${{ needs.test.result }}
+      commit-message: 'chore(taf): update .taf receipt [skip ci]'
 
   # 🟢 Node Smoke — the server ships to Node users: build it and start the bin
   # on every Node the engines field names, on all three platforms.
