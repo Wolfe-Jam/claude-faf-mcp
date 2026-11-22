@@ -16,8 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **`faf_init` force overwrite uses faf-cli's replace backup.** `project.faf.bak-<time>` is written by `writeFaf({ replace: true })` in faf-cli 8.10.1+ ([#238](https://github.com/Wolfe-Jam/faf-cli/issues/238)); the duplicate copy in this server is removed (#177).
 - **faf-cli ^8.10.1** (was ^8.10.0). Compose floor for replace-time backups on `faf_init` force. The daily run against `faf-cli@latest` (8.11.0) is green.
-- **Docs:** the unmeasured "30 seconds" is gone from the README (#173) and the Desktop extension description; SUPPORT treats anything below 100% as low (#173); `TOOLS.md` shows every tool with a real call and its output (#174).
-- CI only (not in the package): Context7 refresh on push (#175); MCP Registry publish handed to mcp-registry-publisher (#176); faf-taf-git 2.6.0 (#164); weekly npm audit fix.
+- **Desktop extension:** bundled `hono` 4.13.19 (was 4.13.13; the weekly npm audit fix). npm installs are unaffected.
+- **Docs:** the unmeasured "30 seconds" is gone from the README (#173) and the Desktop extension description, which also drops "It never forgets" and aims its example prompt at Trophy (100%), not Gold; SUPPORT treats anything below 100% as low (#173); `TOOLS.md` shows every tool with a real call and its output (#174).
+- CI only (not in the package): Context7 refresh on push (#175); MCP Registry publish handed to mcp-registry-publisher (#176); faf-taf-git 2.6.0 (#164).
 
 ## [7.2.1] - 2026-11-13
 

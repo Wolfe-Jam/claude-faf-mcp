@@ -388,6 +388,12 @@ describe('#60 #85 #87 #88 — one install path, true self-references, working in
     expect(readme).toMatch(/not pinned/);
   });
 
+  test('no unmeasured speed or memory claims, and no example prompt aims below 100%', () => {
+    const long = (JSON.parse(read('manifest.json')) as { long_description: string }).long_description;
+    for (const text of [read('README.md'), long]) expect(text).not.toMatch(/(?<!")30 seconds/); // the claim, not a quote of its removal
+    expect(long).not.toMatch(/never forgets|score to (Gold|Silver|Bronze)/);
+  });
+
   test('project.faf names only real commands and the transport the package has; CLAUDE.md carries no BI-SYNC footer', () => {
     const faf = read('project.faf');
     expect(faf).not.toContain('faf surface');
