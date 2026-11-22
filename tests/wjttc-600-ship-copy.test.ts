@@ -520,6 +520,20 @@ describe('#54 #72 #73 #75 #77 #89 — the gates can fail, and CI runs what ships
     expect(JSON.stringify(main.verify.steps)).toContain('verify-mcpb.mjs --file');
   });
 
+  test('npm publishes through OIDC Trusted Publishing on release: no token, id-token write, environment npm, a hand publish is not re-published', () => {
+    const t = read('.github/workflows/publish-npm.yml');
+    const wf = parse(t);
+    expect(wf.on.release.types).toEqual(['published']);
+    const job = wf.jobs.publish;
+    expect(job.environment).toBe('npm');
+    expect(job.permissions['id-token']).toBe('write');
+    expect(t).not.toMatch(/NPM_TOKEN|_authToken|secrets\./);
+    expect(t).toContain('unset NODE_AUTH_TOKEN');
+    const node = job.steps.find((s: any) => String(s.uses ?? '').startsWith('actions/setup-node'));
+    expect(node.with['node-version']).toBe('24.x'); // npm 11.5.1+ for Trusted Publishing
+    expect(JSON.stringify(job.steps)).toContain('already on npm');
+  });
+
   test('registry-login signs with the key from the environment only; a bad key is refused; the key is never printed', () => {
     const key = 'c'.repeat(64);
     const script = path.join(ROOT, 'scripts', 'registry-login.mjs');
