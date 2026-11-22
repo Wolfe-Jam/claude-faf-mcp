@@ -1,7 +1,7 @@
 name: faf-cli@latest
 
 # The suite against the faf-cli a fresh install gets. package.json pins a
-# caret range (^8.10.0) and npm ci installs the lockfile's version, so the
+# caret range (^8.10.1) and npm ci installs the lockfile's version, so the
 # main CI tests one faf-cli and users can run a newer one. This job runs the
 # same suite on faf-cli@latest every day, so a faf-cli release that changes
 # what a tool returns shows here first (claude-faf-mcp#167).

@@ -50,6 +50,7 @@ Core 14 MCP tools (30 with `FAF_TOOLS=all`). IANA-registered formats (`applicati
 - **`faf_readme` suggests and never writes**, from README, package.json or Cargo.toml. `faf_git` returns the repo's suggestions before its temporary clone is gone.
 - **CI on the faf-cli users get.** A daily run tests the server against `faf-cli@latest`.
 - **7.2.1:** `faf_go`'s closing line keeps the goal and six W's apart from stack slots: they are the user's to give, never "no fact in repo".
+- **7.2.2:** `faf_init`'s force overwrite keeps its backup through faf-cli's own replace path (faf-cli ^8.10.1); the docs drop the unmeasured "30 seconds".
 
 ## v7.1.0 — The Instructions Edition
 
