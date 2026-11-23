@@ -83,7 +83,10 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          sh scripts/run-tests.sh --coverage --coverage-reporter=text --coverage-reporter=lcov 2>&1 | tee test-output.txt
+          # The output for the TAF receipt goes outside the checkout: on the epoll
+          # retry the tests stream while tee writes, and hermetic-test fails a run
+          # that changes the checkout (seen on main, 4a065c4).
+          sh scripts/run-tests.sh --coverage --coverage-reporter=text --coverage-reporter=lcov 2>&1 | tee "$RUNNER_TEMP/test-output.txt"
 
       - name: Coverage floor (totals over src/; it only rises)
         run: node scripts/check-coverage.mjs
@@ -103,7 +106,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: taf-test-output
-          path: test-output.txt
+          path: ${{ runner.temp }}/test-output.txt
           overwrite: true
 
   # TAF receipt: one per push to main, red runs included (FAILED), saved to the
