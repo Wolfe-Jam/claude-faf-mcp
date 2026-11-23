@@ -75,8 +75,8 @@ jobs:
         if: steps.exists.outputs.skip != 'true'
         run: |
           VER=$(node -p "require('./package.json').version")
-          for i in $(seq 1 20); do
+          for _ in $(seq 1 100); do
             curl -sf -o /dev/null "https://registry.npmjs.org/claude-faf-mcp/${VER}" && { echo "npm serves claude-faf-mcp ${VER}"; exit 0; }
             sleep 6
           done
-          echo "::error::claude-faf-mcp ${VER} not served by npm after 2 minutes"; exit 1
+          echo "::error::claude-faf-mcp ${VER} not served by npm after 10 minutes"; exit 1
