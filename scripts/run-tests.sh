@@ -27,7 +27,8 @@ TMP=$(mktemp -t faf-tests.XXXXXX)
 trap 'rm -f "$TMP"' EXIT
 
 if [ "$(uname)" = "Linux" ] && command -v timeout >/dev/null 2>&1; then
-  TIMEOUT="timeout 600"
+  # A normal run takes ~11 s; 120 s leaves margin and makes a hang cost 2 min, not 10.
+  TIMEOUT="timeout 120"
 else
   TIMEOUT=""
 fi
