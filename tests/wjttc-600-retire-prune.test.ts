@@ -393,7 +393,16 @@ describe('#82 — npm run dev starts a server that answers', () => {
         try { const m = JSON.parse(line); if (m.id === 1) response = m; } catch { /* partial line */ }
       }
     }
-    child.kill();
+    // Close stdin first: the stdio server exits on EOF, and EOF reaches it
+    // through npm. Killing only npm could leave the server holding the test's
+    // pipes, a likely cause of the Linux --isolate hang (11-23, 3 of 4 hangs
+    // stopped right after this test). Kill only if it is still running.
+    await child.stdin.end();
+    const exited = await Promise.race([
+      child.exited.then(() => true),
+      new Promise<boolean>((res) => setTimeout(() => res(false), 5000)),
+    ]);
+    if (!exited) child.kill();
     await child.exited;
     expect(response?.result?.serverInfo?.name).toBe('claude-faf-mcp');
   }, 45000);
