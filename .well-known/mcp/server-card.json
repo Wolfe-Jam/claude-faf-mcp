@@ -709,7 +709,7 @@
  "prompts": [
   {
    "name": "faf",
-   "description": "Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.",
+   "description": "Take a project to a verified 100% with this server's tools — score it, fill what the repo states, ask the human only for what it cannot, then verify, sync and keep it fresh. Use when the user wants project context set up, scored, improved or synced to CLAUDE.md.",
    "arguments": [
     {
      "name": "path",

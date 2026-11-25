@@ -250,6 +250,8 @@ The server ships a skill with its tools. Hosts that support the MCP Skills exten
 
 Every file is served at `skill://faf/<path>` with a sha256 digest in `skills/list`, so the host can verify what it reads. Hosts without the extension see `skill://faf/SKILL.md` as an ordinary resource.
 
+**Not in Claude Code yet.** Claude Code (2.1.331 and 2.1.332, measured 2026-11-25) asks for skills only on connections at MCP protocol `2026-07-28` or later; its debug log says `skills/list not sent: this connection is not known to use MCP protocol version 2026-07-28 or later`. This server speaks `2025-11-25`, the newest the TypeScript SDK (1.32.2) supports, so Claude Code shows the tools and the `faf` prompt but not the skill. It will load once the SDK speaks `2026-07-28`.
+
 ## MCP Tools — Core 14, 30 with `FAF_TOOLS=all`
 
 Every tool with a real call and its output: [TOOLS.md](TOOLS.md).

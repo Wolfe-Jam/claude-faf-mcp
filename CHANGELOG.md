@@ -21,6 +21,10 @@ The server ships its own skill over MCP: the `faf` skill, served with the `io.mo
 
 ### Changed
 - `files` and `pack:mcpb` ship `skills/`; `.gitignore` tracks `skills/**/*.md`.
+- **The `faf` prompt's description is the `faf` skill's description**, word for word (Claude Code shows it as `/<server>:faf`). It still said "Relentless pursuit of a verified 100% …", wording retired since; a WJTTC test now holds the two equal. The server card is regenerated.
+
+### Known
+- Claude Code (2.1.331, 2.1.332) does not load the skill yet: it sends `skills/list` only on MCP protocol `2026-07-28` connections, and this server speaks `2025-11-25` (TypeScript SDK 1.32.2, the newest). Measured with a wire log in interactive and `claude -p` sessions; see the README.
 
 ## [7.2.2] - 2026-11-22
 

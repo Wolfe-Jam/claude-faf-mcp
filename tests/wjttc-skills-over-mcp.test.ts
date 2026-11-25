@@ -25,6 +25,7 @@ import {
   FafSkillsHandler, findSkillsRoot, readFrontmatter,
   SKILLS_EXTENSION, MAX_RESOURCES_PER_SKILL, MAX_BYTES_PER_SKILL,
 } from '../src/handlers/skills.js';
+import { FAF_PROMPT_DESCRIPTION } from '../src/handlers/prompts.js';
 
 const ROOT = path.join(__dirname, '..');
 const any = z.any();
@@ -203,6 +204,15 @@ describe('Tier 2 ENGINE — the skill tells the truth about this server', () => 
   test('skill results carry resultType complete', async () => {
     expect((await req('skills/list')).resultType).toBe('complete');
     expect((await req('skills/get', { uri: 'skill://faf/SKILL.md' })).resultType).toBe('complete');
+  });
+
+  test('the faf prompt and the faf skill describe the same thing, in the same words', () => {
+    // Claude Code shows the prompt as /<server>:faf with this description; a host
+    // that loads the skill shows the skill's. Two texts for one name drift apart
+    // (the prompt said "Relentless pursuit…" after that wording was retired).
+    const skill = readFrontmatter(fs.readFileSync(path.join(ROOT, 'skills', 'faf', 'SKILL.md'), 'utf-8'));
+    expect(FAF_PROMPT_DESCRIPTION).toBe(String(skill.description));
+    expect(FAF_PROMPT_DESCRIPTION).not.toMatch(/relentless/i);
   });
 });
 

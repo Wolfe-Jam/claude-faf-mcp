@@ -21,7 +21,9 @@ const PATH_ARGUMENT = {
   required: false,
 };
 
-export const FAF_PROMPT_DESCRIPTION = 'Relentless pursuit of a verified 100% — FAF does all it can, you do only what only you can. One source of truth for every AI, every MD. FAF defines. MD instructs. AI codes.';
+// The same words as the faf skill's description (skills/faf/SKILL.md); a WJTTC
+// test holds them equal, so the prompt and the skill never describe two things.
+export const FAF_PROMPT_DESCRIPTION = 'Take a project to a verified 100% with this server\'s tools — score it, fill what the repo states, ask the human only for what it cannot, then verify, sync and keep it fresh. Use when the user wants project context set up, scored, improved or synced to CLAUDE.md.';
 export const FAF_BENCH_PROMPT_DESCRIPTION = 'Prove the .faf earns its place — run the AI-grounding benchmark honestly, in two passes (cold, then with the .faf), and report the cold→with-faf delta with its receipt. The delta is the product.';
 
 export class FafPromptHandler {
