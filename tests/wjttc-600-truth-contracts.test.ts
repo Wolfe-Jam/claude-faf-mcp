@@ -554,7 +554,8 @@ describe('#51 / #67 / #68 — arguments are checked; failures are isError; hones
 
   test('no file:// resource is listed or answered; listChanged is not advertised', async () => {
     const { resources } = await client.listResources();
-    expect(resources.map((r) => r.uri).sort()).toEqual(['claude-faf://context', 'claude-faf://status']);
+    // The two faf resources, and each shipped skill's SKILL.md (Skills over MCP).
+    expect(resources.map((r) => r.uri).sort()).toEqual(['claude-faf://context', 'claude-faf://status', 'skill://faf/SKILL.md']);
     let refused = false;
     try { await client.readResource({ uri: 'file:///etc/passwd' }); } catch { refused = true; }
     expect(refused).toBe(true);

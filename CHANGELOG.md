@@ -9,6 +9,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+The server ships its own skill over MCP: the `faf` skill, served with the `io.modelcontextprotocol/skills` extension (SEP-2640).
+
+### Added
+- **Skills over MCP.** The server declares `io.modelcontextprotocol/skills` with `directoryRead: true` and answers `skills/list`, `skills/get` and `resources/directory/read`. Each file in the package's `skills/` folder is a resource at `skill://<name>/<path>`; each listing entry carries the SKILL.md frontmatter verbatim and every file's sha256 digest and size. The catalog is read once at start, from beside the package's own package.json, never from the working directory. A malformed skill is skipped with a reason on stderr; the tools still serve.
+- **The `faf` skill** (`skills/faf/SKILL.md`, with `references/tools.md`): the score → source → ask → verify → sync → keep-fresh flow, in this server's tools only. Every `faf_*` tool it names is on the default tools/list (tested). Hosts that support Skills over MCP load it on demand.
+- `resources/list` adds `skill://faf/SKILL.md` beside the two faf resources; the server card is regenerated from the live lists.
+- `tests/wjttc-skills-over-mcp.test.ts`, WJTTC Brake, Engine and Aero — declaration, digests against the bytes served, frontmatter against the SKILL.md served, listing completeness, `-32602` / `-32002` errors, working-directory isolation, bad-skill skipping, SEP-2640 limits, packaging.
+
+### Changed
+- `files` and `pack:mcpb` ship `skills/`; `.gitignore` tracks `skills/**/*.md`.
+
 ## [7.2.2] - 2026-11-22
 
 `faf_init`'s force overwrite keeps its backup through faf-cli's own replace path (faf-cli ^8.10.1); the docs drop the unmeasured "30 seconds".

@@ -698,6 +698,12 @@
    "name": "FAF Status Summary",
    "description": "One line of text: the active project's .faf path and faf-cli's score.",
    "mimeType": "text/plain"
+  },
+  {
+   "uri": "skill://faf/SKILL.md",
+   "name": "faf",
+   "description": "Take a project to a verified 100% with this server's tools — score it, fill what the repo states, ask the human only for what it cannot, then verify, sync and keep it fresh. Use when the user wants project context set up, scored, improved or synced to CLAUDE.md.",
+   "mimeType": "text/markdown"
   }
  ],
  "prompts": [

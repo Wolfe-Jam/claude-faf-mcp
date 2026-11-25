@@ -240,6 +240,16 @@ At 55%, AI guesses half the time. At 100%, AI knows your project. The score is f
 
 ---
 
+## Skills over MCP
+
+The server ships a skill with its tools. Hosts that support the MCP Skills extension (`io.modelcontextprotocol/skills`, SEP-2640) discover it on connect and load it only when it is needed; there is nothing separate to install, and it updates with the server.
+
+| Skill | What it does |
+|---|---|
+| `faf` | Takes a project to a verified 100% with this server's tools: score, source from the repo, ask the human only for what the repo cannot say, verify, sync, keep fresh. `references/tools.md` maps each question to its tool. |
+
+Every file is served at `skill://faf/<path>` with a sha256 digest in `skills/list`, so the host can verify what it reads. Hosts without the extension see `skill://faf/SKILL.md` as an ordinary resource.
+
 ## MCP Tools — Core 14, 30 with `FAF_TOOLS=all`
 
 Every tool with a real call and its output: [TOOLS.md](TOOLS.md).

@@ -26,7 +26,7 @@
     "prepublishOnly": "npm run build && npm test && npm run check:engines",
     "postinstall": "node scripts/postinstall.js",
     "debug": "bun --inspect-brk=127.0.0.1:9229 src/index.ts",
-    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -R dist manifest.json package.json package-lock.json PRIVACY.md README.md LICENSE CHANGELOG.md .mcpb-staging/ && find .mcpb-staging/dist -name '*.map' -delete && mkdir .mcpb-staging/assets && cp -R assets/icons .mcpb-staging/assets/ && cd .mcpb-staging && npm ci --omit=dev --ignore-scripts --no-audit --no-fund && mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
+    "pack:mcpb": "npm run build && rm -rf .mcpb-staging && mkdir .mcpb-staging && cp -R dist skills manifest.json package.json package-lock.json PRIVACY.md README.md LICENSE CHANGELOG.md .mcpb-staging/ && find .mcpb-staging/dist -name '*.map' -delete && mkdir .mcpb-staging/assets && cp -R assets/icons .mcpb-staging/assets/ && cd .mcpb-staging && npm ci --omit=dev --ignore-scripts --no-audit --no-fund && mcpb pack . ../claude-faf-mcp-$(node -p \"require('./package.json').version\").mcpb && cd .. && rm -rf .mcpb-staging",
     "verify:mcpb": "node scripts/verify-mcpb.mjs",
     "gen:server-card": "node scripts/gen-server-card.js",
     "verify:fafa": "node scripts/verify-fafa.js"
@@ -109,6 +109,7 @@
     "dist/**",
     "!dist/**/*.map",
     "assets/icons/**",
+    "skills/**",
     "scripts/postinstall.js",
     "project.faf",
     "README.md",

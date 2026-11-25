@@ -129,6 +129,7 @@ project.html
 !REDDIT_POST.md
 !docs/**/*.md
 !.github/**/*.md
+!skills/**/*.md
 
 # MCP Registry tokens (sensitive)
 .mcpregistry_*

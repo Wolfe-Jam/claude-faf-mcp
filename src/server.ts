@@ -1,7 +1,9 @@
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { CallToolRequestSchema, ListResourcesRequestSchema, ListResourceTemplatesRequestSchema, ListToolsRequestSchema, ReadResourceRequestSchema, ListPromptsRequestSchema, GetPromptRequestSchema } from '@modelcontextprotocol/sdk/types.js';
+import { z } from 'zod';
 import { FafResourceHandler } from './handlers/resources';
+import { FafSkillsHandler, SKILLS_EXTENSION } from './handlers/skills';
 import { FafToolHandler } from './handlers/tools';
 import { FafPromptHandler } from './handlers/prompts';
 import { FafEngineAdapter } from './handlers/engine-adapter';
@@ -9,6 +11,22 @@ import { isError } from './utils/type-guards.js';
 import { sanitizeToolResult, quietToolList } from './utils/sanitize-output.js';
 import { VERSION } from './version';
 import { SERVER_INSTRUCTIONS } from './instructions';
+
+// The SDK has no types for the skills extension's methods; these are its
+// request shapes from SEP-2640. A cursor is accepted and ignored: the whole
+// catalog fits on one page.
+const SkillsListRequestSchema = z.object({
+  method: z.literal('skills/list'),
+  params: z.object({ cursor: z.string().optional() }).passthrough().optional(),
+});
+const SkillsGetRequestSchema = z.object({
+  method: z.literal('skills/get'),
+  params: z.object({ uri: z.string() }).passthrough(),
+});
+const DirectoryReadRequestSchema = z.object({
+  method: z.literal('resources/directory/read'),
+  params: z.object({ uri: z.string(), cursor: z.string().optional() }).passthrough(),
+});
 
 export interface ClaudeFafMcpServerConfig {
   transport: 'stdio';
@@ -23,6 +41,7 @@ export class ClaudeFafMcpServer {
   private resourceHandler: FafResourceHandler;
   private toolHandler: FafToolHandler;
   private promptHandler: FafPromptHandler;
+  private skillsHandler: FafSkillsHandler;
   private config: ClaudeFafMcpServerConfig;
 
   constructor(config: ClaudeFafMcpServerConfig) {
@@ -32,6 +51,13 @@ export class ClaudeFafMcpServer {
       cors: true,
       ...config
     };
+
+    // Skills over MCP (SEP-2640): the skills in the package's skills/ folder.
+    // The extension is declared only when there is a skill to serve.
+    this.skillsHandler = new FafSkillsHandler();
+    for (const problem of this.skillsHandler.problems) {
+      console.error(`Skill skipped: ${problem}`);
+    }
 
     this.server = new Server(
       {
@@ -54,6 +80,9 @@ export class ClaudeFafMcpServer {
           prompts: {
             listChanged: false,
           },
+          ...(this.skillsHandler.hasSkills()
+            ? { extensions: { [SKILLS_EXTENSION]: { directoryRead: true } } }
+            : {}),
         },
         instructions: SERVER_INSTRUCTIONS,
       }
@@ -77,12 +106,30 @@ export class ClaudeFafMcpServer {
   private setupHandlers(): void {
     // Resource handlers
     this.server.setRequestHandler(ListResourcesRequestSchema, async () => {
-      return this.resourceHandler.listResources();
+      const { resources } = this.resourceHandler.listResources();
+      return { resources: [...resources, ...this.skillsHandler.listResources()] };
     });
 
     this.server.setRequestHandler(ReadResourceRequestSchema, async (request) => {
-      return this.resourceHandler.readResource(request.params.uri);
+      const { uri } = request.params;
+      return this.skillsHandler.owns(uri)
+        ? this.skillsHandler.readResource(uri)
+        : this.resourceHandler.readResource(uri);
     });
+
+    // Skills over MCP (SEP-2640): skills/list, skills/get and
+    // resources/directory/read. Registered only when the extension is declared.
+    if (this.skillsHandler.hasSkills()) {
+      this.server.setRequestHandler(SkillsListRequestSchema, () => {
+        return { resultType: 'complete', ...this.skillsHandler.listSkills() };
+      });
+      this.server.setRequestHandler(SkillsGetRequestSchema, (request) => {
+        return { resultType: 'complete', ...this.skillsHandler.getSkill(request.params.uri) };
+      });
+      this.server.setRequestHandler(DirectoryReadRequestSchema, (request) => {
+        return { resultType: 'complete', ...this.skillsHandler.readDirectory(request.params.uri) };
+      });
+    }
 
     // Resource templates: none defined. The advertised `resources` capability
     // must answer this method with a valid (empty) list rather than -32601 —

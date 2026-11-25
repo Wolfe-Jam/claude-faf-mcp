@@ -282,7 +282,7 @@ describe('#79 — only live runtime dependencies', () => {
 
 describe('#80 — the npm package holds what it should', () => {
   const FILES = [
-    'dist/**', '!dist/**/*.map', 'assets/icons/**', 'scripts/postinstall.js', 'project.faf',
+    'dist/**', '!dist/**/*.map', 'assets/icons/**', 'skills/**', 'scripts/postinstall.js', 'project.faf',
     'README.md', 'CLAUDE.md', 'PRIVACY.md', 'manifest.json', 'LICENSE', 'CHANGELOG.md',
   ];
 
@@ -314,10 +314,12 @@ describe('#80 — the npm package holds what it should', () => {
     const files: string[] = (entry as { files: { path: string }[] }).files.map((f) => f.path);
     const allowed = new Set(['package.json', 'project.faf', 'scripts/postinstall.js', 'README.md', 'CLAUDE.md',
       'PRIVACY.md', 'manifest.json', 'LICENSE', 'CHANGELOG.md']);
-    const stray = files.filter((f) => !allowed.has(f) && !f.startsWith('assets/icons/') &&
+    // skills/: the Skills over MCP catalog the server serves at runtime.
+    const stray = files.filter((f) => !allowed.has(f) && !f.startsWith('assets/icons/') && !f.startsWith('skills/') &&
       !(f.startsWith('dist/') && !f.endsWith('.map')));
     expect(stray).toEqual([]);
     expect(files).toContain('project.faf');
+    expect(files).toContain('skills/faf/SKILL.md');
     expect(files).toContain('scripts/postinstall.js');
     expect(files).toContain('assets/icons/faf-icon-512.png'); // the manifest icon
   });
